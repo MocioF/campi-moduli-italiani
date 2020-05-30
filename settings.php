@@ -56,12 +56,6 @@ if ( GCMI_USE_FORMSIGN === true ) {
 	require_once plugin_dir_path( GCMI_PLUGIN ) . 'modules/formsign/wpcf7_formsign_formtag.php';
 }
 
-/*
-add_action( 'plugins_loaded', 'gcmi_load_textdomain' );
-function gcmi_load_textdomain() {
-	load_plugin_textdomain( 'campi-moduli-italiani', false, basename( dirname( GCMI_PLUGIN ) ) . '/languages' );
-}
-*/
 add_action( 'admin_init', 'gcmi_upgrade', 10, 0 );
 function gcmi_upgrade() {
 	$old_ver = get_option( 'gcmi_plugin_version', '0' );
