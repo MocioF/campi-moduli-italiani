@@ -16,7 +16,7 @@ class GCMI_COMUNE_WPCF7_FormTag extends GCMI_COMUNE {
 		}
 		$this->name              = sanitize_html_class( $name );
 		$this->atts              = $atts;
-		$this->comu_details      = $options['kind'];
+		$this->comu_details      = $options['comu_details'];
 		$this->use_label_element = $options['use_label_element'];
 		$this->validation_error  = $validation_error;
 	}
