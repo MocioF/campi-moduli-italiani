@@ -1,11 +1,11 @@
 === Campi per Moduli Italiani ===
 Contributors: mociofiletto
 Donate link: https://paypal.me/GiuseppeF77
-Tags: italiano, form-tag, contact form 7, contact form, form, codice fiscale, comuni italiani, firma digitale modulo
+Tags: italiano, contact form 7, codice fiscale, comuni italiani, firma digitale
 Requires at least: 4.7
 Tested up to: 5.4
 Requires PHP: 5.6
-Stable tag: 1.0
+Stable tag: 1.0.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html
 
@@ -114,8 +114,11 @@ Ancora non ci sono. :)
 
 == Changelog ==
 
+= 1.0.1 =
+* Aggiornato il text domain allo slug assegnato da wordpress
+
 = 1.0.0 =
-* Prima rilascio del plugin.
+* Primo rilascio del plugin.
 
 == Upgrade Notice ==
 

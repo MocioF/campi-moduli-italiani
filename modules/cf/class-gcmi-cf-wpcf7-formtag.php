@@ -42,14 +42,14 @@ class GCMI_CF_WPCF7_FormTag {
 			$code_units = wpcf7_count_code_units( stripslashes( $value ) );
 			if ( false !== $code_units ) {
 				if ( $code_units != 16 ) {
-					$result->invalidate( $tag, esc_html( __( 'Italian Tax Code has to be 16 characters long.', 'gcmi' ) ) );
+					$result->invalidate( $tag, esc_html( __( 'Italian Tax Code has to be 16 characters long.', 'campi-moduli-italiani' ) ) );
 				}
 			}
 
 			$cf = new CodiceFiscale();
 			$cf->SetCF( $value );
 			if ( false === $cf->GetCodiceValido() ) {
-				$result->invalidate( $tag, esc_html( __( 'Wrong Codice Fiscale. Reason: ', 'gcmi' ) ) . $cf->GetErrore() );
+				$result->invalidate( $tag, esc_html( __( 'Wrong Codice Fiscale. Reason: ', 'campi-moduli-italiani' ) ) . $cf->GetErrore() );
 			} else {
 				$gg     = $cf->GetGGNascita();
 				$mm     = $cf->GetMMNascita();
@@ -96,7 +96,7 @@ class GCMI_CF_WPCF7_FormTag {
 							}
 						}
 						if ( $parte_cognome != substr( strtoupper( $value ), 0, 3 ) ) {
-								$result->invalidate( $tag, esc_html( __( 'Tax code does not match inserted surname', 'gcmi' ) ) );
+								$result->invalidate( $tag, esc_html( __( 'Tax code does not match inserted surname', 'campi-moduli-italiani' ) ) );
 						}
 					}
 				}
@@ -133,7 +133,7 @@ class GCMI_CF_WPCF7_FormTag {
 							}
 						}
 						if ( $parte_nome != substr( strtoupper( $value ), 3, 3 ) ) {
-								$result->invalidate( $tag, esc_html( __( 'Tax code does not match inserted name', 'gcmi' ) ) );
+								$result->invalidate( $tag, esc_html( __( 'Tax code does not match inserted name', 'campi-moduli-italiani' ) ) );
 						}
 					}
 				}
@@ -164,13 +164,13 @@ class GCMI_CF_WPCF7_FormTag {
 								$norm_gender = 'F';
 								break;
 							default:
-								$err_msg = esc_html( __( 'Unexpected value in gender field', 'gcmi' ) );
-								$err_tit = esc_html( __( 'Error in submitted gender value', 'gcmi' ) );
+								$err_msg = esc_html( __( 'Unexpected value in gender field', 'campi-moduli-italiani' ) );
+								$err_tit = esc_html( __( 'Error in submitted gender value', 'campi-moduli-italiani' ) );
 								wp_die( $err_msg, $err_tit );
 						}
 
 						if ( $posted_gender != $gender ) {
-							$result->invalidate( $tag, esc_html( __( 'Tax code does not match the gender', 'gcmi' ) ) );
+							$result->invalidate( $tag, esc_html( __( 'Tax code does not match the gender', 'campi-moduli-italiani' ) ) );
 						}
 					}
 				}
@@ -190,7 +190,7 @@ class GCMI_CF_WPCF7_FormTag {
 					);
 					if ( '' != $posted_date ) {
 						if ( substr( $posted_date, 2 ) != $aa . '-' . $mm . '-' . $gg ) {
-							$result->invalidate( $tag, esc_html( __( 'Tax code does not match the date of birth', 'gcmi' ) ) );
+							$result->invalidate( $tag, esc_html( __( 'Tax code does not match the date of birth', 'campi-moduli-italiani' ) ) );
 						}
 					}
 				}
@@ -205,7 +205,7 @@ class GCMI_CF_WPCF7_FormTag {
 					);
 					if ( '' != $posted_year ) {
 						if ( substr( $posted_year, 2 ) != $aa ) {
-							$result->invalidate( $tag, esc_html( __( 'Tax code does not match the year of birth', 'gcmi' ) ) );
+							$result->invalidate( $tag, esc_html( __( 'Tax code does not match the year of birth', 'campi-moduli-italiani' ) ) );
 						}
 					}
 				}
@@ -220,7 +220,7 @@ class GCMI_CF_WPCF7_FormTag {
 					);
 					if ( '' != $posted_month ) {
 						if ( str_pad( $posted_month, 2, '0', STR_PAD_LEFT ) != $mm ) {
-							$result->invalidate( $tag, esc_html( __( 'Tax code does not match the month of birth', 'gcmi' ) ) );
+							$result->invalidate( $tag, esc_html( __( 'Tax code does not match the month of birth', 'campi-moduli-italiani' ) ) );
 						}
 					}
 				}
@@ -235,7 +235,7 @@ class GCMI_CF_WPCF7_FormTag {
 					);
 					if ( '' != $posted_day ) {
 						if ( str_pad( $posted_day, 2, '0', STR_PAD_LEFT ) != $gg ) {
-							$result->invalidate( $tag, esc_html( __( 'Tax code does not match the day of birth', 'gcmi' ) ) );
+							$result->invalidate( $tag, esc_html( __( 'Tax code does not match the day of birth', 'campi-moduli-italiani' ) ) );
 						}
 					}
 				}
@@ -250,8 +250,8 @@ class GCMI_CF_WPCF7_FormTag {
 					);
 					if ( '' != $codice_stato ) {
 						if ( ! preg_match( '/^[0-9]{3}$/', $codice_stato ) ) {
-							$err_msg = esc_html( __( 'Unexpected value in birth nation field', 'gcmi' ) );
-							$err_tit = esc_html( __( 'Error in submitted birth nation value', 'gcmi' ) );
+							$err_msg = esc_html( __( 'Unexpected value in birth nation field', 'campi-moduli-italiani' ) );
+							$err_tit = esc_html( __( 'Error in submitted birth nation value', 'campi-moduli-italiani' ) );
 							wp_die( $err_msg, $err_tit );
 						} else {
 							if ( $codice_stato != '100' ) { // 100 è il codice ISTAT per l'ITALIA
@@ -267,7 +267,7 @@ class GCMI_CF_WPCF7_FormTag {
 								$cod_AT = $wpdb->get_var( $sql );
 
 								if ( $comune != $cod_AT ) {
-									$result->invalidate( $tag, esc_html( __( 'Tax code does not match the Nation of birth', 'gcmi' ) ) );
+									$result->invalidate( $tag, esc_html( __( 'Tax code does not match the Nation of birth', 'campi-moduli-italiani' ) ) );
 								}
 							}
 						}
@@ -284,8 +284,8 @@ class GCMI_CF_WPCF7_FormTag {
 					);
 					if ( '' != $cod_comune ) {
 						if ( ! preg_match( '/^[0-9]{6}$/', $cod_comune ) ) {
-							$err_msg = esc_html( __( 'Unexpected value in birth municipality field', 'gcmi' ) );
-							$err_tit = esc_html( __( 'Error in submitted birth municipality value', 'gcmi' ) );
+							$err_msg = esc_html( __( 'Unexpected value in birth municipality field', 'campi-moduli-italiani' ) );
+							$err_tit = esc_html( __( 'Error in submitted birth municipality value', 'campi-moduli-italiani' ) );
 							wp_die( $err_msg, $err_tit );
 						} else {
 							/*
@@ -323,7 +323,7 @@ class GCMI_CF_WPCF7_FormTag {
 								if ( count( $a_results ) > 0 ) { // vecchi comuni cessati non hanno codice catastale o comunque non è stato usato per rilascio codici fiscali
 									$cod_catastale = $a_results[0];
 									if ( $cod_catastale != $comune ) {
-										$result->invalidate( $tag, esc_html( __( 'Tax code does not match the municipality of birth', 'gcmi' ) ) );
+										$result->invalidate( $tag, esc_html( __( 'Tax code does not match the municipality of birth', 'campi-moduli-italiani' ) ) );
 									}
 								}
 							}

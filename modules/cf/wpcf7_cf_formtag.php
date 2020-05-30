@@ -118,17 +118,17 @@ add_action( 'wpcf7_admin_init', 'wpcf7_add_tag_generator_gcmi_cf', 36 );
 function wpcf7_add_tag_generator_gcmi_cf() {
 	if ( class_exists( 'WPCF7_TagGenerator' ) ) {
 		$tag_generator = WPCF7_TagGenerator::get_instance();
-		$tag_generator->add( 'gcmi-cf', __( 'Insert Italian Tax Code', 'gcmi' ), 'wpcf7_tg_pane_gcmi_cf' );
+		$tag_generator->add( 'gcmi-cf', __( 'Insert Italian Tax Code', 'campi-moduli-italiani' ), 'wpcf7_tg_pane_gcmi_cf' );
 	} elseif ( function_exists( 'wpcf7_add_tag_generator' ) ) {
-		wpcf7_add_tag_generator( 'gcmi-cf', __( 'Insert Italian Tax Code', 'gcmi' ), 'wpcf7_tg_pane_gcmi_cf', 'wpcf7_tg_pane_gcmi_cf' );
+		wpcf7_add_tag_generator( 'gcmi-cf', __( 'Insert Italian Tax Code', 'campi-moduli-italiani' ), 'wpcf7_tg_pane_gcmi_cf', 'wpcf7_tg_pane_gcmi_cf' );
 	}
 }
 
 function wpcf7_tg_pane_gcmi_cf( $contact_form, $args = '' ) {
 	$args = wp_parse_args( $args, array() );
 	/* translators: %s: link to plugin page URL */
-	$description = __( 'Creates a form tag for natural person Italian tax code. To get more informations look at %s.', 'gcmi' );
-	$desc_link   = wpcf7_link( 'https://wordpress.org/plugins/campi-moduli-italiani/', __( 'the plugin page at WordPress.org', 'gcmi' ), array( 'target' => '_blank' ) );
+	$description = __( 'Creates a form tag for natural person Italian tax code. To get more informations look at %s.', 'campi-moduli-italiani' );
+	$desc_link   = wpcf7_link( 'https://wordpress.org/plugins/campi-moduli-italiani/', __( 'the plugin page at WordPress.org', 'campi-moduli-italiani' ), array( 'target' => '_blank' ) );
 	?>
 	<div class="control-box">
 		<fieldset>
@@ -158,44 +158,44 @@ function wpcf7_tg_pane_gcmi_cf( $contact_form, $args = '' ) {
 						<td><input type="text" name="id" class="idvalue oneline option" id="<?php echo esc_attr( $args['content'] . '-id' ); ?>" /></td>
 					</tr>
 					<tr>
-						<th scope="column" colspan="2"><?php echo esc_html( __( 'If you want tax code to match  form\'s others fields, please indicate the names given to these fields in the form. Tax code will be matched only against named fields (if you have just one field for born date, it is not necessary to check tax code against different fileds for day month and year of birth).', 'gcmi' ) ); ?></th>
+						<th scope="column" colspan="2"><?php echo esc_html( __( 'If you want tax code to match  form\'s others fields, please indicate the names given to these fields in the form. Tax code will be matched only against named fields (if you have just one field for born date, it is not necessary to check tax code against different fileds for day month and year of birth).', 'campi-moduli-italiani' ) ); ?></th>
 					</tr>
 
 					<tr>
-						<th scope="row"><label for="<?php echo esc_attr( $args['content'] . '-surname' ); ?>"><?php echo esc_html( __( '"name" attr of surname field', 'gcmi' ) ); ?></label></th>
+						<th scope="row"><label for="<?php echo esc_attr( $args['content'] . '-surname' ); ?>"><?php echo esc_html( __( '"name" attr of surname field', 'campi-moduli-italiani' ) ); ?></label></th>
 						<td><input type="text" name="surname-field" class="oneline option" id="<?php echo esc_attr( $args['content'] . '-surname' ); ?>" /></td>
 					</tr>
 					<tr>
-						<th scope="row"><label for="<?php echo esc_attr( $args['content'] . '-name' ); ?>"><?php echo esc_html( __( '"name" attr of name field', 'gcmi' ) ); ?></label></th>
+						<th scope="row"><label for="<?php echo esc_attr( $args['content'] . '-name' ); ?>"><?php echo esc_html( __( '"name" attr of name field', 'campi-moduli-italiani' ) ); ?></label></th>
 						<td><input type="text" name="name-field" class="oneline option" id="<?php echo esc_attr( $args['content'] . '-name' ); ?>" /></td>
 					</tr>
 
 					<tr>
-						<th scope="row"><label for="<?php echo esc_attr( $args['content'] . '-gender' ); ?>"><?php echo esc_html( __( '"name" attr of gender field', 'gcmi' ) ); ?></label></th>
+						<th scope="row"><label for="<?php echo esc_attr( $args['content'] . '-gender' ); ?>"><?php echo esc_html( __( '"name" attr of gender field', 'campi-moduli-italiani' ) ); ?></label></th>
 						<td><input type="text" name="gender-field" class="oneline option" id="<?php echo esc_attr( $args['content'] . '-gender' ); ?>" /></td>
 					</tr>
 					<tr>
-						<th scope="row"><label for="<?php echo esc_attr( $args['content'] . '-birthdate' ); ?>"><?php echo esc_html( __( '"name" attr of date of birth field', 'gcmi' ) ); ?></label></th>
+						<th scope="row"><label for="<?php echo esc_attr( $args['content'] . '-birthdate' ); ?>"><?php echo esc_html( __( '"name" attr of date of birth field', 'campi-moduli-italiani' ) ); ?></label></th>
 						<td><input type="text" name="birthdate-field" class="oneline option" id="<?php echo esc_attr( $args['content'] . '-birthdate' ); ?>" /></td>
 					</tr>
 					<tr>
-						<th scope="row"><label for="<?php echo esc_attr( $args['content'] . '-birthyear' ); ?>"><?php echo esc_html( __( '"name" attr of year of birth field', 'gcmi' ) ); ?></label></th>
+						<th scope="row"><label for="<?php echo esc_attr( $args['content'] . '-birthyear' ); ?>"><?php echo esc_html( __( '"name" attr of year of birth field', 'campi-moduli-italiani' ) ); ?></label></th>
 						<td><input type="text" name="birthyear-field" class="oneline option" id="<?php echo esc_attr( $args['content'] . '-birthyear' ); ?>" /></td>
 					</tr>
 					<tr>
-						<th scope="row"><label for="<?php echo esc_attr( $args['content'] . '-birthmonth' ); ?>"><?php echo esc_html( __( '"name" attr of month of birth field', 'gcmi' ) ); ?></label></th>
+						<th scope="row"><label for="<?php echo esc_attr( $args['content'] . '-birthmonth' ); ?>"><?php echo esc_html( __( '"name" attr of month of birth field', 'campi-moduli-italiani' ) ); ?></label></th>
 						<td><input type="text" name="birthmonth-field" class="oneline option" id="<?php echo esc_attr( $args['content'] . '-birthmonth' ); ?>" /></td>
 					</tr>
 					<tr>
-						<th scope="row"><label for="<?php echo esc_attr( $args['content'] . '-birthday' ); ?>"><?php echo esc_html( __( '"name" attr of day of birth field', 'gcmi' ) ); ?></label></th>
+						<th scope="row"><label for="<?php echo esc_attr( $args['content'] . '-birthday' ); ?>"><?php echo esc_html( __( '"name" attr of day of birth field', 'campi-moduli-italiani' ) ); ?></label></th>
 						<td><input type="text" name="birthday-field" class="oneline option" id="<?php echo esc_attr( $args['content'] . '-birthday' ); ?>" /></td>
 					</tr>
 					<tr>
-						<th scope="row"><label for="<?php echo esc_attr( $args['content'] . '-birthmunicipality' ); ?>"><?php echo esc_html( __( '"name" attr of municipality of birth field', 'gcmi' ) ); ?></label></th>
+						<th scope="row"><label for="<?php echo esc_attr( $args['content'] . '-birthmunicipality' ); ?>"><?php echo esc_html( __( '"name" attr of municipality of birth field', 'campi-moduli-italiani' ) ); ?></label></th>
 						<td><input type="text" name="birthmunicipality-field" class="oneline option" id="<?php echo esc_attr( $args['content'] . '-birthmunicipality' ); ?>" /></td>
 					</tr>
 					<tr>
-						<th scope="row"><label for="<?php echo esc_attr( $args['content'] . '-birthNation' ); ?>"><?php echo esc_html( __( '"name" attr of State/Nation of birth field', 'gcmi' ) ); ?></label></th>
+						<th scope="row"><label for="<?php echo esc_attr( $args['content'] . '-birthNation' ); ?>"><?php echo esc_html( __( '"name" attr of State/Nation of birth field', 'campi-moduli-italiani' ) ); ?></label></th>
 						<td><input type="text" name="birthnation-field" class="oneline option" id="<?php echo esc_attr( $args['content'] . '-birthnation' ); ?>" /></td>
 					</tr>
 				</tbody>

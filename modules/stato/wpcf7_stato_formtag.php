@@ -167,17 +167,17 @@ add_action( 'wpcf7_admin_init', 'wpcf7_add_tag_generator_gcmi_stato', 37 );
 function wpcf7_add_tag_generator_gcmi_stato() {
 	if ( class_exists( 'WPCF7_TagGenerator' ) ) {
 		$tag_generator = WPCF7_TagGenerator::get_instance();
-		$tag_generator->add( 'gcmi-stato', __( 'Insert a select for Nations', 'gcmi' ), 'wpcf7_tg_pane_gcmi_stato' );
+		$tag_generator->add( 'gcmi-stato', __( 'Insert a select for Nations', 'campi-moduli-italiani' ), 'wpcf7_tg_pane_gcmi_stato' );
 	} elseif ( function_exists( 'wpcf7_add_tag_generator' ) ) {
-		wpcf7_add_tag_generator( 'gcmi-stato', __( 'Insert a select for Nations', 'gcmi' ), 'wpcf7_tg_pane_gcmi_stato', 'wpcf7_tg_pane_gcmi_stato' );
+		wpcf7_add_tag_generator( 'gcmi-stato', __( 'Insert a select for Nations', 'campi-moduli-italiani' ), 'wpcf7_tg_pane_gcmi_stato', 'wpcf7_tg_pane_gcmi_stato' );
 	}
 }
 
 function wpcf7_tg_pane_gcmi_stato( $contact_form, $args = '' ) {
 	$args = wp_parse_args( $args, array() );
 	/* translators: %s: link to plugin page URL */
-	$description = __( 'Creates a select with nations %s.', 'gcmi' );
-	$desc_link   = wpcf7_link( 'https://wordpress.org/plugins/campi-moduli-italiani/', __( 'the plugin page at WordPress.org', 'gcmi' ), array( 'target' => '_blank' ) );
+	$description = __( 'Creates a select with nations %s.', 'campi-moduli-italiani' );
+	$desc_link   = wpcf7_link( 'https://wordpress.org/plugins/campi-moduli-italiani/', __( 'the plugin page at WordPress.org', 'campi-moduli-italiani' ), array( 'target' => '_blank' ) );
 	?>
 	<div class="control-box">
 		<fieldset>
@@ -203,8 +203,8 @@ function wpcf7_tg_pane_gcmi_stato( $contact_form, $args = '' ) {
 					<td>
 						<fieldset>
 						<legend class="screen-reader-text"><?php echo esc_html( __( 'Options', 'contact-form-7' ) ); ?></legend>
-						<label><input type="checkbox" name="use_continent" class="option" /> <?php echo esc_html( __( 'Split States for continents', 'gcmi' ) ); ?></label><br />
-						<label><input type="checkbox" name="only_current" class="option" /> <?php echo esc_html( __( 'Only actual States (not ceased)', 'gcmi' ) ); ?></label>
+						<label><input type="checkbox" name="use_continent" class="option" /> <?php echo esc_html( __( 'Split States for continents', 'campi-moduli-italiani' ) ); ?></label><br />
+						<label><input type="checkbox" name="only_current" class="option" /> <?php echo esc_html( __( 'Only actual States (not ceased)', 'campi-moduli-italiani' ) ); ?></label>
 						</fieldset>
 					</td>
 					</tr>

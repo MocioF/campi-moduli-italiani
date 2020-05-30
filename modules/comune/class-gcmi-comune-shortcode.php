@@ -27,23 +27,23 @@ class GCMI_COMUNE_ShortCode extends GCMI_COMUNE {
 		$regioni = $this->gcmi_start( $this->kind );
 		$MyIDs   = parent::getIDs( $this->id );
 		$uno     = '<div class="gcmi_wrap">';
-		$uno    .= '<p>' . __( 'Select a region:', 'gcmi' ) . '<br />';
+		$uno    .= '<p>' . __( 'Select a region:', 'campi-moduli-italiani' ) . '<br />';
 		$uno    .= '<select name="' . $this->name . '_IDReg" id="' . $MyIDs['reg'] . '" class = "' . $this->class . '" >';
-		$uno    .= '<option value="">' . __( 'Select...', 'gcmi' ) . '</option>';
+		$uno    .= '<option value="">' . __( 'Select...', 'campi-moduli-italiani' ) . '</option>';
 		foreach ( $regioni as $val ) {
 			$uno .= '<option value="' . $val['i_cod_regione'] . '">' . $val['i_den_regione'] . '</option>';
 		}
 		$uno .= '</select></p>';
 
-		$due  = '<p>' . __( 'Select a province:', 'gcmi' ) . '<br />';
+		$due  = '<p>' . __( 'Select a province:', 'campi-moduli-italiani' ) . '<br />';
 		$due .= '<select name="' . $this->name . '_IDPro" id="' . $MyIDs['pro'] . '" class = "' . $this->class . '">';
-		$due .= '<option value="">' . __( 'Select...', 'gcmi' ) . '</option>';
+		$due .= '<option value="">' . __( 'Select...', 'campi-moduli-italiani' ) . '</option>';
 		$due .= '</select></p>';
 
-		$tre = '<p>' . __( 'Select a municipality:', 'gcmi' ) . '<br />';
+		$tre = '<p>' . __( 'Select a municipality:', 'campi-moduli-italiani' ) . '<br />';
 
 		$tre .= '<select name="' . $this->name . '" id="' . $MyIDs['com'] . '" class = "' . $this->class . '">';
-		$tre .= '<option value="">' . __( 'Select...', 'gcmi' ) . '</option>';
+		$tre .= '<option value="">' . __( 'Select...', 'campi-moduli-italiani' ) . '</option>';
 		$tre .= '</select>';
 		if ( $this->comu_details ) {
 			$tre .= '<img src="' . plugin_dir_url( GCMI_PLUGIN ) . '/img/gcmi_info.png" width="30" height="30" id="' . $MyIDs['ico'] . '" style="vertical-align: middle; margin-top: 10px; margin-bottom: 10px; margin-right: 10px; margin-left: 10px;">';
@@ -54,7 +54,7 @@ class GCMI_COMUNE_ShortCode extends GCMI_COMUNE {
 		$quattro .= '<input class="comu_mail" type="hidden" name="' . $this->name . '_formatted" id="' . $MyIDs['form'] . '"/>';
 		$quattro .= '</div>';
 		if ( $this->comu_details ) {
-			$quattro .= '<span id="' . $MyIDs['info'] . '" title="' . __( 'Municipality details', 'gcmi' ) . '"></span>';
+			$quattro .= '<span id="' . $MyIDs['info'] . '" title="' . __( 'Municipality details', 'campi-moduli-italiani' ) . '"></span>';
 		}
 		$html = '<span class="gcmi_wrap">' . $uno . $due . $tre . $quattro . '</span>';
 		return $html;

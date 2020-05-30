@@ -2,8 +2,8 @@
 // internazionalization support
 const { __, _x, _n, _nx } = wp.i18n;
 
-var scegli               = '<option value="0">' + __( 'Select...', 'gcmi' ) + '</option>';
-var attendere            = '<option value="0">' + __( 'Wait...', 'gcmi' ) + '</option>';
+var scegli               = '<option value="0">' + __( 'Select...', 'campi-moduli-italiani' ) + '</option>';
+var attendere            = '<option value="0">' + __( 'Wait...', 'campi-moduli-italiani' ) + '</option>';
 var comune               = '';
 var provincia            = '';
 var regione              = '';
@@ -148,8 +148,8 @@ jQuery( document ).ready(
 						maxWidth: 600,
 						height: "auto",
 						minWidth: 300,
-						title: __( 'Municipality details', 'gcmi' ),
-						closeText: __( 'Close', 'gcmi' )
+						title: __( 'Municipality details', 'campi-moduli-italiani' ),
+						closeText: __( 'Close', 'campi-moduli-italiani' )
 					}
 				);
 

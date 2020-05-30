@@ -151,11 +151,11 @@ add_filter(
 
 		$replaced = sprintf(
 			$rpld,
-			esc_html( __( 'Form ID', 'gcmi' ) ),
+			esc_html( __( 'Form ID', 'campi-moduli-italiani' ) ),
 			$contact_form->id(),
-			esc_html( __( 'Hash', 'gcmi' ) ),
+			esc_html( __( 'Hash', 'campi-moduli-italiani' ) ),
 			$hash,
-			esc_html( __( 'Signature', 'gcmi' ) ),
+			esc_html( __( 'Signature', 'campi-moduli-italiani' ) ),
 			base64_encode( $signature )
 		);
 
@@ -186,7 +186,7 @@ function formsign_enqueue_flamingo_admin_script() {
 	if ( is_object( $screen ) ) {
 		/* change path if move the code to admin area in plugin */
 		wp_register_script( 'formsign_flamingo', plugins_url( GCMI_PLUGIN_NAME ) . '/admin/js/formsign.js', array( 'jquery', 'wp-i18n' ), '', true );
-		wp_set_script_translations( 'formsign_flamingo', 'gcmi', GCMI_PLUGIN_DIR . '/languages' );
+		wp_set_script_translations( 'formsign_flamingo', 'campi-moduli-italiani', GCMI_PLUGIN_DIR . '/languages' );
 		wp_enqueue_script( 'formsign_flamingo' );
 		wp_localize_script(
 			'formsign_flamingo',
@@ -201,7 +201,7 @@ function formsign_enqueue_flamingo_admin_script() {
 function gcmi_flamingo_check_sign() {
 	add_meta_box(
 		'checksignature',
-		__( 'Check signature and hash', 'gcmi' ),
+		__( 'Check signature and hash', 'campi-moduli-italiani' ),
 		'gcmi_flamingo_formsig_meta_box',
 		null,
 		'side',
@@ -213,12 +213,12 @@ function gcmi_flamingo_formsig_meta_box( $post ) {
 	$serialized = serialize( $post->fields );
 	$hash       = md5( $serialized );
 	?>
-	<p><label for="form_ID"><?php echo esc_html( __( 'Insert/Paste Form ID from mail', 'gcmi' ) ); ?></label><input type="text" name="form_ID" id="gcmi_flamingo_input_form_ID" /></p>
-	<p><label for="mail_hash"><?php echo esc_html( __( 'Insert/Paste hash from mail', 'gcmi' ) ); ?></label><input type="text" name="mail_hash" id="gcmi_flamingo_input_hash" minlength="32" maxlength="32"/></p>
-	<p><label><?php echo esc_html( __( 'Insert/Paste signature from mail', 'gcmi' ) ); ?></label><input type="text" name="mail_signature" id="gcmi_flamingo_input_signature" /></p>
+	<p><label for="form_ID"><?php echo esc_html( __( 'Insert/Paste Form ID from mail', 'campi-moduli-italiani' ) ); ?></label><input type="text" name="form_ID" id="gcmi_flamingo_input_form_ID" /></p>
+	<p><label for="mail_hash"><?php echo esc_html( __( 'Insert/Paste hash from mail', 'campi-moduli-italiani' ) ); ?></label><input type="text" name="mail_hash" id="gcmi_flamingo_input_hash" minlength="32" maxlength="32"/></p>
+	<p><label><?php echo esc_html( __( 'Insert/Paste signature from mail', 'campi-moduli-italiani' ) ); ?></label><input type="text" name="mail_signature" id="gcmi_flamingo_input_signature" /></p>
 	<input type="hidden" id="gcmi_flamingo_calc_hash" value="<?php echo ( $hash ); ?>">
 	<div class="gcmi-flamingo-response" id="gcmi-flamingo-response"></div>
-	<p><input type="button" class="button input.submit button-secondary"value="<?php echo esc_html( __( 'Check Hash and signature', 'gcmi' ) ); ?>" id="gcmi_btn_check_sign"></p>
+	<p><input type="button" class="button input.submit button-secondary"value="<?php echo esc_html( __( 'Check Hash and signature', 'campi-moduli-italiani' ) ); ?>" id="gcmi_btn_check_sign"></p>
 	
 	<?php
 }

@@ -34,8 +34,8 @@ function gcmi_admin_menu() {
 	do_action( 'gcmi_admin_menu' );
 
 	add_menu_page(
-		__( 'Italian forms fields', 'gcmi' ),
-		__( 'Italian forms fields', 'gcmi' )
+		__( 'Italian forms fields', 'campi-moduli-italiani' ),
+		__( 'Italian forms fields', 'campi-moduli-italiani' )
 		. gcmi_admin_menu_change_notice( 'gcmi' ),
 		'update_plugins',
 		'gcmi',
@@ -46,8 +46,8 @@ function gcmi_admin_menu() {
 
 	$edit = add_submenu_page(
 		'gcmi', // parent slug.
-		__( 'Management of Italian form fields db tables', 'gcmi' ), // page title.
-		__( 'Italian municipalities DB', 'gcmi' )
+		__( 'Management of Italian form fields db tables', 'campi-moduli-italiani' ), // page title.
+		__( 'Italian municipalities DB', 'campi-moduli-italiani' )
 		. gcmi_admin_menu_change_notice( 'gcmi' ), // menu title.
 		'update_plugins',
 		'gcmi', // capability e menu_slug.
@@ -58,8 +58,8 @@ function gcmi_admin_menu() {
 
 	/*
 	add_submenu_page( 'gcmi', // parent slug
-	__( 'page title', 'gcmi' ), // page title
-	__( 'menu title', 'gcmi' )
+	__( 'page title', 'campi-moduli-italiani' ), // page title
+	__( 'menu title', 'campi-moduli-italiani' )
 		. gcmi_admin_menu_change_notice( 'gcmi' ), //menu title
 	'update_plugins', 'gcmi', // capability e menu_slug
 	'callable' ); // callable
@@ -82,7 +82,7 @@ function gcmi_load_contact_form_admin() {
  * Crea la pagina di admin per aggiornamento tabelle
  */
 function gcmi_admin_update_db() {
-	echo '<h1>' . esc_html( __( 'Management of Italian municipalities database.', 'gcmi' ) ) . '</h1>';
+	echo '<h1>' . esc_html( __( 'Management of Italian municipalities database.', 'campi-moduli-italiani' ) ) . '</h1>';
 	echo '<form id="gcmi_update_db" method="post">';
 	echo '<div class="wrap" id="gcmi_data_update">';
 
@@ -153,7 +153,7 @@ function gcmi_get_remote_file_timestamp( $remote_file_URL ) {
  */
 function gcmi_convert_timestamp( $timestamp ) {
 	/* translators: enter a format string valid for a date and time value according to the local standard using characters recognized by the php date () function (https://www.php.net/manual/en/function.date.php) */
-	$format         = __( 'Y/m/d g:i:s a', 'gcmi' );
+	$format         = __( 'Y/m/d g:i:s a', 'campi-moduli-italiani' );
 	$formatted_date = wp_date( $format, $timestamp );
 	return $formatted_date;
 }
@@ -164,7 +164,7 @@ function gcmi_convert_timestamp( $timestamp ) {
  * @param string $string a date string in $format format to be converted to timestamp.
  */
 function gcmi_convert_datestring( $string ) {
-	$format   = __( 'Y/m/d g:i:s a', 'gcmi' );
+	$format   = __( 'Y/m/d g:i:s a', 'campi-moduli-italiani' );
 	$datetime = DateTime::createFromFormat( $format, $string );
 	return $datetime->getTimestamp();
 }
@@ -209,7 +209,7 @@ function gcmi_admin_enqueue_scripts( $hook_suffix ) {
 		'all'
 	);
 
-	if ( false === strpos( $hook_suffix, 'gcmi' ) ) {
+	if ( false === strpos( $hook_suffix, 'campi-moduli-italiani' ) ) {
 		return;
 	}
 	wp_enqueue_script(
@@ -255,8 +255,8 @@ function gcmi_update_table( $fname ) {
 	}
 	$i = null;
 	if ( ! $download_temp_dir = GCMI_Activator::make_tmp_dwld_dir() ) {
-		$error_title   = __( 'Error creating download directory', 'gcmi' );
-		$error_message = __( 'Unable to create temporary download directory', 'gcmi' );
+		$error_title   = __( 'Error creating download directory', 'campi-moduli-italiani' );
+		$error_message = __( 'Unable to create temporary download directory', 'campi-moduli-italiani' );
 		wp_die( $error_message, $error_title );
 	}
 	if (
@@ -269,9 +269,9 @@ function gcmi_update_table( $fname ) {
 			$database_file_info[ $id ]['downd_name']
 		)
 		   ) {
-			$error_title = __( 'Remote file download error', 'gcmi' );
+			$error_title = __( 'Remote file download error', 'campi-moduli-italiani' );
 			/* translators: %s: the URL of the file it attempted to download */
-			$error_message = sprintf( __( 'Could not download %s', 'gcmi' ), $database_file_info[ $id ]['remote_URL'] );
+			$error_message = sprintf( __( 'Could not download %s', 'campi-moduli-italiani' ), $database_file_info[ $id ]['remote_URL'] );
 			wp_die( $error_message, $error_title );
 		}
 	}
@@ -290,10 +290,10 @@ function gcmi_update_table( $fname ) {
 			$database_file_info[ $id ]['featured_csv']
 		)
 		   ) {
-			$error_title = __( 'Zip archive extraction error', 'gcmi' );
+			$error_title = __( 'Zip archive extraction error', 'campi-moduli-italiani' );
 
 			/* Translators: %1$s: the local name of the csv it tried to extract from the zip archive; %2$s: the full local path of the downloaded zip archive */
-			$error_message = sprintf( __( 'Unable to extract %1$s from %2$s', 'gcmi' ), $database_file_info[ $id ]['featured_csv'], $pathtozip );
+			$error_message = sprintf( __( 'Unable to extract %1$s from %2$s', 'campi-moduli-italiani' ), $database_file_info[ $id ]['featured_csv'], $pathtozip );
 			wp_die( $error_message, $error_title );
 		}
 	}
@@ -303,8 +303,8 @@ function gcmi_update_table( $fname ) {
 			$database_file_info[ $id ]['name']
 		)
 			) {
-			$error_title   = __( 'Grab html data error', 'gcmi' );
-			$error_message = sprintf( __( 'Unable to grab data from %s', 'gcmi' ), $database_file_info[ $id ]['remote_URL'] );
+			$error_title   = __( 'Grab html data error', 'campi-moduli-italiani' );
+			$error_message = sprintf( __( 'Unable to grab data from %s', 'campi-moduli-italiani' ), $database_file_info[ $id ]['remote_URL'] );
 			wp_die( $error_message, $error_title );
 		}
 	}
@@ -319,7 +319,7 @@ function gcmi_update_table( $fname ) {
 		$tmp_table_name
 	);
 	if ( '' !== $wpdb->last_error ) { // qualcosa e' andato storto.
-		$error_title   = __( 'Error in inserting data into the database', 'gcmi' );
+		$error_title   = __( 'Error in inserting data into the database', 'campi-moduli-italiani' );
 		$str           = htmlspecialchars( print_r( $wpdb->last_result, true ), ENT_QUOTES );
 		$query         = htmlspecialchars( $wpdb->last_query, ENT_QUOTES );
 		$error_message = "[ $str ] <code>$query</code>";

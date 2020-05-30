@@ -20,11 +20,11 @@ class Remote_Files_List extends WP_List_Table {
 	function get_columns() {
 		$columns = array(
 			'cb'         => '<input type="checkbox" />',
-			'dataname'   => __( 'Data', 'gcmi' ),
-			'icon'       => __( 'Status', 'gcmi' ),
-			'remotedate' => __( 'Last modified date of remote file', 'gcmi' ),
-			'localdate'  => __( 'Database update date', 'gcmi' ),
-			'dataURL'    => __( 'URL', 'gcmi' ),
+			'dataname'   => __( 'Data', 'campi-moduli-italiani' ),
+			'icon'       => __( 'Status', 'campi-moduli-italiani' ),
+			'remotedate' => __( 'Last modified date of remote file', 'campi-moduli-italiani' ),
+			'localdate'  => __( 'Database update date', 'campi-moduli-italiani' ),
+			'dataURL'    => __( 'URL', 'campi-moduli-italiani' ),
 		);
 		return $columns;
 	}
@@ -95,7 +95,7 @@ class Remote_Files_List extends WP_List_Table {
 	}
 	function get_bulk_actions() {
 		$actions = array(
-			'update' => __( 'Update selected tables', 'gcmi' ),
+			'update' => __( 'Update selected tables', 'campi-moduli-italiani' ),
 		);
 		return $actions;
 	}

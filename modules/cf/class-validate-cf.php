@@ -201,11 +201,11 @@ class CodiceFiscale {
 		$this->TabErrori = array(0 => "Codice da analizzare assente", 1 => "Lunghezza codice da analizzare non corretta", 2 => "Il codice da analizzare contiene caratteri non corretti", 3 => "Carattere non valido in decodifica omocodia", 4 => "Codice fiscale non corretto");
 		*/
 		$this->TabErrori = array(
-			0 => esc_html( __( 'No Fiscal Code to be analyzed', 'gcmi' ) ),
-			1 => esc_html( __( 'Incorrect code length', 'gcmi' ) ),
-			2 => esc_html( __( 'The code to be analyzed contains incorrect characters', 'gcmi' ) ),
-			3 => esc_html( __( 'Invalid character in homocode decoding', 'gcmi' ) ),
-			4 => esc_html( __( 'Incorrect tax code', 'gcmi' ) ),
+			0 => esc_html( __( 'No Fiscal Code to be analyzed', 'campi-moduli-italiani' ) ),
+			1 => esc_html( __( 'Incorrect code length', 'campi-moduli-italiani' ) ),
+			2 => esc_html( __( 'The code to be analyzed contains incorrect characters', 'campi-moduli-italiani' ) ),
+			3 => esc_html( __( 'Invalid character in homocode decoding', 'campi-moduli-italiani' ) ),
+			4 => esc_html( __( 'Incorrect tax code', 'campi-moduli-italiani' ) ),
 		);
 	}
 

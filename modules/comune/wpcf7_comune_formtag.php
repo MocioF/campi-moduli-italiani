@@ -71,17 +71,17 @@ add_action( 'wpcf7_admin_init', 'wpcf7_add_tag_generator_gcmi_comune', 35 );
 function wpcf7_add_tag_generator_gcmi_comune() {
 	if ( class_exists( 'WPCF7_TagGenerator' ) ) {
 		$tag_generator = WPCF7_TagGenerator::get_instance();
-		$tag_generator->add( 'gcmi-comune', __( 'Select Italian municipality', 'gcmi' ), 'wpcf7_tg_pane_gcmi_comune' );
+		$tag_generator->add( 'gcmi-comune', __( 'Select Italian municipality', 'campi-moduli-italiani' ), 'wpcf7_tg_pane_gcmi_comune' );
 	} elseif ( function_exists( 'wpcf7_add_tag_generator' ) ) {
-		wpcf7_add_tag_generator( 'gcmi-comune', __( 'Select Italian municipality', 'gcmi' ), 'wpcf7_tg_pane_gcmi_comune', 'wpcf7_tg_pane_gcmi_comune' );
+		wpcf7_add_tag_generator( 'gcmi-comune', __( 'Select Italian municipality', 'campi-moduli-italiani' ), 'wpcf7_tg_pane_gcmi_comune', 'wpcf7_tg_pane_gcmi_comune' );
 	}
 }
 
 function wpcf7_tg_pane_gcmi_comune( $contact_form, $args = '' ) {
 	$args = wp_parse_args( $args, array() );
 	/* translators: %s: link to plugin page URL */
-	$description = __( 'Creates a tag for a concatenated selection of an Italian municipality. To get more information look at %s.', 'gcmi' );
-	$desc_link   = wpcf7_link( 'https://wordpress.org/plugins/campi-moduli-italiani/', __( 'the plugin page at WordPress.org', 'gcmi' ), array( 'target' => '_blank' ) );
+	$description = __( 'Creates a tag for a concatenated selection of an Italian municipality. To get more information look at %s.', 'campi-moduli-italiani' );
+	$desc_link   = wpcf7_link( 'https://wordpress.org/plugins/campi-moduli-italiani/', __( 'the plugin page at WordPress.org', 'campi-moduli-italiani' ), array( 'target' => '_blank' ) );
 	?>
 	<div class="control-box">
 		<fieldset>
@@ -108,13 +108,13 @@ function wpcf7_tg_pane_gcmi_comune( $contact_form, $args = '' ) {
 						
 					</tr>
 					<tr>
-						<th scope="row"><?php echo esc_html( __( 'Type (default "Every: current and deleted")', 'gcmi' ) ); ?></th>
+						<th scope="row"><?php echo esc_html( __( 'Type (default "Every: current and deleted")', 'campi-moduli-italiani' ) ); ?></th>
 						<td>
 							<fieldset>	
-								<legend class="screen-reader-text"><?php echo esc_html( __( 'Type (default "Every: current and deleted")', 'gcmi' ) ); ?></legend>
-								<input type="radio" class="classvalue option" id="<?php echo esc_attr( $args['content'] . '-tutti' ); ?>" name="kind" value="tutti"><label for="<?php echo esc_attr( $args['content'] . '-tutti' ); ?>"><?php _e( 'every', 'gcmi' ); ?></label><br>
-								<input type="radio" class="classvalue option" id="<?php echo esc_attr( $args['content'] . '-attuali' ); ?>" name="kind" value="attuali"><label for="<?php echo esc_attr( $args['content'] . '-attuali' ); ?>"><?php _e( 'only current', 'gcmi' ); ?></label><br>
-								<input type="radio" class="classvalue option" id="<?php echo esc_attr( $args['content'] . '-evidenza_cessati' ); ?>" name="kind" value="evidenza_cessati"><label for="<?php echo esc_attr( $args['content'] . '-evidenza_cessati' ); ?>"><?php _e( 'highlights deleted', 'gcmi' ); ?></label><br>
+								<legend class="screen-reader-text"><?php echo esc_html( __( 'Type (default "Every: current and deleted")', 'campi-moduli-italiani' ) ); ?></legend>
+								<input type="radio" class="classvalue option" id="<?php echo esc_attr( $args['content'] . '-tutti' ); ?>" name="kind" value="tutti"><label for="<?php echo esc_attr( $args['content'] . '-tutti' ); ?>"><?php _e( 'every', 'campi-moduli-italiani' ); ?></label><br>
+								<input type="radio" class="classvalue option" id="<?php echo esc_attr( $args['content'] . '-attuali' ); ?>" name="kind" value="attuali"><label for="<?php echo esc_attr( $args['content'] . '-attuali' ); ?>"><?php _e( 'only current', 'campi-moduli-italiani' ); ?></label><br>
+								<input type="radio" class="classvalue option" id="<?php echo esc_attr( $args['content'] . '-evidenza_cessati' ); ?>" name="kind" value="evidenza_cessati"><label for="<?php echo esc_attr( $args['content'] . '-evidenza_cessati' ); ?>"><?php _e( 'highlights deleted', 'campi-moduli-italiani' ); ?></label><br>
 							</fieldset>
 						</td>
 					</tr>
@@ -122,8 +122,8 @@ function wpcf7_tg_pane_gcmi_comune( $contact_form, $args = '' ) {
 						<th scope="row"><?php echo esc_html( __( 'Show details', 'contact-form-7' ) ); ?></th>
 						<td>
 							<fieldset>
-								<legend class="screen-reader-text"><?php echo esc_html( __( 'Show details', 'gcmi' ) ); ?></legend>
-								<label><input type="checkbox" name="comu_details" class="option"/> <?php echo esc_html( __( 'Show details', 'gcmi' ) ); ?></label>
+								<legend class="screen-reader-text"><?php echo esc_html( __( 'Show details', 'campi-moduli-italiani' ) ); ?></legend>
+								<label><input type="checkbox" name="comu_details" class="option"/> <?php echo esc_html( __( 'Show details', 'campi-moduli-italiani' ) ); ?></label>
 								<label><input type="checkbox" name="use_label_element" class="option" /> <?php echo esc_html( __( 'Wrap each item with label element', 'contact-form-7' ) ); ?></label>
 							</fieldset>
 						</td>

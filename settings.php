@@ -56,10 +56,24 @@ if ( GCMI_USE_FORMSIGN === true ) {
 	require_once plugin_dir_path( GCMI_PLUGIN ) . 'modules/formsign/wpcf7_formsign_formtag.php';
 }
 
-
+/*
 add_action( 'plugins_loaded', 'gcmi_load_textdomain' );
 function gcmi_load_textdomain() {
-	load_plugin_textdomain( 'gcmi', false, basename( dirname( GCMI_PLUGIN ) ) . '/languages' );
+	load_plugin_textdomain( 'campi-moduli-italiani', false, basename( dirname( GCMI_PLUGIN ) ) . '/languages' );
+}
+*/
+add_action( 'admin_init', 'gcmi_upgrade', 10, 0 );
+function gcmi_upgrade() {
+	$old_ver = get_option( 'gcmi_plugin_version', '0' );
+	$new_ver = GCMI_VERSION;
+
+	if ( $old_ver == $new_ver ) {
+		return;
+	}
+
+	do_action( 'gcmi_upgrade', $new_ver, $old_ver );
+
+	update_option( 'gcmi_plugin_version', $new_ver );
 }
 
 register_activation_hook( GCMI_PLUGIN, array( GCMI_Activator::class, 'activate' ) );

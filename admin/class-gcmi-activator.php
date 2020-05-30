@@ -95,7 +95,6 @@ class GCMI_Activator {
 			'value'    => 0,
 			'autoload' => 'no',
 		),
-
 		'gcmi_comuni_attuali_downloaded_time'     => array(
 			'value'    => 0,
 			'autoload' => 'no',
@@ -120,7 +119,6 @@ class GCMI_Activator {
 			'value'    => 0,
 			'autoload' => 'no',
 		),
-
 		'gcmi_comuni_attuali_remote_file_time'    => array(
 			'value'    => 0,
 			'autoload' => 'no',
@@ -145,7 +143,6 @@ class GCMI_Activator {
 			'value'    => 0,
 			'autoload' => 'no',
 		),
-
 	);
 
 	public static function activate() {
@@ -155,8 +152,8 @@ class GCMI_Activator {
 		 creo la directory di download temporanea
 		*/
 		if ( ! $download_temp_dir = self::make_tmp_dwld_dir() ) {
-			$error_title   = esc_html( __( 'Error creating download directory', 'gcmi' ) );
-			$error_message = esc_html( __( 'Unable to create temporary download directory', 'gcmi' ) );
+			$error_title   = esc_html( __( 'Error creating download directory', 'campi-moduli-italiani' ) );
+			$error_message = esc_html( __( 'Unable to create temporary download directory', 'campi-moduli-italiani' ) );
 			wp_die( $error_message, $error_title );
 		}
 
@@ -175,8 +172,8 @@ class GCMI_Activator {
 					self::$database_file_info[ $i ]['downd_name']
 				)
 				   ) {
-					$error_title   = esc_html( __( 'Remote file download error', 'gcmi' ) );
-					$error_message = esc_html( sprintf( __( 'Could not download %s', 'gcmi' ), self::$database_file_info[ $i ]['remote_URL'] ) );
+					$error_title   = esc_html( __( 'Remote file download error', 'campi-moduli-italiani' ) );
+					$error_message = esc_html( sprintf( __( 'Could not download %s', 'campi-moduli-italiani' ), self::$database_file_info[ $i ]['remote_URL'] ) );
 					wp_die( $error_message, $error_title );
 				} else {
 					$option_name = self::$database_file_info[ $i ]['optN_dwdtime'];
@@ -200,8 +197,8 @@ class GCMI_Activator {
 					self::$database_file_info[ $i ]['featured_csv']
 				)
 				   ) {
-					$error_title   = esc_html( __( 'Zip archive extraction error', 'gcmi' ) );
-					$error_message = esc_html( sprintf( __( 'Unable to extract %1$s from %2$s', 'gcmi' ), self::$database_file_info[ $i ]['featured_csv'], $pathtozip ) );
+					$error_title   = esc_html( __( 'Zip archive extraction error', 'campi-moduli-italiani' ) );
+					$error_message = esc_html( sprintf( __( 'Unable to extract %1$s from %2$s', 'campi-moduli-italiani' ), self::$database_file_info[ $i ]['featured_csv'], $pathtozip ) );
 					wp_die( $error_message, $error_title );
 				}
 			}
@@ -216,25 +213,25 @@ class GCMI_Activator {
 			}
 
 			if ( ! self::create_db_table( self::$database_file_info[ $i ]['name'], self::$database_file_info[ $i ]['table_name'] ) ) {
-				$error_title = esc_html( __( 'Errore creating table', 'gcmi' ) );
+				$error_title = esc_html( __( 'Errore creating table', 'campi-moduli-italiani' ) );
 				/* translators: %1$s: the local name of the table it attempted to create in the database */
-				$error_message = esc_html( sprintf( __( 'Unable to create table %1$s', 'gcmi' ), self::$database_file_info[ $i ]['table_name'] ) );
+				$error_message = esc_html( sprintf( __( 'Unable to create table %1$s', 'campi-moduli-italiani' ), self::$database_file_info[ $i ]['table_name'] ) );
 				wp_die( $error_message, $error_title );
 			}
 
 			$csv_file_path = $download_temp_dir . self::$database_file_info[ $i ]['featured_csv'];
 
 			if ( ! self::convert_file_charset( $csv_file_path, self::$database_file_info[ $i ]['orig_encoding'] ) ) {
-				$error_title = esc_html( __( 'Error UTF-8 encoding csv file', 'gcmi' ) );
+				$error_title = esc_html( __( 'Error UTF-8 encoding csv file', 'campi-moduli-italiani' ) );
 				/* translators: %1$s: the full path of the csv file it tryed to prepare for import */
-				$error_message = esc_html( sprintf( __( 'Unable to encode %1$s into UTF-8', 'gcmi' ), $csv_file_path ) );
+				$error_message = esc_html( sprintf( __( 'Unable to encode %1$s into UTF-8', 'campi-moduli-italiani' ), $csv_file_path ) );
 				wp_die( $error_message, $error_title );
 			}
 
 			if ( ! self::prepare_file( $csv_file_path ) ) {
-				$error_title = esc_html( __( 'Error preparing csv file', 'gcmi' ) );
+				$error_title = esc_html( __( 'Error preparing csv file', 'campi-moduli-italiani' ) );
 				/* translators: %1$s: the full path of the csv file it tryed to prepare for import */
-				$error_message = esc_html( sprintf( __( 'Unable to prepare %1$s for import', 'gcmi' ), $csv_file_path ) );
+				$error_message = esc_html( sprintf( __( 'Unable to prepare %1$s for import', 'campi-moduli-italiani' ), $csv_file_path ) );
 				wp_die( $error_message, $error_title );
 			}
 
@@ -243,8 +240,8 @@ class GCMI_Activator {
 				$csv_file_path,
 				self::$database_file_info[ $i ]['table_name']
 			) ) {
-				$error_title                   = esc_html( __( 'Error importing data into database', 'gcmi' ) );
-								$error_message = esc_html( sprintf( __( 'Unable to import %1$s into %2$s', 'gcmi' ), $csv_file_path, self::$database_file_info[ $i ]['table_name'] ) );
+				$error_title                   = esc_html( __( 'Error importing data into database', 'campi-moduli-italiani' ) );
+								$error_message = esc_html( sprintf( __( 'Unable to import %1$s into %2$s', 'campi-moduli-italiani' ), $csv_file_path, self::$database_file_info[ $i ]['table_name'] ) );
 				$str                           = htmlspecialchars( print_r( $wpdb->last_result, true ), ENT_QUOTES );
 				$query                         = htmlspecialchars( $wpdb->last_query, ENT_QUOTES );
 				$error_message                .= '[' . $str . ']' . '<br/><code>' . $query . '</code>';
@@ -303,7 +300,7 @@ class GCMI_Activator {
 		$gcmi_download_timeout = 300;
 		$gcmi_download_result  = download_url( $remoteurl, $gcmi_download_timeout, false );
 		if ( is_wp_error( $gcmi_download_result ) ) {
-			$error_title = esc_html( sprintf( __( 'Could not download %s', 'gcmi' ), $remoteurl ) );
+			$error_title = esc_html( sprintf( __( 'Could not download %s', 'campi-moduli-italiani' ), $remoteurl ) );
 			wp_die( $gcmi_download_result->get_error_message(), $error_title );
 			return false;
 		} else {
