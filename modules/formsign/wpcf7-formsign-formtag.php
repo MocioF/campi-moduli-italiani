@@ -1,27 +1,33 @@
 <?php
-/*****************************************************************
- * DIGITAL SIGN OF FORM VALUES                                   *
- *****************************************************************/
-
-/*
- Adding a formsign tag in CF7 form [formsign digitalsignature]
-   adds a hidden field to the form.
-   The corresponding mail tag has to be added in the mail, and will be
-   replaced to a text block of three lines with Form ID, md5hash of input data  and a digital signature of the hash.
-
-   If Flamingo is installed, on the Flamingo message page it will be possible to:
-   calculate the hash;
-   check the signature.
-
-   In such a way is it possible to be sure that
-   - the received mail (useful for Mail 2)  was really sent from the form (signature check)
-   - the claimed input values printed in the email, were really sent with the submission (hash check)
-*/
+/**
+ * Digital dign of form values
+ *
+ * Adding a formsign tag in CF7 form [formsign digitalsignature]
+ * adds a hidden field to the form.
+ * The corresponding mail tag has to be added in the mail, and will be
+ * replaced to a text block of three lines with Form ID, md5hash of input data  and a digital signature of the hash.
+ * If Flamingo is installed, on the Flamingo message page it will be possible to:
+ * calculate the hash;
+ * check the signature.
+ *
+ * @link https://wordpress.org/plugins/search/campi+moduli+italiani/
+ *
+ * @package campi-moduli-italiani
+ * @subpackage formsign
+ * @since 1.0.0 (when the file was introduced)
+ */
 
 if ( extension_loaded( 'openssl' ) ) {
 	add_action( 'wpcf7_init', 'add_form_tag_gcmi_formsign' );
 }
 
+/**
+ * Adds formsign form tag.
+ *
+ * Adds formsign form tag..
+ *
+ * @since 1.0.0
+ */
 function add_form_tag_gcmi_formsign() {
 	wpcf7_add_form_tag(
 		array( 'formsign' ),
@@ -32,19 +38,28 @@ function add_form_tag_gcmi_formsign() {
 	);
 }
 
+/**
+ * Call back function for formsign formtag.
+ *
+ * Call back function for formsign formtag.
+ *
+ * @since 1.0.0
+ *
+ * @param type $tag the tag.
+ * @return html string used in form or empty string.
+ */
 function wpcf7_gcmi_formsign_formtag_handler( $tag ) {
 	if ( empty( $tag->name ) ) {
 		return '';
 	}
 
-	/*
-	 Check if ssl keys are setted in the database for this form,
-	   and if not, create them
-	*/
+	/**
+	 *  Checks if ssl keys are set in the database for this form,  and if not, creates them
+	 */
 	$contact_form = WPCF7_ContactForm::get_current();
 	$the_id       = $contact_form->id();
 
-	if ( false == (
+	if ( false === (
 			metadata_exists( 'post', $the_id, '_gcmi_wpcf7_enc_privKey' )
 		&& metadata_exists( 'post', $the_id, '_gcmi_wpcf7_enc_pubKey' )
 	) ) {
@@ -68,6 +83,16 @@ function wpcf7_gcmi_formsign_formtag_handler( $tag ) {
 	return $html;
 }
 
+/**
+ * Generates a key pair.
+ *
+ * Generates a key pair and stores them in the database as a post_meta related to the form.
+ * Private key is 4096 bits long. Keytype is RSA.
+ *
+ * @since 1.0.0
+ *
+ * @param type $form_post_id The form id stored in wp_posts.
+ */
 function gcmi_generate_keypair( $form_post_id ) {
 	$config = array(
 		'digest_alg'       => 'sha512',
@@ -76,18 +101,18 @@ function gcmi_generate_keypair( $form_post_id ) {
 	);
 	$res    = openssl_pkey_new( $config );
 
-	// Create the private and public key
+	/* Creates the private and public key */
 	$res = openssl_pkey_new( $config );
 
-	// Extract the private key from $res to $privKey
-	openssl_pkey_export( $res, $privKey );
+	/* Extracts the private key from $res to $priv_key */
+	openssl_pkey_export( $res, $priv_key );
 
-	// Extract the public key from $res to $pubKey
-	$pubKey = openssl_pkey_get_details( $res );
-	$pubKey = $pubKey['key'];
+	/* Extracts the public key from $res to $pub_key */
+	$pub_key = openssl_pkey_get_details( $res );
+	$pub_key = $pub_key['key'];
 
-	update_post_meta( $form_post_id, '_gcmi_wpcf7_enc_privKey', $privKey );
-	update_post_meta( $form_post_id, '_gcmi_wpcf7_enc_pubKey', $pubKey );
+	update_post_meta( $form_post_id, '_gcmi_wpcf7_enc_privKey', $priv_key );
+	update_post_meta( $form_post_id, '_gcmi_wpcf7_enc_pubKey', $pub_key );
 }
 
 add_filter(
@@ -99,7 +124,7 @@ add_filter(
 		$submission = WPCF7_Submission::get_instance();
 
 		if ( ! $submission
-		or ! $posted_data = $submission->get_posted_data() ) {
+		|| ! $posted_data = $submission->get_posted_data() ) {
 			return;
 		}
 
@@ -122,8 +147,7 @@ add_filter(
 		}
 
 		$serialized = serialize( $posted_data );
-
-		$hash = md5( $serialized );
+		$hash       = md5( $serialized );
 
 		$pkeyid = get_post_meta( $contact_form->id(), '_gcmi_wpcf7_enc_privKey', true );
 
@@ -158,13 +182,6 @@ add_filter(
 			esc_html( __( 'Signature', 'campi-moduli-italiani' ) ),
 			base64_encode( $signature )
 		);
-
-		// just to test, verify signature
-		/*
-		$public_key = get_post_meta( $contact_form->id(), '_gcmi_wpcf7_enc_pubKey', true );
-		$r = openssl_verify($hash, $signature, $public_key, OPENSSL_ALGO_SHA256);
-		error_log ($r) ;
-		*/
 		return $replaced;
 	},
 	10,
@@ -181,10 +198,14 @@ if ( is_plugin_active( 'flamingo/flamingo.php' ) && extension_loaded( 'openssl' 
 
 }
 
+/**
+ * Enqueues js script in admin area.
+ *
+ * @since 1.0.0
+ */
 function formsign_enqueue_flamingo_admin_script() {
 	$screen = get_current_screen();
 	if ( is_object( $screen ) ) {
-		/* change path if move the code to admin area in plugin */
 		wp_register_script( 'formsign_flamingo', plugins_url( GCMI_PLUGIN_NAME ) . '/admin/js/formsign.js', array( 'jquery', 'wp-i18n' ), '', true );
 		wp_set_script_translations( 'formsign_flamingo', 'campi-moduli-italiani', GCMI_PLUGIN_DIR . '/languages' );
 		wp_enqueue_script( 'formsign_flamingo' );
@@ -198,6 +219,11 @@ function formsign_enqueue_flamingo_admin_script() {
 	}
 }
 
+/**
+ * Adds metabox in flamingo.
+ *
+ * @since 1.0.0
+ */
 function gcmi_flamingo_check_sign() {
 	add_meta_box(
 		'checksignature',
@@ -209,27 +235,37 @@ function gcmi_flamingo_check_sign() {
 	);
 }
 
+/**
+ * Callback functions to add metabox in flamingo.
+ *
+ * @since 1.0.0
+ *
+ * @param type $post The post showed by flamingo.
+ */
 function gcmi_flamingo_formsig_meta_box( $post ) {
-	$serialized = serialize( $post->fields );
+	$postfields = array_map( 'addslashes', $post->fields );
+	$serialized = serialize( $postfields );
 	$hash       = md5( $serialized );
 	?>
 	<p><label for="form_ID"><?php echo esc_html( __( 'Insert/Paste Form ID from mail', 'campi-moduli-italiani' ) ); ?></label><input type="text" name="form_ID" id="gcmi_flamingo_input_form_ID" /></p>
 	<p><label for="mail_hash"><?php echo esc_html( __( 'Insert/Paste hash from mail', 'campi-moduli-italiani' ) ); ?></label><input type="text" name="mail_hash" id="gcmi_flamingo_input_hash" minlength="32" maxlength="32"/></p>
-	<p><label><?php echo esc_html( __( 'Insert/Paste signature from mail', 'campi-moduli-italiani' ) ); ?></label><input type="text" name="mail_signature" id="gcmi_flamingo_input_signature" /></p>
-	<input type="hidden" id="gcmi_flamingo_calc_hash" value="<?php echo ( $hash ); ?>">
+	<p><label><?php echo esc_html( __( 'Insert/Paste signature from mail', 'campi-moduli-italiani' ) ); ?></label><input type="text" name="mail_signature" id="gcmi_flamingo_input_signature"/></p>
+	<input type="hidden" id="gcmi_flamingo_calc_hash" value="<?php echo ( esc_html( $hash ) ); ?>">
 	<div class="gcmi-flamingo-response" id="gcmi-flamingo-response"></div>
-	<p><input type="button" class="button input.submit button-secondary"value="<?php echo esc_html( __( 'Check Hash and signature', 'campi-moduli-italiani' ) ); ?>" id="gcmi_btn_check_sign"></p>
-	
+	<p><input type="button" class="button input.submit button-secondary" value="<?php echo esc_html( __( 'Check Hash and signature', 'campi-moduli-italiani' ) ); ?>" id="gcmi_btn_check_sign"></p>	
 	<?php
 }
 
+/**
+ * Ajax handler for flamingo metabox.
+ *
+ * @since 1.0.0
+ */
 function gcmi_flamingo_meta_box_ajax_handler() {
 	if ( isset( $_POST['hash_input'] ) ) {
-		if ( trim( $_POST['hash_input'] ) != trim( $_POST['hash_calc'] ) ) {
+		if ( trim( wp_unslash( $_POST['hash_input'] ) ) !== trim( wp_unslash( $_POST['hash_calc'] ) ) ) {
 			echo 'hash_mismatch';
 		} else { // hash match
-
-			// I need somthing to collect the pubKey, that is binded to the CF7 form id.
 			// In this solution, I ask to input it pasting value from the email
 			if ( ! $public_key = get_post_meta( trim( $_POST['formID_input'] ), '_gcmi_wpcf7_enc_pubKey', true ) ) {
 				echo 'no_pubkey_found';

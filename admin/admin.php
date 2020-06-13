@@ -304,6 +304,7 @@ function gcmi_update_table( $fname ) {
 		)
 			) {
 			$error_title   = __( 'Grab html data error', 'campi-moduli-italiani' );
+			/* translators: remote URL of the table from where it grabs data */
 			$error_message = sprintf( __( 'Unable to grab data from %s', 'campi-moduli-italiani' ), $database_file_info[ $id ]['remote_URL'] );
 			wp_die( $error_message, $error_title );
 		}

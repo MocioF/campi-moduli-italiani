@@ -5,7 +5,7 @@ Tags: italiano, contact form 7, codice fiscale, comuni italiani, firma digitale
 Requires at least: 4.7
 Tested up to: 5.4
 Requires PHP: 5.6
-Stable tag: 1.0.1
+Stable tag: 1.0.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html
 
@@ -44,10 +44,10 @@ Questo plugin non riporta nelle pagine esterne del sito internet su cui è utili
 
 [gcmi-comune]
 `[gcmi-comune]` dispone di un gestore nell'area di creazione dei form CF7 che consente di impostare le varie opzioni.
-In particolare è possibile impostare l'attributo "kind" a "tutti"; "attuali","evidenza_cessati". Nel primo e nel terzo caso, con modalità differenti, vengono proposti sia i comuni attualmente esistenti, sia quelli cessati in precedenza (utile, ad esempio, per consentire la selezione del Comune di nascita). Nella modalità "attuali", è invece consentita solo la selezione dei Comuni attualmente esistenti (utile per consentire la selezione del Comune di Nascita).
+In particolare è possibile impostare l'attributo "kind" a "tutti"; "attuali","evidenza_cessati". Nel primo e nel terzo caso, con modalità differenti, vengono proposti sia i comuni attualmente esistenti, sia quelli cessati in precedenza (utile, ad esempio, per consentire la selezione del Comune di nascita). Nella modalità "attuali", è invece consentita solo la selezione dei Comuni attualmente esistenti (utile per consentire la selezione del Comune di residenza / domicilio).
 Inoltre è possibile settare l'opzione "comu_details", per mostrare dopo la cascata di select un'icona che consente la visualizzazione di una tabella modale con i dettagli statistici dell'unità territoriale.
 Il valore restituito dal gruppo è sempre il codice ISTAT del Comune selezionato. Il corrispondente mail-tag, converte tale valore nella denominazione del comune seguita dall'indicazione della provincia.
-La cascata di select, può essere utilizzata anche all'esteno di CF7, mediante lo shortcode [comune] (opzioni analoge a quelle del form-tag pe Contact Form 7.
+La cascata di select, può essere utilizzata anche all'esteno di CF7, mediante lo shortcode [comune] (opzioni analoge a quelle del form-tag per Contact Form 7.
 
 [gcmi-cf]
 `[gcmi-cf]` dispone di un gestore nell'area di creazione dei form CF7 che consente di impostare le varie opzioni.
@@ -68,7 +68,7 @@ l'ID del FORM di invio
 un hash md5 dei dati trasmessi con il modulo (non del contenuto dei files eventualmente allegati)
 una firma digitale dell'hash.
 La firma viene apposta mediante la generazione di una coppia di chiavi RSA, attribuita a ciascun form.
-Mediante il riscontro dell'hash e della firma, sarà possibile verificare che le mail siano state effettivamente spedite dal form, i dati trasmessi dall'utente corrispondano a quanto registato.
+Mediante il riscontro dell'hash e della firma, sarà possibile verificare che le mail siano state effettivamente spedite dal form e che i dati trasmessi dall'utente corrispondano a quanto registato.
 Per agevolare il riscontro dei dati, è preferibile utilizzare "Flamingo" per l'archiviazione dei messaggi inviati. Infatti, nella schermata di admin di Flamengo viene creato uno specifico box che consente il riscontro dell'hash e della firma digitale inseriti nella mail.
 Il sistema è utile nel caso in cui mediante il form si preveda di ricevere domande o candidature etc.. ed evita contestazioni in merito ai dati che i candidati pretendono di aver inviato e quanto registrato dal sistema in Flamingo.
 
@@ -114,8 +114,12 @@ Ancora non ci sono. :)
 
 == Changelog ==
 
+= 1.0.2 =
+* Aggiornamenti di alcune stringhe della traduzione.
+* Bug fix (addslashes prima di calcolare hash di verifica)
+
 = 1.0.1 =
-* Aggiornato il text domain allo slug assegnato da wordpress
+* Aggiornato il text domain allo slug assegnato da wordpress.
 
 = 1.0.0 =
 * Primo rilascio del plugin.
