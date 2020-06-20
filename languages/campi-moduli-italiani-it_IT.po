@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/trunk\n"
-"POT-Creation-Date: 2020-06-13T22:23:07+00:00\n"
-"PO-Revision-Date: 2020-06-14 00:28+0200\n"
+"POT-Creation-Date: 2020-06-20T20:56:26+00:00\n"
+"PO-Revision-Date: 2020-06-20 22:56+0200\n"
 "Last-Translator: Giuseppe Foti <foti.giuseppe@gmail.com>\n"
 "Language-Team: \n"
 "Language: it_IT\n"
@@ -39,12 +39,13 @@ msgstr ""
 "specifici per i moduli italiani creati con Contact Form 7. Questa versione "
 "mette a disposizione quattro short-tag: una selezione a cascata per un "
 "comune italiano, una selezione per uno stato, un campo codice fiscale "
-"italiano con convalida, un campo nascosto che consente firmare digitalmente "
-"le e-mail per assicurarsi che siano state inviate tramite il modulo. I "
-"database sono prelevati dai siti web dell'Istat e dell'Agenzia delle "
-"entrate. La firma digitale sui dati del modulo utilizza l'algoritmo RSA con "
-"una chiave privata a 4096 bit. <strong> L'attivazione può richiedere alcuni "
-"minuti per scaricare i dati aggiornati e importarli nel database </strong>."
+"italiano con convalida, un campo nascosto che consente di firmare "
+"digitalmente le e-mail per assicurarsi che siano state inviate tramite il "
+"modulo. I database sono prelevati dai siti web dell'Istat e dell'Agenzia "
+"delle entrate. La firma digitale sui dati del modulo utilizza l'algoritmo "
+"RSA con una chiave privata a 4096 bit. <strong> L'attivazione può richiedere "
+"alcuni minuti per scaricare i dati aggiornati e importarli nel database </"
+"strong>."
 
 #. Author of the plugin
 msgid "Giuseppe Foti"
@@ -212,7 +213,7 @@ msgid ""
 "files, pick tables to update, select the \"Update tables\" bulk action and "
 "click on \"Apply\"."
 msgstr ""
-"Controlla le dati di aggiornamento dei tuoi dati e quelle dei files "
+"Controlla le date di aggiornamento dei tuoi dati e quelle dei file "
 "disponibili online, marca le tabelle da aggiornare, seleziona l'azione "
 "\"Aggiorna tabelle selezionate\" e clicca su \"Applica\"."
 
@@ -600,35 +601,35 @@ msgstr "evidenzia i cessati"
 msgid "Show details"
 msgstr "Mostra dettagli"
 
-#: modules/formsign/wpcf7-formsign-formtag.php:178
+#: modules/formsign/wpcf7-formsign-formtag.php:177
 msgid "Form ID"
 msgstr "ID del Form"
 
-#: modules/formsign/wpcf7-formsign-formtag.php:180
+#: modules/formsign/wpcf7-formsign-formtag.php:179
 msgid "Hash"
 msgstr "Hash"
 
-#: modules/formsign/wpcf7-formsign-formtag.php:182
+#: modules/formsign/wpcf7-formsign-formtag.php:181
 msgid "Signature"
 msgstr "Firma"
 
-#: modules/formsign/wpcf7-formsign-formtag.php:230
+#: modules/formsign/wpcf7-formsign-formtag.php:229
 msgid "Check signature and hash"
 msgstr "Controlla firma ed hash"
 
-#: modules/formsign/wpcf7-formsign-formtag.php:250
+#: modules/formsign/wpcf7-formsign-formtag.php:259
 msgid "Insert/Paste Form ID from mail"
 msgstr "Inserisci/Incolla l'ID del Form dalla mail"
 
-#: modules/formsign/wpcf7-formsign-formtag.php:251
+#: modules/formsign/wpcf7-formsign-formtag.php:260
 msgid "Insert/Paste hash from mail"
 msgstr "Inserisci/Incolla l'hash dalla mail"
 
-#: modules/formsign/wpcf7-formsign-formtag.php:252
+#: modules/formsign/wpcf7-formsign-formtag.php:261
 msgid "Insert/Paste signature from mail"
 msgstr "Inserisci/Incolla la firma digitale dalla mail"
 
-#: modules/formsign/wpcf7-formsign-formtag.php:255
+#: modules/formsign/wpcf7-formsign-formtag.php:264
 msgid "Check Hash and signature"
 msgstr "Controlla l'hash e la firma digitale"
 

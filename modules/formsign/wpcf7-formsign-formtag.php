@@ -148,7 +148,6 @@ add_filter(
 
 		$serialized = serialize( $posted_data );
 		$hash       = md5( $serialized );
-
 		$pkeyid = get_post_meta( $contact_form->id(), '_gcmi_wpcf7_enc_privKey', true );
 
 		openssl_sign( $hash, $signature, $pkeyid, OPENSSL_ALGO_SHA256 );
@@ -243,7 +242,17 @@ function gcmi_flamingo_check_sign() {
  * @param type $post The post showed by flamingo.
  */
 function gcmi_flamingo_formsig_meta_box( $post ) {
-	$postfields = array_map( 'addslashes', $post->fields );
+
+	/*
+	 * In 1.0.3 this has been modified because radio opts values are stored as arrays and array_map sets option's value to null (with a warning)
+	 * 
+ 	 * $postfields = array_map( 'addslashes', $post->fields );
+	 */	
+	array_walk_recursive($post->fields, function(&$item, $key) {
+    	$item = addslashes($item);
+	});
+
+	$postfields = $post->fields;
 	$serialized = serialize( $postfields );
 	$hash       = md5( $serialized );
 	?>
