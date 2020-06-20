@@ -114,7 +114,7 @@ Ancora non ci sono. :)
 
 == Changelog ==
 
-= 1.0.3
+= 1.0.3 =
 * Bug fix: error in hash calculation on modules/formsign/wpcf7-formsign-formtag.php
 
 = 1.0.2 =
