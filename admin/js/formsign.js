@@ -8,19 +8,6 @@ const { __, _x, _n, _nx } = wp.i18n;
 			$( '#gcmi_flamingo_input_signature' ).attr( "disabled", "disabled" );
 			$( '#gcmi_btn_check_sign' ).attr( "disabled", "disabled" );
 
-			$( '#gcmi_flamingo_input_form_ID' ).on(
-				'change',
-				function () {
-					if ( $( '#gcmi_flamingo_input_form_ID' ).val().match( /^(?!0)\d{1,19}$/ )
-					&& $( '#gcmi_flamingo_input_hash' ).val().match( /^[a-f0-9]{32}$/ ) ) {
-						$( '#gcmi_flamingo_input_signature' ).removeAttr( "disabled" );
-						$( '#gcmi_btn_check_sign' ).removeAttr( "disabled" );
-					} else {
-						$( '#gcmi_flamingo_input_signature' ).attr( "disabled", "disabled" );
-						$( '#gcmi_btn_check_sign' ).attr( "disabled", "disabled" );
-					}
-				}
-			);
 			$( '#gcmi_flamingo_input_hash' ).on(
 				'change',
 				function () {
@@ -40,6 +27,7 @@ const { __, _x, _n, _nx } = wp.i18n;
 					$.post(
 						wporg_meta_box_obj.url,
 						{
+							checksignnonce: wporg_meta_box_obj.checksignnonce,
 							action: 'gcmi_flamingo_check_codes',
 							formID_input: $( '#gcmi_flamingo_input_form_ID' ).val(),
 							hash_input: $( '#gcmi_flamingo_input_hash' ).val(),
@@ -65,13 +53,13 @@ const { __, _x, _n, _nx } = wp.i18n;
 								$( '#gcmi_flamingo_input_signature' ).attr( 'aria-invalid', 'false' );
 								$( '#gcmi-flamingo-response' ).removeClass( 'error' );
 								$( '#gcmi-flamingo-response' ).addClass( 'updated' );
-								$( '#gcmi-flamingo-response' ).html( __( 'Signature verified. The signature you pasted, matches form\' signature and hash of posted values.', 'campi-moduli-italiani' ) );
+								$( '#gcmi-flamingo-response' ).html( __( 'Signature verified. The signature you pasted, matches form\' certificate and hash of posted values.', 'campi-moduli-italiani' ) );
 							} else if (data === 'signature_invalid') {
 								$( '#gcmi_flamingo_input_hash' ).attr( 'aria-invalid', 'false' );
 								$( '#gcmi_flamingo_input_signature' ).attr( 'aria-invalid', 'true' );
 								$( '#gcmi-flamingo-response' ).removeClass( 'updated' );
 								$( '#gcmi-flamingo-response' ).addClass( 'error' );
-								$( '#gcmi-flamingo-response' ).html( __( 'The signature is invalid. The signature you pasted doesn\'t match form signature and hash of posted values.', 'campi-moduli-italiani' ) );
+								$( '#gcmi-flamingo-response' ).html( __( 'The signature is invalid. The signature you pasted doesn\'t match form certificate and hash of posted values.', 'campi-moduli-italiani' ) );
 							} else {
 								$( '#gcmi-flamingo-response' ).addClass( 'error' );
 								$( '#gcmi-flamingo-response' ).html( 'error in verify' );
@@ -79,7 +67,7 @@ const { __, _x, _n, _nx } = wp.i18n;
 								$( '#gcmi_flamingo_input_signature' ).attr( 'aria-invalid', 'false' );
 								$( '#gcmi-flamingo-response' ).removeClass( 'updated' );
 								$( '#gcmi-flamingo-response' ).addClass( 'error' );
-								$( '#gcmi-flamingo-response' ).html( __( 'There is a problem in runing openssl_verify function.', 'campi-moduli-italiani' ) );
+								$( '#gcmi-flamingo-response' ).html( __( 'There is a problem in running openssl_verify function.', 'campi-moduli-italiani' ) );
 							}
 						}
 					);

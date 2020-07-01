@@ -1,11 +1,11 @@
-=== Campi per Moduli Italiani ===
+=== Campi Moduli Italiani ===
 Contributors: mociofiletto
 Donate link: https://paypal.me/GiuseppeF77
 Tags: italiano, contact form 7, codice fiscale, comuni italiani, firma digitale
 Requires at least: 4.7
 Tested up to: 5.4
 Requires PHP: 5.6
-Stable tag: 1.0.3
+Stable tag: 1.1.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html
 
@@ -47,13 +47,12 @@ Questo plugin non riporta nelle pagine esterne del sito internet su cui è utili
 In particolare è possibile impostare l'attributo "kind" a "tutti"; "attuali","evidenza_cessati". Nel primo e nel terzo caso, con modalità differenti, vengono proposti sia i comuni attualmente esistenti, sia quelli cessati in precedenza (utile, ad esempio, per consentire la selezione del Comune di nascita). Nella modalità "attuali", è invece consentita solo la selezione dei Comuni attualmente esistenti (utile per consentire la selezione del Comune di residenza / domicilio).
 Inoltre è possibile settare l'opzione "comu_details", per mostrare dopo la cascata di select un'icona che consente la visualizzazione di una tabella modale con i dettagli statistici dell'unità territoriale.
 Il valore restituito dal gruppo è sempre il codice ISTAT del Comune selezionato. Il corrispondente mail-tag, converte tale valore nella denominazione del comune seguita dall'indicazione della provincia.
-La cascata di select, può essere utilizzata anche all'esteno di CF7, mediante lo shortcode [comune] (opzioni analoge a quelle del form-tag per Contact Form 7.
+La cascata di select, può essere utilizzata anche all'esterno di CF7, mediante lo shortcode [comune] (opzioni analoge a quelle del form-tag per Contact Form 7).
 
 [gcmi-cf]
 `[gcmi-cf]` dispone di un gestore nell'area di creazione dei form CF7 che consente di impostare le varie opzioni.
 In particolare è possibile impostare varie opzioni di validazione consentendo di riscontrare la corrispondenza del codice fiscale con altri campi del modulo.
-Nello specifico è possibile verificare che il codice fiscale corrisponda
-con lo stato estero di nascita (selezionato mediante una select [gcmi-stato]), il comune italiano di nascita (selezionato mediante una cascata di select [gcmi-comune]), il sesso (indicando il nome di un campo form che restituisca "M" o "F"), la data di nascita. Nel caso in cui per selezionare la data di nascita si utilizzino più campi, uno per il giorno, uno per il mese e uno per l'anno, è possibile riconstrare la corrispondenza del codice fiscale con questi valori.
+Nello specifico è possibile verificare che il codice fiscale corrisponda con lo stato estero di nascita (selezionato mediante una select [gcmi-stato]), il comune italiano di nascita (selezionato mediante una cascata di select [gcmi-comune]), il sesso (indicando il nome di un campo form che restituisca "M" o "F"), la data di nascita. Nel caso in cui per selezionare la data di nascita si utilizzino più campi, uno per il giorno, uno per il mese e uno per l'anno, è possibile riconstrare la corrispondenza del codice fiscale con questi valori.
 
 [gcmi-stato]
 `[gcmi-stato]` dispone di un gestore nell'area di creazione dei form CF7 che consente di impostare le varie opzioni.
@@ -63,13 +62,12 @@ In particolare, è possibile impostare la selezione dei soli stati attualmente e
 `[formsign]` _NON_ dispone di un gestore nell'area di creazione dei form CF7.
 Per utilizzarlo è sufficiente inserire nel proprio modulo il tag seguito dal nome del campo: ad esempio [formsign firmadigitale]. Questo tag, creerà nel modulo un campo hidden con attributo name="firmadigitale" e nessun valore.
 Per utilizzare il codice è anche necessario inserire nella mail o nelle mail che il form invia il campo [firmadigitale] (si consiglia al termine della mail).
-In questo modo in coda alla mail verrà inserita una sequenza di tre righe contenenti:
-l'ID del FORM di invio
+In questo modo in coda alla mail verrà inserita una sequenza di due righe contenenti:
 un hash md5 dei dati trasmessi con il modulo (non del contenuto dei files eventualmente allegati)
 una firma digitale dell'hash.
 La firma viene apposta mediante la generazione di una coppia di chiavi RSA, attribuita a ciascun form.
 Mediante il riscontro dell'hash e della firma, sarà possibile verificare che le mail siano state effettivamente spedite dal form e che i dati trasmessi dall'utente corrispondano a quanto registato.
-Per agevolare il riscontro dei dati, è preferibile utilizzare "Flamingo" per l'archiviazione dei messaggi inviati. Infatti, nella schermata di admin di Flamengo viene creato uno specifico box che consente il riscontro dell'hash e della firma digitale inseriti nella mail.
+Per agevolare il riscontro dei dati, è preferibile utilizzare "Flamingo" per l'archiviazione dei messaggi inviati. Infatti, nella schermata di admin di Flamingo viene creato uno specifico box che consente il riscontro dell'hash e della firma digitale inseriti nella mail.
 Il sistema è utile nel caso in cui mediante il form si preveda di ricevere domande o candidature etc.. ed evita contestazioni in merito ai dati che i candidati pretendono di aver inviato e quanto registrato dal sistema in Flamingo.
 
 == Installation ==
@@ -114,6 +112,12 @@ Ancora non ci sono. :)
 
 == Changelog ==
 
+= 1.1.0 =
+* Modificato controllo firma mail: l'ID del form viene determinato direttamente dai dati di Flamingo e non è più inserito nel corpo della mail
+* Inseriti link alle review e alla pagina di supporto nella pagina dei plugins
+* Modificate routine di importazione database "comuni attuali", a seguito di modifica nei file ISTAT da giugno 2020
+* Modificato sistema di rilevazione aggiornamento file remoti
+
 = 1.0.3 =
 * Bug fix: error in hash calculation on modules/formsign/wpcf7-formsign-formtag.php
 
@@ -128,6 +132,11 @@ Ancora non ci sono. :)
 * Primo rilascio del plugin.
 
 == Upgrade Notice ==
+
+= 1.1.0 =
+L'ISTAT ha modificato il formato del suo database.
+Dopo questo aggiornamento è necessario aggiornare la tabella relativa ai comuni attuali [comuni_attuali].
+È consigliato anche aggiornare le tabelle relativa ai comuni soppressi [comuni_soppressi] e alle variazioni [comuni_variazioni]
 
 = 1.0.0 =
 Prima installazione

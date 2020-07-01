@@ -1,11 +1,22 @@
 <?php
+/**
+ * Settings
+ *
+ * From this file is it possible to deactivate specific modules
+ * by setting GCMI_USE_[] costants to false.
+ *
+ * @package campi-moduli-italiani
+ * @since 1.0.0
+ */
+
+require_once plugin_dir_path( GCMI_PLUGIN ) . 'admin/class-gcmi-activator.php';
+require_once plugin_dir_path( GCMI_PLUGIN ) . 'includes/cron.php';
 
 if ( is_admin() ) {
-	require_once plugin_dir_path( GCMI_PLUGIN ) . 'admin/class-gcmi-activator.php';
 	require_once plugin_dir_path( GCMI_PLUGIN ) . 'admin/admin.php';
 }
 
-// configurazione tipo campi utilizzati
+/* configurazione tipo campi utilizzati */
 if ( ! defined( 'GCMI_USE_COMUNE' ) ) {
 	define( 'GCMI_USE_COMUNE', true );
 }
@@ -21,7 +32,7 @@ if ( ! defined( 'GCMI_USE_STATO' ) ) {
 if ( ! defined( 'GCMI_USE_FORMSIGN' ) ) {
 	define( 'GCMI_USE_FORMSIGN', true );
 }
-
+/* fine sezione editabile */
 
 if ( GCMI_USE_COMUNE === true ) {
 	require_once plugin_dir_path( GCMI_PLUGIN ) . 'modules/comune/class-gcmi-comune.php';
@@ -57,22 +68,89 @@ if ( GCMI_USE_FORMSIGN === true ) {
 }
 
 add_action( 'admin_init', 'gcmi_upgrade', 10, 0 );
+
+/**
+ * Updates the plugin version number in the database
+ *
+ * @since 1.0.0
+ */
 function gcmi_upgrade() {
 	$old_ver = get_option( 'gcmi_plugin_version', '0' );
 	$new_ver = GCMI_VERSION;
 
-	if ( $old_ver == $new_ver ) {
+	if ( $old_ver === $new_ver ) {
 		return;
 	}
 
 	do_action( 'gcmi_upgrade', $new_ver, $old_ver );
-
 	update_option( 'gcmi_plugin_version', $new_ver );
 }
+
+
+/**
+ * Adds extra links to the plugin activation page
+ *
+ * @param  array  $meta   Extra meta links.
+ * @param  string $file   Specific file to compare against the base plugin.
+ * @return array          Return the meta links array
+ */
+function get_extra_meta_links( $meta, $file ) {
+	if ( GCMI_PLUGIN_BASENAME === $file ) {
+		$plugin_page = admin_url( 'admin.php?page=gcmi' );
+		$meta[]      = "<a href='https://wordpress.org/support/plugin/campi-moduli-italiani/' target='_blank' title'" . __( 'Support', 'campi-moduli-italiani' ) . "'>" . __( 'Support', 'campi-moduli-italiani' ) . '</a>';
+		$meta[]      = "<a href='https://wordpress.org/support/plugin/campi-moduli-italiani/reviews#new-post' target='_blank' title='" . __( 'Leave a review', 'campi-moduli-italiani' ) . "'><i class='gcmi-stars'><svg xmlns='http://www.w3.org/2000/svg' width='15' height='15' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' class='feather feather-star'><polygon points='12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2'/></svg><svg xmlns='http://www.w3.org/2000/svg' width='15' height='15' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' class='feather feather-star'><polygon points='12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2'/></svg><svg xmlns='http://www.w3.org/2000/svg' width='15' height='15' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' class='feather feather-star'><polygon points='12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2'/></svg><svg xmlns='http://www.w3.org/2000/svg' width='15' height='15' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' class='feather feather-star'><polygon points='12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2'/></svg><svg xmlns='http://www.w3.org/2000/svg' width='15' height='15' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' class='feather feather-star'><polygon points='12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2'/></svg></i></a>";
+	}
+	return $meta;
+}
+
+/**
+ * Adds styles to admin head to allow for stars animation and coloring
+ */
+function add_star_styles() {
+	global $pagenow;
+	if ( 'plugins.php' === $pagenow ) {?>
+		<style>
+			.gcmi-stars{display:inline-block;color:#ffb900;position:relative;top:3px}
+			.gcmi-stars svg{fill:#ffb900}
+			.gcmi-stars svg:hover{fill:#ffb900}
+			.gcmi-stars svg:hover ~ svg{fill:none}
+		</style>
+		<?php
+	}
+}
+
+add_filter( 'plugin_row_meta', 'get_extra_meta_links', 10, 2 );
+add_action( 'admin_head', 'add_star_styles' );
 
 register_activation_hook( GCMI_PLUGIN, array( GCMI_Activator::class, 'activate' ) );
 register_deactivation_hook( GCMI_PLUGIN, array( GCMI_Activator::class, 'deactivate' ) );
 
+/**
+ * Display plugin upgrade notice to users
+ */
+function prefix_plugin_update_message( $data, $response ) {
+	if ( isset( $data['upgrade_notice'] ) ) {
+		printf(
+			'<div class="update-message">%s</div>',
+			wpautop( $data['upgrade_notice'] )
+		);
+	}
+}
+add_action( 'in_plugin_update_message-campi-moduli-italiani/campi-moduli-italiani.php', 'prefix_plugin_update_message', 10, 2 );
 
-
+/**
+ * Display plugin upgrade notice to users on multisite installations
+ */
+function prefix_ms_plugin_update_message( $file, $plugin ) {
+	if ( is_multisite() && version_compare( $plugin['Version'], $plugin['new_version'], '<' ) ) {
+		$wp_list_table = _get_list_table( 'WP_Plugins_List_Table' );
+		printf(
+			'<tr class="plugin-update-tr"><td colspan="%s" class="plugin-update update-message notice inline notice-warning notice-alt"><div class="update-message"><h4 style="margin: 0; font-size: 14px;">%s</h4>%s</div></td></tr>',
+			$wp_list_table->get_column_count(),
+			$plugin['Name'],
+			wpautop( $plugin['upgrade_notice'] )
+		);
+	}
+}
+add_action( 'after_plugin_row_wp-campi-moduli-italiani/campi-moduli-italiani.php', 'prefix_ms_plugin_update_message', 10, 2 );
 

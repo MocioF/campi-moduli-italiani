@@ -1,10 +1,26 @@
 <?php
+/**
+ * Select a Country
+ *
+ * This form tag adds a select to chose a country.
+ * It returns the Istat Country code (usefull to check italian fiscal code for people born outside Italy
+ *
+ * @link https://wordpress.org/plugins/search/campi+moduli+italiani/
+ *
+ * @package campi-moduli-italiani
+ * @subpackage stato
+ * @since 1.0.0
+ */
 
-/*****************************************************************
- * Stato Estero                                               *
- *****************************************************************/
 add_action( 'wpcf7_init', 'add_form_tag_gcmi_statoestero' );
 
+/**
+ * Adds stato form tag.
+ *
+ * Adds stato form tag.
+ *
+ * @since 1.0.0
+ */
 function add_form_tag_gcmi_statoestero() {
 	wpcf7_add_form_tag(
 		array( 'stato', 'stato*' ),
@@ -16,6 +32,16 @@ function add_form_tag_gcmi_statoestero() {
 	);
 }
 
+/**
+ * Handles stato form tag.
+ *
+ * Handles stato form tag.
+ *
+ * @since 1.0.0
+ *
+ * @param type $tag the tag.
+ * @return html string used in form or empty string.
+ */
 function wpcf7_gcmi_stato_formtag_handler( $tag ) {
 	global $wpdb;
 	if ( empty( $tag->name ) ) {
@@ -52,7 +78,7 @@ function wpcf7_gcmi_stato_formtag_handler( $tag ) {
 	$hangover = wpcf7_get_hangover( $tag->name );
 
 	$sql = 'SELECT `i_cod_istat`, `i_cod_continente`, `i_denominazione_ita`, `i_cod_AT` FROM ';
-	if ( $solo_attuali == false ) {
+	if ( false === $solo_attuali ) {
 		$sql .= '( ';
 		$sql .= 'SELECT `i_cod_istat`, `i_cod_continente`, `i_denominazione_ita`, `i_cod_AT` FROM `' . GCMI_TABLE_PREFIX . 'stati` ';
 		$sql .= 'UNION ';
@@ -61,7 +87,7 @@ function wpcf7_gcmi_stato_formtag_handler( $tag ) {
 	} else {
 		$sql .= '`' . GCMI_TABLE_PREFIX . 'stati` ';
 	}
-	if ( $usa_continenti == true ) {
+	if ( true === $usa_continenti ) {
 		$sql .= 'ORDER BY `i_cod_continente`, `i_cod_istat`, `i_denominazione_ita` ASC';
 	} else {
 		$sql .= 'ORDER BY `i_cod_istat`, `i_denominazione_ita` ASC';
@@ -71,7 +97,7 @@ function wpcf7_gcmi_stato_formtag_handler( $tag ) {
 
 	$stati = $wpdb->get_results( $sql );
 
-	if ( $usa_continenti == true ) {
+	if ( true === $usa_continenti ) {
 		$sql2       = 'SELECT DISTINCT `i_cod_continente`, `i_den_continente` FROM `' . GCMI_TABLE_PREFIX . 'stati` ORDER BY `i_cod_continente`';
 		$continenti = $wpdb->get_results( $sql2 );
 		foreach ( $continenti as $continente ) {
@@ -79,9 +105,9 @@ function wpcf7_gcmi_stato_formtag_handler( $tag ) {
 			$cod_continente = $continente->i_cod_continente;
 			foreach ( $stati as $stato ) {
 
-				if ( $stato->i_cod_continente == $cod_continente ) {
+				if ( $stato->i_cod_continente === $cod_continente ) {
 					$value = 'value="' . esc_html( $stato->i_cod_istat );
-					if ( $stato->i_cod_istat == $hangover ) {
+					if ( $stato->i_cod_istat === $hangover ) {
 						$value .= ' selected';
 					}
 					$value .= '"';
@@ -92,7 +118,7 @@ function wpcf7_gcmi_stato_formtag_handler( $tag ) {
 		}
 	} else {
 		$value = 'value="' . esc_html( $stato->i_cod_istat );
-		if ( $stato->i_cod_istat == $hangover ) {
+		if ( $stato->i_cod_istat === $hangover ) {
 			$value .= ' selected';
 		}
 		$value .= '"';
@@ -120,12 +146,11 @@ function wpcf7_gcmi_stato_formtag_handler( $tag ) {
 add_filter( 'wpcf7_validate_stato', 'wpcf7_select_validation_filter', 10, 2 );
 add_filter( 'wpcf7_validate_stato*', 'wpcf7_select_validation_filter', 10, 2 );
 
-// mail tag filter
+// mail tag filter.
 add_filter(
 	'wpcf7_mail_tag_replaced_stato*',
 	function( $replaced, $submitted, $html, $mail_tag ) {
 		global $wpdb;
-		// $MyName=$mail_tag->field_name();
 		$sql      = 'SELECT `i_denominazione_ita` FROM  ';
 		$sql     .= '( ';
 		$sql     .= 'SELECT `i_denominazione_ita` FROM `' . GCMI_TABLE_PREFIX . 'stati` ';
@@ -164,19 +189,36 @@ add_filter(
 /* Tag generator */
 add_action( 'wpcf7_admin_init', 'wpcf7_add_tag_generator_gcmi_stato', 37 );
 
+/**
+ * Adds tag-generator for stato form tag.
+ *
+ * Adds tag-generator for stato form tag.
+ *
+ * @since 1.0.0
+ */
 function wpcf7_add_tag_generator_gcmi_stato() {
 	if ( class_exists( 'WPCF7_TagGenerator' ) ) {
 		$tag_generator = WPCF7_TagGenerator::get_instance();
-		$tag_generator->add( 'gcmi-stato', __( 'Insert a select for Nations', 'campi-moduli-italiani' ), 'wpcf7_tg_pane_gcmi_stato' );
+		$tag_generator->add( 'gcmi-stato', __( 'Insert a select for Countries', 'campi-moduli-italiani' ), 'wpcf7_tg_pane_gcmi_stato' );
 	} elseif ( function_exists( 'wpcf7_add_tag_generator' ) ) {
-		wpcf7_add_tag_generator( 'gcmi-stato', __( 'Insert a select for Nations', 'campi-moduli-italiani' ), 'wpcf7_tg_pane_gcmi_stato', 'wpcf7_tg_pane_gcmi_stato' );
+		wpcf7_add_tag_generator( 'gcmi-stato', __( 'Insert a select for Countries', 'campi-moduli-italiani' ), 'wpcf7_tg_pane_gcmi_stato', 'wpcf7_tg_pane_gcmi_stato' );
 	}
 }
 
+/**
+ * Handles tag-generator for stato form tag.
+ *
+ * Handles tag-generator for stato form tag.
+ *
+ * @since 1.0.0
+ *
+ * @param type $contact_form .
+ * @param type $args array of default values.
+ */
 function wpcf7_tg_pane_gcmi_stato( $contact_form, $args = '' ) {
 	$args = wp_parse_args( $args, array() );
 	/* translators: %s: link to plugin page URL */
-	$description = __( 'Creates a select with nations %s.', 'campi-moduli-italiani' );
+	$description = __( 'Creates a select with countries %s.', 'campi-moduli-italiani' );
 	$desc_link   = wpcf7_link( 'https://wordpress.org/plugins/campi-moduli-italiani/', __( 'the plugin page at WordPress.org', 'campi-moduli-italiani' ), array( 'target' => '_blank' ) );
 	?>
 	<div class="control-box">

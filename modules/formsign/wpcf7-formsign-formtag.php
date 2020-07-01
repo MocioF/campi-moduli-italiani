@@ -1,11 +1,12 @@
 <?php
 /**
- * Digital dign of form values
+ * Digital sign of form values
  *
  * Adding a formsign tag in CF7 form [formsign digitalsignature]
  * adds a hidden field to the form.
  * The corresponding mail tag has to be added in the mail, and will be
- * replaced to a text block of three lines with Form ID, md5hash of input data  and a digital signature of the hash.
+ * replaced to a text block of two (on previous version three) lines with
+ * ( Form ID ), md5hash of input data and a digital signature of the hash.
  * If Flamingo is installed, on the Flamingo message page it will be possible to:
  * calculate the hash;
  * check the signature.
@@ -14,7 +15,7 @@
  *
  * @package campi-moduli-italiani
  * @subpackage formsign
- * @since 1.0.0 (when the file was introduced)
+ * @since 1.0.0
  */
 
 if ( extension_loaded( 'openssl' ) ) {
@@ -148,7 +149,7 @@ add_filter(
 
 		$serialized = serialize( $posted_data );
 		$hash       = md5( $serialized );
-		$pkeyid = get_post_meta( $contact_form->id(), '_gcmi_wpcf7_enc_privKey', true );
+		$pkeyid     = get_post_meta( $contact_form->id(), '_gcmi_wpcf7_enc_privKey', true );
 
 		openssl_sign( $hash, $signature, $pkeyid, OPENSSL_ALGO_SHA256 );
 
@@ -162,20 +163,15 @@ add_filter(
 			$rpld .= '<tr>';
 			$rpld .= '<th>%3$s: </th><td>%4$s</td>';
 			$rpld .= '</tr>';
-			$rpld .= '<tr>';
-			$rpld .= '<th>%5$s: </th><td>%6$s</td>';
 			$rpld .= '</tr>';
 			$rpld .= '</table>';
 		} else {
 			$rpld  = '%1$s: %2$s' . "\n";
 			$rpld .= '%3$s: %4$s' . "\n";
-			$rpld .= '%5$s: %6$s' . "\n";
 		}
 
 		$replaced = sprintf(
 			$rpld,
-			esc_html( __( 'Form ID', 'campi-moduli-italiani' ) ),
-			$contact_form->id(),
 			esc_html( __( 'Hash', 'campi-moduli-italiani' ) ),
 			$hash,
 			esc_html( __( 'Signature', 'campi-moduli-italiani' ) ),
@@ -194,7 +190,6 @@ if ( is_plugin_active( 'flamingo/flamingo.php' ) && extension_loaded( 'openssl' 
 	add_action( 'admin_enqueue_scripts', 'formsign_enqueue_flamingo_admin_script' );
 
 	add_action( 'wp_ajax_gcmi_flamingo_check_codes', 'gcmi_flamingo_meta_box_ajax_handler' );
-
 }
 
 /**
@@ -205,14 +200,15 @@ if ( is_plugin_active( 'flamingo/flamingo.php' ) && extension_loaded( 'openssl' 
 function formsign_enqueue_flamingo_admin_script() {
 	$screen = get_current_screen();
 	if ( is_object( $screen ) ) {
-		wp_register_script( 'formsign_flamingo', plugins_url( GCMI_PLUGIN_NAME ) . '/admin/js/formsign.js', array( 'jquery', 'wp-i18n' ), '', true );
+		wp_register_script( 'formsign_flamingo', plugins_url( GCMI_PLUGIN_NAME ) . '/admin/js/formsign.js', array( 'jquery', 'wp-i18n' ), GCMI_VERSION, true );
 		wp_set_script_translations( 'formsign_flamingo', 'campi-moduli-italiani', GCMI_PLUGIN_DIR . '/languages' );
 		wp_enqueue_script( 'formsign_flamingo' );
 		wp_localize_script(
 			'formsign_flamingo',
 			'wporg_meta_box_obj',
 			array(
-				'url' => admin_url( 'admin-ajax.php' ),
+				'url'            => admin_url( 'admin-ajax.php' ),
+				'checksignnonce' => wp_create_nonce( 'gcmi_flamingo_check_codes' ),
 			)
 		);
 	}
@@ -242,23 +238,25 @@ function gcmi_flamingo_check_sign() {
  * @param type $post The post showed by flamingo.
  */
 function gcmi_flamingo_formsig_meta_box( $post ) {
-
 	/*
 	 * In 1.0.3 this has been modified because radio opts values are stored as arrays and array_map sets option's value to null (with a warning)
-	 * 
- 	 * $postfields = array_map( 'addslashes', $post->fields );
-	 */	
-	array_walk_recursive($post->fields, function(&$item, $key) {
-    	$item = addslashes($item);
-	});
-
+	 *
+	 * $postfields = array_map( 'addslashes', $post->fields );
+	 */
+	array_walk_recursive(
+		$post->fields,
+		function( &$item, $key ) {
+			$item = addslashes( $item );
+		}
+	);
 	$postfields = $post->fields;
 	$serialized = serialize( $postfields );
 	$hash       = md5( $serialized );
+	$formid     = gcmi_get_form_post_id( $post );
 	?>
-	<p><label for="form_ID"><?php echo esc_html( __( 'Insert/Paste Form ID from mail', 'campi-moduli-italiani' ) ); ?></label><input type="text" name="form_ID" id="gcmi_flamingo_input_form_ID" /></p>
 	<p><label for="mail_hash"><?php echo esc_html( __( 'Insert/Paste hash from mail', 'campi-moduli-italiani' ) ); ?></label><input type="text" name="mail_hash" id="gcmi_flamingo_input_hash" minlength="32" maxlength="32"/></p>
 	<p><label><?php echo esc_html( __( 'Insert/Paste signature from mail', 'campi-moduli-italiani' ) ); ?></label><input type="text" name="mail_signature" id="gcmi_flamingo_input_signature"/></p>
+	<input type="hidden" id="gcmi_flamingo_input_form_ID" value="<?php echo ( esc_html( $formid ) ); ?>">
 	<input type="hidden" id="gcmi_flamingo_calc_hash" value="<?php echo ( esc_html( $hash ) ); ?>">
 	<div class="gcmi-flamingo-response" id="gcmi-flamingo-response"></div>
 	<p><input type="button" class="button input.submit button-secondary" value="<?php echo esc_html( __( 'Check Hash and signature', 'campi-moduli-italiani' ) ); ?>" id="gcmi_btn_check_sign"></p>	
@@ -266,30 +264,65 @@ function gcmi_flamingo_formsig_meta_box( $post ) {
 }
 
 /**
+ * Gets Form post ID
+ *
+ * Check https://wordpress.org/support/topic/digital-signature-feature/
+ *
+ * @since 1.0.4
+ *
+ * @param type $post The post showed by flamingo.
+ */
+function gcmi_get_form_post_id( $post ) {
+	$flamingo_inbound_channel_slug = $post->channel;
+	$myform                        = get_page_by_path( $flamingo_inbound_channel_slug, '', 'wpcf7_contact_form' );
+	return $myform->ID;
+}
+
+
+/**
  * Ajax handler for flamingo metabox.
  *
  * @since 1.0.0
  */
 function gcmi_flamingo_meta_box_ajax_handler() {
-	if ( isset( $_POST['hash_input'] ) ) {
-		if ( trim( wp_unslash( $_POST['hash_input'] ) ) !== trim( wp_unslash( $_POST['hash_calc'] ) ) ) {
+	if ( isset( $_POST['checksignnonce'] ) ) {
+		if ( ! wp_verify_nonce( sanitize_key( $_POST['checksignnonce'] ), 'gcmi_flamingo_check_codes' ) ) {
+			die( 'Permission Denied.' );
+		}
+	} else {
+		die( 'Permission Denied.' );
+	}
+	if ( isset( $_POST['hash_input'] ) && isset( $_POST['hash_calc'] ) && isset( $_POST['formID_input'] ) ) {
+		if ( sanitize_text_field( wp_unslash( $_POST['hash_input'] ) ) !== sanitize_text_field( wp_unslash( $_POST['hash_calc'] ) ) ) {
 			echo 'hash_mismatch';
-		} else { // hash match
-			// In this solution, I ask to input it pasting value from the email
-			if ( ! $public_key = get_post_meta( trim( $_POST['formID_input'] ), '_gcmi_wpcf7_enc_pubKey', true ) ) {
+		} else { // hash match.
+			if ( ! $public_key = get_post_meta( sanitize_text_field( wp_unslash( $_POST['formID_input'] ) ), '_gcmi_wpcf7_enc_pubKey', true ) ) {
 				echo 'no_pubkey_found';
 			} else {
-				$r = openssl_verify( trim( $_POST['hash_input'] ), base64_decode( trim( $_POST['sign_input'] ) ), $public_key, OPENSSL_ALGO_SHA256 );
-				switch ( $r ) {
-					case 1:
-						echo 'signature_verified';
-						break;
-					case 0:
+				if ( isset( $_POST['sign_input'] ) ) {
+					if ( preg_match( '%^[a-zA-Z0-9/+]*={0,2}$%', sanitize_text_field( wp_unslash( $_POST['sign_input'] ) ) ) ) {
+						$r = openssl_verify(
+							sanitize_text_field( wp_unslash( $_POST['hash_input'] ) ),
+							base64_decode( sanitize_text_field( wp_unslash( $_POST['sign_input'] ) ) ),
+							$public_key,
+							OPENSSL_ALGO_SHA256
+						);
+						switch ( $r ) {
+							case 1:
+								echo 'signature_verified';
+								break;
+							case 0:
+								echo 'signature_invalid';
+								break;
+							case -1:
+								echo 'verification_error';
+								break;
+						}
+					} else {
 						echo 'signature_invalid';
-						break;
-					case -1:
-						echo 'verification_error';
-						break;
+					}
+				} else {
+					echo 'signature_invalid';
 				}
 			}
 		}

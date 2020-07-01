@@ -195,7 +195,7 @@ function wpcf7_tg_pane_gcmi_cf( $contact_form, $args = '' ) {
 						<td><input type="text" name="birthmunicipality-field" class="oneline option" id="<?php echo esc_attr( $args['content'] . '-birthmunicipality' ); ?>" /></td>
 					</tr>
 					<tr>
-						<th scope="row"><label for="<?php echo esc_attr( $args['content'] . '-birthNation' ); ?>"><?php echo esc_html( __( '"name" attr of State/Nation of birth field', 'campi-moduli-italiani' ) ); ?></label></th>
+						<th scope="row"><label for="<?php echo esc_attr( $args['content'] . '-birthNation' ); ?>"><?php echo esc_html( __( '"name" attr of Country of birth field', 'campi-moduli-italiani' ) ); ?></label></th>
 						<td><input type="text" name="birthnation-field" class="oneline option" id="<?php echo esc_attr( $args['content'] . '-birthnation' ); ?>" /></td>
 					</tr>
 				</tbody>

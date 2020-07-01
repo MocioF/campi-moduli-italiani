@@ -250,8 +250,8 @@ class GCMI_CF_WPCF7_FormTag {
 					);
 					if ( '' != $codice_stato ) {
 						if ( ! preg_match( '/^[0-9]{3}$/', $codice_stato ) ) {
-							$err_msg = esc_html( __( 'Unexpected value in birth nation field', 'campi-moduli-italiani' ) );
-							$err_tit = esc_html( __( 'Error in submitted birth nation value', 'campi-moduli-italiani' ) );
+							$err_msg = esc_html( __( 'Unexpected value in birth country field', 'campi-moduli-italiani' ) );
+							$err_tit = esc_html( __( 'Error in submitted birth country value', 'campi-moduli-italiani' ) );
 							wp_die( $err_msg, $err_tit );
 						} else {
 							if ( $codice_stato != '100' ) { // 100 è il codice ISTAT per l'ITALIA
@@ -267,7 +267,7 @@ class GCMI_CF_WPCF7_FormTag {
 								$cod_AT = $wpdb->get_var( $sql );
 
 								if ( $comune != $cod_AT ) {
-									$result->invalidate( $tag, esc_html( __( 'Tax code does not match the Nation of birth', 'campi-moduli-italiani' ) ) );
+									$result->invalidate( $tag, esc_html( __( 'Tax code does not match the Country of birth', 'campi-moduli-italiani' ) ) );
 								}
 							}
 						}

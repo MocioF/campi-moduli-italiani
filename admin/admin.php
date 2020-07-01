@@ -5,7 +5,6 @@ require_once GCMI_PLUGIN_DIR . '/admin/includes/class-gcmi-remote-files-list-tab
 
 add_action( 'admin_init', 'gcmi_admin_init', 10, 0 );
 
-
 /**
  * Creo il mio nuovo hook
  */
@@ -99,75 +98,7 @@ function gcmi_admin_update_db() {
 	echo '</form>';
 }
 
-/**
- * Wrapper funzioni per ottenere la data di aggiornamento file remoto - restituisce un timestamp
- *
- * @param string $name the name of data stored in GCMI_Activator $database_file_info['name'].
- */
-function gcmi_get_remote_update_timestamp( $name ) {
-	$database_file_info = GCMI_Activator::$database_file_info;
-	$num_items          = count( $database_file_info );
-	for ( $i = 0; $i < $num_items; $i++ ) {
-		if ( $database_file_info[ $i ]['name'] === $name ) {
-			$myfile = $database_file_info[ $i ];
-		}
-	}
-	switch ( $myfile['remoteUpd_method'] ) {
-		case 'get_headers':
-			return gcmi_get_remote_file_timestamp( $myfile['remote_URL'] );
-			break;
-		case 'unknown':
-			return 0;
-			break;
-		default:
-			return time();
-			break;
-	}
-}
 
-/**
- * Ottiene il timestamp del file remoto dall'header HTTP 'Last-Modified'
- *
- * @param string $remote_file_URL the remote URL of data stored in GCMI_Activator $database_file_info['remote_URL'].
- */
-function gcmi_get_remote_file_timestamp( $remote_file_URL ) {
-	$headers     = get_headers( $remote_file_URL );
-	$num_headers = count( $headers );
-	for ( $h = 0; $h < $num_headers; $h++ ) {
-		if ( 0 === strpos( $headers[ $h ], 'Last-Modified:' ) ) {
-			$splitted          = explode( ':', $headers[ $h ], $limit = 2 );
-			$LM_date_formatted = trim( $splitted[1] );
-			// Last-Modified: Wed, 19 Feb 2020 14:49:18 GMT .
-			$fmt      = 'D, d M Y H:i:s O+';
-			$datetime = DateTime::createFromFormat( $fmt, $LM_date_formatted );
-			return $datetime->getTimestamp();
-		}
-	}
-	return false;
-}
-
-/**
- * Converte il time stamp in una stringa di data formattata
- *
- * @param timestamp $timestamp .
- */
-function gcmi_convert_timestamp( $timestamp ) {
-	/* translators: enter a format string valid for a date and time value according to the local standard using characters recognized by the php date () function (https://www.php.net/manual/en/function.date.php) */
-	$format         = __( 'Y/m/d g:i:s a', 'campi-moduli-italiani' );
-	$formatted_date = wp_date( $format, $timestamp );
-	return $formatted_date;
-}
-
-/**
- * Converte una stringa data formattata, in timestamp
- *
- * @param string $string a date string in $format format to be converted to timestamp.
- */
-function gcmi_convert_datestring( $string ) {
-	$format   = __( 'Y/m/d g:i:s a', 'campi-moduli-italiani' );
-	$datetime = DateTime::createFromFormat( $format, $string );
-	return $datetime->getTimestamp();
-}
 
 /**
  * Crea l'html per indicare quante tabelle sono aggiornabili
@@ -223,23 +154,6 @@ function gcmi_admin_enqueue_scripts( $hook_suffix ) {
 add_action( 'admin_enqueue_scripts', 'gcmi_admin_enqueue_scripts', 10, 1 );
 
 /**
- * Controlla l'aggiornamento dei dati remoti rispetto a quelli locali
- */
-function gcmi_check_update() {
-	$database_file_info = GCMI_Activator::$database_file_info;
-	$num_items          = count( $database_file_info );
-	for ( $i = 0; $i < $num_items; $i++ ) {
-		$name     = $database_file_info['name'];
-		$file_opt = $database_file_info['optN_remoteUpd'];
-		if ( $timestamp = gcmi_get_remote_update_timestamp( $name ) ) {
-			update_option( $file_opt, $timestamp, 'no' );
-		}
-	}
-	update_option( 'gcmi_last_update_check', time(), 'no' );
-}
-add_action( 'gcmi_check_for_remote_data_updates', 'gcmi_check_update', $priority = 10, $accepted_args = 0 );
-
-/**
  * Prende in input il nome del dataset e crea la tabella aggiornata
  *
  * @param string $fname the name of data stored in GCMI_Activator $database_file_info['name']
@@ -275,6 +189,7 @@ function gcmi_update_table( $fname ) {
 			wp_die( $error_message, $error_title );
 		}
 	}
+	
 
 	// orario di acquisizione del file remoto.
 	$download_time = time();
@@ -292,7 +207,7 @@ function gcmi_update_table( $fname ) {
 		   ) {
 			$error_title = __( 'Zip archive extraction error', 'campi-moduli-italiani' );
 
-			/* Translators: %1$s: the local name of the csv it tried to extract from the zip archive; %2$s: the full local path of the downloaded zip archive */
+			/* translators: %1$s: the local csv file name; %2$s: the zip archive file name */
 			$error_message = sprintf( __( 'Unable to extract %1$s from %2$s', 'campi-moduli-italiani' ), $database_file_info[ $id ]['featured_csv'], $pathtozip );
 			wp_die( $error_message, $error_title );
 		}
@@ -345,4 +260,26 @@ function gcmi_update_table( $fname ) {
 	}
 }
 
+/**
+ * Converte il time stamp in una stringa di data formattata
+ *
+ * @param timestamp $timestamp .
+ */
+function gcmi_convert_timestamp( $timestamp ) {
+	/* translators: enter a format string valid for a date and time value according to the local standard using characters recognized by the php date () function (https://www.php.net/manual/en/function.date.php) */
+	$format         = __( 'Y/m/d g:i:s a', 'campi-moduli-italiani' );
+	$formatted_date = wp_date( $format, $timestamp );
+	return $formatted_date;
+}
+
+/**
+ * Converte una stringa data formattata, in timestamp
+ *
+ * @param string $string a date string in $format format to be converted to timestamp.
+ */
+function gcmi_convert_datestring( $string ) {
+	$format   = __( 'Y/m/d g:i:s a', 'campi-moduli-italiani' );
+	$datetime = DateTime::createFromFormat( $format, $string );
+	return $datetime->getTimestamp();
+}
 

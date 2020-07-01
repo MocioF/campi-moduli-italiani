@@ -316,8 +316,8 @@ class GCMI_COMUNE {
 			return '';
 		}
 		$sql1  = '(SELECT `i_denominazione_full`, `i_denominazione_ita`, `i_denominazione_altralingua`, `i_ripartizione_geo`, ';
-		$sql1 .= '`i_den_regione`, `i_den_unita_territoriale`, `i_flag_capoluogo`, ';
-		$sql1 .= '`i_sigla_automobilistica`, `i_cod_catastale`, `i_popolazione` FROM `' . GCMI_TABLE_PREFIX . 'comuni_attuali`';
+		$sql1 .= '`i_den_regione`, `i_cod_tipo_unita_territoriale`, `i_den_unita_territoriale`, `i_flag_capoluogo`, ';
+		$sql1 .= '`i_sigla_automobilistica`, `i_cod_catastale` FROM `' . GCMI_TABLE_PREFIX . 'comuni_attuali`';
 		$sql1 .= " WHERE `i_cod_comune` = '" . esc_sql( $i_cod_comune ) . "' LIMIT 1)";
 
 		$results = $wpdb->get_row( $sql1, ARRAY_A );
@@ -362,28 +362,47 @@ class GCMI_COMUNE {
 		$table .= '<td class="tg-5lax">' . esc_html( __( 'Region name:', 'campi-moduli-italiani' ) ) . '</td>';
 		$table .= '<td class="tg-qw54">' . esc_html( $results['i_den_regione'] ) . '</td>';
 		$table .= '</tr>';
+
 		$table .= '<tr>';
-		$table .= '<td class="tg-cly1">' . esc_html( __( 'Name of the supra-municipal territorial unit (valid for statistical purposes):', 'campi-moduli-italiani' ) ) . '</td>';
-		$table .= '<td class="tg-yla0">' . esc_html( $results['i_den_unita_territoriale'] ) . '</td>';
+		$table .= '<td class="tg-cly1">' . esc_html( __( 'Type of the supra-municipal territorial unit:', 'campi-moduli-italiani' ) ) . '</td>';
+		$table .= '<td class="tg-yla0">';
+		switch ( $results['i_cod_tipo_unita_territoriale'] ) {
+			case 1:
+				$table .= esc_html( __( 'Province', 'campi-moduli-italiani' ) ) . '</td>';
+				break;
+			case 2:
+				$table .= esc_html( __( 'Autonomous province', 'campi-moduli-italiani' ) ) . '</td>';
+				break;
+			case 3:
+				$table .= esc_html( __( 'Metropolitan City', 'campi-moduli-italiani' ) ) . '</td>';
+				break;
+			case 4:
+				$table .= esc_html( __( 'Free consortium of municipalities', 'campi-moduli-italiani' ) ) . '</td>';
+				break;
+			case 5:
+				$table .= esc_html( __( 'Non administrative unit', 'campi-moduli-italiani' ) ) . '</td>';
+				break;
+		}
+		$table .= '</tr>';
+
+		$table .= '<tr>';
+		$table .= '<td class="tg-5lax">' . esc_html( __( 'Name of the supra-municipal territorial unit (valid for statistical purposes):', 'campi-moduli-italiani' ) ) . '</td>';
+		$table .= '<td class="tg-qw54">' . esc_html( $results['i_den_unita_territoriale'] ) . '</td>';
 		$table .= '</tr>';
 		$table .= '<tr>';
-		$table .= '<td class="tg-5lax">' . esc_html( __( 'Automotive abbreviation:', 'campi-moduli-italiani' ) ) . '</td>';
-		$table .= '<td class="tg-qw54">' . esc_html( $results['i_sigla_automobilistica'] ) . '</td>';
+		$table .= '<td class="tg-cly1">' . esc_html( __( 'Automotive abbreviation:', 'campi-moduli-italiani' ) ) . '</td>';
+		$table .= '<td class="tg-yla0">' . esc_html( $results['i_sigla_automobilistica'] ) . '</td>';
 		$table .= '</tr>';
 		if ( ! isset( $sql2 ) ) { // un comune attivo
 			$table .= '<tr>';
-			$table .= '<td class="tg-cly1">' . esc_html( __( 'Is Capital City:', 'campi-moduli-italiani' ) ) . '</td>';
-			$table .= '<td class="tg-yla0">';
+			$table .= '<td class="tg-5lax">' . esc_html( __( 'Is Capital City:', 'campi-moduli-italiani' ) ) . '</td>';
+			$table .= '<td class="tg-qw54">';
 			$table .= ( $results['i_flag_capoluogo'] ) ? esc_html( __( 'Capital City', 'campi-moduli-italiani' ) ) : esc_html( __( 'No', 'campi-moduli-italiani' ) );
 			$table .= '</td>';
 			$table .= '</tr>';
 			$table .= '<tr>';
-			$table .= '<td class="tg-5lax">' . esc_html( __( 'Cadastral code of the municipality:', 'campi-moduli-italiani' ) ) . '</td>';
-			$table .= '<td class="tg-qw54">' . esc_html( $results['i_cod_catastale'] ) . '</td>';
-			$table .= '</tr>';
-			$table .= '<tr>';
-			$table .= '<td class="tg-cly1">' . esc_html( __( 'Resident population at the census date of 9th Oct 2011:', 'campi-moduli-italiani' ) ) . '</td>';
-			$table .= '<td class="tg-yla0">' . number_format_i18n( esc_html( $results['i_popolazione'], 0 ) ) . '</td>';
+			$table .= '<td class="tg-cly1">' . esc_html( __( 'Cadastral code of the municipality:', 'campi-moduli-italiani' ) ) . '</td>';
+			$table .= '<td class="tg-yla0">' . esc_html( $results['i_cod_catastale'] ) . '</td>';
 			$table .= '</tr>';
 		}
 		$table .= '</table>';
