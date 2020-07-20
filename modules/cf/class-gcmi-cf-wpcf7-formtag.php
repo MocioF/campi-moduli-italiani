@@ -29,7 +29,6 @@ class GCMI_CF_WPCF7_FormTag {
 
 	public static function cf_validation_filter( $result, $tag ) {
 		global $wpdb;
-		error_log( print_r( $_POST, true ) );
 
 		if ( $name = $tag->name ) {
 

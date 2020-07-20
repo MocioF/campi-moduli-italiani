@@ -5,139 +5,142 @@ Tags: italiano, contact form 7, codice fiscale, comuni italiani, firma digitale
 Requires at least: 4.7
 Tested up to: 5.4
 Requires PHP: 5.6
-Stable tag: 1.1.0
+Stable tag: 1.1.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html
 
-Plugin per creare campi utili per siti italiani, da utilizzare nei moduli prodotti con Contact Form 7.
+Plugin to create useful fields for Italian sites, to be used in the modules produced with Contact Form 7.
 
 == Description ==
+This plugin creates form tags for Contact Form 7.
+4 form-tags (and corresponding mail-tags) are available in this version:
 
-Questo plugin crea dei form-tag per Contact Form 7.
-In questa versione sono disponibili 4 form-tag (e corrispondenti mail-tag):
+* [comune]: creates a series of select for the selection of an Italian municipality
+* [cf]: creates a field for entering the Italian tax code of a natural person
+* [stato]: creates the ability to select a state
+* [formsign]: creates the possibility to digitally sign the e-mails sent with a pair of keys attributed to each individual form
 
-* [gcmi-comune]: crea una serie di select per la selezione di un comune italiano
-* [gcmi-cf]: crea un campo per l'inserimento del codice fiscale italiano di una persona fisica
-* [gcmi-stato]: crea la possibilità di selezionare uno stato
-* [formsign]: crea la possibilità di firmare digitalmente le mail inviate con una coppia di chiavi attribuita ad ogni singolo form
+At the time of installation, the plugin downloads the data it uses from the Istat and from the Revenue Agency websites. This data can be updated from the administration console.
+Downloading data and entering it into the database takes several minutes: be patient during the activation phase.
+The selection of the municipalities was created starting from the code of https://wordpress.org/plugins/regione-provincia-comune/
 
-Il plugin al momento dell'installazione scarica i dati che utilizza dal sito dell'Istat e da quello dell'Agenzia delle entrate. Questi dati sono aggiornabili dalla console di amministrazione.
-Il download dei dati e l'inserimento degli stessi nel database richiede diversi minuti: pazientate durante la fase di attivazione.
-La selezione dei comuni è stata creata partendo dal codice di https://wordpress.org/plugins/regione-provincia-comune/
+== Data used ==
 
-== Dati utilizzati ==
-
-Questo plugin utilizza dati resi disponibili dall'ISTAT e dall'Agenzia delle entrate.
-In particolare, vengono acquisiti e memorizzati dati messi a disposizione a queste URL:
+This plugin uses data made available by ISTAT and the Agenzia delle entrate (Italian revenue agency).
+In particular, data made available at these URLs are acquired and stored:
 
 * https://www.istat.it/it/archivio/6789
 * https://www.istat.it/it/archivio/6747
 * https://www1.agenziaentrate.gov.it/documentazione/versamenti/codici/ricerca/VisualizzaTabella.php?ArcName=COM-ICI
 
-I dati pubblicati sul sito dell'ISTAT sono coperti da licenza Creative Commons - Attribuzione (CC-by) (https://creativecommons.org/licenses/by/3.0/it/), come indicato qui: https://www.istat.it/it/note-legali
-I dati prelevati dal sito internet dell'Agenzia delle entrate sono di pubblico dominio e costituiscono una banca dati pubblica resa disponibile per consentire gli adempimenti tributari e, più in generale, per consentire l'identificazione delle persone fiiche presso le pubbliche amministrazioni italiane, tramite il codice fiscale.
-I dati presenti sul sito dell'Agenzia delle entrate possono essere liberamente immagazzinati nel proprio computer o stampati (https://www.agenziaentrate.gov.it/portale/web/guest/privacy). I dati sono gestiti dall'Ufficio Archivio anagrafico dell'Agenzia delle entrate.
-Questo plugin utilizza i dati prelevati dal sito internet dell'Agenzia delle entrate esclusivamente al fine di effettuare un controllo di regolarità formale del codice fiscale.
-Questo plugin non riporta nelle pagine esterne del sito internet su cui è utilizzato, nessun collegamento né al sito dell'Agenzia delle entrate, né al sito dell'ISTAT; in particolare non viene effettuata alcuna forma di link diretto, né di deep linking.
+The data published on the ISTAT website are covered by a Creative Commons license - Attribution (CC-by) (https://creativecommons.org/licenses/by/3.0/it/), as indicated here: https: // www. istat.it/it/note-legali
+The data taken from the website of the Agenzia delle entrate are in the public domain and constitute a public database made available to allow tax compliance and, more generally, to allow the identification of physical persons with the Italian public administrations, through the personal fiscal code.
+The data on the Agenzia delle entrate website can be freely stored on your computer or printed (https://www.agenziaentrate.gov.it/portale/web/guest/privacy). The data are managed by the Ufficio Archivio of the Agenzia delle entrate.
+This plugin uses the data taken from the website of the Agenzia delle entrate exclusively for the purpose of carrying out a formal regularity check of the pesonal tax code.
+This plugin does not include any links on the external pages of the website on which it is used, neither to the Agenzia delle entrate site nor to the ISTAT website; in particular, no form of direct link is made, nor of deep linking.
 
-== Come utilizzare i form-tag ==
+== How to use form tags ==
 
-[gcmi-comune]
-`[gcmi-comune]` dispone di un gestore nell'area di creazione dei form CF7 che consente di impostare le varie opzioni.
-In particolare è possibile impostare l'attributo "kind" a "tutti"; "attuali","evidenza_cessati". Nel primo e nel terzo caso, con modalità differenti, vengono proposti sia i comuni attualmente esistenti, sia quelli cessati in precedenza (utile, ad esempio, per consentire la selezione del Comune di nascita). Nella modalità "attuali", è invece consentita solo la selezione dei Comuni attualmente esistenti (utile per consentire la selezione del Comune di residenza / domicilio).
-Inoltre è possibile settare l'opzione "comu_details", per mostrare dopo la cascata di select un'icona che consente la visualizzazione di una tabella modale con i dettagli statistici dell'unità territoriale.
-Il valore restituito dal gruppo è sempre il codice ISTAT del Comune selezionato. Il corrispondente mail-tag, converte tale valore nella denominazione del comune seguita dall'indicazione della provincia.
-La cascata di select, può essere utilizzata anche all'esterno di CF7, mediante lo shortcode [comune] (opzioni analoge a quelle del form-tag per Contact Form 7).
+[comune]
+`[comune]` has a manager in the CF7 form creation area that allows you to set various options.
+In particular, it is possible to set the "kind" attribute to "tutti" (all); "attuali" (current), "evidenza_cessati" (evidence ceased). In the first and third cases, in different ways, both the currently existing municipalities and those previously closed are proposed (useful, for example, to allow the selection of the municipality of birth). In the "attuali" mode, however, only the selection of the currently existing cunicipalities is allowed (useful to allow the selection of the Municipality of residence / domicile).
+It is also possible to set the "comu_details" option, to show an icon after the select cascade that allows the display of a modal table with the statistical details of the territorial unit.
+The value returned by the group is always the ISTAT code of the selected municipality. The corresponding mail-tag converts this value into the name of the municipality followed by the indication of the automotive code of the province.
+From version 1.1.1 hidden fields are also populated with the strings corresponding to the denomination of the region, province and municipality selected, useful for being used in plugins that directly capture the data transmitted by the form (such as "Send PDF for Contact Form 7" )
+The cascade of select can also be used outside of CF7, using the [comune] shortcode (options similar to those of the form tag for Contact Form 7).
 
-[gcmi-cf]
-`[gcmi-cf]` dispone di un gestore nell'area di creazione dei form CF7 che consente di impostare le varie opzioni.
-In particolare è possibile impostare varie opzioni di validazione consentendo di riscontrare la corrispondenza del codice fiscale con altri campi del modulo.
-Nello specifico è possibile verificare che il codice fiscale corrisponda con lo stato estero di nascita (selezionato mediante una select [gcmi-stato]), il comune italiano di nascita (selezionato mediante una cascata di select [gcmi-comune]), il sesso (indicando il nome di un campo form che restituisca "M" o "F"), la data di nascita. Nel caso in cui per selezionare la data di nascita si utilizzino più campi, uno per il giorno, uno per il mese e uno per l'anno, è possibile riconstrare la corrispondenza del codice fiscale con questi valori.
+`[cf]` has a manager in the CF7 form creation area that allows you to set the various options.
+In particular, it is possible to set various validation options allowing you to find the correspondence of the tax code with other fields of the form.
+Specifically, it is possible to verify that the tax code corresponds with the foreign state of birth (selected by means of a select [stato]), the Italian municipality of birth (selected by means of a cascade of select [comune]), gender (indicating the name of a form field that returns "M" or "F"), the date of birth. If multiple fields are used to select the date of birth, one for the day, one for the month and one for the year, it is possible to find the correspondence of the tax code with these values.
 
-[gcmi-stato]
-`[gcmi-stato]` dispone di un gestore nell'area di creazione dei form CF7 che consente di impostare le varie opzioni.
-In particolare, è possibile impostare la selezione dei soli stati attualmente esistenti (opzione "only_current") ed è possibile impostare l'opzione "use_continent" per avere i valori della select suddivisi per continente. Il campo restituisce sempre il codice ISTAT dello Stato estero (codice 100 per l'Italia). Il codice ISTAT è il tipo di dato atteso da [gcmi-cf], per il riscontro del codice fiscale.
+[stato]
+`[stato]` has a manager in the CF7 form creation area that allows you to set various options.
+In particular, it is possible to set the selection of only the currently existing states ("only_current" option) and it is possible to set the "use_continent" option to have the select values divided by continent. The field always returns the ISTAT code of the foreign state (code 100 for Italy). The ISTAT code is the type of data expected by [cf], for the verification of the tax code.
 
 [formsign]
-`[formsign]` _NON_ dispone di un gestore nell'area di creazione dei form CF7.
-Per utilizzarlo è sufficiente inserire nel proprio modulo il tag seguito dal nome del campo: ad esempio [formsign firmadigitale]. Questo tag, creerà nel modulo un campo hidden con attributo name="firmadigitale" e nessun valore.
-Per utilizzare il codice è anche necessario inserire nella mail o nelle mail che il form invia il campo [firmadigitale] (si consiglia al termine della mail).
-In questo modo in coda alla mail verrà inserita una sequenza di due righe contenenti:
-un hash md5 dei dati trasmessi con il modulo (non del contenuto dei files eventualmente allegati)
-una firma digitale dell'hash.
-La firma viene apposta mediante la generazione di una coppia di chiavi RSA, attribuita a ciascun form.
-Mediante il riscontro dell'hash e della firma, sarà possibile verificare che le mail siano state effettivamente spedite dal form e che i dati trasmessi dall'utente corrispondano a quanto registato.
-Per agevolare il riscontro dei dati, è preferibile utilizzare "Flamingo" per l'archiviazione dei messaggi inviati. Infatti, nella schermata di admin di Flamingo viene creato uno specifico box che consente il riscontro dell'hash e della firma digitale inseriti nella mail.
-Il sistema è utile nel caso in cui mediante il form si preveda di ricevere domande o candidature etc.. ed evita contestazioni in merito ai dati che i candidati pretendono di aver inviato e quanto registrato dal sistema in Flamingo.
+`[formsign]` DOES NOT have a manager in the CF7 form creation area.
+To use it, simply insert the tag followed by the field name in your own form: for example [formsign firmadigitale]. This tag will create a hidden field in the form with attribute name = "firmadigitale" and no value.
+To use the code, it is also necessary to insert the [firmadigitale] field in the email or email that the form sends (it is recommended at the end of the email).
+In this way, a two-line sequence containing:
+an md5 hash of the data transmitted with the module (not of the content of any attached files)
+a digital signature of the hash.
+The signature is affixed by generating a pair of RSA keys, attributed to each form.
+By checking the hash and the signature, it will be possible to verify that the emails have actually been sent by the form and that the data transmitted by the user correspond to what has been registered.
+To facilitate data feedback, it is preferable to use "Flamingo" for archiving sent messages. In fact, in the Flamingo admin screen, a specific box is created that allows feedback of the hash and digital signature entered in the email.
+The system is useful in the event that through the form it is expected to receive applications for registration or applications etc .. and avoids disputes regarding the data that the candidates claim to have sent and what is recorded by the system in Flamingo.
 
 == Installation ==
 
-= Installazione automatica =
+= Automatic installation =
 
-1. Pannello di amministrazione plugin e opzione `aggiungi nuovo`.
-2. Ricerca nella casella di testo `campi moduli italiani`.
-3. Posizionati sulla descrizione di questo plugin e seleziona installa.
-4. Attiva il plugin dal pannello di amministrazione di WordPress.
-NOTA: l'attivazione richiede diversi minuti, perché vengono scaricate le tabelle di dati aggiornati dai siti ufficiali (Istat e Agenzia delle entrate e poi i dati vengono importati nel database)
+1. Plugin admin panel and `add new` option.
+2. Search in the text box `campi-moduli-italiani`.
+3. Position yourself on the description of this plugin and select install.
+4. Activate the plugin from the WordPress admin panel.
+NOTE: activation takes several minutes, because the updated data tables are downloaded from the official sites (Istat and Agenzia delle entrate and then the data is imported into the database)
 
-= Installazione manuale file ZIP =
+= Manual installation of ZIP files =
 
-1. Scarica il file .ZIP da questa schermata.
-2. Seleziona opzione aggiungi plugin dal pannello di amministrazione.
-3. Seleziona opzione in alto `upload` e seleziona il file che hai scaricato.
-4. Conferma installazione e attivazione plugin dal pannello di amministrazione.
-NOTA: l'attivazione richiede diversi minuti, perché vengono scaricate le tabelle di dati aggiornati dai siti ufficiali (Istat e Agenzia delle entrate e poi i dati vengono importati nel database)
+1. Download the .ZIP file from this screen.
+2. Select add plugin option from the admin panel.
+3. Select `upload` option at the top and select the file you downloaded.
+4. Confirm installation and activation of plugins from the administration panel.
+NOTE: activation takes several minutes, because the updated data tables are downloaded from the official sites (Istat and Agenzia delle entrate and then the data is imported into the database)
 
-= Installazione manuale FTP =
+= Manual FTP installation =
 
-1. Scarica il file .ZIP da questa schermata e decomprimi.
-2. Accedi in FTP alla tua cartella presente sul server web.
-3. Copia tutta la cartella `gcmi` nella directory `/wp-content/plugins/`
-4. Attiva il plugin dal pannello di amministrazione di WordPress.
-NOTA: l'attivazione richiede diversi minuti, perché vengono scaricate le tabelle di dati aggiornati dai siti ufficiali (Istat e Agenzia delle entrate e poi i dati vengono importati nel database)
+1. Download the .ZIP file from this screen and unzip it.
+2. FTP access to your folder on the web server.
+3. Copy the whole `campi-moduli-italiani` folder to the `/wp-content/plugins/` directory
+4. Activate the plugin from the WordPress admin panel.
+NOTE: activation takes several minutes, because the updated data tables are downloaded from the official sites (Istat and Agenzia delle entrate and then the data is imported into the database)
 
 == Frequently Asked Questions ==
 
-= Dove sono le FAQ? =
+= Where are the FAQs? =
 
-Ancora non ci sono. :)
+Still not there. :)
 
 == Screenshots ==
 
-1. Immagine dei form-tag [gcmi-stato] e [gcmi-comune] in un form
-2. Immagine del form-tag [gcmi-cf] in un form
-3. Immagine del blocco "firma digitale" inserito in calce ad una mail mediante il form-tag [formsign]
-4. Immagine del meta-box di verifica dei codici hash e firma digitale in Flamingo
-5. Immagine della schermata di admin, da cui è possibile effettuare l'aggiornamento dei dati
+1. Image of the [stato] and [comune] form tags in a form
+2. Image of the form-tag [cf] in a form
+3. Image of the "digital signature" block inserted at the bottom of an email using the form-tag [formsign]
+4. Image of the hash code verification meta-box and digital signature in Flamingo
+5. Image of the admin screen, from which it is possible to update the data
 
 == Changelog ==
 
+= 1.1.1 =
+* Added hidden fields that contain the name of the municipality, province and region selected to be used within plugins that create PDFs
+* Set set_time_limit (360) in the activation routine
+* Added readme.txt in English
+
 = 1.1.0 =
-* Modificato controllo firma mail: l'ID del form viene determinato direttamente dai dati di Flamingo e non è più inserito nel corpo della mail
-* Inseriti link alle review e alla pagina di supporto nella pagina dei plugins
-* Modificate routine di importazione database "comuni attuali", a seguito di modifica nei file ISTAT da giugno 2020
-* Modificato sistema di rilevazione aggiornamento file remoti
+* Modified email signature check: the form ID is determined directly from Flamingo data and is no longer entered in the body of the email
+* Insert links to reviews and support page on the plugins page
+* Modified "comuni attuali" database import routines, following modification in ISTAT files since June 2020
+* Modified remote file update detection system
 
 = 1.0.3 =
 * Bug fix: error in hash calculation on modules/formsign/wpcf7-formsign-formtag.php
 
 = 1.0.2 =
-* Aggiornamenti di alcune stringhe della traduzione.
-* Bug fix (addslashes prima di calcolare hash di verifica)
+* Updates of some translation strings.
+* Bug fix (addslashes before calculating verification hash)
 
 = 1.0.1 =
-* Aggiornato il text domain allo slug assegnato da wordpress.
+* Updated the text domain to the slug assigned by wordpress.
 
 = 1.0.0 =
-* Primo rilascio del plugin.
+* First release of the plugin.
 
 == Upgrade Notice ==
 
 = 1.1.0 =
-L'ISTAT ha modificato il formato del suo database.
-Dopo questo aggiornamento è necessario aggiornare la tabella relativa ai comuni attuali [comuni_attuali].
-È consigliato anche aggiornare le tabelle relativa ai comuni soppressi [comuni_soppressi] e alle variazioni [comuni_variazioni]
+ISTAT has changed the format of its database.
+After this update it is necessary to update the table relating to the current municipalities [comuni_attuali].
+It is also recommended to update the tables relating to the municipalities suppressed [comuni_soppressi] and to the variations [comuni_variazioni]
 
 = 1.0.0 =
-Prima installazione
-
+First installation

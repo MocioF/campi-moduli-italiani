@@ -161,6 +161,9 @@ class GCMI_COMUNE {
 			'targa' => $MyPrefix . '_gcmi_targa',
 			'ico'   => $MyPrefix . '_gcmi_icon',
 			'info'  => $MyPrefix . '_gcmi_info',
+			'reg_desc' => $MyPrefix . '_gcmi_reg_desc',
+			'prov_desc' => $MyPrefix . '_gcmi_prov_desc',
+			'comu_desc' => $MyPrefix . '_gcmi_comu_desc',
 		);
 		return $IDs;
 	}
@@ -252,7 +255,7 @@ class GCMI_COMUNE {
 		}
 
 		$results = $wpdb->get_results( $sql );
-		$comuni  = '<option value="">Scegli...</option>';
+		$comuni  = '<option value="">' . __( 'Choose...', 'campi-moduli-italiani' ) . '</option>';
 		if ( count( $results ) > 0 ) {
 			foreach ( $results as $result ) {
 				$comuni .= '<option value="' . esc_html( $result->i_cod_comune ) . '">' . esc_html( stripslashes( $result->i_denominazione_full ) ) . '</option>';
@@ -418,9 +421,9 @@ class GCMI_COMUNE {
 			$table .= '</br>';
 			$table .= '<table class="gcmiT2">';
 			$table .= '<tr>';
-			$table .= '<td class="tg-uzvj">' . __( 'Year', 'campi-moduli-italiani' ) . '</td>';
-			$table .= '<td class="tg-uzvj">' . __( 'Variation type', 'campi-moduli-italiani' ) . '</td>';
-			$table .= '<td class="tg-uzvj">' . __( 'Territorial administrative variation from 1st January 1991', 'campi-moduli-italiani' ) . '</td>';
+			$table .= '<td class="tg-uzvj">' . esc_html( __( 'Year', 'campi-moduli-italiani' ) ) . '</td>';
+			$table .= '<td class="tg-uzvj">' . esc_html( __( 'Variation type', 'campi-moduli-italiani' ) ) . '</td>';
+			$table .= '<td class="tg-uzvj">' . esc_html( __( 'Territorial administrative variation from 1st January 1991', 'campi-moduli-italiani' ) ) . '</td>';
 			$table .= '</tr>';
 			foreach ( $results as $result ) {
 				switch ( $result->i_tipo_var ) {

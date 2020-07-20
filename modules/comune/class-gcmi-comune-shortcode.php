@@ -1,4 +1,16 @@
 <?php
+/**
+ * Wordpress shortcode for italian municipality seect cascade
+ *
+ * Adds a shortcode that generates a cascade of select to choose an Italian municipality
+  *
+ * @link https://wordpress.org/plugins/search/campi+moduli+italiani/
+ *
+ * @package campi-moduli-italiani
+ * @subpackage comune
+ * @since 1.0.0
+ */
+ 
 class GCMI_COMUNE_ShortCode extends GCMI_COMUNE {
 	private $kind;
 	private $comu_details;
@@ -52,6 +64,12 @@ class GCMI_COMUNE_ShortCode extends GCMI_COMUNE {
 		$quattro  = '<input type="hidden" name="' . $this->name . '_kind" id="' . $MyIDs['kin'] . '" value="' . $this->kind . '" />';
 		$quattro .= '<input type="hidden" name="' . $this->name . '_targa" id="' . $MyIDs['targa'] . '"/>';
 		$quattro .= '<input class="comu_mail" type="hidden" name="' . $this->name . '_formatted" id="' . $MyIDs['form'] . '"/>';
+
+		// these fields are useful if you use key/value pairs sent by the form to generate a PDF - from 1.1.1
+		$quattro .= '<input type="hidden" name="' . $this->name . '_reg_desc" id="' . $MyIDs['reg_desc'] . '"/>';
+		$quattro .= '<input type="hidden" name="' . $this->name . '_prov_desc" id="' . $MyIDs['prov_desc'] . '"/>';
+		$quattro .= '<input type="hidden" name="' . $this->name . '_comu_desc" id="' . $MyIDs['comu_desc'] . '"/>';
+
 		$quattro .= '</div>';
 		if ( $this->comu_details ) {
 			$quattro .= '<span id="' . $MyIDs['info'] . '" title="' . __( 'Municipality details', 'campi-moduli-italiani' ) . '"></span>';

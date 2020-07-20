@@ -165,7 +165,8 @@ class GCMI_Activator {
 
 	public static function activate() {
 		global $wpdb;
-
+		set_time_limit(360);
+		
 		/**
 		 * Creo la directory di download temporanea.
 		 */
@@ -256,6 +257,8 @@ class GCMI_Activator {
 				wp_die( esc_html( $error_message ), esc_html( $error_title ) );
 			}
 
+			set_time_limit(360);
+			ignore_user_abort(true);
 			if ( ! self::populate_db_table(
 				self::$database_file_info[ $i ]['name'],
 				$csv_file_path,
@@ -644,8 +647,6 @@ class GCMI_Activator {
 								'%s',
 							)
 						) ) ) {
-							$wpdb->print_error();
-							error_log( print_r( $gcmi_dati_line, true ) );
 							return false;
 						}
 						break;
@@ -876,9 +877,9 @@ class GCMI_Activator {
 		 l'Agenzia delle entrate mette a disposizione i dati relativi ai codici catastali dei comuni in una tabella HTML
 		   che puo' essere interrogata solo chiedendo l'elenco per iniziale del comune.
 		   Questa funzione richiede le tabelle per tutte le lettere e inserisce i dati in un file csv, che successivamente
-		   verra' importato nel database.
+		   verrà importato nel database.
 		   Il file e' necessario per ottenere l'informazione sul codice catastale dei comuni cessati, in quanto i dati ISTAT
-		   contengono il valore del codice catastale solo per i comuni attuali (questo dato ? funzionale al riscontro del codice fiscale)
+		   contengono il valore del codice catastale solo per i comuni attuali (questo dato è funzionale al riscontro del codice fiscale)
 		*/
 
 		$alphas = range( 'A', 'Z' );
