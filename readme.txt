@@ -49,6 +49,7 @@ The value returned by the group is always the ISTAT code of the selected municip
 From version 1.1.1 hidden fields are also populated with the strings corresponding to the denomination of the region, province and municipality selected, useful for being used in plugins that directly capture the data transmitted by the form (such as "Send PDF for Contact Form 7" )
 The cascade of select can also be used outside of CF7, using the [comune] shortcode (options similar to those of the form tag for Contact Form 7).
 
+[cf]
 `[cf]` has a manager in the CF7 form creation area that allows you to set the various options.
 In particular, it is possible to set various validation options allowing you to find the correspondence of the tax code with other fields of the form.
 Specifically, it is possible to verify that the tax code corresponds with the foreign state of birth (selected by means of a select [stato]), the Italian municipality of birth (selected by means of a cascade of select [comune]), gender (indicating the name of a form field that returns "M" or "F"), the date of birth. If multiple fields are used to select the date of birth, one for the day, one for the month and one for the year, it is possible to find the correspondence of the tax code with these values.
