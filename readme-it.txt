@@ -5,7 +5,7 @@ Tags: italiano, contact form 7, codice fiscale, comuni italiani, firma digitale
 Requires at least: 4.7
 Tested up to: 5.4
 Requires PHP: 5.6
-Stable tag: 1.1.1
+Stable tag: 1.1.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html
 
@@ -21,7 +21,7 @@ In questa versione sono disponibili 4 form-tag (e corrispondenti mail-tag):
 * [stato]: crea la possibilità di selezionare uno stato
 * [formsign]: crea la possibilità di firmare digitalmente le mail inviate con una coppia di chiavi attribuita ad ogni singolo form
 
-Il plugin al momento dell'installazione scarica i dati che utilizza dal sito dell'Istat e da quello dell'Agenzia delle entrate. Questi dati sono aggiornabili dalla console di amministrazione.
+Il plugin al momento dell'installazione scarica i dati che utilizza dal sito web dell'Istat e da quello dell'Agenzia delle entrate. Questi dati sono aggiornabili dalla console di amministrazione.
 Il download dei dati e l'inserimento degli stessi nel database richiede diversi minuti: pazientate durante la fase di attivazione.
 La selezione dei comuni è stata creata partendo dal codice di https://wordpress.org/plugins/regione-provincia-comune/
 
@@ -35,7 +35,7 @@ In particolare, vengono acquisiti e memorizzati dati messi a disposizione a ques
 * https://www1.agenziaentrate.gov.it/documentazione/versamenti/codici/ricerca/VisualizzaTabella.php?ArcName=COM-ICI
 
 I dati pubblicati sul sito dell'ISTAT sono coperti da licenza Creative Commons - Attribuzione (CC-by) (https://creativecommons.org/licenses/by/3.0/it/), come indicato qui: https://www.istat.it/it/note-legali
-I dati prelevati dal sito internet dell'Agenzia delle entrate sono di pubblico dominio e costituiscono una banca dati pubblica resa disponibile per consentire gli adempimenti tributari e, più in generale, per consentire l'identificazione delle persone fiiche presso le pubbliche amministrazioni italiane, tramite il codice fiscale.
+I dati prelevati dal sito web dell'Agenzia delle entrate sono di pubblico dominio e costituiscono una banca dati pubblica resa disponibile per consentire gli adempimenti tributari e, più in generale, per consentire l'identificazione delle persone fisiche presso le pubbliche amministrazioni italiane, tramite il codice fiscale.
 I dati presenti sul sito dell'Agenzia delle entrate possono essere liberamente immagazzinati nel proprio computer o stampati (https://www.agenziaentrate.gov.it/portale/web/guest/privacy). I dati sono gestiti dall'Ufficio Archivio anagrafico dell'Agenzia delle entrate.
 Questo plugin utilizza i dati prelevati dal sito internet dell'Agenzia delle entrate esclusivamente al fine di effettuare un controllo di regolarità formale del codice fiscale.
 Questo plugin non riporta nelle pagine esterne del sito internet su cui è utilizzato, nessun collegamento né al sito dell'Agenzia delle entrate, né al sito dell'ISTAT; in particolare non viene effettuata alcuna forma di link diretto, né di deep linking.
@@ -107,11 +107,15 @@ Ancora non ci sono. :)
 
 1. Immagine dei form-tag [stato] e [comune] in un form
 2. Immagine del form-tag [cf] in un form
-3. Immagine del blocco "firma digitale" inserito in calce ad una mail mediante il form-tag [formsign]
+3. Immagine del blocco "firma digitale" inserito in calce ad una email mediante il form-tag [formsign]
 4. Immagine del meta-box di verifica dei codici hash e firma digitale in Flamingo
 5. Immagine della schermata di admin, da cui è possibile effettuare l'aggiornamento dei dati
 
 == Changelog ==
+
+= 1.1.2 =
+* Sistemato il charset per https://www.istat.it/storage/codici-unita-amministrative/Elenco-comuni-italiani.csv (set di dati "current_communes", tabella _gcmi_comuni_attuali). Aggiorna la tabella dalla console di amministrazione se alcuni nomi hanno caratteri non corrispondenti
+* Corretti errori minori in class-gcmi-comune.php
 
 = 1.1.1 =
 * Aggiunti dei campi hidden che contengono la denominazione di comune, provincia e regione selezionati per poter essere utilizzati all'interno di plugin che creano dei PDF
@@ -125,7 +129,7 @@ Ancora non ci sono. :)
 * Modificato sistema di rilevazione aggiornamento file remoti
 
 = 1.0.3 =
-* Bug fix: error in hash calculation on modules/formsign/wpcf7-formsign-formtag.php
+* Bug fix: errore nel calcolo dell'hash in modules/formsign/wpcf7-formsign-formtag.php
 
 = 1.0.2 =
 * Aggiornamenti di alcune stringhe della traduzione.
@@ -135,7 +139,7 @@ Ancora non ci sono. :)
 * Aggiornato il text domain allo slug assegnato da wordpress.
 
 = 1.0.0 =
-* Primo rilascio del plugin.
+* Prima versione del plugin.
 
 == Upgrade Notice ==
 

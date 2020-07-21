@@ -339,7 +339,7 @@ class GCMI_COMUNE {
 		$table .= '<table class="gcmiT1">';
 		$table .= '<tr>';
 		$table .= '<td class="tg-cly1">' . esc_html( __( 'Municipality name:', 'campi-moduli-italiani' ) ) . '</td>';
-		$table .= '<td class="tg-yla0">' . esc_html( $results['i_denominazione_full'] );
+		$table .= '<td class="tg-yla0">' . esc_html( stripslashes( $results['i_denominazione_full'] ) );
 		$table .= ( isset( $sql2 ) ) ? self::$DefStrings['SFX_SOPPRESSI_CEDUTI'] : '';
 		$table .= '</td>';
 		$table .= '</tr>';
@@ -350,20 +350,20 @@ class GCMI_COMUNE {
 		if ( ! isset( $sql2 ) ) { // un comune attivo
 			$table .= '<tr>';
 			$table .= '<td class="tg-cly1">' . esc_html( __( 'Municipality Italian name:', 'campi-moduli-italiani' ) ) . '</td>';
-			$table .= '<td class="tg-yla0">' . esc_html( $results['i_denominazione_ita'] ) . '</td>';
+			$table .= '<td class="tg-yla0">' . esc_html( stripslashes( $results['i_denominazione_ita'] ) ) . '</td>';
 			$table .= '</tr>';
 			$table .= '<tr>';
 			$table .= '<td class="tg-5lax">' . esc_html( __( 'Other language Municipality name:', 'campi-moduli-italiani' ) ) . '</td>';
-			$table .= '<td class="tg-qw54">' . esc_html( $results['i_denominazione_altralingua'] ) . '</td>';
+			$table .= '<td class="tg-qw54">' . esc_html( stripslashes( $results['i_denominazione_altralingua'] ) ) . '</td>';
 			$table .= '</tr>';
 		}
 		$table .= '<tr>';
 		$table .= '<td class="tg-cly1">' . esc_html( __( 'Geographical area:', 'campi-moduli-italiani' ) ) . '</td>';
-		$table .= '<td class="tg-yla0">' . esc_html( $results['i_ripartizione_geo'] ) . '</td>';
+		$table .= '<td class="tg-yla0">' . esc_html( stripslashes( $results['i_ripartizione_geo'] ) ) . '</td>';
 		$table .= '</tr>';
 		$table .= '<tr>';
 		$table .= '<td class="tg-5lax">' . esc_html( __( 'Region name:', 'campi-moduli-italiani' ) ) . '</td>';
-		$table .= '<td class="tg-qw54">' . esc_html( $results['i_den_regione'] ) . '</td>';
+		$table .= '<td class="tg-qw54">' . esc_html( stripslashes( $results['i_den_regione'] ) ) . '</td>';
 		$table .= '</tr>';
 
 		$table .= '<tr>';
@@ -390,7 +390,7 @@ class GCMI_COMUNE {
 
 		$table .= '<tr>';
 		$table .= '<td class="tg-5lax">' . esc_html( __( 'Name of the supra-municipal territorial unit (valid for statistical purposes):', 'campi-moduli-italiani' ) ) . '</td>';
-		$table .= '<td class="tg-qw54">' . esc_html( $results['i_den_unita_territoriale'] ) . '</td>';
+		$table .= '<td class="tg-qw54">' . esc_html( stripslashes( $results['i_den_unita_territoriale'] ) ) . '</td>';
 		$table .= '</tr>';
 		$table .= '<tr>';
 		$table .= '<td class="tg-cly1">' . esc_html( __( 'Automotive abbreviation:', 'campi-moduli-italiani' ) ) . '</td>';
@@ -459,7 +459,7 @@ class GCMI_COMUNE {
 				$table .= '<td class="tg-4ynh">' . esc_html( __( 'Official name of the municipality on the date of the event:', 'campi-moduli-italiani' ) ) . '</td>';
 				$table .= '</tr>';
 				$table .= '<tr>';
-				$table .= '<td class="tg-lboi">' . esc_html( $result->i_denominazione_full ) . '</td>';
+				$table .= '<td class="tg-lboi">' . esc_html( stripslashes( $result->i_denominazione_full ) ) . '</td>';
 				$table .= '</tr>';
 				$table .= '<tr>';
 				$table .= '<td class="tg-4ynh">' . esc_html( __( 'Istat code of the municipality associated with the change or new Istat code of the municipality:', 'campi-moduli-italiani' ) ) . '</td>';
@@ -471,19 +471,19 @@ class GCMI_COMUNE {
 				$table .= '<td class="tg-4ynh">' . esc_html( __( 'Name of the municipality associated with the change or new name:', 'campi-moduli-italiani' ) ) . '</td>';
 				$table .= '</tr>';
 				$table .= '<tr>';
-				$table .= '<td class="tg-lboi">' . esc_html( $result->i_denominazione_nuovo ) . '</td>';
+				$table .= '<td class="tg-lboi">' . esc_html( stripslashes( $result->i_denominazione_nuovo ) ) . '</td>';
 				$table .= '</tr>';
 				$table .= '<tr>';
 				$table .= '<td class="tg-4ynh">' . esc_html( __( 'Act and Document:', 'campi-moduli-italiani' ) ) . '</td>';
 				$table .= '</tr>';
 				$table .= '<tr>';
-				$table .= '<td class="tg-lboi">' . esc_html( $result->i_documento ) . '</td>';
+				$table .= '<td class="tg-lboi">' . esc_html( stripslashes( $result->i_documento ) ) . '</td>';
 				$table .= '</tr>';
 				$table .= '<tr>';
 				$table .= '<td class="tg-4ynh">' . esc_html( __( 'Content of the act:', 'campi-moduli-italiani' ) ) . '</td>';
 				$table .= '</tr>';
 				$table .= '<tr>';
-				$table .= '<td class="tg-lboi">' . esc_html( $result->i_contenuto ) . '</td>';
+				$table .= '<td class="tg-lboi">' . esc_html( stripslashes( $result->i_contenuto ) ). '</td>';
 				$table .= '</tr>';
 				$table .= '<tr>';
 				$table .= '<td class="tg-4ynh">' . esc_html( __( 'Administrative validity effective date:', 'campi-moduli-italiani' ) ) . '</td>';

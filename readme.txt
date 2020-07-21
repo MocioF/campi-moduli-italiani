@@ -5,7 +5,7 @@ Tags: italiano, contact form 7, codice fiscale, comuni italiani, firma digitale
 Requires at least: 4.7
 Tested up to: 5.4
 Requires PHP: 5.6
-Stable tag: 1.1.1
+Stable tag: 1.1.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html
 
@@ -33,7 +33,7 @@ In particular, data made available at these URLs are acquired and stored:
 * https://www.istat.it/it/archivio/6747
 * https://www1.agenziaentrate.gov.it/documentazione/versamenti/codici/ricerca/VisualizzaTabella.php?ArcName=COM-ICI
 
-The data published on the ISTAT website are covered by a Creative Commons license - Attribution (CC-by) (https://creativecommons.org/licenses/by/3.0/it/), as indicated here: https: // www. istat.it/it/note-legali
+The data published on the ISTAT website are covered by a Creative Commons license - Attribution (CC-by) (https://creativecommons.org/licenses/by/3.0/it/), as indicated here: https://www.istat.it/it/note-legali
 The data taken from the website of the Agenzia delle entrate are in the public domain and constitute a public database made available to allow tax compliance and, more generally, to allow the identification of physical persons with the Italian public administrations, through the personal fiscal code.
 The data on the Agenzia delle entrate website can be freely stored on your computer or printed (https://www.agenziaentrate.gov.it/portale/web/guest/privacy). The data are managed by the Ufficio Archivio of the Agenzia delle entrate.
 This plugin uses the data taken from the website of the Agenzia delle entrate exclusively for the purpose of carrying out a formal regularity check of the pesonal tax code.
@@ -112,6 +112,10 @@ Still not there. :)
 
 == Changelog ==
 
+= 1.1.2 =
+* Fixed charset for https://www.istat.it/storage/codici-unita-amministrative/Elenco-comuni-italiani.csv (data set "comuni_attuali", table _gcmi_comuni_attuali). Please update the table from admin console if some names have characters mismatch
+* Minor bug fix in class-gcmi-comune.php
+
 = 1.1.1 =
 * Added hidden fields that contain the name of the municipality, province and region selected to be used within plugins that create PDFs
 * Set set_time_limit (360) in the activation routine
@@ -119,7 +123,7 @@ Still not there. :)
 
 = 1.1.0 =
 * Modified email signature check: the form ID is determined directly from Flamingo data and is no longer entered in the body of the email
-* Insert links to reviews and support page on the plugins page
+* Insert links to reviews and support page on the plugin page
 * Modified "comuni attuali" database import routines, following modification in ISTAT files since June 2020
 * Modified remote file update detection system
 

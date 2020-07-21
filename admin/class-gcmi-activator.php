@@ -33,8 +33,8 @@ class GCMI_Activator {
 			'optN_remoteUpd'   => 'gcmi_comuni_attuali_remote_file_time',
 			'remoteUpd_method' => 'get_headers',
 			'file_type'        => 'csv',
-			// 'orig_encoding' => 'ISO-8859-1',
-			'orig_encoding'    => 'windows-1251',
+			'orig_encoding' => 'ISO-8859-1',
+			//'orig_encoding'    => 'windows-1251',
 		),
 		array(
 			'name'             => 'comuni_soppressi',
