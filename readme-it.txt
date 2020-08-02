@@ -3,9 +3,9 @@ Contributors: mociofiletto
 Donate link: https://paypal.me/GiuseppeF77
 Tags: italiano, contact form 7, codice fiscale, comuni italiani, firma digitale
 Requires at least: 4.7
-Tested up to: 5.4
+Tested up to: 5.5
 Requires PHP: 5.6
-Stable tag: 1.1.2
+Stable tag: 1.1.3
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html
 
@@ -112,6 +112,8 @@ Ancora non ci sono. :)
 5. Immagine della schermata di admin, da cui è possibile effettuare l'aggiornamento dei dati
 
 == Changelog ==
+= 1.1.3 =
+* Correzioni di bug minori
 
 = 1.1.2 =
 * Sistemato il charset per https://www.istat.it/storage/codici-unita-amministrative/Elenco-comuni-italiani.csv (set di dati "current_communes", tabella _gcmi_comuni_attuali). Aggiorna la tabella dalla console di amministrazione se alcuni nomi hanno caratteri non corrispondenti

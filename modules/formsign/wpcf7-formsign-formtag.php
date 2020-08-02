@@ -240,15 +240,16 @@ function gcmi_flamingo_check_sign() {
 function gcmi_flamingo_formsig_meta_box( $post ) {
 	/*
 	 * In 1.0.3 this has been modified because radio opts values are stored as arrays and array_map sets option's value to null (with a warning)
+	 * In 1.1.3 this has been removed because we don't need to add slashes in array of data
 	 *
-	 * $postfields = array_map( 'addslashes', $post->fields );
 	 */
-	array_walk_recursive(
-		$post->fields,
-		function( &$item, $key ) {
-			$item = addslashes( $item );
-		}
-	);
+
+	// array_walk_recursive(
+	// $post->fields,
+	// function( &$item, $key ) {
+	// $item = addslashes( $item );
+	// }
+	// );
 	$postfields = $post->fields;
 	$serialized = serialize( $postfields );
 	$hash       = md5( $serialized );

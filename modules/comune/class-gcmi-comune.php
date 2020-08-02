@@ -153,15 +153,15 @@ class GCMI_COMUNE {
 	protected static function getIDs( $idprefix ) {
 		$MyPrefix = ( $idprefix ) ? $idprefix : md5( uniqid( mt_rand(), true ) );
 		$IDs      = array(
-			'reg'   => $MyPrefix . '_gcmi_regione',
-			'pro'   => $MyPrefix . '_gcmi_province',
-			'com'   => $MyPrefix . '_gcmi_comuni',
-			'kin'   => $MyPrefix . '_gcmi_kind',
-			'form'  => $MyPrefix . '_gcmi_formatted',
-			'targa' => $MyPrefix . '_gcmi_targa',
-			'ico'   => $MyPrefix . '_gcmi_icon',
-			'info'  => $MyPrefix . '_gcmi_info',
-			'reg_desc' => $MyPrefix . '_gcmi_reg_desc',
+			'reg'       => $MyPrefix . '_gcmi_regione',
+			'pro'       => $MyPrefix . '_gcmi_province',
+			'com'       => $MyPrefix . '_gcmi_comuni',
+			'kin'       => $MyPrefix . '_gcmi_kind',
+			'form'      => $MyPrefix . '_gcmi_formatted',
+			'targa'     => $MyPrefix . '_gcmi_targa',
+			'ico'       => $MyPrefix . '_gcmi_icon',
+			'info'      => $MyPrefix . '_gcmi_info',
+			'reg_desc'  => $MyPrefix . '_gcmi_reg_desc',
 			'prov_desc' => $MyPrefix . '_gcmi_prov_desc',
 			'comu_desc' => $MyPrefix . '_gcmi_comu_desc',
 		);
@@ -325,10 +325,10 @@ class GCMI_COMUNE {
 
 		$results = $wpdb->get_row( $sql1, ARRAY_A );
 
-		if ( ! $results ) { // non ha trovato nulla nei comuni italiani
+		if ( ! $results ) { // non ha trovato nulla nei comuni attuali.
 			$sql2  = 'SELECT `' . GCMI_TABLE_PREFIX . 'comuni_soppressi`.`i_denominazione_full`, `' . GCMI_TABLE_PREFIX . 'comuni_attuali`.`i_ripartizione_geo`, ';
 			$sql2 .= '`' . GCMI_TABLE_PREFIX . 'comuni_attuali`.`i_den_regione`, `' . GCMI_TABLE_PREFIX . 'comuni_attuali`.i_den_unita_territoriale, ';
-			$sql2 .= 'wp_gcmi_comuni_soppressi.`i_sigla_automobilistica`  ';
+			$sql2 .= 'wp_gcmi_comuni_soppressi.`i_sigla_automobilistica`, 1 as `i_cod_tipo_unita_territoriale`  ';
 			$sql2 .= 'FROM `' . GCMI_TABLE_PREFIX . 'comuni_soppressi` LEFT JOIN `' . GCMI_TABLE_PREFIX . 'comuni_attuali` ';
 			$sql2 .= 'ON `' . GCMI_TABLE_PREFIX . 'comuni_soppressi`.`i_sigla_automobilistica` = `' . GCMI_TABLE_PREFIX . 'comuni_attuali`.`i_sigla_automobilistica` ';
 			$sql2 .= 'WHERE `' . GCMI_TABLE_PREFIX . "comuni_soppressi`.`i_cod_comune` = '" . esc_sql( $i_cod_comune ) . "' LIMIT 1";
@@ -483,7 +483,7 @@ class GCMI_COMUNE {
 				$table .= '<td class="tg-4ynh">' . esc_html( __( 'Content of the act:', 'campi-moduli-italiani' ) ) . '</td>';
 				$table .= '</tr>';
 				$table .= '<tr>';
-				$table .= '<td class="tg-lboi">' . esc_html( stripslashes( $result->i_contenuto ) ). '</td>';
+				$table .= '<td class="tg-lboi">' . esc_html( stripslashes( $result->i_contenuto ) ) . '</td>';
 				$table .= '</tr>';
 				$table .= '<tr>';
 				$table .= '<td class="tg-4ynh">' . esc_html( __( 'Administrative validity effective date:', 'campi-moduli-italiani' ) ) . '</td>';

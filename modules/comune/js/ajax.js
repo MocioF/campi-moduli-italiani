@@ -11,9 +11,9 @@ var gcmi_comu_mail_value = '';
 var gcmi_istance_kind    = '';
 var myID                 = '';
 
-var regione_desc         = '';
-var provincia_desc         = '';
-var comune_desc         = '';
+var regione_desc   = '';
+var provincia_desc = '';
+var comune_desc    = '';
 
 jQuery( document ).ready(
 	function($) {
@@ -31,14 +31,14 @@ jQuery( document ).ready(
 			function(){
 				if ( event && event.target.id ) {
 					if (event.target.id.search( "gcmi" ) != -1 ) {
-						window.MyPrefix   = event.target.id.substring( 0, (event.target.id.length - ("gcmi_regione").length) );
-						regione           = $( "select#" + window.MyPrefix + "gcmi_regione option:selected" ).attr( 'value' );
-						
-						regione_desc      = $( "select#" + window.MyPrefix + "gcmi_regione option:selected" ).text();
+						window.MyPrefix = event.target.id.substring( 0, (event.target.id.length - ("gcmi_regione").length) );
+						regione         = $( "select#" + window.MyPrefix + "gcmi_regione option:selected" ).attr( 'value' );
+
+						regione_desc = $( "select#" + window.MyPrefix + "gcmi_regione option:selected" ).text();
 						$( "input#" + window.MyPrefix + "gcmi_reg_desc" ).val( regione_desc );
 						$( "input#" + window.MyPrefix + "gcmi_prov_desc" ).val( '' );
 						$( "input#" + window.MyPrefix + "gcmi_comu_desc" ).val( '' );
-						
+
 						gcmi_istance_kind = $( "input#" + window.MyPrefix + "gcmi_kind" ).attr( 'value' );
 						if ( ! regione == '') {
 							if (regione != '00') {
@@ -87,11 +87,11 @@ jQuery( document ).ready(
 					if (event.target.id.search( "gcmi" ) != -1 ) {
 						window.MyPrefix = event.target.id.substring( 0, (event.target.id.length - ("gcmi_province").length) );
 						provincia       = $( "select#" + window.MyPrefix + "gcmi_province option:selected" ).attr( 'value' );
-						
-						provincia_desc      = $( "select#" + window.MyPrefix + "gcmi_province option:selected" ).text();
+
+						provincia_desc = $( "select#" + window.MyPrefix + "gcmi_province option:selected" ).text();
 						$( "input#" + window.MyPrefix + "gcmi_prov_desc" ).val( provincia_desc );
 						$( "input#" + window.MyPrefix + "gcmi_comu_desc" ).val( '' );
-						
+
 						$( "select#" + window.MyPrefix + "gcmi_comuni" ).html( attendere );
 						$( "select#" + window.MyPrefix + "gcmi_comuni" ).attr( "disabled", "disabled" );
 						if ( ! provincia == '') {
@@ -119,10 +119,10 @@ jQuery( document ).ready(
 					if (event.target.id.search( "gcmi" ) != -1 ) {
 						window.MyPrefix = event.target.id.substring( 0, (event.target.id.length - ("gcmi_comuni").length) );
 						comune          = $( "select#" + window.MyPrefix + "gcmi_comuni option:selected" ).attr( 'value' );
-						
-						comune_desc      = $( "select#" + window.MyPrefix + "gcmi_comuni option:selected" ).text();
+
+						comune_desc = $( "select#" + window.MyPrefix + "gcmi_comuni option:selected" ).text();
 						$( "input#" + window.MyPrefix + "gcmi_comu_desc" ).val( comune_desc );
-						
+
 						$.post(
 							gcmi_ajax.ajaxurl,
 							{action:'the_ajax_hook_targa',codice_comune:comune,gcmi_kind:gcmi_istance_kind},

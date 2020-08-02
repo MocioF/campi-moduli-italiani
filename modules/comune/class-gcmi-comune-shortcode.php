@@ -1,16 +1,16 @@
 <?php
 /**
- * Wordpress shortcode for italian municipality seect cascade
+ * WordPress shortcode for italian municipality seect cascade
  *
  * Adds a shortcode that generates a cascade of select to choose an Italian municipality
-  *
+ *
  * @link https://wordpress.org/plugins/search/campi+moduli+italiani/
  *
  * @package campi-moduli-italiani
  * @subpackage comune
  * @since 1.0.0
  */
- 
+
 class GCMI_COMUNE_ShortCode extends GCMI_COMUNE {
 	private $kind;
 	private $comu_details;

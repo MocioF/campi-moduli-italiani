@@ -5,13 +5,13 @@
  * Class used on plugin activation.
  * Contains functions to create and populate db's tables.
  *
- * @link https://wordpress.org/plugins/search/campi+moduli+italiani/
+ * @link https://wordpress.org/plugins/campi-moduli-italiani/
  *
  * @package campi-moduli-italiani
  * @since 1.0.0
  */
 
-defined( 'ABSPATH' ) or die( 'you do not have acces to this page!' );
+defined( 'ABSPATH' ) || die( 'you do not have acces to this page!' );
 
 /**
  * Class with methods used on plugin activation
@@ -21,6 +21,11 @@ defined( 'ABSPATH' ) or die( 'you do not have acces to this page!' );
  */
 class GCMI_Activator {
 
+	/**
+	 * Contains data relating to individual imported public databases.
+	 *
+	 * @var $database_file_info
+	 */
 	public static $database_file_info = array(
 		array(
 			'name'             => 'comuni_attuali',
@@ -33,8 +38,7 @@ class GCMI_Activator {
 			'optN_remoteUpd'   => 'gcmi_comuni_attuali_remote_file_time',
 			'remoteUpd_method' => 'get_headers',
 			'file_type'        => 'csv',
-			'orig_encoding' => 'ISO-8859-1',
-			//'orig_encoding'    => 'windows-1251',
+			'orig_encoding'    => 'ISO-8859-1',
 		),
 		array(
 			'name'             => 'comuni_soppressi',
@@ -103,7 +107,11 @@ class GCMI_Activator {
 		),
 	);
 
-
+	/**
+	 * Contains the values of the options set in the database at the time of activation.
+	 *
+	 * @var $activator_options
+	 */
 	private static $activator_options = array(
 		'gcmi_plugin_version'                     => array(
 			'value'    => GCMI_VERSION,
@@ -163,12 +171,19 @@ class GCMI_Activator {
 		),
 	);
 
+	/**
+	 * Activate the plugin.
+	 *
+	 * Downloads all the data, creates and populates the database tables.
+	 *
+	 * @since 1.0.0
+	 */
 	public static function activate() {
 		global $wpdb;
-		set_time_limit(360);
-		
+		set_time_limit( 360 );
+
 		/**
-		 * Creo la directory di download temporanea.
+		 * I create the temporary download directory.
 		 */
 		if ( ! $download_temp_dir = self::make_tmp_dwld_dir() ) {
 			$error_title   = __( 'Error creating download directory', 'campi-moduli-italiani' );
@@ -177,7 +192,7 @@ class GCMI_Activator {
 		}
 
 		/**
-		 * Scarico i files remoti.
+		 * I download the remote files.
 		 */
 		$count_lines = count( self::$database_file_info );
 		for ( $i = 0; $i < $count_lines; $i++ ) {
@@ -185,29 +200,30 @@ class GCMI_Activator {
 				'zip' === self::$database_file_info[ $i ]['file_type'] ||
 				'csv' === self::$database_file_info[ $i ]['file_type']
 			) {
-				// Scarico i files remoti se non e' una tabella html.
+				// I download remote files if it's not an html table.
 				if ( ! self::download_file(
 					self::$database_file_info[ $i ]['remote_URL'],
 					$download_temp_dir,
 					self::$database_file_info[ $i ]['downd_name']
 				)
-				   ) {
-					$error_title   = esc_html( __( 'Remote file download error', 'campi-moduli-italiani' ) );
+				) {
+					$error_title = esc_html( __( 'Remote file download error', 'campi-moduli-italiani' ) );
+					/* translators: %s: the remote URL of the file to be downloaded */
 					$error_message = esc_html( sprintf( __( 'Could not download %s', 'campi-moduli-italiani' ), self::$database_file_info[ $i ]['remote_URL'] ) );
 					wp_die( $error_message, $error_title );
 				} else {
 					$option_name = self::$database_file_info[ $i ]['optN_dwdtime'];
-					// orario di acquisizione del file remoto.
+					// acquisition time of the remote file.
 					self::$activator_options[ $option_name ]['value'] = time();
 				}
 			}
 
-			// orario di aggiornamento del file remoto sul server.
+			// update time of the remote file on the server.
 			$option_name                                      = self::$database_file_info[ $i ]['optN_remoteUpd'];
 			self::$activator_options[ $option_name ]['value'] = gcmi_get_remote_update_timestamp( self::$database_file_info[ $i ]['name'] );
 
 			/**
-			 * Decomprimo gli zip
+			 * I unzip the zips
 			 */
 			if ( 'zip' === self::$database_file_info[ $i ]['file_type'] ) {
 				$pathtozip = $download_temp_dir . self::$database_file_info[ $i ]['downd_name'];
@@ -216,21 +232,21 @@ class GCMI_Activator {
 					$download_temp_dir,
 					self::$database_file_info[ $i ]['featured_csv']
 				)
-				   ) {
-					$error_title   = __( 'Zip archive extraction error', 'campi-moduli-italiani' );
+					) {
+					$error_title = __( 'Zip archive extraction error', 'campi-moduli-italiani' );
 					/* translators: %1$s: the local csv file name; %2$s: the zip archive file name */
 					$error_message = sprintf( __( 'Unable to extract %1$s from %2$s', 'campi-moduli-italiani' ), self::$database_file_info[ $i ]['featured_csv'], $pathtozip );
 					wp_die( esc_html( $error_message ), esc_html( $error_title ) );
 				}
 			}
-			
+
 			/**
-			 * Genero il file csv dalla tabella html
+			 * I generate the csv file from the html table
 			 */
 			if ( 'html' === self::$database_file_info[ $i ]['file_type'] ) {
 				self::download_html_data( $download_temp_dir, self::$database_file_info[ $i ]['name'] );
 				$option_name = self::$database_file_info[ $i ]['optN_dwdtime'];
-				// orario di acquisizione del file remoto.
+				// acquisition time of the remote file.
 				self::$activator_options[ $option_name ]['value'] = time();
 			}
 
@@ -257,8 +273,8 @@ class GCMI_Activator {
 				wp_die( esc_html( $error_message ), esc_html( $error_title ) );
 			}
 
-			set_time_limit(360);
-			ignore_user_abort(true);
+			set_time_limit( 360 );
+			ignore_user_abort( true );
 			if ( ! self::populate_db_table(
 				self::$database_file_info[ $i ]['name'],
 				$csv_file_path,
@@ -275,38 +291,53 @@ class GCMI_Activator {
 		}
 
 		/**
-		 * Rimuovo dir temporanea
+		 * I remove temporary directory.
 		 */
 		self::deleteDir( $download_temp_dir );
 
 		/**
-		 * Imposto il cron job
+		 * I set the cron job.
 		 */
 		self::create_gcmi_cron_job();
 
 		/**
-		 * Imposto le opzioni di attivazione
+		 * Set activation options.
 		 */
 		self::$activator_options['gcmi_last_update_check']['value'] = time();
 		self::set_gcmi_options();
 	}
 
+	/**
+	 * Disables the plugin.
+	 *
+	 * Deletes the tables from the database and disables the cronjob.
+	 *
+	 * @since 1.0.0
+	 */
 	public static function deactivate() {
-		for ( $i = 0; $i < count( self::$database_file_info ); $i++ ) {
+		$num_tables = count( self::$database_file_info );
+		for ( $i = 0; $i < $num_tables; $i++ ) {
 			self::drop_table( self::$database_file_info[ $i ]['name'], self::$database_file_info[ $i ]['table_name'] );
 		}
 
 		self::unset_gcmi_options();
 
 		/**
-		 * Rimuovo il cronjob
+		 * I remove the cronjob
 		 */
 		self::destroy_gcmi_cron_job();
 	}
 
+	/**
+	 * Creates temporary folder.
+	 *
+	 * Creates a temporary directory in wp-content/uploads to download data from remote servers.s
+	 *
+	 * @since 1.0.0
+	 */
 	public static function make_tmp_dwld_dir() {
 		/**
-		 * Crea una directory temporanea nella cartella di upload e ne restituisce il path
+		 * Creates a temporary directory in the upload folder and return its path
 		 */
 		$upload_dir      = wp_upload_dir();
 		$permitted_chars = '0123456789abcdefghijklmnopqrstuvwxyz';
@@ -318,6 +349,17 @@ class GCMI_Activator {
 		}
 	}
 
+	/**
+	 * Downloads remote files.
+	 *
+	 * Download the remote data to the temporary folder.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param string $remoteurl Remote URL of the data file.
+	 * @param string $tmp_dwld_dir URL of local created tmp directory.
+	 * @param string $filename Local file name for downloaded file.
+	 */
 	public static function download_file( $remoteurl, $tmp_dwld_dir, $filename ) {
 		if ( ! function_exists( 'download_url' ) ) {
 			require_once ABSPATH . '/wp-admin/includes/file.php';
@@ -336,12 +378,26 @@ class GCMI_Activator {
 		}
 	}
 
+	/**
+	 * Sets plugin options.
+	 *
+	 * Register all plugin's options in _options table.
+	 *
+	 * @since 1.0.0
+	 */
 	private static function set_gcmi_options() {
 		foreach ( self::$activator_options as $key => $value ) {
 			update_option( $key, $value['value'], $value['autoload'] );
 		}
 	}
 
+	/**
+	 * Deletes plugin options.
+	 *
+	 * Deletes all plugin's options from _options table.
+	 *
+	 * @since 1.0.0
+	 */
 	private static function unset_gcmi_options() {
 		$keys = array_keys( self::$activator_options );
 		foreach ( $keys as $key ) {
@@ -349,6 +405,17 @@ class GCMI_Activator {
 		}
 	}
 
+	/**
+	 * Extracts csv files from zip archives.
+	 *
+	 * Estracts csv data files from zip archives, and put output in the tmp dir.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param string $pathtozip Local path to zip file.
+	 * @param string $outputdir Local path of $tmp_dwld_dir.
+	 * @param string $csv_name Local name of csv file extracted from zip archive.
+	 */
 	public static function extract_csv_from_zip( $pathtozip, $outputdir, $csv_name ) {
 		$zip = new ZipArchive();
 		if ( $zip->open( $pathtozip ) === true ) {
@@ -365,11 +432,22 @@ class GCMI_Activator {
 		}
 	}
 
+	/**
+	 * Creates a db table.
+	 *
+	 * Creates a db table, evaluating name parameter.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param string $name from $database_file_info .
+	 * @param string $table $table_name from $database_file_info .
+	 */
 	public static function create_db_table( $name, $table ) {
 		global $wpdb;
 
-		$names = array();
-		for ( $i = 0; $i < count( self::$database_file_info ); $i++ ) {
+		$names        = array();
+		$tables_count = count( self::$database_file_info );
+		for ( $i = 0; $i < $tables_count; $i++ ) {
 			array_push( $names, self::$database_file_info[ $i ]['name'] );
 		}
 
@@ -493,7 +571,15 @@ class GCMI_Activator {
 
 		return $wpdb->query( $structure );
 	}
-
+	/**
+	 * Prepares csv files for import.
+	 *
+	 * Prepares csv files for import into database.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param string $filepath local csv file path .
+	 */
 	public static function prepare_file( $filepath ) {
 		// i csv dell'INPS utilizzano come newline il formato DOS (CR + LF o chr(13) chr(10)
 		// tuttavia nella riga di intestazione contengono degli LF
@@ -506,11 +592,7 @@ class GCMI_Activator {
 		// \r            'carriage return'
 		// )              end of look-ahead
 		$replaced_string = preg_replace( '/(?<!\r)\n/', '', $string );
-		/*
-		$replaced_string = str_replace("'", "\'", $replaced_string);
-		// qui sostituisco anche gli apostrofi inglesi con gli apici
-		$replaced_string = str_replace("'", "\'", $replaced_string);
-		*/
+
 		if ( ! ( file_put_contents( dirname( $filepath ) . '/tmp.csv', $replaced_string ) ) ) {
 			return false; }
 		if ( ! ( rename( dirname( $filepath ) . '/tmp.csv', $filepath ) ) ) {
@@ -518,6 +600,16 @@ class GCMI_Activator {
 		return true;
 	}
 
+	/**
+	 * Converts csv file charset.
+	 *
+	 * Converts csv file charset to DB_CHARSET
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param string $filepath local CSV file path.
+	 * @param string $orig_enc	 original encoding from $database_file_info .
+	 */
 	public static function convert_file_charset( $filepath, $orig_enc ) {
 		if ( ! isset( $orig_enc ) ) {
 			$orig_enc = 'UTF-8';
@@ -555,13 +647,25 @@ class GCMI_Activator {
 		return true;
 	}
 
+	/**
+	 * Populates a db table.
+	 *
+	 * Populates a db table, using data in csv file.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param string $name from $database_file_info .
+	 * @param string $csv_file_path .
+	 * @param string $table $table_name from $database_file_info .
+	 */
 	public static function populate_db_table( $name, $csv_file_path, $table ) {
 		global $wpdb;
 		$wpdb->show_errors();
 		global $wp_filesystem;
 
-		$names = array();
-		for ( $i = 0; $i < count( self::$database_file_info ); $i++ ) {
+		$names        = array();
+		$tables_count = count( self::$database_file_info );
+		for ( $i = 0; $i < $tables_count; $i++ ) {
 			array_push( $names, self::$database_file_info[ $i ]['name'] );
 		}
 
@@ -577,23 +681,23 @@ class GCMI_Activator {
 		}
 		for ( $i = 1; $i < count( $arr_dati ); $i++ ) {
 
-			$gcmi_dati_line = array(); // inizializzo ad array vuoto
+			$gcmi_dati_line = array(); // inizializzo ad array vuoto.
 			/*
-			 aluni file dell'istat generati con excel, contengono migliaia di righe vuote, ma piene solo del carattere delimitatore ";"
-			   come se tutto il foglio contenesse dati nulli.
-			   Queste righe devono essere eliminate e non importate, perché le operazioni di scrittura sul database sono estremamente lunghe e comunque le
-			   tabelle diventano di dimensioni significative.
-			*/
-			// se la stringa non è costituita da soli ;
+			 * Aluni file dell'istat generati con excel, contengono migliaia di righe vuote, ma piene solo del carattere delimitatore ";"
+			 * come se tutto il foglio contenesse dati nulli.
+			 * Queste righe devono essere eliminate e non importate, perché le operazioni di scrittura sul database sono estremamente lunghe e comunque le
+			 * tabelle diventano di dimensioni significative.
+			 */
+			// se la stringa non è costituita da soli ";".
 			if ( ! preg_match( '/^(.)\;*$/u', trim( $arr_dati[ $i ] ) ) ) {
-				$gcmi_dati_line = str_getcsv( $arr_dati[ $i ], ';', '"' ); // non usare explode, perche' ci sono dei ";" nelle stringhe di testo delimitate con ""
+				$gcmi_dati_line = str_getcsv( $arr_dati[ $i ], ';', '"' ); // non usare explode, perche' ci sono dei ";" nelle stringhe di testo delimitate con "" .
 				$gcmi_dati_line = array_map( 'trim', $gcmi_dati_line );
 
 				$gcmi_dati_line = str_replace( '', null, $gcmi_dati_line );
 				$gcmi_dati_line = esc_sql( $gcmi_dati_line );
 				switch ( $name ) {
 					case 'comuni_attuali':
-						// inserisco la riga nel database
+						// inserisco la riga nel database.
 						if ( ! ( $wpdb->insert(
 							$table,
 							array(
@@ -722,15 +826,15 @@ class GCMI_Activator {
 						break;
 					case 'stati':
 						// n.d. to empty string
-						if ( $gcmi_dati_line[8] === 'n.d.' || $gcmi_dati_line[8] === 'n.d' ) {
+						if ( 'n.d.' === $gcmi_dati_line[8] || 'n.d' === $gcmi_dati_line[8] ) {
 							$gcmi_dati_line[8] = null; }
-						if ( $gcmi_dati_line[9] == 'n.d.' || $gcmi_dati_line[9] === 'n.d' ) {
+						if ( 'n.d.' === $gcmi_dati_line[9] || 'n.d' === $gcmi_dati_line[9] ) {
 							$gcmi_dati_line[9] = null; }
-						if ( $gcmi_dati_line[10] === 'n.d.' || $gcmi_dati_line[10] === 'n.d' ) {
+						if ( 'n.d.' === $gcmi_dati_line[10] || 'n.d' === $gcmi_dati_line[10] ) {
 							$gcmi_dati_line[10] = null; }
-						if ( $gcmi_dati_line[11] === 'n.d.' || $gcmi_dati_line[11] === 'n.d' ) {
+						if ( 'n.d.' === $gcmi_dati_line[11] || 'n.d' === $gcmi_dati_line[11] ) {
 							$gcmi_dati_line[11] = null; }
-						if ( $gcmi_dati_line[12] === 'n.d.' || $gcmi_dati_line[12] === 'n.d' ) {
+						if ( 'n.d.' === $gcmi_dati_line[12] || 'n.d' === $gcmi_dati_line[12] ) {
 							$gcmi_dati_line[12] = null; }
 						if ( ! ( $wpdb->insert(
 							$table,
@@ -774,11 +878,11 @@ class GCMI_Activator {
 						break;
 
 					case 'stati_cessati':
-						if ( $gcmi_dati_line[4] === 'n.d.' || $gcmi_dati_line[4] === 'n.d' ) {
+						if ( 'n.d.' === $gcmi_dati_line[4] || 'n.d' === $gcmi_dati_line[4] ) {
 							$gcmi_dati_line[4] = null; }
-						if ( $gcmi_dati_line[5] === 'n.d.' || $gcmi_dati_line[5] === 'n.d' ) {
+						if ( 'n.d.' === $gcmi_dati_line[5] || 'n.d' === $gcmi_dati_line[5] ) {
 							$gcmi_dati_line[5] = null; }
-						if ( $gcmi_dati_line[6] === 'n.d.' || $gcmi_dati_line[6] === 'n.d' ) {
+						if ( 'n.d.' === $gcmi_dati_line[6] || 'n.d' === $gcmi_dati_line[6] ) {
 							$gcmi_dati_line[6] = null; }
 						if ( ! ( $wpdb->insert(
 							$table,
@@ -816,15 +920,24 @@ class GCMI_Activator {
 		return true;
 	}
 
-	public static function deleteDir( $dirPath ) {
+	/**
+	 * Deletes a dir and all its content.
+	 *
+	 * Deletes temporary created dir in wp-content/uploads/.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param string $dir_path .
+	 */
+	public static function deleteDir( $dir_path ) {
 		// cancella una directory e tutto il suo contenuto
-		if ( ! is_dir( $dirPath ) ) {
-			throw new InvalidArgumentException( "$dirPath must be a directory" );
+		if ( ! is_dir( $dir_path ) ) {
+			throw new InvalidArgumentException( "$dir_path must be a directory" );
 		}
-		if ( substr( $dirPath, strlen( $dirPath ) - 1, 1 ) != '/' ) {
-			$dirPath .= '/';
+		if ( substr( $dir_path, strlen( $dir_path ) - 1, 1 ) !== '/' ) {
+			$dir_path .= '/';
 		}
-		$files = glob( $dirPath . '*', GLOB_MARK );
+		$files = glob( $dir_path . '*', GLOB_MARK );
 		foreach ( $files as $file ) {
 			if ( is_dir( $file ) ) {
 				deleteDir( $file );
@@ -832,9 +945,19 @@ class GCMI_Activator {
 				unlink( $file );
 			}
 		}
-		rmdir( $dirPath );
+		rmdir( $dir_path );
 	}
 
+	/**
+	 * Deletes a data table from db.
+	 *
+	 * Deletes a data table from db.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param string $name from $database_file_info .
+	 * @param string $table $table_name from $database_file_info .
+	 */
 	public static function drop_table( $name, $table ) {
 		global $wpdb;
 
@@ -852,17 +975,41 @@ class GCMI_Activator {
 		return true;
 	}
 
+	/**
+	 * Creates the cronjob.
+	 *
+	 * Creates a cronjob to check for remote file upadetes.
+	 *
+	 * @since 1.0.0
+	 */
 	public static function create_gcmi_cron_job() {
 		if ( ! wp_next_scheduled( 'gcmi_check_for_remote_data_updates' ) ) {
 			wp_schedule_event( time() + 86400, 'daily', 'gcmi_check_for_remote_data_updates' );
 		}
 	}
 
+	/**
+	 * Destroys the cron job.
+	 *
+	 * Destroys the cron job for remote file upadetes.
+	 *
+	 * @since 1.0.0
+	 */
 	public static function destroy_gcmi_cron_job() {
 		$timestamp = wp_next_scheduled( 'gcmi_check_for_remote_data_updates' );
 		wp_unschedule_event( $timestamp, 'gcmi_check_for_remote_data_updates' );
 	}
 
+	/**
+	 * Downloads html data.
+	 *
+	 * This is a wrapper for functions downloading data from html tables.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param string $tmp_dwld_dir temporary download directory.
+	 * @param string $name from $database_file_info .
+	 */
 	public static function download_html_data( $tmp_dwld_dir, $name ) {
 		// wrapper per le funzioni specifiche per ogni singolo file
 		switch ( $name ) {
@@ -872,18 +1019,27 @@ class GCMI_Activator {
 		}
 	}
 
+	/**
+	 * Downloads html data for codici_catastali.
+	 *
+	 * Downloads to a csv files data for codici_catastali
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param string $tmp_dwld_dir temporary download directory.
+	 */
 	public static function get_csvdata_codici_catastali( $tmp_dwld_dir ) {
 		/*
-		 l'Agenzia delle entrate mette a disposizione i dati relativi ai codici catastali dei comuni in una tabella HTML
-		   che puo' essere interrogata solo chiedendo l'elenco per iniziale del comune.
-		   Questa funzione richiede le tabelle per tutte le lettere e inserisce i dati in un file csv, che successivamente
-		   verrà importato nel database.
-		   Il file e' necessario per ottenere l'informazione sul codice catastale dei comuni cessati, in quanto i dati ISTAT
-		   contengono il valore del codice catastale solo per i comuni attuali (questo dato è funzionale al riscontro del codice fiscale)
+		 * l'Agenzia delle entrate mette a disposizione i dati relativi ai codici catastali dei comuni in una tabella HTML
+		 * che puo' essere interrogata solo chiedendo l'elenco per iniziale del comune.
+		 * Questa funzione richiede le tabelle per tutte le lettere e inserisce i dati in un file csv, che successivamente
+		 * verrà importato nel database.
+		 * Il file e' necessario per ottenere l'informazione sul codice catastale dei comuni cessati, in quanto i dati ISTAT
+		 * contengono il valore del codice catastale solo per i comuni attuali (questo dato è funzionale al riscontro del codice fiscale)
 		*/
 
 		$alphas = range( 'A', 'Z' );
-		// inserisco riga intestazione
+		// inserisco riga intestazione.
 		file_put_contents( $tmp_dwld_dir . '/codici_catastali.csv', "Codice Ente;Denominazione\r\n", FILE_APPEND | LOCK_EX );
 		$args = array(
 			'sslverify'       => true,
@@ -893,9 +1049,9 @@ class GCMI_Activator {
 		for ( $i = 0; $i < count( $alphas ); $i++ ) {
 			$remote_URL = 'https://www1.agenziaentrate.gov.it/documentazione/versamenti/codici/ricerca/VisualizzaTabella.php?iniz=' . $alphas[ $i ] . '&ArcName=COM-ICI';
 			/*
-			 il server Agenzia al momento è mal configurato perchè non serve tutta la catena di certificati intermedi, ma solo quello del server;
-			   utilizzo una copia locale del certificato (ambiente impostato prima della routine)
-			*/
+			 * Il server Agenzia al momento è mal configurato perchè non serve tutta la catena di certificati intermedi, ma solo quello del server;
+			 * utilizzo una copia locale del certificato (ambiente impostato prima della routine).
+			 */
 			$response    = wp_remote_get( $remote_URL, $args );
 			$htmlContent = wp_remote_retrieve_body( $response );
 
