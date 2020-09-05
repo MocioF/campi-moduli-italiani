@@ -14,7 +14,6 @@
 
 class GCMI_COMUNE_WPCF7_FormTag extends GCMI_COMUNE {
 
-
 	private $kind;
 	private $name;
 	private $atts;
@@ -22,7 +21,11 @@ class GCMI_COMUNE_WPCF7_FormTag extends GCMI_COMUNE {
 	private $use_label_element;
 	private $validation_error;
 
-	function __construct( $name, $atts, $options, $validation_error ) {
+//
+	private $preset_value;
+	
+//	function __construct( $name, $atts, $options, $validation_error ) {
+	function __construct( $name, $atts, $options, $validation_error, $preset_value ) {
 		if ( ! parent::is_valid_kind( $options['kind'] ) ) {
 			$this->kind = 'tutti';
 		} else {
@@ -33,6 +36,12 @@ class GCMI_COMUNE_WPCF7_FormTag extends GCMI_COMUNE {
 		$this->comu_details      = $options['comu_details'];
 		$this->use_label_element = $options['use_label_element'];
 		$this->validation_error  = $validation_error;
+		
+		if ( parent::is_valid_cod_comune ( $preset_value ) ) {
+			$this->preset_value  = $preset_value;
+		} else {
+			$this->preset_value = '';
+		}
 	}
 
 	public function get_html() {
@@ -79,7 +88,15 @@ class GCMI_COMUNE_WPCF7_FormTag extends GCMI_COMUNE {
 			$tre .= __( 'Select a municipality:', 'campi-moduli-italiani' ) . '<br />';
 		}
 		$tre .= '<span class="wpcf7-form-control-wrap ' . $this->name . '">';
-		$tre .= '<select name="' . $this->name . '" id="' . $MyIDs['com'] . '" ' . $atts . '>';
+		$tre .= '<select name="' . $this->name . '" id="' . $MyIDs['com'] . '" ' . $atts;
+
+		// gestione valore predefinito
+		if ( $this->preset_value != '') {
+			$tre .= ' data-prval="';
+			$tre .= parent::gcmi_get_data_from_comune($this->preset_value, $this->kind ) . '"';
+		}
+
+		$tre .='>';
 		$tre .= '<option value="">' . __( 'Select...', 'campi-moduli-italiani' ) . '</option>';
 		$tre .= '</select>';
 		$tre .= $this->validation_error . '</span>';

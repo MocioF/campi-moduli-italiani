@@ -34,7 +34,6 @@ function wpcf7_gcmi_comune_formtag_handler( $tag ) {
 	}
 
 	if ( $validation_error ) {
-
 		$class .= ' wpcf7-not-valid';
 	}
 
@@ -57,7 +56,13 @@ function wpcf7_gcmi_comune_formtag_handler( $tag ) {
 	$options['comu_details']      = $tag->has_option( 'comu_details' );
 	$options['use_label_element'] = $tag->has_option( 'use_label_element' );
 
-	$gcmi_Comune_FT = new GCMI_COMUNE_WPCF7_FormTag( $tag->name, $atts, $options, $validation_error );
+	// codice per gestire i valori di default
+	$value = (string) reset( $tag->values );
+	$value = $tag->get_default_option( $value );
+	$value = wpcf7_get_hangover( $tag->name, $value );
+	$preset_value = $value;
+
+	$gcmi_Comune_FT = new GCMI_COMUNE_WPCF7_FormTag( $tag->name, $atts, $options, $validation_error, $preset_value );
 
 	return $gcmi_Comune_FT->get_html();
 }
@@ -101,6 +106,11 @@ function wpcf7_tg_pane_gcmi_comune( $contact_form, $args = '' ) {
 					<tr>
 						<th scope="row"><label for="<?php echo esc_attr( $args['content'] . '-name' ); ?>"><?php echo esc_html( __( 'Name', 'contact-form-7' ) ); ?></label></th>
 						<td><input type="text" name="name" class="tg-name oneline" id="<?php echo esc_attr( $args['content'] . '-name' ); ?>" /></td>
+					</tr>
+					<tr>
+						<th scope="row"><label for="<?php echo esc_attr( $args['content'] . '-values' ); ?>"><?php echo esc_html( __( 'Default value', 'contact-form-7' ) ); ?></label></th>
+						<td><input type="text" name="values" class="oneline" id="<?php echo esc_attr( $args['content'] . '-values' ); ?>" /><br />
+						<?php echo esc_html( __( 'Municipality\'s ISTAT Code (6 digits)', 'campi-moduli-italiani' ) ); ?></td>
 					</tr>
 					<tr>
 						<th scope="row"><label for="<?php echo esc_attr( $args['content'] . '-class' ); ?>"><?php echo esc_html( __( 'Class', 'contact-form-7' ) ); ?></label></th>

@@ -5,7 +5,7 @@ Tags: italiano, contact form 7, codice fiscale, comuni italiani, firma digitale
 Requires at least: 4.7
 Tested up to: 5.5
 Requires PHP: 5.6
-Stable tag: 1.1.3
+Stable tag: 1.2.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html
 
@@ -99,9 +99,12 @@ NOTA: l'attivazione richiede diversi minuti, perché vengono scaricate le tabell
 
 == Frequently Asked Questions ==
 
-= Dove sono le FAQ? =
+= Come prelevare valori predefiniti dal contesto ? =
 
-Ancora non ci sono. :)
+Dalla versione 1.2, [comune], [stato] e [cf] supportano il metodo standard di Contact Form 7 per ottenere valori dal contesto.
+Inoltre, tutti supportano valori predefiniti nel tag.
+Cerca qui per maggiori informazioni: https://contactform7.com/getting-default-values-from-the-context/
+[comune] utilizza javascript per essere riempito con il valore predefinito o contestuale.
 
 == Screenshots ==
 
@@ -112,6 +115,10 @@ Ancora non ci sono. :)
 5. Immagine della schermata di admin, da cui è possibile effettuare l'aggiornamento dei dati
 
 == Changelog ==
+= 1.2.0 =
+* Aggiunto supporto per i valori di default dal contesto in [comune], [cf] e [stato]. Utilizzata la sintassi standard di Contact Form 7. Leggi: https://contactform7.com/getting-default-values-from-the-context/
+* Correzioni di bug minori
+
 = 1.1.3 =
 * Correzioni di bug minori
 

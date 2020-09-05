@@ -39,7 +39,7 @@ function add_form_tag_gcmi_statoestero() {
  *
  * @since 1.0.0
  *
- * @param type $tag the tag.
+ * @param obj $tag the tag.
  * @return html string used in form or empty string.
  */
 function wpcf7_gcmi_stato_formtag_handler( $tag ) {
@@ -75,7 +75,15 @@ function wpcf7_gcmi_stato_formtag_handler( $tag ) {
 	$solo_attuali   = $tag->has_option( 'only_current' );
 
 	$html     = '';
-	$hangover = wpcf7_get_hangover( $tag->name );
+
+//	$hangover = wpcf7_get_hangover( $tag->name );
+
+	// codice per gestire i valori di default
+	$value = (string) reset( $tag->values );
+	$value = $tag->get_default_option( $value );
+	$value = wpcf7_get_hangover( $tag->name, $value );
+	$pr_value = $value;
+
 
 	$sql = 'SELECT `i_cod_istat`, `i_cod_continente`, `i_denominazione_ita`, `i_cod_AT` FROM ';
 	if ( false === $solo_attuali ) {
@@ -106,22 +114,20 @@ function wpcf7_gcmi_stato_formtag_handler( $tag ) {
 			foreach ( $stati as $stato ) {
 
 				if ( $stato->i_cod_continente === $cod_continente ) {
-					$value = 'value="' . esc_html( $stato->i_cod_istat );
-					if ( $stato->i_cod_istat === $hangover ) {
+					$value = 'value="' . esc_html( $stato->i_cod_istat ) . '"';
+					if ( $stato->i_cod_istat === $pr_value ) {
 						$value .= ' selected';
 					}
-					$value .= '"';
 					$inset  = stripslashes( esc_html( $stato->i_denominazione_ita ) );
 					$html  .= sprintf( '<option %1$s>%2$s</option>', $value, $inset );
 				}
 			}
 		}
 	} else {
-		$value = 'value="' . esc_html( $stato->i_cod_istat );
-		if ( $stato->i_cod_istat === $hangover ) {
+		$value = 'value="' . esc_html( $stato->i_cod_istat ) . '"';
+		if ( $stato->i_cod_istat === $pr_value ) {
 			$value .= ' selected';
 		}
-		$value .= '"';
 		$inset  = stripslashes( esc_html( $stato->i_denominazione_ita ) );
 		$html  .= sprintf( '<option %1$s>%2$s</option>', $value, $inset );
 	}
@@ -212,8 +218,8 @@ function wpcf7_add_tag_generator_gcmi_stato() {
  *
  * @since 1.0.0
  *
- * @param type $contact_form .
- * @param type $args array of default values.
+ * @param obj $contact_form .
+ * @param array $args array of default values.
  */
 function wpcf7_tg_pane_gcmi_stato( $contact_form, $args = '' ) {
 	$args = wp_parse_args( $args, array() );
@@ -240,6 +246,14 @@ function wpcf7_tg_pane_gcmi_stato( $contact_form, $args = '' ) {
 						<th scope="row"><label for="<?php echo esc_attr( $args['content'] . '-name' ); ?>"><?php echo esc_html( __( 'Name', 'contact-form-7' ) ); ?></label></th>
 						<td><input type="text" name="name" class="tg-name oneline" id="<?php echo esc_attr( $args['content'] . '-name' ); ?>" /></td>
 					</tr>
+					<tr>
+						<th scope="row"><label for="<?php echo esc_attr( $args['content'] . '-values' ); ?>"><?php echo esc_html( __( 'Default value', 'contact-form-7' ) ); ?></label></th>
+						<td><input type="text" name="values" class="oneline" id="<?php echo esc_attr( $args['content'] . '-values' ); ?>" /><br />
+						<?php echo esc_html( __( 'Country\'s ISTAT Code (3 digits)', 'campi-moduli-italiani' ) ); ?></td>
+					</tr>
+
+
+
 					<tr>
 					<th scope="row"><?php echo esc_html( __( 'Options', 'contact-form-7' ) ); ?></th>
 					<td>
