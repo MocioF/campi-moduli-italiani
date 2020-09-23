@@ -1,0 +1,29 @@
+/*
+ * gcmi css
+ */
+
+/* Tabelle hint comuni */
+/* prima tabella */
+.gcmiT1  {border-collapse:collapse;border-spacing:0;border-color:#aabcfe;table-layout:fixed;width: 100%;max-width:800px}
+.gcmiT1 td{font-family:Arial, sans-serif;font-size:14px;padding:10px 5px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;border-color:#aabcfe;color:#669;background-color:#e8edff;}
+.gcmiT1 th{font-family:Arial, sans-serif;font-size:14px;font-weight:normal;padding:10px 5px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;border-color:#aabcfe;color:#039;background-color:#b9c9fe;}
+.gcmiT1 .tg-cly1{text-align:left;vertical-align:middle}
+.gcmiT1 .tg-5lax{background-color:#D2E4FC;text-align:left;vertical-align:middle}
+.gcmiT1 .tg-yla0{font-weight:bold;text-align:left;vertical-align:middle}
+.gcmiT1 .tg-qw54{background-color:#D2E4FC;font-weight:bold;text-align:left;vertical-align:middle}
+
+/* tabella variazioni */
+.gcmiT2  {border-collapse:collapse;border-spacing:0;border-color:#aabcfe;width: 100%;max-width:800px}
+.gcmiT2 td{font-family:Arial, sans-serif;font-size:14px;padding:10px 5px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;border-color:#aabcfe;color:#669;background-color:#e8edff;}
+.gcmiT2 th{font-family:Arial, sans-serif;font-size:14px;font-weight:normal;padding:10px 5px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;border-color:#aabcfe;color:#039;background-color:#b9c9fe;}
+.gcmiT2 .tg-lboi{font-weight:bold;border-color:inherit;text-align:left;vertical-align:middle}
+.gcmiT2 .tg-5cz4{background-color:#D2E4FC;font-weight:bold;border-color:inherit;text-align:center;vertical-align:middle}
+.gcmiT2 .tg-uzvj{font-weight:bold;border-color:inherit;text-align:center;vertical-align:middle}
+.gcmiT2 .tg-4ynh{background-color:#D2E4FC;font-weight:normal;border-color:inherit;text-align:left;vertical-align:middle}
+.gcmiT2 .tg-0pky{border-color:inherit;text-align:left;vertical-align:top}
+
+.gcmi-info-comuni table {
+	border: 1px solid #D6DDE6;
+	border-collapse: collapse;
+	width: 80%;
+}
