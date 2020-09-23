@@ -5,7 +5,7 @@ Tags: italiano, contact form 7, codice fiscale, comuni italiani, firma digitale
 Requires at least: 4.7
 Tested up to: 5.5
 Requires PHP: 5.6
-Stable tag: 1.2.0
+Stable tag: 1.2.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html
 
@@ -100,7 +100,7 @@ NOTE: activation takes several minutes, because the updated data tables are down
 
 = How to get default values from the context ? =
 Since version 1.2, [comune], [stato] and [cf] support standard Contact Form 7 method to get values from the context.
-More, all of them support a predefined values in tag.
+More, all of them support a predefined value in tag.
 Look here for more informations: https://contactform7.com/getting-default-values-from-the-context/
 [comune] uses javascript to be filled with default or context value.
 
@@ -113,6 +113,9 @@ Look here for more informations: https://contactform7.com/getting-default-values
 5. Image of the admin screen, from which it is possible to update the data
 
 == Changelog ==
+= 1.2.1 =
+* Bug fix: fixed [stato] not replacing mail-tag with contry name
+
 = 1.2.0 =
 * Added support for default values from the context in [comune], [cf] and [stato]. Contact Form 7 standard sintax is used. Read: https://contactform7.com/getting-default-values-from-the-context/
 * Minor bug fixes

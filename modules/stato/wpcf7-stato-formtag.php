@@ -27,7 +27,7 @@ function add_form_tag_gcmi_statoestero() {
 		'wpcf7_gcmi_stato_formtag_handler',
 		array(
 			'name-attr'         => true,
-			'selectable-values' => true,
+			'selectable-values' => false,
 		)
 	);
 }

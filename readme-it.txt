@@ -5,7 +5,7 @@ Tags: italiano, contact form 7, codice fiscale, comuni italiani, firma digitale
 Requires at least: 4.7
 Tested up to: 5.5
 Requires PHP: 5.6
-Stable tag: 1.2.0
+Stable tag: 1.2.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html
 
@@ -115,6 +115,9 @@ Cerca qui per maggiori informazioni: https://contactform7.com/getting-default-va
 5. Immagine della schermata di admin, da cui è possibile effettuare l'aggiornamento dei dati
 
 == Changelog ==
+= 1.2.1 =
+* Bug fix: corretto [stato] che non sostitutiva il mail-tag con il nome paese
+
 = 1.2.0 =
 * Aggiunto supporto per i valori di default dal contesto in [comune], [cf] e [stato]. Utilizzata la sintassi standard di Contact Form 7. Leggi: https://contactform7.com/getting-default-values-from-the-context/
 * Correzioni di bug minori
