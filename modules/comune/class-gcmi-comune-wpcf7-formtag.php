@@ -75,7 +75,7 @@ class GCMI_COMUNE_WPCF7_FormTag extends GCMI_COMUNE {
 		if ( $this->use_label_element ) {
 			$due .= '<label for="' . $MyIDs['pro'] . '">' . __( 'Select a province:', 'campi-moduli-italiani' ) . '<br /></label>';
 		} else {
-			$due .= __( 'Select a province:', 'campi-moduli-italiani' ) . ':<br/>';
+			$due .= __( 'Select a province:', 'campi-moduli-italiani' ) . '<br/>';
 		}
 		$due .= '<select name="' . $this->name . '_IDPro" id="' . $MyIDs['pro'] . '" ' . $helperclass . '>';
 		$due .= '<option value="">' . __( 'Select...', 'campi-moduli-italiani' ) . '</option>';

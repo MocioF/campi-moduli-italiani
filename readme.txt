@@ -43,7 +43,7 @@ This plugin does not include any links on the external pages of the website on w
 
 [comune]
 `[comune]` has a manager in the CF7 form creation area that allows you to set various options.
-In particular, it is possible to set the "kind" attribute to "tutti" (all); "attuali" (current), "evidenza_cessati" (evidence ceased). In the first and third cases, in different ways, both the currently existing municipalities and those previously closed are proposed (useful, for example, to allow the selection of the municipality of birth). In the "attuali" mode, however, only the selection of the currently existing cunicipalities is allowed (useful to allow the selection of the Municipality of residence / domicile).
+In particular, it is possible to set the "kind" attribute to "tutti" (all); "attuali" (current), "evidenza_cessati" (evidence ceased). In the first and third cases, in different ways, both the currently existing municipalities and those previously closed are proposed (useful, for example, to allow the selection of the municipality of birth). In the "attuali" mode, however, only the selection of the currently existing municipalities is allowed (useful to allow the selection of the Municipality of residence / domicile).
 It is also possible to set the "comu_details" option, to show an icon after the select cascade that allows the display of a modal table with the statistical details of the territorial unit.
 The value returned by the group is always the ISTAT code of the selected municipality. The corresponding mail-tag converts this value into the name of the municipality followed by the indication of the automotive code of the province.
 From version 1.1.1 hidden fields are also populated with the strings corresponding to the denomination of the region, province and municipality selected, useful for being used in plugins that directly capture the data transmitted by the form (such as "Send PDF for Contact Form 7" )
@@ -62,13 +62,13 @@ In particular, it is possible to set the selection of only the currently existin
 `[formsign]` DOES NOT have a manager in the CF7 form creation area.
 To use it, simply insert the tag followed by the field name in your own form: for example [formsign firmadigitale]. This tag will create a hidden field in the form with attribute name = "firmadigitale" and no value.
 To use the code, it is also necessary to insert the [firmadigitale] field in the email or email that the form sends (it is recommended at the end of the email).
-In this way, a two-line sequence containing:
+In this way, at the end of the email will be written a two-line sequence containing:
 an md5 hash of the data transmitted with the module (not of the content of any attached files)
 a digital signature of the hash.
 The signature is affixed by generating a pair of RSA keys, attributed to each form.
 By checking the hash and the signature, it will be possible to verify that the emails have actually been sent by the form and that the data transmitted by the user correspond to what has been registered.
-To facilitate data feedback, it is preferable to use "Flamingo" for archiving sent messages. In fact, in the Flamingo admin screen, a specific box is created that allows feedback of the hash and digital signature entered in the email.
-The system is useful in the event that through the form it is expected to receive applications for registration or applications etc .. and avoids disputes regarding the data that the candidates claim to have sent and what is recorded by the system in Flamingo.
+To facilitate data feedback, it is preferable to use "Flamingo" for archiving sent messages. In fact, in the Flamingo admin screen, a specific box is created that allows feedback of the hash and the digital signature entered in the email.
+The system is useful in the event that through the form it is expected to receive applications for registration or applications etc... and avoids disputes regarding the data that the candidates claim to have sent and what is recorded by the system in Flamingo.
 
 == Installation ==
 
@@ -100,7 +100,7 @@ NOTE: activation takes several minutes, because the updated data tables are down
 
 = How to get default values from the context ? =
 Since version 1.2, [comune], [stato] and [cf] support standard Contact Form 7 method to get values from the context.
-More, all of them support a predefined value in tag.
+More, all of them support predefined values in tag.
 Look here for more informations: https://contactform7.com/getting-default-values-from-the-context/
 [comune] uses javascript to be filled with default or context value.
 
