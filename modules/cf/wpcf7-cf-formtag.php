@@ -34,7 +34,7 @@ function wpcf7_gcmi_cf_formtag_handler( $tag ) {
 	$atts['maxlength'] = '16';
 	$atts['minlength'] = '16';
 
-	$atts['class']    = $tag->get_class_option( $class );
+	$atts['class']    = 'wpcf7-text ' . $tag->get_class_option( $class );
 	$atts['id']       = $tag->get_id_option();
 	$atts['tabindex'] = $tag->get_option( 'tabindex', 'signed_int', true );
 
@@ -154,19 +154,17 @@ function wpcf7_tg_pane_gcmi_cf( $contact_form, $args = '' ) {
 						<td><input type="text" name="values" class="oneline" id="<?php echo esc_attr( $args['content'] . '-values' ); ?>" /><br />
 						<label><input type="checkbox" name="placeholder" class="option" /> <?php echo esc_html( __( 'Use this text as the placeholder of the field', 'contact-form-7' ) ); ?></label></td>
 					</tr>
-
-					<tr>
-						<th scope="row"><label for="<?php echo esc_attr( $args['content'] . '-class' ); ?>"><?php echo esc_html( __( 'Class', 'contact-form-7' ) ); ?></label></th>
-						<td><input type="text" name="class" class="classvalue oneline option" id="<?php echo esc_attr( $args['content'] . '-class' ); ?>" /></td>
-					</tr>
 					<tr>
 						<th scope="row"><label for="<?php echo esc_attr( $args['content'] . '-id' ); ?>"><?php echo esc_html( __( 'Id attribute', 'contact-form-7' ) ); ?></label></th>
 						<td><input type="text" name="id" class="idvalue oneline option" id="<?php echo esc_attr( $args['content'] . '-id' ); ?>" /></td>
 					</tr>
 					<tr>
+						<th scope="row"><label for="<?php echo esc_attr( $args['content'] . '-class' ); ?>"><?php echo esc_html( __( 'Class attribute', 'contact-form-7' ) ); ?></label></th>
+						<td><input type="text" name="class" class="classvalue oneline option" id="<?php echo esc_attr( $args['content'] . '-class' ); ?>" /></td>
+					</tr>
+					<tr>
 						<th scope="column" colspan="2"><?php echo esc_html( __( 'If you want tax code to match  form\'s others fields, please indicate the names given to these fields in the form. Tax code will be matched only against named fields (if you have just one field for born date, it is not necessary to check tax code against different fileds for day month and year of birth).', 'campi-moduli-italiani' ) ); ?></th>
 					</tr>
-
 					<tr>
 						<th scope="row"><label for="<?php echo esc_attr( $args['content'] . '-surname' ); ?>"><?php echo esc_html( __( '"name" attr of surname field', 'campi-moduli-italiani' ) ); ?></label></th>
 						<td><input type="text" name="surname-field" class="oneline option" id="<?php echo esc_attr( $args['content'] . '-surname' ); ?>" /></td>

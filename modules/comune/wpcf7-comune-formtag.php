@@ -39,7 +39,7 @@ function wpcf7_gcmi_comune_formtag_handler( $tag ) {
 
 	$atts = array();
 
-	$atts['class'] = $tag->get_class_option( $class );
+	$atts['class'] = 'wpcf7-select ' . $tag->get_class_option( $class );
 
 	if ( $tag->is_required() ) {
 		$atts['aria-required'] = 'true';
@@ -57,9 +57,9 @@ function wpcf7_gcmi_comune_formtag_handler( $tag ) {
 	$options['use_label_element'] = $tag->has_option( 'use_label_element' );
 
 	// codice per gestire i valori di default
-	$value = (string) reset( $tag->values );
-	$value = $tag->get_default_option( $value );
-	$value = wpcf7_get_hangover( $tag->name, $value );
+	$value        = (string) reset( $tag->values );
+	$value        = $tag->get_default_option( $value );
+	$value        = wpcf7_get_hangover( $tag->name, $value );
 	$preset_value = $value;
 
 	$gcmi_Comune_FT = new GCMI_COMUNE_WPCF7_FormTag( $tag->name, $atts, $options, $validation_error, $preset_value );
@@ -113,11 +113,6 @@ function wpcf7_tg_pane_gcmi_comune( $contact_form, $args = '' ) {
 						<?php echo esc_html( __( 'Municipality\'s ISTAT Code (6 digits)', 'campi-moduli-italiani' ) ); ?></td>
 					</tr>
 					<tr>
-						<th scope="row"><label for="<?php echo esc_attr( $args['content'] . '-class' ); ?>"><?php echo esc_html( __( 'Class', 'contact-form-7' ) ); ?></label></th>
-						<td><input type="text" name="class" class="classvalue oneline option" id="<?php echo esc_attr( $args['content'] . '-class' ); ?>" /></td>
-						
-					</tr>
-					<tr>
 						<th scope="row"><?php echo esc_html( __( 'Type (default "Every: current and deleted")', 'campi-moduli-italiani' ) ); ?></th>
 						<td>
 							<fieldset>	
@@ -139,9 +134,14 @@ function wpcf7_tg_pane_gcmi_comune( $contact_form, $args = '' ) {
 						</td>
 					</tr>
 					<tr>
-					<th scope="row"><label for="<?php echo esc_attr( $args['content'] . '-id' ); ?>"><?php echo esc_html( __( 'Id attribute', 'contact-form-7' ) ); ?></label></th>
-					<td><input type="text" name="id" class="idvalue oneline option" id="<?php echo esc_attr( $args['content'] . '-id' ); ?>" /></td>
+						<th scope="row"><label for="<?php echo esc_attr( $args['content'] . '-id' ); ?>"><?php echo esc_html( __( 'Id attribute', 'contact-form-7' ) ); ?></label></th>
+						<td><input type="text" name="id" class="idvalue oneline option" id="<?php echo esc_attr( $args['content'] . '-id' ); ?>" /></td>
 					</tr>
+					<tr>
+						<th scope="row"><label for="<?php echo esc_attr( $args['content'] . '-class' ); ?>"><?php echo esc_html( __( 'Class attribute', 'contact-form-7' ) ); ?></label></th>
+						<td><input type="text" name="class" class="classvalue oneline option" id="<?php echo esc_attr( $args['content'] . '-class' ); ?>" /></td>
+					</tr>
+
 				</tbody>
 			</table>
 		</fieldset>

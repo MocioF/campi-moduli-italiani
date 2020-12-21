@@ -113,6 +113,19 @@ Look here for more informations: https://contactform7.com/getting-default-values
 5. Image of the admin screen, from which it is possible to update the data
 
 == Changelog ==
+= 1.2.2 =
+* updated jquery-ui-dialog.css to version used in WP 5.6
+* added standard wpcf7's classes to [comune] (wpcf7-select), [stato] (wpcf7-select) and [cf] (wpcf7-text)
+* changed behaviour of option "use_label_element" in [comune]: if not set, no strings will be shown before selects
+* changed default first element as labels in selects of [comune]
+* added option to use a label in [stato] (Select a Country) 
+* changed class name: gcmi_wrap to gcmi-wrap
+*
+* [comune] shortcode (not for CF7):
+* changed class name: gcmi_comune to gcmi-comune
+* added options "use_label_element"; default to true
+* removed <p> and <div> elements
+
 = 1.2.1 =
 * Bug fix: fixed [stato] not replacing mail-tag with contry name
 

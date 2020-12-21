@@ -115,6 +115,19 @@ Cerca qui per maggiori informazioni: https://contactform7.com/getting-default-va
 5. Immagine della schermata di admin, da cui è possibile effettuare l'aggiornamento dei dati
 
 == Changelog ==
+= 1.2.2 =
+* aggiornato jquery-ui-dialog.css alla versione utilizzata in WP 5.6
+* aggiunte classi standard wpcf7 a [comune] (wpcf7-select), [stato] (wpcf7-select) e [cf] (wpcf7-text)
+* modificato il comportamento dell'opzione "use_label_element" in [comune]: se non è settata, non verrà visualizzata alcuna stringa prima delle select
+* modificati i valori dei primi elementi utilizzati come labels nelle selezioni di [comune]
+* aggiunta l'opzione per utilizzare un primo valore come etichetta nella select di [stato] (Seleziona un paese) 
+* modificato il nome della classe "gcmi_wrap" in "gcmi-wrap"
+*
+* [comune] shortcode (non per CF7):
+* modificato il nome della classe "gcmi_comune" in "gcmi-comune"
+* aggiunta l'opzione "use_label_element"; predefinito a true
+* rimossi gli elementi <p> e <div> dal codice html generato
+
 = 1.2.1 =
 * Bug fix: corretto [stato] che non sostitutiva il mail-tag con il nome paese
 

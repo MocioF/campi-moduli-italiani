@@ -2,11 +2,15 @@
 /**
  * Settings
  *
+ * @package campi-moduli-italiani
+ * @author       Giuseppe Foti
+ * @copyright    Giuseppe Foti
+ * @license      GPL-2.0+
+ *
+ * @since 1.0.0
+ *
  * From this file is it possible to deactivate specific modules
  * by setting GCMI_USE_[] costants to false.
- *
- * @package campi-moduli-italiani
- * @since 1.0.0
  */
 
 require_once plugin_dir_path( GCMI_PLUGIN ) . 'admin/class-gcmi-activator.php';

@@ -1,19 +1,27 @@
 <?php
 /**
+ * Campi Moduli Italiani
+ *
+ * @package      campi-moduli-italiani
+ * @author       Giuseppe Foti
+ * @copyright    Giuseppe Foti
+ * @license      GPL-2.0+
+ *
+ * @wordpress-plugin
  * Plugin Name: Campi Moduli Italiani
  * Text Domain: campi-moduli-italiani
  * Domain Path: /languages
  * Plugin URI: https://wordpress.org/plugins/campi-moduli-italiani/
  * Description: (Generator of) Fields for Italian CF7 modules. The plugin generates specific fields for Italian forms created with Contact Form 7. This version makes available four form-tags: a cascade selection for an Italian municipality, a select for a state, an Italian tax code field with validation, a hidden field that allows you to digitally sign e-mails to ensure that they have been sent via the form. The databases are taken from the Istat and Revenue Agency websites. The digital signature on the form data uses the RSA algorithm with a 4096 bit private key. <strong> Activation can take a few minutes to download the updated data and to import them into the database </strong>.
- * Version: 1.2.1
+ * Version: 1.2.2
  * Author: Giuseppe Foti
  * Author URI: https://bertocchi28.ddns.net/
  * License: GPLv2 or later
  **/
 
-defined( 'ABSPATH' ) or die( 'you do not have acces to this page!' );
+defined( 'ABSPATH' ) || die( 'you do not have acces to this page!' );
 
-define( 'GCMI_VERSION', '1.2.1' );
+define( 'GCMI_VERSION', '1.2.2' );
 define( 'GCMI_MINIMUM_WP_VERSION', '4.7' );
 define( 'GCMI_MINIMUM_PHP_VERSION', '5.6' );
 define( 'GCMI_MINIMUM_CF7_VERSION', '5.1.7' );

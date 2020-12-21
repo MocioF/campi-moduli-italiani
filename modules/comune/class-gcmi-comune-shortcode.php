@@ -17,6 +17,7 @@ class GCMI_COMUNE_ShortCode extends GCMI_COMUNE {
 	private $id;
 	private $name;
 	private $class;
+	private $use_label_element;
 
 	function __construct( $atts ) {
 		if ( ! parent::is_valid_kind( $atts['kind'] ) ) {
@@ -29,7 +30,8 @@ class GCMI_COMUNE_ShortCode extends GCMI_COMUNE {
 		if ( preg_match( '/^[a-zA-Z][\w:.-]*$/', $atts['id'] ) ) {
 			$this->id = $atts['id'];
 		}
-		$this->comu_details = ( $atts['comu_details'] === true ? true : false );
+		$this->comu_details      = ( $atts['comu_details'] === true ? true : false );
+		$this->use_label_element = ( $atts['use_label_element'] === true ? true : false );
 	}
 
 	public function get_html() {
@@ -38,29 +40,37 @@ class GCMI_COMUNE_ShortCode extends GCMI_COMUNE {
 
 		$regioni = $this->gcmi_start( $this->kind );
 		$MyIDs   = parent::getIDs( $this->id );
-		$uno     = '<div class="gcmi_wrap">';
-		$uno    .= '<p>' . __( 'Select a region:', 'campi-moduli-italiani' ) . '<br />';
-		$uno    .= '<select name="' . $this->name . '_IDReg" id="' . $MyIDs['reg'] . '" class = "' . $this->class . '" >';
-		$uno    .= '<option value="">' . __( 'Select...', 'campi-moduli-italiani' ) . '</option>';
+
+		$uno = '';
+		if ( $this->use_label_element ) {
+			$uno .= '<label for="' . $MyIDs['reg'] . '">' . __( 'Select a region:', 'campi-moduli-italiani' ) . '<br /></label>';
+		}
+		$uno .= '<select name="' . $this->name . '_IDReg" id="' . $MyIDs['reg'] . '" class = "' . $this->class . '" >';
+		$uno .= '<option value="">' . __( 'Select a region', 'campi-moduli-italiani' ) . '</option>';
 		foreach ( $regioni as $val ) {
 			$uno .= '<option value="' . $val['i_cod_regione'] . '">' . $val['i_den_regione'] . '</option>';
 		}
-		$uno .= '</select></p>';
+		$uno .= '</select>';
 
-		$due  = '<p>' . __( 'Select a province:', 'campi-moduli-italiani' ) . '<br />';
+		$due = '';
+		if ( $this->use_label_element ) {
+			$due .= '<label for="' . $MyIDs['pro'] . '">' . __( 'Select a province:', 'campi-moduli-italiani' ) . '<br /></label>';
+		}
 		$due .= '<select name="' . $this->name . '_IDPro" id="' . $MyIDs['pro'] . '" class = "' . $this->class . '">';
-		$due .= '<option value="">' . __( 'Select...', 'campi-moduli-italiani' ) . '</option>';
-		$due .= '</select></p>';
+		$due .= '<option value="">' . __( 'Select a province', 'campi-moduli-italiani' ) . '</option>';
+		$due .= '</select>';
 
-		$tre = '<p>' . __( 'Select a municipality:', 'campi-moduli-italiani' ) . '<br />';
-
+		$tre = '';
+		if ( $this->use_label_element ) {
+			$tre .= '<label for="' . $MyIDs['com'] . '">' . __( 'Select a municipality:', 'campi-moduli-italiani' ) . '<br /></label>';
+		}
 		$tre .= '<select name="' . $this->name . '" id="' . $MyIDs['com'] . '" class = "' . $this->class . '">';
-		$tre .= '<option value="">' . __( 'Select...', 'campi-moduli-italiani' ) . '</option>';
+		$tre .= '<option value="">' . __( 'Select a municipality', 'campi-moduli-italiani' ) . '</option>';
 		$tre .= '</select>';
 		if ( $this->comu_details ) {
 			$tre .= '<img src="' . plugin_dir_url( GCMI_PLUGIN ) . '/img/gcmi_info.png" width="30" height="30" id="' . $MyIDs['ico'] . '" style="vertical-align: middle; margin-top: 10px; margin-bottom: 10px; margin-right: 10px; margin-left: 10px;">';
 		}
-		$tre     .= '</p>';
+
 		$quattro  = '<input type="hidden" name="' . $this->name . '_kind" id="' . $MyIDs['kin'] . '" value="' . $this->kind . '" />';
 		$quattro .= '<input type="hidden" name="' . $this->name . '_targa" id="' . $MyIDs['targa'] . '"/>';
 		$quattro .= '<input class="comu_mail" type="hidden" name="' . $this->name . '_formatted" id="' . $MyIDs['form'] . '"/>';
@@ -70,11 +80,10 @@ class GCMI_COMUNE_ShortCode extends GCMI_COMUNE {
 		$quattro .= '<input type="hidden" name="' . $this->name . '_prov_desc" id="' . $MyIDs['prov_desc'] . '"/>';
 		$quattro .= '<input type="hidden" name="' . $this->name . '_comu_desc" id="' . $MyIDs['comu_desc'] . '"/>';
 
-		$quattro .= '</div>';
 		if ( $this->comu_details ) {
 			$quattro .= '<span id="' . $MyIDs['info'] . '" title="' . __( 'Municipality details', 'campi-moduli-italiani' ) . '"></span>';
 		}
-		$html = '<span class="gcmi_wrap">' . $uno . $due . $tre . $quattro . '</span>';
+		$html = '<span class="gcmi-wrap">' . $uno . $due . $tre . $quattro . '</span>';
 		return $html;
 	}
 }

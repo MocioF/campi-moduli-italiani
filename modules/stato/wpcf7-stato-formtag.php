@@ -50,7 +50,8 @@ function wpcf7_gcmi_stato_formtag_handler( $tag ) {
 
 	$validation_error = wpcf7_get_validation_error( $tag->name );
 
-	$class = wpcf7_form_controls_class( $tag->type );
+	$class  = 'wpcf7-select ';
+	$class .= wpcf7_form_controls_class( $tag->type );
 	if ( $validation_error ) {
 		$class .= ' wpcf7-not-valid';
 	}
@@ -67,23 +68,18 @@ function wpcf7_gcmi_stato_formtag_handler( $tag ) {
 
 	$atts['aria-invalid'] = $validation_error ? 'true' : 'false';
 
-	$multiple       = false;
-	$include_blank  = false;
-	$first_as_label = false;
+	$multiple      = false;
+	$include_blank = false;
 
+	$first_as_label = $tag->has_option( 'first_as_label' );
 	$usa_continenti = $tag->has_option( 'use_continent' );
 	$solo_attuali   = $tag->has_option( 'only_current' );
 
-	$html     = '';
-
-//	$hangover = wpcf7_get_hangover( $tag->name );
-
-	// codice per gestire i valori di default
-	$value = (string) reset( $tag->values );
-	$value = $tag->get_default_option( $value );
-	$value = wpcf7_get_hangover( $tag->name, $value );
+	// codice per gestire i valori di default.
+	$value    = (string) reset( $tag->values );
+	$value    = $tag->get_default_option( $value );
+	$value    = wpcf7_get_hangover( $tag->name, $value );
 	$pr_value = $value;
-
 
 	$sql = 'SELECT `i_cod_istat`, `i_cod_continente`, `i_denominazione_ita`, `i_cod_AT` FROM ';
 	if ( false === $solo_attuali ) {
@@ -103,6 +99,10 @@ function wpcf7_gcmi_stato_formtag_handler( $tag ) {
 
 	$html = '';
 
+	if ( true === $first_as_label ) {
+		$html .= sprintf( '<option %1$s>%2$s</option>', 'value=""', esc_html( __( 'Select a Country', 'campi-moduli-italiani' ) ) );
+	}
+
 	$stati = $wpdb->get_results( $sql );
 
 	if ( true === $usa_continenti ) {
@@ -118,8 +118,8 @@ function wpcf7_gcmi_stato_formtag_handler( $tag ) {
 					if ( $stato->i_cod_istat === $pr_value ) {
 						$value .= ' selected';
 					}
-					$inset  = stripslashes( esc_html( $stato->i_denominazione_ita ) );
-					$html  .= sprintf( '<option %1$s>%2$s</option>', $value, $inset );
+					$inset = stripslashes( esc_html( $stato->i_denominazione_ita ) );
+					$html .= sprintf( '<option %1$s>%2$s</option>', $value, $inset );
 				}
 			}
 		}
@@ -128,8 +128,8 @@ function wpcf7_gcmi_stato_formtag_handler( $tag ) {
 		if ( $stato->i_cod_istat === $pr_value ) {
 			$value .= ' selected';
 		}
-		$inset  = stripslashes( esc_html( $stato->i_denominazione_ita ) );
-		$html  .= sprintf( '<option %1$s>%2$s</option>', $value, $inset );
+		$inset = stripslashes( esc_html( $stato->i_denominazione_ita ) );
+		$html .= sprintf( '<option %1$s>%2$s</option>', $value, $inset );
 	}
 
 	$atts['name'] = $tag->name;
@@ -218,7 +218,7 @@ function wpcf7_add_tag_generator_gcmi_stato() {
  *
  * @since 1.0.0
  *
- * @param obj $contact_form .
+ * @param obj   $contact_form .
  * @param array $args array of default values.
  */
 function wpcf7_tg_pane_gcmi_stato( $contact_form, $args = '' ) {
@@ -251,19 +251,31 @@ function wpcf7_tg_pane_gcmi_stato( $contact_form, $args = '' ) {
 						<td><input type="text" name="values" class="oneline" id="<?php echo esc_attr( $args['content'] . '-values' ); ?>" /><br />
 						<?php echo esc_html( __( 'Country\'s ISTAT Code (3 digits)', 'campi-moduli-italiani' ) ); ?></td>
 					</tr>
-
-
-
 					<tr>
 					<th scope="row"><?php echo esc_html( __( 'Options', 'contact-form-7' ) ); ?></th>
 					<td>
 						<fieldset>
 						<legend class="screen-reader-text"><?php echo esc_html( __( 'Options', 'contact-form-7' ) ); ?></legend>
+						<label><input type="checkbox" name="first_as_label" class="option" /> 
+						<?php
+						echo esc_html( __( 'Add a first element as label saying: ', 'campi-moduli-italiani' ) );
+						echo esc_html( __( 'Select a Country', 'campi-moduli-italiani' ) );
+						?>
+						</label><br />
 						<label><input type="checkbox" name="use_continent" class="option" /> <?php echo esc_html( __( 'Split States for continents', 'campi-moduli-italiani' ) ); ?></label><br />
 						<label><input type="checkbox" name="only_current" class="option" /> <?php echo esc_html( __( 'Only actual States (not ceased)', 'campi-moduli-italiani' ) ); ?></label>
 						</fieldset>
 					</td>
 					</tr>
+					<tr>
+						<th scope="row"><label for="<?php echo esc_attr( $args['content'] . '-id' ); ?>"><?php echo esc_html( __( 'Id attribute', 'contact-form-7' ) ); ?></label></th>
+						<td><input type="text" name="id" class="idvalue oneline option" id="<?php echo esc_attr( $args['content'] . '-id' ); ?>" /></td>
+					</tr>
+					<tr>
+						<th scope="row"><label for="<?php echo esc_attr( $args['content'] . '-class' ); ?>"><?php echo esc_html( __( 'Class attribute', 'contact-form-7' ) ); ?></label></th>
+						<td><input type="text" name="class" class="classvalue oneline option" id="<?php echo esc_attr( $args['content'] . '-class' ); ?>" /></td>
+					</tr>
+					
 				</tbody>
 			</table>
 		</fieldset>
