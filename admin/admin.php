@@ -184,8 +184,9 @@ function gcmi_update_table( $fname ) {
 		)
 		   ) {
 			$error_title = __( 'Remote file download error', 'campi-moduli-italiani' );
-			/* translators: %s: the URL of the file it attempted to download */
-			$error_message = sprintf( __( 'Could not download %s', 'campi-moduli-italiani' ), $database_file_info[ $id ]['remote_URL'] );
+			
+			/* translators: %s is the URL of the file it attempted to download */
+			$error_message = sprintf( __( 'Unable to download %s', 'campi-moduli-italiani' ), $database_file_info[ $id ]['remote_URL'] );
 			wp_die( $error_message, $error_title );
 		}
 	}
