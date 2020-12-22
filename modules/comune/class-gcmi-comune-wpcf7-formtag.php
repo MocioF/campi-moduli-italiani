@@ -23,7 +23,7 @@ class GCMI_COMUNE_WPCF7_FormTag extends GCMI_COMUNE {
 	private $preset_value;
 
 
-	function __construct( $name, $atts, $options, $validation_error, $preset_value ) {
+	function __construct( $name, $atts, $options, $validation_error, $wr_class, $preset_value ) {
 		if ( ! parent::is_valid_kind( $options['kind'] ) ) {
 			$this->kind = 'tutti';
 		} else {
@@ -34,6 +34,7 @@ class GCMI_COMUNE_WPCF7_FormTag extends GCMI_COMUNE {
 		$this->comu_details      = $options['comu_details'];
 		$this->use_label_element = $options['use_label_element'];
 		$this->validation_error  = $validation_error;
+		$this->wr_class          = $wr_class;
 
 		if ( parent::is_valid_cod_comune( $preset_value ) ) {
 			$this->preset_value = $preset_value;
@@ -47,13 +48,14 @@ class GCMI_COMUNE_WPCF7_FormTag extends GCMI_COMUNE {
 		parent::gcmi_comune_enqueue_scripts();
 
 		$atts         = $this->atts;
+		$wr_class     = $this->wr_class;
 		$comu_details = $this->comu_details;
 		$MyIDs        = parent::getIDs( $atts['id'] );
-		$helperclass  = 'class = "wpcf7-select ' . $this->atts['helperclass'] . '"';
+		$helperclass  = 'class = "' . $this->atts['helperclass'] . '"';
 		unset( $atts['helperclass'] );
 		unset( $atts['id'] );
 		$atts = wpcf7_format_atts( $atts );
-
+		
 		$regioni = $this->gcmi_start( $this->kind );
 
 		$uno = '';
@@ -80,7 +82,6 @@ class GCMI_COMUNE_WPCF7_FormTag extends GCMI_COMUNE {
 			$tre .= '<label for="' . $MyIDs['com'] . '">' . __( 'Select a municipality:', 'campi-moduli-italiani' ) . '<br /></label>';
 		}
 
-		$tre .= '<span class="wpcf7-form-control-wrap ' . $this->name . '">';
 		$tre .= '<select name="' . $this->name . '" id="' . $MyIDs['com'] . '" ' . $atts;
 
 		// gestione valore predefinito
@@ -92,12 +93,10 @@ class GCMI_COMUNE_WPCF7_FormTag extends GCMI_COMUNE {
 		$tre .= '>';
 		$tre .= '<option value="">' . __( 'Select a municipality', 'campi-moduli-italiani' ) . '</option>';
 		$tre .= '</select>';
-		$tre .= $this->validation_error . '</span>';
 
 		if ( $comu_details ) {
 			$tre .= '<img src="' . plugin_dir_url( GCMI_PLUGIN ) . '/img/gcmi_info.png" width="30" height="30" id="' . $MyIDs['ico'] . '" style="vertical-align: middle; margin-top: 10px; margin-bottom: 10px; margin-right: 10px; margin-left: 10px;">';
 		}
-		$tre .= '<br />';
 
 		$quattro  = '<input type="hidden" name="' . $this->name . '_kind" id="' . $MyIDs['kin'] . '" value="' . $this->kind . '" />';
 		$quattro .= '<input type="hidden" name="' . $this->name . '_targa" id="' . $MyIDs['targa'] . '"/>';
@@ -110,9 +109,12 @@ class GCMI_COMUNE_WPCF7_FormTag extends GCMI_COMUNE {
 		$quattro .= '<input class="comu_mail" type="hidden" name="' . $this->name . '_formatted" id="' . $MyIDs['form'] . '"/>';
 
 		if ( $comu_details ) {
-			$quattro .= '<span id="' . $MyIDs['info'] . '" title="' . __( 'Municipality details', 'campi-moduli-italiani' ) . '"></span>';
+			$quattro .= '<span id="' . $MyIDs['info'] . '" title="' . __( 'Municipality details', 'campi-moduli-italiani' ) . '"' . $helperclass .'></span>';
 		}
-		$html = '<span class="gcmi-wrap">' . $uno . $due . $tre . $quattro . '</span>';
+		$html  = '<span class="wpcf7-form-control-wrap ' . $this->name . '">';
+		$html .= '<span class="gcmi-wrap ' . $this->wr_class . '">' . $uno . $due . $tre . $quattro . '</span>';
+		$html .= $this->validation_error . '</span>';
+
 		return $html;
 	}
 

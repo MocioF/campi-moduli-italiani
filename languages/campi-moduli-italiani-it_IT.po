@@ -3,10 +3,9 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Plugins - Campi Moduli Italiani - Development (trunk)\n"
-"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/campi-moduli-"
-"italiani\n"
-"POT-Creation-Date: 2020-12-22T07:39:55+00:00\n"
-"PO-Revision-Date: 2020-12-22 08:42+0100\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/trunk\n"
+"POT-Creation-Date: 2020-12-22T19:34:49+00:00\n"
+"PO-Revision-Date: 2020-12-22 20:35+0100\n"
 "Last-Translator: Giuseppe Foti <foti.giuseppe@gmail.com>\n"
 "Language-Team: \n"
 "Language: it\n"
@@ -333,7 +332,7 @@ msgstr ""
 "maggiori informazioni guarda %s."
 
 #: modules/cf/wpcf7-cf-formtag.php:131
-#: modules/comune/wpcf7-comune-formtag.php:89
+#: modules/comune/wpcf7-comune-formtag.php:90
 #: modules/stato/wpcf7-stato-formtag.php:228
 msgid "the plugin page at WordPress.org"
 msgstr "la pagina del plugin su WordPress.org"
@@ -389,28 +388,28 @@ msgid "\"name\" attr of Country of birth field"
 msgstr "Attributo \"name\" del campo paese di nascita"
 
 #: modules/comune/class-gcmi-comune-shortcode.php:46
-#: modules/comune/class-gcmi-comune-wpcf7-formtag.php:61
+#: modules/comune/class-gcmi-comune-wpcf7-formtag.php:62
 msgid "Select a region:"
 msgstr "Seleziona una regione:"
 
 #: modules/comune/class-gcmi-comune-shortcode.php:49
-#: modules/comune/class-gcmi-comune-wpcf7-formtag.php:64
+#: modules/comune/class-gcmi-comune-wpcf7-formtag.php:65
 msgid "Select a region"
 msgstr "Seleziona una regione"
 
 #: modules/comune/class-gcmi-comune-shortcode.php:57
-#: modules/comune/class-gcmi-comune-wpcf7-formtag.php:72
+#: modules/comune/class-gcmi-comune-wpcf7-formtag.php:73
 msgid "Select a province:"
 msgstr "Seleziona una provincia:"
 
 #: modules/comune/class-gcmi-comune-shortcode.php:60
-#: modules/comune/class-gcmi-comune-wpcf7-formtag.php:75
+#: modules/comune/class-gcmi-comune-wpcf7-formtag.php:76
 #: modules/comune/class-gcmi-comune.php:195
 msgid "Select a province"
 msgstr "Seleziona una provincia"
 
 #: modules/comune/class-gcmi-comune-shortcode.php:65
-#: modules/comune/class-gcmi-comune-wpcf7-formtag.php:80
+#: modules/comune/class-gcmi-comune-wpcf7-formtag.php:81
 msgid "Select a municipality:"
 msgstr "Seleziona un comune:"
 
@@ -422,7 +421,7 @@ msgid "Select a municipality"
 msgstr "Seleziona un comune"
 
 #: modules/comune/class-gcmi-comune-shortcode.php:84
-#: modules/comune/class-gcmi-comune-wpcf7-formtag.php:113
+#: modules/comune/class-gcmi-comune-wpcf7-formtag.php:112
 #: modules/comune/js/ajax.js:167
 msgid "Municipality details"
 msgstr "Dettagli comune"
@@ -590,13 +589,13 @@ msgstr "Contenuto del provvedimento:"
 msgid "Administrative validity effective date:"
 msgstr "Data decorrenza validità amministrativa:"
 
-#: modules/comune/wpcf7-comune-formtag.php:79
-#: modules/comune/wpcf7-comune-formtag.php:81
+#: modules/comune/wpcf7-comune-formtag.php:80
+#: modules/comune/wpcf7-comune-formtag.php:82
 msgid "Select Italian municipality"
 msgstr "Seleziona un comune italiano"
 
 #. translators: %s: link to plugin page URL
-#: modules/comune/wpcf7-comune-formtag.php:88
+#: modules/comune/wpcf7-comune-formtag.php:89
 msgid ""
 "Creates a tag for a concatenated selection of an Italian municipality. To "
 "get more information look at %s."
@@ -604,31 +603,39 @@ msgstr ""
 "Genera un tag per una selezione concatenata di un comune italiano. Per "
 "maggiori dettagli, guarda %s."
 
-#: modules/comune/wpcf7-comune-formtag.php:113
+#: modules/comune/wpcf7-comune-formtag.php:114
 msgid "Municipality's ISTAT Code (6 digits)"
 msgstr "Codice ISTAT del comune (6 cifre)"
 
-#: modules/comune/wpcf7-comune-formtag.php:116
-#: modules/comune/wpcf7-comune-formtag.php:119
+#: modules/comune/wpcf7-comune-formtag.php:117
+#: modules/comune/wpcf7-comune-formtag.php:120
 msgid "Type (default \"Every: current and deleted\")"
 msgstr "Tipo (predefinito \"Tutti: attuali e soppressi\")"
 
-#: modules/comune/wpcf7-comune-formtag.php:120
+#: modules/comune/wpcf7-comune-formtag.php:121
 msgid "every"
 msgstr "tutti"
 
-#: modules/comune/wpcf7-comune-formtag.php:121
+#: modules/comune/wpcf7-comune-formtag.php:122
 msgid "only current"
 msgstr "solo attuali"
 
-#: modules/comune/wpcf7-comune-formtag.php:122
+#: modules/comune/wpcf7-comune-formtag.php:123
 msgid "highlights deleted"
 msgstr "in evidenza i soppressi"
 
-#: modules/comune/wpcf7-comune-formtag.php:130
 #: modules/comune/wpcf7-comune-formtag.php:131
+#: modules/comune/wpcf7-comune-formtag.php:132
 msgid "Show details"
 msgstr "Mostra dettagli"
+
+#: modules/comune/wpcf7-comune-formtag.php:142
+msgid "Wrapper class attribute"
+msgstr "Attributo class del wrapper"
+
+#: modules/comune/wpcf7-comune-formtag.php:146
+msgid "Select class attribute"
+msgstr "Attributo class delle select"
 
 #: modules/formsign/wpcf7-formsign-formtag.php:175
 msgid "Hash"
@@ -737,9 +744,6 @@ msgstr "Attendi..."
 #: modules/comune/js/ajax.js:168
 msgid "Close"
 msgstr "Chiudi"
-
-#~ msgid "Class attribute"
-#~ msgstr "Attributo class"
 
 #~ msgid "Use this text as the placeholder of the field"
 #~ msgstr "Usa questo testo come segnaposto del campo"

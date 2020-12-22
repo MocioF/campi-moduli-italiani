@@ -40,6 +40,19 @@ function wpcf7_gcmi_comune_formtag_handler( $tag ) {
 	$atts = array();
 
 	$atts['class'] = 'wpcf7-select ' . $tag->get_class_option( $class );
+//
+	$default = '';
+	if ( is_string( $default ) ) {
+		$default = explode ( ' ', $default );
+	}
+	$options = array_merge(
+		(array) $default,
+		(array) $tag->get_option( 'wrapper_class', 'class' ) );
+	
+	$options = array_filter( array_unique( $options ) );
+			
+	$wr_class = implode( ' ', $options);
+//
 
 	if ( $tag->is_required() ) {
 		$atts['aria-required'] = 'true';
@@ -49,7 +62,7 @@ function wpcf7_gcmi_comune_formtag_handler( $tag ) {
 	$atts['id'] = $tag->get_id_option();
 
 	// usata per le altre select del campo (sempre non richieste)
-	$atts['helperclass'] = $tag->get_class_option( wpcf7_form_controls_class( 'comune' ) );
+	$atts['helperclass'] = 'wpcf7-select ' . $tag->get_class_option( wpcf7_form_controls_class( 'comune' ) );
 	$kind                = $tag->get_option( 'kind', '', true );
 
 	$options['kind']              = $kind;
@@ -62,7 +75,7 @@ function wpcf7_gcmi_comune_formtag_handler( $tag ) {
 	$value        = wpcf7_get_hangover( $tag->name, $value );
 	$preset_value = $value;
 
-	$gcmi_Comune_FT = new GCMI_COMUNE_WPCF7_FormTag( $tag->name, $atts, $options, $validation_error, $preset_value );
+	$gcmi_Comune_FT = new GCMI_COMUNE_WPCF7_FormTag( $tag->name, $atts, $options, $validation_error, $wr_class, $preset_value );
 
 	return $gcmi_Comune_FT->get_html();
 }
@@ -117,9 +130,9 @@ function wpcf7_tg_pane_gcmi_comune( $contact_form, $args = '' ) {
 						<td>
 							<fieldset>	
 								<legend class="screen-reader-text"><?php echo esc_html( __( 'Type (default "Every: current and deleted")', 'campi-moduli-italiani' ) ); ?></legend>
-								<input type="radio" class="classvalue option" id="<?php echo esc_attr( $args['content'] . '-tutti' ); ?>" name="kind" value="tutti"><label for="<?php echo esc_attr( $args['content'] . '-tutti' ); ?>"><?php _e( 'every', 'campi-moduli-italiani' ); ?></label><br>
-								<input type="radio" class="classvalue option" id="<?php echo esc_attr( $args['content'] . '-attuali' ); ?>" name="kind" value="attuali"><label for="<?php echo esc_attr( $args['content'] . '-attuali' ); ?>"><?php _e( 'only current', 'campi-moduli-italiani' ); ?></label><br>
-								<input type="radio" class="classvalue option" id="<?php echo esc_attr( $args['content'] . '-evidenza_cessati' ); ?>" name="kind" value="evidenza_cessati"><label for="<?php echo esc_attr( $args['content'] . '-evidenza_cessati' ); ?>"><?php _e( 'highlights deleted', 'campi-moduli-italiani' ); ?></label><br>
+								<input type="radio" class="classvalue option" id="<?php echo esc_attr( $args['content'] . '-tutti' ); ?>" name="kind" value="tutti"><label for="<?php echo esc_attr( $args['content'] . '-tutti' ); ?>"><?php _e( 'every', 'campi-moduli-italiani' ); ?></label><br />
+								<input type="radio" class="classvalue option" id="<?php echo esc_attr( $args['content'] . '-attuali' ); ?>" name="kind" value="attuali"><label for="<?php echo esc_attr( $args['content'] . '-attuali' ); ?>"><?php _e( 'only current', 'campi-moduli-italiani' ); ?></label><br />
+								<input type="radio" class="classvalue option" id="<?php echo esc_attr( $args['content'] . '-evidenza_cessati' ); ?>" name="kind" value="evidenza_cessati"><label for="<?php echo esc_attr( $args['content'] . '-evidenza_cessati' ); ?>"><?php _e( 'highlights deleted', 'campi-moduli-italiani' ); ?></label><br/ >
 							</fieldset>
 						</td>
 					</tr>
@@ -138,7 +151,11 @@ function wpcf7_tg_pane_gcmi_comune( $contact_form, $args = '' ) {
 						<td><input type="text" name="id" class="idvalue oneline option" id="<?php echo esc_attr( $args['content'] . '-id' ); ?>" /></td>
 					</tr>
 					<tr>
-						<th scope="row"><label for="<?php echo esc_attr( $args['content'] . '-class' ); ?>"><?php echo esc_html( __( 'Class attribute', 'contact-form-7' ) ); ?></label></th>
+						<th scope="row"><label for="<?php echo esc_attr( $args['content'] . '-wrapper-class' ); ?>"><?php echo esc_html( __( 'Wrapper class attribute', 'campi-moduli-italiani' ) ); ?></label></th>
+						<td><input type="text" name="wrapper_class" class="classvalue oneline option" id="<?php echo esc_attr( $args['content'] . '-wrapper-class' ); ?>" /></td>
+					</tr>
+					<tr>
+						<th scope="row"><label for="<?php echo esc_attr( $args['content'] . '-class' ); ?>"><?php echo esc_html( __( 'Select class attribute', 'campi-moduli-italiani' ) ); ?></label></th>
 						<td><input type="text" name="class" class="classvalue oneline option" id="<?php echo esc_attr( $args['content'] . '-class' ); ?>" /></td>
 					</tr>
 
