@@ -291,7 +291,11 @@ class GCMI_COMUNE {
 
 	public static function gcmi_register_scripts() {
 		wp_register_style( 'gcmi_comune_css', plugins_url( 'modules/comune/css/comune.css', GCMI_PLUGIN ) );
-		wp_register_style( 'gcmi_jquery-ui-dialog', plugins_url( 'css/jquery-ui-dialog.min.css', GCMI_PLUGIN ) );
+		
+		// if html_fè abilitato, non devo caricare il nuovo tema per evitare conflitti
+		if ( ! has_filter ( 'wpcf7_support_html5_fallback', '__return_true' ) ) {
+			wp_register_style( 'gcmi_jquery-ui-dialog', plugins_url( 'css/jquery-ui-dialog.min.css', GCMI_PLUGIN ) );
+		}
 		wp_register_script( 'gcmi_comune_js', plugins_url( 'modules/comune/js/ajax.js', GCMI_PLUGIN ), array( 'jquery', 'jquery-ui-dialog', 'jquery-ui-tooltip', 'jquery-effects-core', 'jquery-effects-slide', 'jquery-effects-puff', 'wp-i18n' ), $ver = null, $in_footer = false );
 		wp_set_script_translations( 'gcmi_comune_js', 'campi-moduli-italiani', plugin_dir_path( GCMI_PLUGIN ) . 'languages' );
 	}
@@ -301,10 +305,11 @@ class GCMI_COMUNE {
 		if ( ! wp_style_is( 'gcmi_comune_css', 'enqueued' ) ) {
 			wp_enqueue_style( 'gcmi_comune_css' );
 		}
-		if ( ! wp_style_is( 'gcmi_jquery-ui-dialog', 'enqueued' ) ) {
-			wp_enqueue_style( 'gcmi_jquery-ui-dialog' );
+		if ( ! has_filter ( 'wpcf7_support_html5_fallback', '__return_true' ) ) {		
+			if ( ! wp_style_is( 'gcmi_jquery-ui-dialog', 'enqueued' ) ) {
+				wp_enqueue_style( 'gcmi_jquery-ui-dialog' );
+			}
 		}
-
 		if ( ! wp_script_is( 'gcmi_comune_js', 'enqueued' ) ) {
 			wp_enqueue_script( 'gcmi_comune_js' );
 			wp_localize_script( 'gcmi_comune_js', 'gcmi_ajax', array( 'ajaxurl' => admin_url( 'admin-ajax.php' ) ) );

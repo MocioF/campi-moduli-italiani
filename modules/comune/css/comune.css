@@ -27,3 +27,11 @@
 	border-collapse: collapse;
 	width: 80%;
 }
+
+/* evita visualizzazioni errate se nel tema è attivato wpcf7_support_html5_fallback */
+.ui-dialog-titlebar-close {
+	display: block;
+	overflow: hidden;
+	color: #fff;
+	background-color: #fff;
+}
