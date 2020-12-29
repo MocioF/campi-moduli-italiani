@@ -5,7 +5,7 @@ Tags: italiano, contact form 7, codice fiscale, comuni italiani, firma digitale
 Requires at least: 4.7
 Tested up to: 5.6
 Requires PHP: 5.6
-Stable tag: 1.2.1
+Stable tag: 1.2.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html
 
@@ -116,13 +116,15 @@ Cerca qui per maggiori informazioni: https://contactform7.com/getting-default-va
 
 == Changelog ==
 = 1.2.2 =
-- aggiornato jquery-ui-dialog.css alla versione utilizzata in WP 5.6
+* modificata tabella _comuni_variazioni (l'ISTAT ha cambiato il formato del file)
+* modificata tabella _comuni_soppressi (l'ISTAT ha cambiato il formato del file)
+* aggiornato jquery-ui-dialog.css alla versione utilizzata in WP 5.6
 * aggiunte classi standard wpcf7 a [comune] (wpcf7-select), [stato] (wpcf7-select) e [cf] (wpcf7-text)
 * modificato il comportamento dell'opzione "use_label_element" in [comune]: se non è settata, non verrà visualizzata alcuna stringa prima delle select
-* modificati i valori dei primi elementi utilizzati come labels nelle selezioni di [comune]
+* modificati i precedenti valori dei primi elementi utilizzati come label nelle selezioni di [comune]
 * aggiunta l'opzione per utilizzare un primo valore come etichetta nella select di [stato] (Seleziona un paese) 
 * modificato il nome della classe "gcmi_wrap" in "gcmi-wrap"
-* per [comune] è ora possibile impostare classi personalizzate sia per il tag <span> contenitore , sia per le <select>
+* per [comune] è ora possibile impostare classi personalizzate sia per il tag span contenitore, sia per le select
 *
 * [comune] shortcode (non per CF7):
 * modificato il nome della classe "gcmi_comune" in "gcmi-comune"

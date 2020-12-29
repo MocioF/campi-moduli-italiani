@@ -5,7 +5,7 @@ Tags: italiano, contact form 7, codice fiscale, comuni italiani, firma digitale
 Requires at least: 4.7
 Tested up to: 5.6
 Requires PHP: 5.6
-Stable tag: 1.2.1
+Stable tag: 1.2.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html
 
@@ -114,18 +114,20 @@ Look here for more informations: https://contactform7.com/getting-default-values
 
 == Changelog ==
 = 1.2.2 =
-- updated jquery-ui-dialog.css to version used in WP 5.6
+* modified table _comuni_variazioni (ISTAT changed the file's format)
+* modified table _comuni_soppressi (ISTAT changed the file's format)
+* updated jquery-ui-dialog.css to version used in WP 5.6
 * added standard wpcf7's classes to [comune] (wpcf7-select), [stato] (wpcf7-select) and [cf] (wpcf7-text)
 * changed behaviour of option "use_label_element" in [comune]: if not set, no strings will be shown before selects
-* changed default first element as labels in selects of [comune]
+* changed previous first elements used as labels in selects of [comune]
 * added option to use a label in [stato] (Select a Country) 
 * changed class name: gcmi_wrap to gcmi-wrap
-* for [comune] it is now possible to set custom classes both for the <span> container and for the <select>s
+* for [comune] it is now possible to set custom classes both for the span container and for the selects
 *
 * [comune] shortcode (not for CF7):
 * changed class name: gcmi_comune to gcmi-comune
 * added options "use_label_element"; default to true
-* removed <p> and <div> elements
+* removed p and div tags
 
 = 1.2.1 =
 * Bug fix: fixed [stato] not replacing mail-tag with contry name

@@ -1,4 +1,15 @@
 <?php
+/**
+ * Plugin activator
+ *
+ * Class used for [comune] shortcode and form-tag
+ * Contains a static class to be used both by form-tag and by shortcode
+ *
+ * @package campi-moduli-italiani
+ * @link https://wordpress.org/plugins/campi-moduli-italiani/
+ *
+ * @since   1.0.0
+ */
 
 defined( 'ABSPATH' ) or die( 'you do not have acces to this page!' );
 
@@ -7,8 +18,8 @@ $stringa = __( ' - (abol.)', 'campi-moduli-italiani' );
 /**
  * GCMI_COMUNE is a static class to be used both by form-tag and by shortcode
  **/
-
 class GCMI_COMUNE {
+
 	private static $kinds      = array( 'tutti', 'attuali', 'evidenza_cessati' );
 	private static $DefStrings = array(
 		'SFX_SOPPRESSI_CEDUTI' => ' - (sopp.)',
@@ -188,10 +199,17 @@ class GCMI_COMUNE {
 
 			// solo nel caso in cui la regione = Istria/Dalmazia serve una query diversa
 			if ( $i_cod_regione == self::$DefStrings['COD_REG_ISDA'] ) {
-				$sql = "SELECT DISTINCT `i_cod_unita_territoriale`, CONCAT( UCASE(LEFT(`i_sigla_automobilistica`,1)),LCASE(SUBSTRING(`i_sigla_automobilistica`,2))) AS 'i_den_unita_territoriale' FROM " . GCMI_TABLE_PREFIX . "comuni_soppressi WHERE `i_cod_unita_territoriale` LIKE '7%' ORDER BY `i_sigla_automobilistica` ASC";
+				// $sql = "SELECT DISTINCT `i_cod_unita_territoriale`, CONCAT( UCASE(LEFT(`i_sigla_automobilistica`,1)),LCASE(SUBSTRING(`i_sigla_automobilistica`,2))) AS 'i_den_unita_territoriale' FROM " . GCMI_TABLE_PREFIX . "comuni_soppressi WHERE `i_cod_unita_territoriale` LIKE '7%' ORDER BY `i_sigla_automobilistica` ASC";
+				$sql  = 'SELECT DISTINCT `i_cod_unita_territoriale`, ';
+				$sql .= "IF (`i_cod_unita_territoriale` = '701', 'Fiume', ";
+				$sql .= " IF (`i_cod_unita_territoriale` = '702', 'Pola', ";
+				$sql .= "  IF (`i_cod_unita_territoriale` = '703', 'Zara', `i_cod_unita_territoriale` ";
+				$sql .= " ) ) ) AS 'i_den_unita_territoriale' ";
+				$sql .= 'FROM ' . GCMI_TABLE_PREFIX . "comuni_soppressi WHERE `i_cod_unita_territoriale` LIKE '7%' ORDER BY `i_den_unita_territoriale` ASC";
 			}
 
-			$results  = $wpdb->get_results( $sql );
+			$results = $wpdb->get_results( $sql );
+
 			$province = '<option value="">' . __( 'Select a province', 'campi-moduli-italiani' ) . '</option>';
 			if ( count( $results ) > 0 ) {
 				foreach ( $results as $result ) {
@@ -291,9 +309,9 @@ class GCMI_COMUNE {
 
 	public static function gcmi_register_scripts() {
 		wp_register_style( 'gcmi_comune_css', plugins_url( 'modules/comune/css/comune.css', GCMI_PLUGIN ) );
-		
+
 		// if html_fè abilitato, non devo caricare il nuovo tema per evitare conflitti
-		if ( ! has_filter ( 'wpcf7_support_html5_fallback', '__return_true' ) ) {
+		if ( ! has_filter( 'wpcf7_support_html5_fallback', '__return_true' ) ) {
 			wp_register_style( 'gcmi_jquery-ui-dialog', plugins_url( 'css/jquery-ui-dialog.min.css', GCMI_PLUGIN ) );
 		}
 		wp_register_script( 'gcmi_comune_js', plugins_url( 'modules/comune/js/ajax.js', GCMI_PLUGIN ), array( 'jquery', 'jquery-ui-dialog', 'jquery-ui-tooltip', 'jquery-effects-core', 'jquery-effects-slide', 'jquery-effects-puff', 'wp-i18n' ), $ver = null, $in_footer = false );
@@ -305,7 +323,7 @@ class GCMI_COMUNE {
 		if ( ! wp_style_is( 'gcmi_comune_css', 'enqueued' ) ) {
 			wp_enqueue_style( 'gcmi_comune_css' );
 		}
-		if ( ! has_filter ( 'wpcf7_support_html5_fallback', '__return_true' ) ) {		
+		if ( ! has_filter( 'wpcf7_support_html5_fallback', '__return_true' ) ) {
 			if ( ! wp_style_is( 'gcmi_jquery-ui-dialog', 'enqueued' ) ) {
 				wp_enqueue_style( 'gcmi_jquery-ui-dialog' );
 			}
@@ -324,6 +342,9 @@ class GCMI_COMUNE {
 		} else {
 			return '';
 		}
+		/* translators: put a string matching the local date format to be used in SQL (https://dev.mysql.com/doc/refman/8.0/en/date-and-time-functions.html#function_date-format) */
+		$local_date_format_mysql = $wpdb->_real_escape( esc_html( __( '%m/%d/%Y', 'campi-moduli-italiani' ) ) );
+
 		$sql1  = '(SELECT `i_denominazione_full`, `i_denominazione_ita`, `i_denominazione_altralingua`, `i_ripartizione_geo`, ';
 		$sql1 .= '`i_den_regione`, `i_cod_tipo_unita_territoriale`, `i_den_unita_territoriale`, `i_flag_capoluogo`, ';
 		$sql1 .= '`i_sigla_automobilistica`, `i_cod_catastale` FROM `' . GCMI_TABLE_PREFIX . 'comuni_attuali`';
@@ -334,11 +355,15 @@ class GCMI_COMUNE {
 		if ( ! $results ) { // non ha trovato nulla nei comuni attuali.
 			$sql2  = 'SELECT `' . GCMI_TABLE_PREFIX . 'comuni_soppressi`.`i_denominazione_full`, `' . GCMI_TABLE_PREFIX . 'comuni_attuali`.`i_ripartizione_geo`, ';
 			$sql2 .= '`' . GCMI_TABLE_PREFIX . 'comuni_attuali`.`i_den_regione`, `' . GCMI_TABLE_PREFIX . 'comuni_attuali`.i_den_unita_territoriale, ';
-			$sql2 .= '`' . GCMI_TABLE_PREFIX . 'comuni_soppressi`.`i_sigla_automobilistica`, 1 as `i_cod_tipo_unita_territoriale`  ';
+			$sql2 .= '`' . GCMI_TABLE_PREFIX . 'comuni_soppressi`.`i_sigla_automobilistica`, 1 as `i_cod_tipo_unita_territoriale`,  ';
+			$sql2 .= 'DATE_FORMAT(`' . GCMI_TABLE_PREFIX . "comuni_soppressi`.`i_data_variazione`,'" . esc_sql( $local_date_format_mysql ) . "') AS `i_data_variazione`, ";
+			$sql2 .= '`' . GCMI_TABLE_PREFIX . 'comuni_soppressi`.`i_anno_var`, ';
+			$sql2 .= '`' . GCMI_TABLE_PREFIX . 'comuni_soppressi`.`i_cod_scorporo`, `' . GCMI_TABLE_PREFIX . 'comuni_soppressi`.`i_denominazione_nuovo` ';
+
 			$sql2 .= 'FROM `' . GCMI_TABLE_PREFIX . 'comuni_soppressi` LEFT JOIN `' . GCMI_TABLE_PREFIX . 'comuni_attuali` ';
 			$sql2 .= 'ON `' . GCMI_TABLE_PREFIX . 'comuni_soppressi`.`i_sigla_automobilistica` = `' . GCMI_TABLE_PREFIX . 'comuni_attuali`.`i_sigla_automobilistica` ';
 			$sql2 .= 'WHERE `' . GCMI_TABLE_PREFIX . "comuni_soppressi`.`i_cod_comune` = '" . esc_sql( $i_cod_comune ) . "' LIMIT 1";
-
+			error_log( $sql2 );
 			$results = $wpdb->get_row( $sql2, ARRAY_A );
 		}
 		$table  = '<div>';
@@ -349,6 +374,16 @@ class GCMI_COMUNE {
 		$table .= ( isset( $sql2 ) ) ? self::$DefStrings['SFX_SOPPRESSI_CEDUTI'] : '';
 		$table .= '</td>';
 		$table .= '</tr>';
+		if ( isset( $sql2 ) ) {
+			$table .= '<tr>';
+			$table .= '<td class="tg-5lax">' . esc_html( __( 'Year in which the municipality was abolished:', 'campi-moduli-italiani' ) ) . '</td>';
+			$table .= '<td class="tg-qw54">' . esc_html( stripslashes( $results['i_anno_var'] ) );
+			$table .= '</tr>';
+			$table .= '<tr>';
+			$table .= '<td class="tg-cly1">' . esc_html( __( 'Date of change:', 'campi-moduli-italiani' ) ) . '</td>';
+			$table .= '<td class="tg-yla0">' . esc_html( stripslashes( $results['i_data_variazione'] ) ) . '</td>';
+			$table .= '</tr>';
+		}
 		$table .= '<tr>';
 		$table .= '<td class="tg-5lax">' . esc_html( __( 'Istat code:', 'campi-moduli-italiani' ) ) . '</td>';
 		$table .= '<td class="tg-qw54">' . esc_html( $i_cod_comune ) . '</td>';
@@ -396,12 +431,41 @@ class GCMI_COMUNE {
 
 		$table .= '<tr>';
 		$table .= '<td class="tg-5lax">' . esc_html( __( 'Name of the supra-municipal territorial unit (valid for statistical purposes):', 'campi-moduli-italiani' ) ) . '</td>';
-		$table .= '<td class="tg-qw54">' . esc_html( stripslashes( $results['i_den_unita_territoriale'] ) ) . '</td>';
+		$table .= '<td class="tg-qw54">';
+		// Istra e Dalmazia: Fiume Pola e Zara
+		switch ( $results['i_sigla_automobilistica'] ) {
+			case 'FU':
+				$table .= 'Fiume';
+				break;
+			case 'PL':
+				$table .= 'Pola';
+				break;
+			case 'ZA':
+				$table .= 'Zara';
+				break;
+			default:
+				$table .= esc_html( stripslashes( $results['i_den_unita_territoriale'] ) );
+		}
+		$table .= '</td>';
 		$table .= '</tr>';
 		$table .= '<tr>';
 		$table .= '<td class="tg-cly1">' . esc_html( __( 'Automotive abbreviation:', 'campi-moduli-italiani' ) ) . '</td>';
 		$table .= '<td class="tg-yla0">' . esc_html( $results['i_sigla_automobilistica'] ) . '</td>';
 		$table .= '</tr>';
+
+		if ( isset( $sql2 ) ) { // comune cessato
+			$table .= '<tr>';
+			$table .= '<td class="tg-5lax">' . esc_html( __( 'Municipality deleted for spin-off:', 'campi-moduli-italiani' ) ) . '</td>';
+			$table .= '<td class="tg-qw54">';
+			$table .= ( esc_html( stripslashes( $results['i_anno_var'] ) ) === '1' ) ? esc_html( __( 'Yes', 'campi-moduli-italiani' ) ) : esc_html( __( 'No', 'campi-moduli-italiani' ) );
+			$table .= '</tr>';
+			$table .= '<tr>';
+			$table .= '<td class="tg-cly1">' . esc_html( __( 'Name of the municipality associated with the change or new name:', 'campi-moduli-italiani' ) ) . '</td>';
+			$table .= '<td class="tg-yla0">' . esc_html( stripslashes( $results['i_denominazione_nuovo'] ) ) . '</td>';
+			$table .= '</tr>';
+			$table .= '<tr>';
+		}
+
 		if ( ! isset( $sql2 ) ) { // un comune attivo
 			$table .= '<tr>';
 			$table .= '<td class="tg-5lax">' . esc_html( __( 'Is Capital City:', 'campi-moduli-italiani' ) ) . '</td>';
@@ -415,11 +479,9 @@ class GCMI_COMUNE {
 			$table .= '</tr>';
 		}
 		$table .= '</table>';
-		/* translators: put a string matching the local date format to be used in SQL (https://dev.mysql.com/doc/refman/8.0/en/date-and-time-functions.html#function_date-format) */
-		$local_date_format_mysql = $wpdb->_real_escape( esc_html( __( '%m/%d/%Y', 'campi-moduli-italiani' ) ) );
 
 		$sql3    = 'SELECT `i_anno_var`, `i_tipo_var`, `i_cod_comune`,`i_denominazione_full`, ';
-		$sql3   .= '`i_cod_comune_nuovo`,  `i_denominazione_nuovo`, `i_documento`, `i_contenuto`, ';
+		$sql3   .= '`i_cod_comune_nuovo`,  `i_denominazione_nuovo`, `i_documento`, `i_contenuto`, `i_cod_flag_note`, ';
 		$sql3   .= "DATE_FORMAT(`i_data_decorrenza`, '" . esc_sql( $local_date_format_mysql ) . "') AS `i_data_decorrenza` FROM `" . GCMI_TABLE_PREFIX . 'comuni_variazioni` ';
 		$sql3   .= "WHERE (`i_cod_comune` = '" . esc_sql( $i_cod_comune ) . "' OR `i_cod_comune_nuovo` = '" . esc_sql( $i_cod_comune ) . "')";
 		$results = $wpdb->get_results( $sql3 );
@@ -442,11 +504,17 @@ class GCMI_COMUNE {
 					case 'CD':
 						$tooltip = esc_html( __( 'CD: Change of name of the municipality', 'campi-moduli-italiani' ) );
 						break;
+					case 'AQES':
+						$tooltip = esc_html( __( 'AQES: Incorporation of the territory of one or more suppressed municipalities. The variation has no effect on the code of the municipality it incorporates', 'campi-moduli-italiani' ) );
+						break;
 					case 'AQ':
-						$tooltip = esc_html( __( 'AQ: Territory acquisition', 'campi-moduli-italiani' ) );
+						  $tooltip = esc_html( __( 'AQ: Territory acquisition', 'campi-moduli-italiani' ) );
 						break;
 					case 'CE':
 						$tooltip = esc_html( __( 'CE: Land transfer', 'campi-moduli-italiani' ) );
+						break;
+					case 'CECS':
+						$tooltip = esc_html( __( 'CECS: Transfer of one or more portions of territory against the establishment of a new unit. The change has no effect on the code of the municipality that gives territory', 'campi-moduli-italiani' ) );
 						break;
 					case 'AP':
 						$tooltip = esc_html( __( 'AP: Change of belonging to the hierarchically superior administrative unit (typically, a change of province and or region).', 'campi-moduli-italiani' ) );
@@ -454,8 +522,8 @@ class GCMI_COMUNE {
 				}
 
 				$table .= '<tr>';
-				$table .= '<td class="tg-5cz4" rowspan="14">' . esc_html( $result->i_anno_var ) . '</td>';
-				$table .= '<td class="tg-5cz4" rowspan="14"><span id="' . esc_html( uniqid( 'TTVar', true ) ) . '" title="' . esc_html( $tooltip ) . '">' . esc_html( $result->i_tipo_var ) . '</span></td>';
+				$table .= '<td class="tg-5cz4" rowspan="15">' . esc_html( $result->i_anno_var ) . '</td>';
+				$table .= '<td class="tg-5cz4" rowspan="15"><span id="' . esc_html( uniqid( 'TTVar', true ) ) . '" title="' . esc_html( $tooltip ) . '">' . esc_html( $result->i_tipo_var ) . '</span></td>';
 				$table .= '<td class="tg-4ynh">' . esc_html( __( 'Istat code of the municipality. For changes of province and / or region (AP) membership, the code is the one prior to the validity date of the provision:', 'campi-moduli-italiani' ) ) . '</td>';
 				$table .= '</tr>';
 				$table .= '<tr>';
@@ -495,7 +563,27 @@ class GCMI_COMUNE {
 				$table .= '<td class="tg-4ynh">' . esc_html( __( 'Administrative validity effective date:', 'campi-moduli-italiani' ) ) . '</td>';
 				$table .= '</tr>';
 				$table .= '<tr>';
-				$table .= '<td class="tg-0pky">' . esc_html( $result->i_data_decorrenza ) . '</td>';
+				$table .= '<td class="tg-lboi">' . esc_html( $result->i_data_decorrenza ) . '</td>';
+				$table .= '</tr>';
+
+				$table .= '<tr>';
+				$table .= '<td class="tg-4ynh">' . esc_html( __( 'Nota: ', 'campi-moduli-italiani' ) );
+				switch ( $result->i_cod_flag_note ) {
+					case '1':
+						$table .= '<b>' . $result->i_cod_flag_note . ' - ' . esc_html( __( 'Territorial variations with population shift', 'campi-moduli-italiani' ) ) . '</b>';
+						break;
+					case '2':
+						$table .= '<b>' . $result->i_cod_flag_note . ' - ' . esc_html( __( 'Territorial variations with ascertainment of the number of transferred inhabitants (inhabitants surveyed as of 9 October 2011)', 'campi-moduli-italiani' ) ) . '</b>';
+						break;
+					case '3':
+						$table .= '<b>' . $result->i_cod_flag_note . ' - ' . esc_html( __( 'Variation suspended due to appeal', 'campi-moduli-italiani' ) ) . '</b>';
+						break;
+					case '4':
+						$table .= '<b>' . $result->i_cod_flag_note . ' - ' . esc_html( __( 'Variation canceled by judgment of an appeal', 'campi-moduli-italiani' ) ) . '</b>';
+						break;
+					default:
+				}
+				$table .= '</td>';
 				$table .= '</tr>';
 			}
 			$table .= '</table>';
@@ -520,7 +608,7 @@ class GCMI_COMUNE {
 	 *
 	 * @param string $i_cod_comune Il codice ISTAT del comune
 	 *
-	 * @param string $kind uno tra 'tutti', 'attuali', 'evidenza_cessati'
+	 * @param string $kind         uno tra 'tutti', 'attuali', 'evidenza_cessati'
 	 */
 	public static function gcmi_get_data_from_comune( $i_cod_comune, $kind ) {
 		global $wpdb;

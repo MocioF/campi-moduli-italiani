@@ -5,10 +5,10 @@
  * Class used on plugin activation.
  * Contains functions to create and populate db's tables.
  *
- * @link https://wordpress.org/plugins/campi-moduli-italiani/
- *
  * @package campi-moduli-italiani
- * @since 1.0.0
+ * @since   1.0.0
+ *
+ * @link https://wordpress.org/plugins/campi-moduli-italiani/
  */
 
 defined( 'ABSPATH' ) || die( 'you do not have acces to this page!' );
@@ -17,9 +17,10 @@ defined( 'ABSPATH' ) || die( 'you do not have acces to this page!' );
  * Class with methods used on plugin activation
  *
  * @package campi-moduli-italiani
- * @since 1.0.0
+ * @since   1.0.0
  */
 class GCMI_Activator {
+
 
 	/**
 	 * Contains data relating to individual imported public databases.
@@ -196,9 +197,8 @@ class GCMI_Activator {
 		 */
 		$count_lines = count( self::$database_file_info );
 		for ( $i = 0; $i < $count_lines; $i++ ) {
-			if (
-				'zip' === self::$database_file_info[ $i ]['file_type'] ||
-				'csv' === self::$database_file_info[ $i ]['file_type']
+			if ( 'zip' === self::$database_file_info[ $i ]['file_type']
+				|| 'csv' === self::$database_file_info[ $i ]['file_type']
 			) {
 				// I download remote files if it's not an html table.
 				if ( ! self::download_file(
@@ -232,7 +232,7 @@ class GCMI_Activator {
 					$download_temp_dir,
 					self::$database_file_info[ $i ]['featured_csv']
 				)
-					) {
+				) {
 					$error_title = __( 'Zip archive extraction error', 'campi-moduli-italiani' );
 					/* translators: %1$s: the local csv file name; %2$s: the zip archive file name */
 					$error_message = sprintf( __( 'Unable to extract %1$s from %2$s', 'campi-moduli-italiani' ), self::$database_file_info[ $i ]['featured_csv'], $pathtozip );
@@ -279,7 +279,8 @@ class GCMI_Activator {
 				self::$database_file_info[ $i ]['name'],
 				$csv_file_path,
 				self::$database_file_info[ $i ]['table_name']
-			) ) {
+			)
+			) {
 				$error_title = esc_html( __( 'Error importing data into database', 'campi-moduli-italiani' ) );
 				/* translators: %1$s: the data name; %2$s: the db table name. */
 				$error_message  = esc_html( sprintf( __( 'Unable to import %1$s into %2$s', 'campi-moduli-italiani' ), $csv_file_path, self::$database_file_info[ $i ]['table_name'] ) );
@@ -356,13 +357,13 @@ class GCMI_Activator {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param string $remoteurl Remote URL of the data file.
+	 * @param string $remoteurl    Remote URL of the data file.
 	 * @param string $tmp_dwld_dir URL of local created tmp directory.
-	 * @param string $filename Local file name for downloaded file.
+	 * @param string $filename     Local file name for downloaded file.
 	 */
 	public static function download_file( $remoteurl, $tmp_dwld_dir, $filename ) {
 		if ( ! function_exists( 'download_url' ) ) {
-			require_once ABSPATH . '/wp-admin/includes/file.php';
+			include_once ABSPATH . '/wp-admin/includes/file.php';
 		}
 		$gcmi_download_timeout = 300;
 		$gcmi_download_result  = download_url( $remoteurl, $gcmi_download_timeout, false );
@@ -414,7 +415,7 @@ class GCMI_Activator {
 	 *
 	 * @param string $pathtozip Local path to zip file.
 	 * @param string $outputdir Local path of $tmp_dwld_dir.
-	 * @param string $csv_name Local name of csv file extracted from zip archive.
+	 * @param string $csv_name  Local name of csv file extracted from zip archive.
 	 */
 	public static function extract_csv_from_zip( $pathtozip, $outputdir, $csv_name ) {
 		$zip = new ZipArchive();
@@ -439,7 +440,7 @@ class GCMI_Activator {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param string $name from $database_file_info .
+	 * @param string $name  from $database_file_info .
 	 * @param string $table $table_name from $database_file_info .
 	 */
 	public static function create_db_table( $name, $table ) {
@@ -494,10 +495,18 @@ class GCMI_Activator {
 			case 'comuni_soppressi':
 				$structure = "CREATE TABLE IF NOT EXISTS $table (
 				id INT(11) NOT NULL AUTO_INCREMENT,
+			i_anno_var YEAR(4) NOT NULL,
+			i_sigla_automobilistica varchar(10) NOT NULL,
 				i_cod_unita_territoriale char(3) NOT NULL,
 				i_cod_comune char(6) NOT NULL,
 				i_denominazione_full varchar(255) NOT NULL,
-				i_sigla_automobilistica varchar(10) NOT NULL,
+			i_cod_scorporo char(1) NULL,
+			i_data_variazione DATE NULL,
+			i_cod_comune_nuovo char(6) NULL,
+			i_denominazione_nuovo varchar(255) NULL,
+			i_cod_unita_territoriale_nuovo char(3) NULL,
+			i_sigla_automobilistica_nuovo varchar(10) NULL,
+		
 				PRIMARY KEY (id)
 				) $charset_collate";
 				break;
@@ -506,15 +515,19 @@ class GCMI_Activator {
 				$structure = "CREATE TABLE IF NOT EXISTS $table (
 				id INT(11) NOT NULL AUTO_INCREMENT,
 				i_anno_var YEAR(4) NOT NULL,
-				i_tipo_var char(2) NOT NULL,
+				i_tipo_var varchar(4) NOT NULL,
 				i_cod_regione char(2) NOT NULL,
+		i_cod_unita_territoriale char(3) NOT NULL,
 				i_cod_comune char(6) NOT NULL,
 				i_denominazione_full varchar(255) NOT NULL,
+		i_cod_regione_nuovo char(2) NOT NULL,
+		i_cod_unita_territoriale_nuovo char(3) NOT NULL,
 				i_cod_comune_nuovo char(6) NOT NULL,
 				i_denominazione_nuovo varchar(255) NOT NULL,
 				i_documento TINYTEXT NULL,
 				i_contenuto TINYTEXT NULL,
 				i_data_decorrenza DATE NULL,
+		i_cod_flag_note char(1) NULL,
 				PRIMARY KEY (id)
 				) $charset_collate";
 				break;
@@ -594,9 +607,11 @@ class GCMI_Activator {
 		$replaced_string = preg_replace( '/(?<!\r)\n/', '', $string );
 
 		if ( ! ( file_put_contents( dirname( $filepath ) . '/tmp.csv', $replaced_string ) ) ) {
-			return false; }
+			return false;
+		}
 		if ( ! ( rename( dirname( $filepath ) . '/tmp.csv', $filepath ) ) ) {
-			return false; }
+			return false;
+		}
 		return true;
 	}
 
@@ -608,7 +623,7 @@ class GCMI_Activator {
 	 * @since 1.0.0
 	 *
 	 * @param string $filepath local CSV file path.
-	 * @param string $orig_enc	 original encoding from $database_file_info .
+	 * @param string $orig_enc original encoding from $database_file_info .
 	 */
 	public static function convert_file_charset( $filepath, $orig_enc ) {
 		if ( ! isset( $orig_enc ) ) {
@@ -639,11 +654,14 @@ class GCMI_Activator {
 
 		$string = file_get_contents( $filepath );
 		if ( ! ( $encoded_string = mb_convert_encoding( $string, $new_charset, $orig_enc ) ) ) {
-			return false; }
+			return false;
+		}
 		if ( ! ( file_put_contents( dirname( $filepath ) . '/tmp.csv', $encoded_string ) ) ) {
-			return false; }
+			return false;
+		}
 		if ( ! ( rename( dirname( $filepath ) . '/tmp.csv', $filepath ) ) ) {
-			return false; }
+			return false;
+		}
 		return true;
 	}
 
@@ -654,9 +672,9 @@ class GCMI_Activator {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param string $name from $database_file_info .
+	 * @param string $name          from $database_file_info .
 	 * @param string $csv_file_path .
-	 * @param string $table $table_name from $database_file_info .
+	 * @param string $table         $table_name from $database_file_info .
 	 */
 	public static function populate_db_table( $name, $csv_file_path, $table ) {
 		global $wpdb;
@@ -683,11 +701,11 @@ class GCMI_Activator {
 
 			$gcmi_dati_line = array(); // inizializzo ad array vuoto.
 			/*
-			 * Aluni file dell'istat generati con excel, contengono migliaia di righe vuote, ma piene solo del carattere delimitatore ";"
-			 * come se tutto il foglio contenesse dati nulli.
-			 * Queste righe devono essere eliminate e non importate, perché le operazioni di scrittura sul database sono estremamente lunghe e comunque le
-			 * tabelle diventano di dimensioni significative.
-			 */
+			* Aluni file dell'istat generati con excel, contengono migliaia di righe vuote, ma piene solo del carattere delimitatore ";"
+			* come se tutto il foglio contenesse dati nulli.
+			* Queste righe devono essere eliminate e non importate, perché le operazioni di scrittura sul database sono estremamente lunghe e comunque le
+			* tabelle diventano di dimensioni significative.
+			*/
 			// se la stringa non è costituita da soli ";".
 			if ( ! preg_match( '/^(.)\;*$/u', trim( $arr_dati[ $i ] ) ) ) {
 				$gcmi_dati_line = str_getcsv( $arr_dati[ $i ], ';', '"' ); // non usare explode, perche' ci sono dei ";" nelle stringhe di testo delimitate con "" .
@@ -750,48 +768,31 @@ class GCMI_Activator {
 								'%s',
 								'%s',
 							)
-						) ) ) {
+						) )
+						) {
 							return false;
 						}
 						break;
 					case 'comuni_soppressi':
-						if ( ! ( $wpdb->insert(
-							$table,
-							array(
-								'i_cod_unita_territoriale' => $gcmi_dati_line[0],
-								'i_cod_comune'             => $gcmi_dati_line[1],
-								'i_denominazione_full'     => $gcmi_dati_line[2],
-								'i_sigla_automobilistica'  => $gcmi_dati_line[3],
-							),
-							array(
-								'%s',
-								'%s',
-								'%s',
-								'%s',
-							)
-						) ) ) {
-							return false;
-						}
-						break;
-					case 'comuni_variazioni':
-						if ( $gcmi_dati_line[9] != null ) {
-							$formatted_date = DateTime::createFromFormat( 'd/m/Y', $gcmi_dati_line[9] )->format( 'Y-m-d' );
+						if ( $gcmi_dati_line[6] != null ) {
+							$formatted_date = DateTime::createFromFormat( 'd/m/Y', $gcmi_dati_line[6] )->format( 'Y-m-d' );
 						} else {
 							$formatted_date = null;
 						}
 						if ( ! ( $wpdb->insert(
 							$table,
 							array(
-								'i_anno_var'            => $gcmi_dati_line[0],
-								'i_tipo_var'            => $gcmi_dati_line[1],
-								'i_cod_regione'         => $gcmi_dati_line[2],
-								'i_cod_comune'          => $gcmi_dati_line[3],
-								'i_denominazione_full'  => $gcmi_dati_line[4],
-								'i_cod_comune_nuovo'    => $gcmi_dati_line[5],
-								'i_denominazione_nuovo' => $gcmi_dati_line[6],
-								'i_documento'           => $gcmi_dati_line[7],
-								'i_contenuto'           => $gcmi_dati_line[8],
-								'i_data_decorrenza'     => $formatted_date,
+								'i_anno_var'               => $gcmi_dati_line[0],
+								'i_sigla_automobilistica'  => $gcmi_dati_line[1],
+								'i_cod_unita_territoriale' => $gcmi_dati_line[2],
+								'i_cod_comune'             => $gcmi_dati_line[3],
+								'i_denominazione_full'     => $gcmi_dati_line[4],
+								'i_cod_scorporo'           => $gcmi_dati_line[5],
+								'i_data_variazione'        => $formatted_date,
+								'i_cod_comune_nuovo'       => $gcmi_dati_line[7],
+								'i_denominazione_nuovo'    => $gcmi_dati_line[8],
+								'i_cod_unita_territoriale_nuovo' => $gcmi_dati_line[9],
+								'i_sigla_automobilistica_nuovo' => $gcmi_dati_line[10],
 							),
 							array(
 								'%d',
@@ -804,8 +805,56 @@ class GCMI_Activator {
 								'%s',
 								'%s',
 								'%s',
+								'%s',
 							)
-						) ) ) {
+						) )
+						) {
+							return false;
+						}
+						break;
+					case 'comuni_variazioni':
+						if ( $gcmi_dati_line[12] != null ) {
+							  // $formatted_date = DateTime::createFromFormat( 'd/m/Y', $gcmi_dati_line[9] )->format( 'Y-m-d' );
+							$formatted_date = DateTime::createFromFormat( 'd/m/Y', $gcmi_dati_line[12] )->format( 'Y-m-d' );
+						} else {
+							$formatted_date = null;
+						}
+						if ( ! ( $wpdb->insert(
+							$table,
+							array(
+								'i_anno_var'               => $gcmi_dati_line[0],
+								'i_tipo_var'               => $gcmi_dati_line[1],
+								'i_cod_regione'            => $gcmi_dati_line[2],
+								'i_cod_unita_territoriale' => $gcmi_dati_line[3],
+								'i_cod_comune'             => $gcmi_dati_line[4],
+								'i_denominazione_full'     => $gcmi_dati_line[5],
+								'i_cod_regione_nuovo'      => $gcmi_dati_line[6],
+								'i_cod_unita_territoriale_nuovo' => $gcmi_dati_line[7],
+								'i_cod_comune_nuovo'       => $gcmi_dati_line[8],
+								'i_denominazione_nuovo'    => $gcmi_dati_line[9],
+								'i_documento'              => $gcmi_dati_line[10],
+								'i_contenuto'              => $gcmi_dati_line[11],
+								'i_data_decorrenza'        => $formatted_date,
+								'i_cod_flag_note'          => $gcmi_dati_line[13],
+							),
+							array(
+								'%d',
+								'%s',
+								'%s',
+								'%s',
+								'%s',
+								'%s',
+								'%s',
+								'%s',
+								'%s',
+								'%s',
+								'%s',
+								'%s',
+								'%s',
+								'%s',
+							)
+						) )
+						) {
 							return false;
 						}
 						break;
@@ -820,22 +869,28 @@ class GCMI_Activator {
 								'%s',
 								'%s',
 							)
-						) ) ) {
-							return false;
+						) )
+						) {
+							 return false;
 						}
 						break;
 					case 'stati':
-						// n.d. to empty string
+						 // n.d. to empty string
 						if ( 'n.d.' === $gcmi_dati_line[8] || 'n.d' === $gcmi_dati_line[8] ) {
-							$gcmi_dati_line[8] = null; }
+							$gcmi_dati_line[8] = null;
+						}
 						if ( 'n.d.' === $gcmi_dati_line[9] || 'n.d' === $gcmi_dati_line[9] ) {
-							$gcmi_dati_line[9] = null; }
+							$gcmi_dati_line[9] = null;
+						}
 						if ( 'n.d.' === $gcmi_dati_line[10] || 'n.d' === $gcmi_dati_line[10] ) {
-							$gcmi_dati_line[10] = null; }
+							$gcmi_dati_line[10] = null;
+						}
 						if ( 'n.d.' === $gcmi_dati_line[11] || 'n.d' === $gcmi_dati_line[11] ) {
-							$gcmi_dati_line[11] = null; }
+							$gcmi_dati_line[11] = null;
+						}
 						if ( 'n.d.' === $gcmi_dati_line[12] || 'n.d' === $gcmi_dati_line[12] ) {
-							$gcmi_dati_line[12] = null; }
+							$gcmi_dati_line[12] = null;
+						}
 						if ( ! ( $wpdb->insert(
 							$table,
 							array(
@@ -872,18 +927,22 @@ class GCMI_Activator {
 								'%s',
 								'%s',
 							)
-						) ) ) {
+						) )
+						) {
 							return false;
 						}
 						break;
 
 					case 'stati_cessati':
 						if ( 'n.d.' === $gcmi_dati_line[4] || 'n.d' === $gcmi_dati_line[4] ) {
-							$gcmi_dati_line[4] = null; }
+							$gcmi_dati_line[4] = null;
+						}
 						if ( 'n.d.' === $gcmi_dati_line[5] || 'n.d' === $gcmi_dati_line[5] ) {
-							$gcmi_dati_line[5] = null; }
+							$gcmi_dati_line[5] = null;
+						}
 						if ( 'n.d.' === $gcmi_dati_line[6] || 'n.d' === $gcmi_dati_line[6] ) {
-							$gcmi_dati_line[6] = null; }
+							$gcmi_dati_line[6] = null;
+						}
 						if ( ! ( $wpdb->insert(
 							$table,
 							array(
@@ -910,7 +969,8 @@ class GCMI_Activator {
 								'%s',
 								'%s',
 							)
-						) ) ) {
+						) )
+						) {
 							return false;
 						}
 						break;
@@ -955,7 +1015,7 @@ class GCMI_Activator {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param string $name from $database_file_info .
+	 * @param string $name  from $database_file_info .
 	 * @param string $table $table_name from $database_file_info .
 	 */
 	public static function drop_table( $name, $table ) {
@@ -1008,14 +1068,14 @@ class GCMI_Activator {
 	 * @since 1.0.0
 	 *
 	 * @param string $tmp_dwld_dir temporary download directory.
-	 * @param string $name from $database_file_info .
+	 * @param string $name         from $database_file_info .
 	 */
 	public static function download_html_data( $tmp_dwld_dir, $name ) {
 		// wrapper per le funzioni specifiche per ogni singolo file
 		switch ( $name ) {
 			case 'codici_catastali':
 				return ( self::get_csvdata_codici_catastali( $tmp_dwld_dir ) );
-				break;
+			break;
 		}
 	}
 
@@ -1030,12 +1090,12 @@ class GCMI_Activator {
 	 */
 	public static function get_csvdata_codici_catastali( $tmp_dwld_dir ) {
 		/*
-		 * l'Agenzia delle entrate mette a disposizione i dati relativi ai codici catastali dei comuni in una tabella HTML
-		 * che puo' essere interrogata solo chiedendo l'elenco per iniziale del comune.
-		 * Questa funzione richiede le tabelle per tutte le lettere e inserisce i dati in un file csv, che successivamente
-		 * verrà importato nel database.
-		 * Il file e' necessario per ottenere l'informazione sul codice catastale dei comuni cessati, in quanto i dati ISTAT
-		 * contengono il valore del codice catastale solo per i comuni attuali (questo dato è funzionale al riscontro del codice fiscale)
+		* l'Agenzia delle entrate mette a disposizione i dati relativi ai codici catastali dei comuni in una tabella HTML
+		* che puo' essere interrogata solo chiedendo l'elenco per iniziale del comune.
+		* Questa funzione richiede le tabelle per tutte le lettere e inserisce i dati in un file csv, che successivamente
+		* verrà importato nel database.
+		* Il file e' necessario per ottenere l'informazione sul codice catastale dei comuni cessati, in quanto i dati ISTAT
+		* contengono il valore del codice catastale solo per i comuni attuali (questo dato è funzionale al riscontro del codice fiscale)
 		*/
 
 		$alphas = range( 'A', 'Z' );
@@ -1049,9 +1109,9 @@ class GCMI_Activator {
 		for ( $i = 0; $i < count( $alphas ); $i++ ) {
 			$remote_URL = 'https://www1.agenziaentrate.gov.it/documentazione/versamenti/codici/ricerca/VisualizzaTabella.php?iniz=' . $alphas[ $i ] . '&ArcName=COM-ICI';
 			/*
-			 * Il server Agenzia al momento è mal configurato perchè non serve tutta la catena di certificati intermedi, ma solo quello del server;
-			 * utilizzo una copia locale del certificato (ambiente impostato prima della routine).
-			 */
+			* Il server Agenzia al momento è mal configurato perchè non serve tutta la catena di certificati intermedi, ma solo quello del server;
+			* utilizzo una copia locale del certificato (ambiente impostato prima della routine).
+			*/
 			$response    = wp_remote_get( $remote_URL, $args );
 			$htmlContent = wp_remote_retrieve_body( $response );
 
