@@ -505,7 +505,7 @@ class GCMI_COMUNE {
 						$tooltip = esc_html( __( 'CD: Change of name of the municipality', 'campi-moduli-italiani' ) );
 						break;
 					case 'AQES':
-						$tooltip = esc_html( __( 'AQES: Incorporation of the territory of one or more suppressed municipalities. The variation has no effect on the code of the municipality it incorporates', 'campi-moduli-italiani' ) );
+						$tooltip = esc_html( __( 'AQES: Incorporation of the territory of one or more suppressed municipalities. The variation has no effect on the code of the municipality that incorporates', 'campi-moduli-italiani' ) );
 						break;
 					case 'AQ':
 						  $tooltip = esc_html( __( 'AQ: Territory acquisition', 'campi-moduli-italiani' ) );
@@ -567,7 +567,7 @@ class GCMI_COMUNE {
 				$table .= '</tr>';
 
 				$table .= '<tr>';
-				$table .= '<td class="tg-4ynh">' . esc_html( __( 'Nota: ', 'campi-moduli-italiani' ) );
+				$table .= '<td class="tg-4ynh">' . esc_html( __( 'Note: ', 'campi-moduli-italiani' ) );
 				switch ( $result->i_cod_flag_note ) {
 					case '1':
 						$table .= '<b>' . $result->i_cod_flag_note . ' - ' . esc_html( __( 'Territorial variations with population shift', 'campi-moduli-italiani' ) ) . '</b>';
