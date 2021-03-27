@@ -1,5 +1,7 @@
 // internazionalization support
-const { __, _x, _n, _nx } = wp.i18n;
+if (typeof __ !== 'undefined') {
+	const { __, _x, _n, _nx } = wp.i18n;
+}
 
 (function ($, window, document) {
 	'use strict';

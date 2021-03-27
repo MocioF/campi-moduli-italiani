@@ -1,6 +1,8 @@
 "use strict";
 // i18n support
-const { __, _x, _n, _nx } = wp.i18n;
+if (typeof __ !== 'undefined') {
+	const { __, _x, _n, _nx } = wp.i18n;
+}
 
 var scegli               = '<option value="">' + __( 'Select...', 'campi-moduli-italiani' ) + '</option>';
 var attendere            = '<option value="">' + __( 'Wait...', 'campi-moduli-italiani' ) + '</option>';
