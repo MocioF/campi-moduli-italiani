@@ -115,6 +115,9 @@ Cerca qui per maggiori informazioni: https://contactform7.com/getting-default-va
 5. Immagine della schermata di admin, da cui è possibile effettuare l'aggiornamento dei dati
 
 == Changelog ==
+= 1.3.0 =
+* prima integrazione con wpforms
+
 = 1.2.2 =
 * modificata tabella _comuni_variazioni (l'ISTAT ha cambiato il formato del file)
 * modificata tabella _comuni_soppressi (l'ISTAT ha cambiato il formato del file)

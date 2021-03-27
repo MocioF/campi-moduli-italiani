@@ -113,6 +113,9 @@ Look here for more informations: https://contactform7.com/getting-default-values
 5. Image of the admin screen, from which it is possible to update the data
 
 == Changelog ==
+= 1.3.0 =
+* first integration with wpforms
+
 = 1.2.2 =
 * modified table _comuni_variazioni (ISTAT changed the file's format)
 * modified table _comuni_soppressi (ISTAT changed the file's format)
