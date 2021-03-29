@@ -1,12 +1,8 @@
-// internazionalization support
-if (typeof __ !== 'undefined') {
-	const { __, _x, _n, _nx } = wp.i18n;
-}
-
 (function ($, window, document) {
 	'use strict';
 	$( document ).ready(
 		function () {
+			const { __, _x, _n, _nx } = wp.i18n;
 			$( '#gcmi_flamingo_input_signature' ).attr( "disabled", "disabled" );
 			$( '#gcmi_btn_check_sign' ).attr( "disabled", "disabled" );
 

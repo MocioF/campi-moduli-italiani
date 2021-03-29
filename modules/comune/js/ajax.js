@@ -1,25 +1,21 @@
-"use strict";
-// i18n support
-if (typeof __ !== 'undefined') {
-	const { __, _x, _n, _nx } = wp.i18n;
-}
-
-var scegli               = '<option value="">' + __( 'Select...', 'campi-moduli-italiani' ) + '</option>';
-var attendere            = '<option value="">' + __( 'Wait...', 'campi-moduli-italiani' ) + '</option>';
-var comune               = '';
-var provincia            = '';
-var regione              = '';
-var gcmi_comu_mail_value = '';
-var gcmi_istance_kind    = '';
-var myID                 = '';
-
-var regione_desc   = '';
-var provincia_desc = '';
-var comune_desc    = '';
-var predefiniti    = '';
-
+'use strict';
 jQuery( document ).ready(
 	function($) {
+		const { __, _x, _n, _nx } = wp.i18n;
+		var scegli               = '<option value="">' + __( 'Select...', 'campi-moduli-italiani' ) + '</option>';
+		var attendere            = '<option value="">' + __( 'Wait...', 'campi-moduli-italiani' ) + '</option>';
+		var comune               = '';
+		var provincia            = '';
+		var regione              = '';
+		var gcmi_comu_mail_value = '';
+		var gcmi_istance_kind    = '';
+		var myID                 = '';
+
+		var regione_desc   = '';
+		var provincia_desc = '';
+		var comune_desc    = '';
+		var predefiniti    = '';
+
 		$( "select[id$='gcmi_regione']" ).val( "" );
 		$( "select[id$='gcmi_regione']" ).removeAttr( "disabled" );
 		$( "select[id$='gcmi_province']" ).html( scegli );
