@@ -3,7 +3,7 @@ Contributors: mociofiletto
 Donate link: https://paypal.me/GiuseppeF77
 Tags: italiano, contact form 7, codice fiscale, comuni italiani, firma digitale
 Requires at least: 4.7
-Tested up to: 5.6
+Tested up to: 5.7.1
 Requires PHP: 5.6
 Stable tag: 2.0.0
 License: GPLv2 or later
@@ -48,7 +48,7 @@ I dati presenti sul sito dell'Agenzia delle entrate possono essere liberamente i
 Questo plugin utilizza i dati prelevati dal sito internet dell'Agenzia delle entrate esclusivamente al fine di effettuare un controllo di regolarità formale del codice fiscale.
 Questo plugin non riporta nelle pagine esterne del sito internet su cui è utilizzato, nessun collegamento né al sito dell'Agenzia delle entrate, né al sito dell'ISTAT; in particolare non viene effettuata alcuna forma di link diretto, né di deep linking.
 
-== Come utilizzare i form-tag ==
+== Come utilizzare i form-tag in Contact Form 7 ==
 
 [comune]
 `[comune]` dispone di un gestore nell'area di creazione dei form CF7 che consente di impostare le varie opzioni.
