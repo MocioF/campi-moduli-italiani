@@ -109,10 +109,10 @@ function wpcf7_gcmi_stato_formtag_handler( $tag ) {
 		$sql2       = 'SELECT DISTINCT `i_cod_continente`, `i_den_continente` FROM `' . GCMI_TABLE_PREFIX . 'stati` ORDER BY `i_cod_continente`';
 		$continenti = $wpdb->get_results( $sql2 );
 		foreach ( $continenti as $continente ) {
-			$html          .= sprintf( '<option %1$s>%2$s</option>', 'value=""', ' ---  ' . stripslashes( esc_html( $continente->i_den_continente ) ) );
+			$html .= sprintf( '<optgroup label="%s">', ' ---  ' . stripslashes( esc_html( $continente->i_den_continente ) ) );
+
 			$cod_continente = $continente->i_cod_continente;
 			foreach ( $stati as $stato ) {
-
 				if ( $stato->i_cod_continente === $cod_continente ) {
 					$value = 'value="' . esc_html( $stato->i_cod_istat ) . '"';
 					if ( $stato->i_cod_istat === $pr_value ) {
@@ -122,6 +122,7 @@ function wpcf7_gcmi_stato_formtag_handler( $tag ) {
 					$html .= sprintf( '<option %1$s>%2$s</option>', $value, $inset );
 				}
 			}
+			$html .= '</optgroup>';
 		}
 	} else {
 		$value = 'value="' . esc_html( $stato->i_cod_istat ) . '"';
@@ -229,8 +230,7 @@ function wpcf7_tg_pane_gcmi_stato( $contact_form, $args = '' ) {
 	?>
 	<div class="control-box">
 		<fieldset>
-			<legend><?php printf( esc_html( $description ), $desc_link ); ?></legend>
-
+			<legend><?php printf( esc_html( $description ), $desc_link ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></legend>
 			<table class="form-table">
 				<tbody>
 					<tr>
@@ -275,7 +275,6 @@ function wpcf7_tg_pane_gcmi_stato( $contact_form, $args = '' ) {
 						<th scope="row"><label for="<?php echo esc_attr( $args['content'] . '-class' ); ?>"><?php echo esc_html( __( 'Class attribute', 'contact-form-7' ) ); ?></label></th>
 						<td><input type="text" name="class" class="classvalue oneline option" id="<?php echo esc_attr( $args['content'] . '-class' ); ?>" /></td>
 					</tr>
-					
 				</tbody>
 			</table>
 		</fieldset>

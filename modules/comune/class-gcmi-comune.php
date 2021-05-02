@@ -126,7 +126,7 @@ class GCMI_COMUNE {
 	}
 
 	// Carica l'elenco delle regioni; deve conoscere il kind del tag o dello shortcode
-	protected function gcmi_start( $kind ) {
+	public static function gcmi_start( $kind ) {
 		global $wpdb;
 
 		if ( ! self::is_valid_kind( $kind ) ) {
@@ -161,7 +161,7 @@ class GCMI_COMUNE {
 		return $regioni;
 	}
 
-	protected static function getIDs( $idprefix ) {
+	public static function getIDs( $idprefix ) {
 		$MyPrefix = ( $idprefix ) ? $idprefix : md5( uniqid( mt_rand(), true ) );
 		$IDs      = array(
 			'reg'       => $MyPrefix . '_gcmi_regione',
@@ -232,21 +232,21 @@ class GCMI_COMUNE {
 		wp_die();
 	}
 
-	// carica i comuni della provincia selezionata
+	// Carica i comuni della provincia selezionata.
 	public static function gcmi_comuni() {
 
 		global $wpdb;
 		if ( self::is_valid_cod_provincia( $_POST['codice_provincia'] ) ) {
 			$i_cod_unita_territoriale = sanitize_text_field( $_POST['codice_provincia'] );
 		} else {
-			// INVALIDA
+			// INVALIDA.
 			return '';
 		}
 
 		$kind = self::get_post_gcmi_kind();
 
 		switch ( $kind ) {
-			// in questo caso, non rientrano la selezione sui Comuni cessati, gestita dall'hook sulla provincia
+			// In questo caso, non rientrano la selezione sui Comuni cessati, gestita dall'hook sulla provincia.
 			case 'tutti':
 				$sql = 'SELECT DISTINCT i_cod_comune, i_denominazione_full FROM ' . GCMI_TABLE_PREFIX . "comuni_attuali WHERE i_cod_unita_territoriale = '" . esc_sql( $i_cod_unita_territoriale ) . "' ORDER BY i_denominazione_full";
 				break;
@@ -257,7 +257,7 @@ class GCMI_COMUNE {
 
 			case 'evidenza_cessati':
 				if ( substr( $i_cod_unita_territoriale, 0, 1 ) != '7' ) {
-					// con 7 cominciano le province di istria e dalmazia
+					// Con 7 cominciano le province di Istria e Dalmazia.
 					$sql  = 'SELECT `i_cod_comune`, `i_denominazione_full` FROM `' . GCMI_TABLE_PREFIX . 'comuni_attuali` WHERE `' . GCMI_TABLE_PREFIX . "comuni_attuali`.`i_cod_unita_territoriale` = '" . esc_sql( $i_cod_unita_territoriale ) . "' ";
 					$sql .= 'UNION ';
 					$sql .= "SELECT `i_cod_comune`, CONCAT(`i_denominazione_full`, ' " . self::$DefStrings['SFX_SOPPRESSI_CEDUTI'] . "') AS 'i_denominazione_full' FROM `" . GCMI_TABLE_PREFIX . 'comuni_soppressi` ';
@@ -289,7 +289,7 @@ class GCMI_COMUNE {
 		if ( self::is_valid_cod_comune( $_POST['codice_comune'] ) ) {
 			$i_cod_comune = sanitize_text_field( $_POST['codice_comune'] );
 		} else {
-			// INVALIDA
+			// INVALIDA.
 			return '';
 		}
 
@@ -310,7 +310,7 @@ class GCMI_COMUNE {
 	public static function gcmi_register_scripts() {
 		wp_register_style( 'gcmi_comune_css', plugins_url( 'modules/comune/css/comune.css', GCMI_PLUGIN ) );
 
-		// if html_fè abilitato, non devo caricare il nuovo tema per evitare conflitti
+		// Se html5_fallback è abilitato, non devo caricare il nuovo tema per evitare conflitti.
 		if ( ! has_filter( 'wpcf7_support_html5_fallback', '__return_true' ) ) {
 			wp_register_style( 'gcmi_jquery-ui-dialog', plugins_url( 'css/jquery-ui-dialog.min.css', GCMI_PLUGIN ) );
 		}
@@ -319,7 +319,7 @@ class GCMI_COMUNE {
 	}
 
 	public static function gcmi_comune_enqueue_scripts() {
-		// incorporo gli script registrati
+		// Incorporo gli script registrati.
 		if ( ! wp_style_is( 'gcmi_comune_css', 'enqueued' ) ) {
 			wp_enqueue_style( 'gcmi_comune_css' );
 		}

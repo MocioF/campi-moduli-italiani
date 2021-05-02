@@ -5,21 +5,29 @@ Tags: italiano, contact form 7, codice fiscale, comuni italiani, firma digitale
 Requires at least: 4.7
 Tested up to: 5.6
 Requires PHP: 5.6
-Stable tag: 1.2.2
+Stable tag: 2.0.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html
 
-Plugin per creare campi utili per siti italiani, da utilizzare nei moduli prodotti con Contact Form 7.
+Plugin per creare campi utili per siti italiani, da utilizzare nei moduli prodotti con Contact Form 7 e WPForms.
 
 == Description ==
 
-Questo plugin crea dei form-tag per Contact Form 7.
-In questa versione sono disponibili 4 form-tag (e corrispondenti mail-tag):
+Questo plugin crea dei form-tag per Contact Form 7 e WPForms.
 
+=== Contact Form 7 ===
+
+In questa versione sono disponibili 4 form-tag (e corrispondenti mail-tag):
 * [comune]: crea una serie di select per la selezione di un comune italiano
 * [cf]: crea un campo per l'inserimento del codice fiscale italiano di una persona fisica
 * [stato]: crea la possibilità di selezionare uno stato
 * [formsign]: crea la possibilità di firmare digitalmente le mail inviate con una coppia di chiavi attribuita ad ogni singolo form
+
+=== WPForms ===
+
+Sono disponibili 2 tipi di campi
+* Selezione a cascata di un comune italiano (restituisce il codice comune ISTAT come valore)
+* Un campo per selezionare uno stato (restituisce il codice paese ISTAT come valore)
 
 Il plugin al momento dell'installazione scarica i dati che utilizza dal sito web dell'Istat e da quello dell'Agenzia delle entrate. Questi dati sono aggiornabili dalla console di amministrazione.
 Il download dei dati e l'inserimento degli stessi nel database richiede diversi minuti: pazientate durante la fase di attivazione.
@@ -115,8 +123,13 @@ Cerca qui per maggiori informazioni: https://contactform7.com/getting-default-va
 5. Immagine della schermata di admin, da cui è possibile effettuare l'aggiornamento dei dati
 
 == Changelog ==
+= 2.0.0 =
+* aggiunto un campo per selezionare un Comune a WPForms
+* rimossa la definizione di una variabile in global scope
+* aggiunto l'uso di gruppi di opzioni nella selezione del paese 
+
 = 1.3.0 =
-* prima integrazione con wpforms
+* prima integrazione con WPForms
 
 = 1.2.2 =
 * modificata tabella _comuni_variazioni (l'ISTAT ha cambiato il formato del file)

@@ -1,8 +1,9 @@
 <?php
+
 /**
  * Select a Country
  *
- * This field adds a select to chose a country.
+ * This field adds a select to choose a country.
  * It returns the Istat Country code (usefull to check italian fiscal code for people born outside Italy)
  *
  * @link https://wordpress.org/plugins/search/campi+moduli+italiani/
@@ -11,18 +12,18 @@
  * @subpackage stato
  * @since 2.0.0
  */
-class WPForms_Field_State extends WPForms_Field {
+class WPForms_Field_Stato extends WPForms_Field {
 	/**
 	 * Choices JS version.
 	 *
-	 * @since 1.6.3
+	 * @since 1.6.3 in wpforms-lite
 	 */
 	const CHOICES_VERSION = '9.0.1';
 
 	/**
 	 * Classic (old) style.
 	 *
-	 * @since 1.6.1
+	 * @since 1.6.1 in wpforms-lite
 	 *
 	 * @var string
 	 */
@@ -31,7 +32,7 @@ class WPForms_Field_State extends WPForms_Field {
 	/**
 	 * Modern style.
 	 *
-	 * @since 1.6.1
+	 * @since 1.6.1 in wpforms-lite
 	 *
 	 * @var string
 	 */
@@ -40,14 +41,14 @@ class WPForms_Field_State extends WPForms_Field {
 	/**
 	 * Primary class constructor.
 	 *
-	 * @since 1.0.0
+	 * @since 2.0.0
 	 */
 	public function init() {
 		// Define field type information.
 		$this->name  = esc_html__( 'Country', 'campi-moduli-italiani' );
 		$this->type  = 'country';
 		$this->icon  = 'fa-globe';
-		$this->order = 10;
+		$this->order = 20;
 		$this->group = 'gcmi';
 
 		// Define additional field properties.
@@ -65,19 +66,19 @@ class WPForms_Field_State extends WPForms_Field {
 		// Setta la classe per il <div> del builder.
 		add_filter( 'wpforms_field_new_class', array( $this, 'gcmi_wpf_add_class_select' ), 10, 2 );
 
-		// imposta la classe css nel builder per i campi già costruiti.
+		// Imposta la classe css nel builder per i campi già costruiti.
 		add_filter( 'wpforms_field_preview_class', array( $this, 'gcmi_wpf_preview_class_select' ), 10, 2 );
 
 		// Setta impostazioni predefinite del campo.
 		add_filter( 'wpforms_field_new_default', array( $this, 'gcmi_wpf_apply_default' ), 10, 1 );
 
-		// add_action( 'wpforms_builder_fields_previews_country', array( $this, 'field_preview' ), 10, 1 );
+		add_action( 'wpforms_builder_fields_previews_country', array( $this, 'field_preview' ), 10, 1 );
 	}
 
 	/**
 	 * Define additional field properties.
 	 *
-	 * @since 1.5.0
+	 * @since 2.0.0
 	 *
 	 * @param array $properties Field properties.
 	 * @param array $field      Field settings.
@@ -115,7 +116,7 @@ class WPForms_Field_State extends WPForms_Field {
 		$stati = $wpdb->get_results( $sql );
 
 		if ( isset( $field['use_continent'] ) ) {
-			$sql2       = 'SELECT DISTINCT `i_cod_continente`, `i_den_continente` FROM `' . GCMI_TABLE_PREFIX . 'stati` ORDER BY `i_cod_continente`';
+			$sql2       = 'SELECT DISTINCT `i_cod_continente`, `i_den_continente` FROM `' . GCMI_TABLE_PREFIX . 'stati` ORDER BY `i_cod_continente`'; // phpcs:ignore unprepared SQL OK.
 			$continenti = $wpdb->get_results( $sql2 );
 			foreach ( $continenti as $continente ) {
 				$choices[]      = array(
@@ -180,7 +181,8 @@ class WPForms_Field_State extends WPForms_Field {
 				),
 				'attr'      => array(
 					'name'  => "wpforms[fields][{$field_id}]",
-					'value' => isset( $field['show_values'] ) ? $choice['value'] : $choice['label'],
+					// Qui viene gestito l'utilizzo del valore.
+					'value' => isset( $field['show_values'] ) ? $choice['value'] : ( '' === $choice['value'] ? '' : $choice['label'] ),
 				),
 				'class'     => array(),
 				'data'      => array(),
@@ -234,9 +236,6 @@ class WPForms_Field_State extends WPForms_Field {
 		// Label.
 		$this->field_option( 'label', $field );
 
-		// Choices.
-		// $this->field_option( 'choices', $field );
-
 		// Description.
 		$this->field_option( 'description', $field );
 
@@ -265,7 +264,7 @@ class WPForms_Field_State extends WPForms_Field {
 			),
 			false
 		);
-		echo $output;
+		echo $output; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 
 		$only_current = isset( $field['only_current'] ) ? $field['only_current'] : '0';
 		$tooltip      = esc_html__( 'Check this option to show only actual States (not ceased).', 'campi-moduli-italiani' );
@@ -289,7 +288,7 @@ class WPForms_Field_State extends WPForms_Field {
 			),
 			false
 		);
-		echo $output;
+		echo $output; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 
 		// Show Values toggle option.
 		$output = $this->field_element(
@@ -298,7 +297,7 @@ class WPForms_Field_State extends WPForms_Field {
 			array(
 				'slug'    => 'show_values',
 				'value'   => isset( $field['show_values'] ) ? $field['show_values'] : '0',
-				'desc'    => esc_html__( 'Show Values', 'wpforms-lite' ),
+				'desc'    => esc_html__( 'Use values', 'campi-moduli-italiani' ),
 				'tooltip' => esc_html__( 'Check this to use Istat code as values.', 'campi-moduli-italiani' ),
 			),
 			false
@@ -381,12 +380,6 @@ class WPForms_Field_State extends WPForms_Field {
 		// Custom CSS classes.
 		$this->field_option( 'css', $field );
 
-		// Dynamic choice auto-populating toggle.
-		// $this->field_option( 'dynamic_choices', $field );
-
-		// Dynamic choice source.
-		// $this->field_option( 'dynamic_choices_source', $field );
-
 		// Options close markup.
 		$this->field_option(
 			'advanced-options',
@@ -400,8 +393,7 @@ class WPForms_Field_State extends WPForms_Field {
 		/**
 		 * Field preview inside the builder.
 		 *
-		 * @since 1.0.0
-		 * @since 1.6.1 Added a `Modern` style select support.
+		 * @since 2.0.0
 		 *
 		 * @param array $field Field settings.
 		 */
@@ -464,20 +456,17 @@ class WPForms_Field_State extends WPForms_Field {
 	/**
 	 * Field display on the form front-end.
 	 *
-	 * @since 1.0.0
-	 * @since 1.5.0 Converted to a new format, where all the data are taken not from $deprecated, but field properties.
-	 * @since 1.6.1 Added a multiple select support.
+	 * @since 2.0.0
 	 *
 	 * @param array $field      Field data and settings.
 	 * @param array $deprecated Deprecated array of field attributes.
 	 * @param array $form_data  Form data and settings.
 	 */
 	public function field_display( $field, $deprecated, $form_data ) {
-
 		$container         = $field['properties']['input_container'];
 		$field_placeholder = ! empty( $field['placeholder'] ) ? $field['placeholder'] : '';
-		// $is_multiple       = ! empty( $field['multiple'] );
-		$is_modern = ! empty( $field['style'] ) && self::STYLE_MODERN === $field['style'];
+		$is_multiple       = false;
+		$is_modern         = ! empty( $field['style'] ) && self::STYLE_MODERN === $field['style'];
 
 		$use_continent = ! empty( $field['use_continent'] ) ? esc_attr( $field['use_continent'] ) : false;
 		$only_current  = ! empty( $field['only_current'] ) ? esc_attr( $field['only_current'] ) : false;
@@ -520,7 +509,7 @@ class WPForms_Field_State extends WPForms_Field {
 		// Preselect default if no other choices were marked as default.
 		printf(
 			'<select %s>',
-			wpforms_html_attributes( $container['id'], $container['class'], $container['data'], $container['attr'] )
+			wpforms_html_attributes( $container['id'], $container['class'], $container['data'], $container['attr'] ) // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		);
 
 		// Optional placeholder.
@@ -533,15 +522,27 @@ class WPForms_Field_State extends WPForms_Field {
 		}
 
 		// Build the select options.
+		$primo_gruppo = 1;
 		foreach ( $choices as $key => $choice ) {
-			printf(
-				'<option value="%s" %s>%s</option>',
-				esc_attr( $choice['attr']['value'] ),
-				selected( true, ! empty( $choice['default'] ), false ),
-				esc_html( $choice['label']['text'] )
-			);
+			if ( '' === $choice['attr']['value'] ) {
+				if ( 1 === $primo_gruppo ) {
+					printf( '<optgroup label="%s">', esc_html( $choice['label']['text'] ) );
+				} else {
+					printf( '</optgroup><optgroup label="%s">', esc_html( $choice['label']['text'] ) );
+					$primo_gruppo = 0;
+				}
+			} else {
+				printf(
+					'<option value="%s" %s>%s</option>',
+					esc_attr( $choice['attr']['value'] ),
+					selected( true, ! empty( $choice['default'] ), false ),
+					esc_html( $choice['label']['text'] )
+				);
+			}
 		}
-
+		if ( $use_continent ) {
+			echo '</optgroup>';
+		}
 		echo '</select>';
 	}
 
@@ -559,13 +560,13 @@ class WPForms_Field_State extends WPForms_Field {
 		foreach ( $fields as $key => $field ) {
 			if ( $this->type === $field['type'] ) {
 				if ( ( '' !== $field['value'] ) && ( is_numeric( $field['value'] ) ) ) {
-					$sql  = 'SELECT `i_denominazione_ita` FROM ';
-					$sql .= '( ';
-					$sql .= 'SELECT `i_cod_istat`, `i_denominazione_ita` FROM `' . GCMI_TABLE_PREFIX . 'stati` ';
-					$sql .= 'UNION ';
-					$sql .= 'SELECT `i_cod_istat`, `i_denominazione_ita` FROM `' . GCMI_TABLE_PREFIX . 'stati_cessati` ';
-					$sql .= ') as subQuery ';
-					$sql .= 'WHERE `i_cod_istat` = "' . $field['value'] . '" LIMIT 1';
+					$sql                     = 'SELECT `i_denominazione_ita` FROM ';
+					$sql                    .= '( ';
+					$sql                    .= 'SELECT `i_cod_istat`, `i_denominazione_ita` FROM `' . GCMI_TABLE_PREFIX . 'stati` ';
+					$sql                    .= 'UNION ';
+					$sql                    .= 'SELECT `i_cod_istat`, `i_denominazione_ita` FROM `' . GCMI_TABLE_PREFIX . 'stati_cessati` ';
+					$sql                    .= ') as subQuery ';
+					$sql                    .= 'WHERE `i_cod_istat` = "' . $field['value'] . '" LIMIT 1';
 					$stato                   = $wpdb->get_row( $sql, OBJECT );
 					$fields[ $key ]['value'] = $stato->i_denominazione_ita;
 				}
@@ -592,7 +593,7 @@ class WPForms_Field_State extends WPForms_Field {
 	 *
 	 * @since 2.0.0
 	 *
-	 * @param string $css       lista classes separata da ' '
+	 * @param string $css       lista classes separata da ' '.
 	 * @param array  $field      Field data and settings.
 	 */
 	public function gcmi_wpf_preview_class_select( $css, $field ) {
@@ -618,7 +619,7 @@ class WPForms_Field_State extends WPForms_Field {
 	/**
 	 * Form frontend CSS enqueues.
 	 *
-	 * @since 1.6.1
+	 * @since 2.0.0
 	 *
 	 * @param array $forms Forms on the current page.
 	 */
@@ -649,7 +650,7 @@ class WPForms_Field_State extends WPForms_Field {
 	/**
 	 * Form frontend JS enqueues.
 	 *
-	 * @since 1.6.1
+	 * @since 2.0.0
 	 *
 	 * @param array $forms Forms on the current page.
 	 */
@@ -673,7 +674,7 @@ class WPForms_Field_State extends WPForms_Field {
 	/**
 	 * Whether the provided form has a dropdown field with a specified style.
 	 *
-	 * @since 1.6.1
+	 * @since 2.0.0
 	 *
 	 * @param array  $form  Form data.
 	 * @param string $style Desired field style.
@@ -708,7 +709,7 @@ class WPForms_Field_State extends WPForms_Field {
 	/**
 	 * Get field name for ajax error message.
 	 *
-	 * @since 1.6.3
+	 * @since 2.0.0
 	 *
 	 * @param string $name  Field name for error triggered.
 	 * @param array  $field Field settings.
@@ -731,4 +732,4 @@ class WPForms_Field_State extends WPForms_Field {
 		return $name;
 	}
 }
-new WPForms_Field_State();
+new WPForms_Field_Stato();

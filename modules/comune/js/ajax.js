@@ -15,7 +15,11 @@ jQuery( document ).ready(
 		var provincia_desc = '';
 		var comune_desc    = '';
 		var predefiniti    = '';
-
+		
+		// da versione 2.0.0
+		var choichesLoaded = $.isFunction( window.Choices );
+		var el = '';
+		
 		$( "select[id$='gcmi_regione']" ).val( "" );
 		$( "select[id$='gcmi_regione']" ).removeAttr( "disabled" );
 		$( "select[id$='gcmi_province']" ).html( scegli );
@@ -30,52 +34,140 @@ jQuery( document ).ready(
 			function(){
 				window.MyPrefix = this.id.substring( 0, (this.id.length - ("gcmi_regione").length) );
 				regione         = $( "select#" + window.MyPrefix + "gcmi_regione option:selected" ).attr( 'value' );
-
 				regione_desc = $( "select#" + window.MyPrefix + "gcmi_regione option:selected" ).text();
 				$( "input#" + window.MyPrefix + "gcmi_reg_desc" ).val( regione_desc );
 				$( "input#" + window.MyPrefix + "gcmi_prov_desc" ).val( '' );
 				$( "input#" + window.MyPrefix + "gcmi_comu_desc" ).val( '' );
 
 				gcmi_istance_kind = $( "input#" + window.MyPrefix + "gcmi_kind" ).attr( 'value' );
+				
+				console.log ( gcmi_istance_kind );
+				console.log ( "input#" + window.MyPrefix + "gcmi_kind" );
+				
 				if ( ! regione == '') {
 					if (regione != '00') {
-						$( "select#" + window.MyPrefix + "gcmi_province" ).html( attendere );
-						$( "select#" + window.MyPrefix + "gcmi_province" ).attr( "disabled", "disabled" );
-						$( "select#" + window.MyPrefix + "gcmi_comuni" ).html( scegli );
-						$( "select#" + window.MyPrefix + "gcmi_comuni" ).attr( "disabled", "disabled" );
+						el = $( "select#" + window.MyPrefix + "gcmi_province" );
+						el.html( attendere );
+						el.attr( "disabled", "disabled" );
+						if ( choichesLoaded && el.hasClass( 'choicesjs-select' ) ) {
+							$( el ).data('choicesjs').setChoices( 
+							Array.from( $( el )[0].options ),
+							'value',
+							'label',
+							true,
+							);
+							$( el ).data('choicesjs').disable();
+						}
+
+						el = $( "select#" + window.MyPrefix + "gcmi_comuni" );
+						el.html( scegli );
+						el.attr( "disabled", "disabled" );
+						if ( choichesLoaded && el.hasClass( 'choicesjs-select' ) ) {
+							$( el ).data('choicesjs').setChoices( 
+							Array.from( $( el )[0].options ),
+							'value',
+							'label',
+							true,
+							);
+							$( el ).data('choicesjs').disable();
+						}
 
 						$.ajax({
 						type: 'POST',
 						url: gcmi_ajax.ajaxurl,
 						data: {action:'the_ajax_hook_prov',codice_regione:regione,gcmi_kind:gcmi_istance_kind},
 						success: function(data){
-								$( "select#" + window.MyPrefix + "gcmi_province" ).removeAttr( "disabled" );
-								$( "select#" + window.MyPrefix + "gcmi_province" ).html( data );
+								el = $( "select#" + window.MyPrefix + "gcmi_province" );
+								el.removeAttr( "disabled" );
+								el.html( data );
+								
+								if ( choichesLoaded && el.hasClass( 'choicesjs-select' ) ) {
+									$( el ).data('choicesjs').setChoices( 
+									Array.from( $( el )[0].options ),
+										'value',
+										'label',
+										true,
+										);
+									$( el ).data('choicesjs').enable();
+								}
+								// fine nuovo
 						},
 						async:false
 						});
 					} else {
-						$( "select#" + window.MyPrefix + "gcmi_comuni" ).html( attendere );
-						$( "select#" + window.MyPrefix + "gcmi_comuni" ).attr( "disabled", "disabled" );
-						$( "select#" + window.MyPrefix + "gcmi_province" ).html( attendere );
-						$( "select#" + window.MyPrefix + "gcmi_province" ).attr( "disabled", "disabled" );
+						el = $( "select#" + window.MyPrefix + "gcmi_comuni" );
+						el.html( attendere );
+						el.attr( "disabled", "disabled" );
+						if ( choichesLoaded && el.hasClass( 'choicesjs-select' ) ) {
+							$( el ).data('choicesjs').setChoices( 
+							Array.from( $( el )[0].options ),
+							'value',
+							'label',
+							true,
+							);
+							$( el ).data('choicesjs').disable();
+						}
+
+						el = $( "select#" + window.MyPrefix + "gcmi_province" );
+						el.html( attendere );
+						el.attr( "disabled", "disabled" );
+						if ( choichesLoaded && el.hasClass( 'choicesjs-select' ) ) {
+							$( el ).data('choicesjs').setChoices( 
+							Array.from( $( el )[0].options ),
+							'value',
+							'label',
+							true,
+							);
+							$( el ).data('choicesjs').disable();
+						}
 
 						$.ajax({
 						type: 'POST',
 						url: gcmi_ajax.ajaxurl,
 						data: {action:'the_ajax_hook_prov',codice_regione:regione,gcmi_kind:gcmi_istance_kind},
 						success: function(data){
-								$( "select#" + window.MyPrefix + "gcmi_comuni" ).removeAttr( "disabled" );
-								$( "select#" + window.MyPrefix + "gcmi_comuni" ).html( data );
+								el = $( "select#" + window.MyPrefix + "gcmi_comuni" );
+								el.removeAttr( "disabled" );
+								el.html( data );
+								if ( choichesLoaded && el.hasClass( 'choicesjs-select' ) ) {
+									$( el ).data('choicesjs').setChoices( 
+									Array.from( $( el )[0].options ),
+										'value',
+										'label',
+										true,
+										);
+									$( el ).data('choicesjs').enable();
+								}
+
 						},
 						async:false
 						});
 					}
 				} else {
-					$( "select#" + window.MyPrefix + "gcmi_province" ).html( scegli );
-					$( "select#" + window.MyPrefix + "gcmi_province" ).attr( "disabled", "disabled" );
-					$( "select#" + window.MyPrefix + "gcmi_comuni" ).html( scegli );
-					$( "select#" + window.MyPrefix + "gcmi_comuni" ).attr( "disabled", "disabled" );
+					el = $( "select#" + window.MyPrefix + "gcmi_province" );
+					el.html( scegli );
+					el.attr( "disabled", "disabled" );
+					if ( choichesLoaded && el.hasClass( 'choicesjs-select' ) ) {
+						$( el ).data('choicesjs').setChoices( 
+						Array.from( $( el )[0].options ),
+						'value',
+						'label',
+						true,
+						);
+						$( el ).data('choicesjs').disable();
+					}
+					el = $( "select#" + window.MyPrefix + "gcmi_comuni" );
+					el.html( scegli );
+					el.attr( "disabled", "disabled" );
+					if ( choichesLoaded && el.hasClass( 'choicesjs-select' ) ) {
+						$( el ).data('choicesjs').setChoices( 
+						Array.from( $( el )[0].options ),
+						'value',
+						'label',
+						true,
+						);
+						$( el ).data('choicesjs').disable();
+					}
 				}
 				$( "#" + window.MyPrefix + "gcmi_icon" ).hide();
 				$( "#" + window.MyPrefix + "gcmi_info" ).hide();
@@ -90,21 +182,56 @@ jQuery( document ).ready(
 				$( "input#" + window.MyPrefix + "gcmi_prov_desc" ).val( provincia_desc );
 				$( "input#" + window.MyPrefix + "gcmi_comu_desc" ).val( '' );
 
-				$( "select#" + window.MyPrefix + "gcmi_comuni" ).html( attendere );
-				$( "select#" + window.MyPrefix + "gcmi_comuni" ).attr( "disabled", "disabled" );
+				el = $( "select#" + window.MyPrefix + "gcmi_comuni" );
+				el.html( attendere );
+				el.attr( "disabled", "disabled" );
+				if ( choichesLoaded && el.hasClass( 'choicesjs-select' ) ) {
+					$( el ).data('choicesjs').setChoices( 
+					Array.from( $( el )[0].options ),
+					'value',
+					'label',
+					true,
+					);
+					$( el ).data('choicesjs').disable();
+				}
+				
 				if ( ! provincia == '') {
 					$.ajax({
 					type: 'POST',
 					url: gcmi_ajax.ajaxurl,
 					data: {action:'the_ajax_hook_comu',codice_provincia:provincia,gcmi_kind:gcmi_istance_kind},
 					success: function(data){
-							$( "select#" + window.MyPrefix + "gcmi_comuni" ).removeAttr( "disabled" );
-							$( "select#" + window.MyPrefix + "gcmi_comuni" ).html( data );
+							el.removeAttr( "disabled" );
+							el.html( data );
+							
+							
+							// test
+							console.log (provincia);
+							console.log ( el.html( data ) );
+							console.log ($( el )[0].options );
+							//
+							if ( choichesLoaded && el.hasClass( 'choicesjs-select' ) ) {
+								$( el ).data('choicesjs').setChoices( 
+								Array.from( $( el )[0].options ),
+								'value',
+								'label',
+								true,
+								);
+							$( el ).data('choicesjs').enable();
+						}
 					},
 					async:false
 					});
 				} else {
-					$( "select#" + window.MyPrefix + "gcmi_comuni" ).html( scegli );
+					el.html( scegli );
+					if ( choichesLoaded && el.hasClass( 'choicesjs-select' ) ) {
+						$( el ).data('choicesjs').setChoices( 
+						Array.from( $( el )[0].options ),
+						'value',
+						'label',
+						true,
+						);
+					}
 				}
 				$( "#" + window.MyPrefix + "gcmi_icon" ).hide();
 				$( "#" + window.MyPrefix + "gcmi_info" ).hide();
