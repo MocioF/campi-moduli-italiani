@@ -1,28 +1,36 @@
 === Campi Moduli Italiani ===
 Contributors: mociofiletto
 Donate link: https://paypal.me/GiuseppeF77
-Tags: italiano, contact form 7, codice fiscale, comuni italiani, firma digitale
+Tags: contact form 7, wpforms, comuni italiani, codice fiscale, firma digitale
 Requires at least: 4.7
 Tested up to: 5.6
 Requires PHP: 5.6
-Stable tag: 1.2.1
+Stable tag: 2.0.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html
 
-Plugin to create useful fields for Italian sites, to be used in the modules produced with Contact Form 7.
+Plugin to create useful fields for Italian sites, to be used in the modules produced with Contact Form 7 and WPForms.
 
 == Description ==
-This plugin creates form tags for Contact Form 7.
-4 form-tags (and corresponding mail-tags) are available in this version:
 
+This plugin creates form tags for Contact Form 7 and WPForms.
+
+=== Contact Form 7 ===
+4 form-tags (and corresponding mail-tags) are available in this version:
 * [comune]: creates a series of select for the selection of an Italian municipality
 * [cf]: creates a field for entering the Italian tax code of a natural person
 * [stato]: creates the ability to select a state
 * [formsign]: creates the possibility to digitally sign the e-mails sent with a pair of keys attributed to each individual form
 
-At the time of installation, the plugin downloads the data it uses from the Istat and from the Revenue Agency websites. This data can be updated from the administration console.
-Downloading data and entering it into the database takes several minutes: be patient during the activation phase.
-The selection of the municipalities was created starting from the code of https://wordpress.org/plugins/regione-provincia-comune/
+=== WPForms ===
+
+2 fields types are available:
+* Cascade selection of an Italian municipality (returning Istat's municipality code as value)
+* A field to select a state (returning Istat's country code as value)
+
+	At the time of installation, the plugin downloads the data it uses from the Istat and from the Revenue Agency websites. This data can be updated from the administration console.
+	Downloading and entering data into the database takes several minutes: be patient during the activation phase.
+	The selection of the municipalities was created starting from the code of https://wordpress.org/plugins/regione-provincia-comune/
 
 == Data used ==
 
@@ -37,9 +45,9 @@ The data published on the ISTAT website are covered by a Creative Commons licens
 The data taken from the website of the Agenzia delle entrate are in the public domain and constitute a public database made available to allow tax compliance and, more generally, to allow the identification of physical persons with the Italian public administrations, through the personal fiscal code.
 The data on the Agenzia delle entrate website can be freely stored on your computer or printed (https://www.agenziaentrate.gov.it/portale/web/guest/privacy). The data are managed by the Ufficio Archivio of the Agenzia delle entrate.
 This plugin uses the data taken from the website of the Agenzia delle entrate exclusively for the purpose of carrying out a formal regularity check of the pesonal tax code.
-This plugin does not include any links on the external pages of the website on which it is used, neither to the Agenzia delle entrate site nor to the ISTAT website; in particular, no form of direct link is made, nor of deep linking.
+This plugin does not include any links on the external pages of the website on which it is used, neither to the Agenzia delle entrate's site nor to the ISTAT's website; in particular, no form of direct link is made, nor of deep linking.
 
-== How to use form tags ==
+== How to use form tags in Contact Form 7 ==
 
 [comune]
 `[comune]` has a manager in the CF7 form creation area that allows you to set various options.
@@ -113,19 +121,29 @@ Look here for more informations: https://contactform7.com/getting-default-values
 5. Image of the admin screen, from which it is possible to update the data
 
 == Changelog ==
+= 2.0.0 =
+* added a field to select a municipality to WPForms
+* removed variable definition from global scope
+* added use of options' groups in country selection
+
+= 1.3.0 =
+* first integration with wpforms
+
 = 1.2.2 =
-- updated jquery-ui-dialog.css to version used in WP 5.6
+* modified table _comuni_variazioni (ISTAT changed the file's format)
+* modified table _comuni_soppressi (ISTAT changed the file's format)
+* updated jquery-ui-dialog.css to version used in WP 5.6
 * added standard wpcf7's classes to [comune] (wpcf7-select), [stato] (wpcf7-select) and [cf] (wpcf7-text)
 * changed behaviour of option "use_label_element" in [comune]: if not set, no strings will be shown before selects
-* changed default first element as labels in selects of [comune]
+* changed previous first elements used as labels in selects of [comune]
 * added option to use a label in [stato] (Select a Country) 
 * changed class name: gcmi_wrap to gcmi-wrap
-* for [comune] it is now possible to set custom classes both for the <span> container and for the <select>s
+* for [comune] it is now possible to set custom classes both for the span container and for the selects
 *
 * [comune] shortcode (not for CF7):
 * changed class name: gcmi_comune to gcmi-comune
 * added options "use_label_element"; default to true
-* removed <p> and <div> elements
+* removed p and div tags
 
 = 1.2.1 =
 * Bug fix: fixed [stato] not replacing mail-tag with contry name
