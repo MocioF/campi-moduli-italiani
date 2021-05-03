@@ -13,7 +13,7 @@ Plugin to create useful fields for Italian sites, to be used in the modules prod
 
 == Description ==
 This plugin creates form tags for Contact Form 7 and form fields WPForms.
-1
+
 = Contact Form 7 =
 4 form-tags (and corresponding mail-tags) are available in this version:
 * [comune]: creates a series of select for the selection of an Italian municipality
