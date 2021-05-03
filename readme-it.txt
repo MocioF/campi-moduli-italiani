@@ -3,7 +3,7 @@ Contributors: mociofiletto
 Donate link: https://paypal.me/GiuseppeF77
 Tags: italiano, contact form 7, codice fiscale, comuni italiani, firma digitale
 Requires at least: 4.7
-Tested up to: 5.6
+Tested up to: 5.7.1
 Requires PHP: 5.6
 Stable tag: 2.0.0
 License: GPLv2 or later
@@ -12,28 +12,24 @@ License URI: https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html
 Plugin per creare campi utili per siti italiani, da utilizzare nei moduli prodotti con Contact Form 7 e WPForms.
 
 == Description ==
+Questo plugin crea dei form-tag per Contact Form 7 e dei campi per WPForms.
 
-Questo plugin crea dei form-tag per Contact Form 7 e WPForms.
-
-=== Contact Form 7 ===
-
+= Contact Form 7 =
 In questa versione sono disponibili 4 form-tag (e corrispondenti mail-tag):
 * [comune]: crea una serie di select per la selezione di un comune italiano
 * [cf]: crea un campo per l'inserimento del codice fiscale italiano di una persona fisica
 * [stato]: crea la possibilità di selezionare uno stato
 * [formsign]: crea la possibilità di firmare digitalmente le mail inviate con una coppia di chiavi attribuita ad ogni singolo form
 
-=== WPForms ===
-
+= WPForms =
 Sono disponibili 2 tipi di campi
 * Selezione a cascata di un comune italiano (restituisce il codice comune ISTAT come valore)
 * Un campo per selezionare uno stato (restituisce il codice paese ISTAT come valore)
 
+== Dati utilizzati ==
 Il plugin al momento dell'installazione scarica i dati che utilizza dal sito web dell'Istat e da quello dell'Agenzia delle entrate. Questi dati sono aggiornabili dalla console di amministrazione.
 Il download dei dati e l'inserimento degli stessi nel database richiede diversi minuti: pazientate durante la fase di attivazione.
 La selezione dei comuni è stata creata partendo dal codice di https://wordpress.org/plugins/regione-provincia-comune/
-
-== Dati utilizzati ==
 
 Questo plugin utilizza dati resi disponibili dall'ISTAT e dall'Agenzia delle entrate.
 In particolare, vengono acquisiti e memorizzati dati messi a disposizione a queste URL:
@@ -48,8 +44,7 @@ I dati presenti sul sito dell'Agenzia delle entrate possono essere liberamente i
 Questo plugin utilizza i dati prelevati dal sito internet dell'Agenzia delle entrate esclusivamente al fine di effettuare un controllo di regolarità formale del codice fiscale.
 Questo plugin non riporta nelle pagine esterne del sito internet su cui è utilizzato, nessun collegamento né al sito dell'Agenzia delle entrate, né al sito dell'ISTAT; in particolare non viene effettuata alcuna forma di link diretto, né di deep linking.
 
-== Come utilizzare i form-tag ==
-
+== Come utilizzare i form-tag in Contact Form 7 ==
 [comune]
 `[comune]` dispone di un gestore nell'area di creazione dei form CF7 che consente di impostare le varie opzioni.
 In particolare è possibile impostare l'attributo "kind" a "tutti"; "attuali","evidenza_cessati". Nel primo e nel terzo caso, con modalità differenti, vengono proposti sia i comuni attualmente esistenti, sia quelli cessati in precedenza (utile, ad esempio, per consentire la selezione del Comune di nascita). Nella modalità "attuali", è invece consentita solo la selezione dei comuni attualmente esistenti (utile per consentire la selezione del Comune di residenza / domicilio).
@@ -186,6 +181,8 @@ Cerca qui per maggiori informazioni: https://contactform7.com/getting-default-va
 * Prima versione del plugin.
 
 == Upgrade Notice ==
+= 2.0.0 =
+Integrato anche con WPForms
 
 = 1.1.0 =
 L'ISTAT ha modificato il formato del suo database.
