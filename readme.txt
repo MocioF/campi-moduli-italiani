@@ -12,27 +12,24 @@ License URI: https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html
 Plugin to create useful fields for Italian sites, to be used in the modules produced with Contact Form 7 and WPForms.
 
 == Description ==
-
-This plugin creates form tags for Contact Form 7 and WPForms.
-
-=== Contact Form 7 ===
+This plugin creates form tags for Contact Form 7 and form fields WPForms.
+1
+= Contact Form 7 =
 4 form-tags (and corresponding mail-tags) are available in this version:
 * [comune]: creates a series of select for the selection of an Italian municipality
 * [cf]: creates a field for entering the Italian tax code of a natural person
 * [stato]: creates the ability to select a state
 * [formsign]: creates the possibility to digitally sign the e-mails sent with a pair of keys attributed to each individual form
 
-=== WPForms ===
-
+= WPForms =
 2 fields types are available:
 * Cascade selection of an Italian municipality (returning Istat's municipality code as value)
 * A field to select a state (returning Istat's country code as value)
 
-	At the time of installation, the plugin downloads the data it uses from the Istat and from the Revenue Agency websites. This data can be updated from the administration console.
-	Downloading and entering data into the database takes several minutes: be patient during the activation phase.
-	The selection of the municipalities was created starting from the code of https://wordpress.org/plugins/regione-provincia-comune/
-
 == Data used ==
+At the time of installation, the plugin downloads the data it uses from the Istat and from the Revenue Agency websites. This data can be updated from the administration console.
+Downloading and entering data into the database takes several minutes: be patient during the activation phase.
+The selection of the municipalities was created starting from the code of https://wordpress.org/plugins/regione-provincia-comune/
 
 This plugin uses data made available by ISTAT and the Agenzia delle entrate (Italian revenue agency).
 In particular, data made available at these URLs are acquired and stored:
@@ -184,6 +181,8 @@ Look here for more informations: https://contactform7.com/getting-default-values
 * First release of the plugin.
 
 == Upgrade Notice ==
+= 2.0.0 =
+Integrated with WPForms
 
 = 1.1.0 =
 ISTAT has changed the format of its database.
