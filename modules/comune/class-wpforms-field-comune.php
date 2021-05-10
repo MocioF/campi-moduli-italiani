@@ -66,13 +66,13 @@ class WPForms_Field_Comune extends WPForms_Field {
 		add_action( 'wpforms_entry_email_data', array( $this, 'gcmi_wpf_comune_modify_email_value' ), 5, 3 );
 
 		// Setta la classe per il <div> del builder.
-		add_filter( 'wpforms_field_new_class', array( $this, 'gcmi_wpf_add_class_select' ), 10, 2 );
+		add_filter( 'wpforms_field_new_class', array( $this, 'gcmi_wpf_comune_add_class_select' ), 10, 2 );
 
 		// imposta la classe css nel builder per i campi già costruiti.
-		add_filter( 'wpforms_field_preview_class', array( $this, 'gcmi_wpf_preview_class_select' ), 10, 2 );
+		add_filter( 'wpforms_field_preview_class', array( $this, 'gcmi_wpf_comune_preview_class_select' ), 10, 2 );
 
 		// Setta impostazioni predefinite del campo.
-		add_filter( 'wpforms_field_new_default', array( $this, 'gcmi_wpf_apply_default' ), 10, 1 );
+		add_filter( 'wpforms_field_new_default', array( $this, 'gcmi_wpf_comune_apply_default' ), 10, 1 );
 
 		add_action( 'wpforms_builder_fields_previews_comune', array( $this, 'field_preview' ), 10, 1 );
 	}
@@ -606,10 +606,12 @@ class WPForms_Field_Comune extends WPForms_Field {
 	 *
 	 * @param array $field      Field data and settings.
 	 */
-	public function gcmi_wpf_apply_default( $field ) {
-		$field['kind']              = 'tutti';
-		$field['use_label_element'] = '0';
-		$field['comu_details']      = '0';
+	public function gcmi_wpf_comune_apply_default( $field ) {
+		if ( 'comune' === $field['type'] ) {
+			$field['kind']              = 'tutti';
+			$field['use_label_element'] = '0';
+			$field['comu_details']      = '0';
+		}
 		return $field;
 	}
 
@@ -711,8 +713,10 @@ class WPForms_Field_Comune extends WPForms_Field {
 	 * @param string $new_class  Nome nuova classe.
 	 * @param array  $field      Field data and settings.
 	 */
-	public function gcmi_wpf_add_class_select( $new_class, $field ) {
-		$new_class = 'wpforms-field-select';
+	public function gcmi_wpf_comune_add_class_select( $new_class, $field ) {
+		if ( 'comune' === $field['type'] ) {
+			$new_class .= ' wpforms-field-select';
+		}
 		return $new_class;
 	}
 
@@ -724,8 +728,10 @@ class WPForms_Field_Comune extends WPForms_Field {
 	 * @param string $css       lista classes separata da ' '.
 	 * @param array  $field      Field data and settings.
 	 */
-	public function gcmi_wpf_preview_class_select( $css, $field ) {
-		$css .= ' wpforms-field-select';
+	public function gcmi_wpf_comune_preview_class_select( $css, $field ) {
+		if ( 'comune' === $field['type'] ) {
+			$css .= ' wpforms-field-select';
+		}
 		return $css;
 	}
 }

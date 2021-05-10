@@ -5,7 +5,7 @@ Tags: contact form 7, wpforms, comuni italiani, codice fiscale, firma digitale
 Requires at least: 4.7
 Tested up to: 5.7.1
 Requires PHP: 5.6
-Stable tag: 2.0.0
+Stable tag: 2.0.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html
 
@@ -118,6 +118,9 @@ Look here for more informations: https://contactform7.com/getting-default-values
 5. Image of the admin screen, from which it is possible to update the data
 
 == Changelog ==
+= 2.0.1 =
+* Minor bug fixes
+
 = 2.0.0 =
 * added a field to select a municipality to WPForms
 * removed variable definition from global scope
