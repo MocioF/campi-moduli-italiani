@@ -36,14 +36,23 @@ if ( ! defined( 'GCMI_USE_STATO' ) ) {
 if ( ! defined( 'GCMI_USE_FORMSIGN' ) ) {
 	define( 'GCMI_USE_FORMSIGN', true );
 }
+
+/* configurazione integrazioni utilizzate */
+if ( ! defined( 'GCMI_USE_CF7_INTEGRATION' ) ) {
+	define( 'GCMI_USE_CF7_INTEGRATION', true );
+}
+
+if ( ! defined( 'GCMI_USE_WPFORMS_INTEGRATION' ) ) {
+	define( 'GCMI_USE_WPFORMS_INTEGRATION', true );
+}
+
 /* fine sezione editabile */
 
 if ( GCMI_USE_COMUNE === true ) {
+	
 	require_once plugin_dir_path( GCMI_PLUGIN ) . 'modules/comune/class-gcmi-comune.php';
-	require_once plugin_dir_path( GCMI_PLUGIN ) . 'modules/comune/class-gcmi-comune-wpcf7-formtag.php';
 	require_once plugin_dir_path( GCMI_PLUGIN ) . 'modules/comune/class-gcmi-comune-shortcode.php';
 	require_once plugin_dir_path( GCMI_PLUGIN ) . 'modules/comune/comune-shortcode.php';
-	require_once plugin_dir_path( GCMI_PLUGIN ) . 'modules/comune/wpcf7-comune-formtag.php';
 
 	add_action( 'wp_ajax_the_ajax_hook_prov', 'GCMI_COMUNE::gcmi_province' );
 	add_action( 'wp_ajax_nopriv_the_ajax_hook_prov', 'GCMI_COMUNE::gcmi_province' );
@@ -57,19 +66,21 @@ if ( GCMI_USE_COMUNE === true ) {
 	add_action( 'wp_enqueue_scripts', 'GCMI_COMUNE::gcmi_register_scripts' );
 }
 
-if ( GCMI_USE_CF === true ) {
-	require_once plugin_dir_path( GCMI_PLUGIN ) . 'modules/cf/class-validate-cf.php';
-	require_once plugin_dir_path( GCMI_PLUGIN ) . 'modules/cf/class-gcmi-cf-wpcf7-formtag.php';
-	require_once plugin_dir_path( GCMI_PLUGIN ) . 'modules/cf/wpcf7-cf-formtag.php';
-}
 
-if ( GCMI_USE_STATO === true ) {
-	require_once plugin_dir_path( GCMI_PLUGIN ) . 'modules/stato/wpcf7-stato-formtag.php';
-}
+function gcmi_load_integrations() {
+	if ( GCMI_USE_CF7_INTEGRATION === true ) {
+		if( class_exists('WPCF7') ) {
+			require_once plugin_dir_path( GCMI_PLUGIN ) . 'integrations/contact-form-7/contact-form-7-integrations.php';
+		}
+	}
 
-if ( GCMI_USE_FORMSIGN === true ) {
-	require_once plugin_dir_path( GCMI_PLUGIN ) . 'modules/formsign/wpcf7-formsign-formtag.php';
+	if ( GCMI_USE_WPFORMS_INTEGRATION === true ) {
+		if( class_exists('WPForms') ) {
+			require_once plugin_dir_path( GCMI_PLUGIN ) . 'integrations/wpforms/wpforms-integration.php';
+		}
+	}
 }
+add_action( 'plugins_loaded', 'gcmi_load_integrations' );
 
 add_action( 'admin_init', 'gcmi_upgrade', 10, 0 );
 
