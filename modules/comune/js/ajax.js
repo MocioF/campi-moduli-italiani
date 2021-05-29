@@ -41,9 +41,6 @@ jQuery( document ).ready(
 
 				gcmi_istance_kind = $( "input#" + window.MyPrefix + "gcmi_kind" ).attr( 'value' );
 				
-				console.log ( gcmi_istance_kind );
-				console.log ( "input#" + window.MyPrefix + "gcmi_kind" );
-				
 				if ( ! regione == '') {
 					if (regione != '00') {
 						el = $( "select#" + window.MyPrefix + "gcmi_province" );
@@ -203,13 +200,6 @@ jQuery( document ).ready(
 					success: function(data){
 							el.removeAttr( "disabled" );
 							el.html( data );
-							
-							
-							// test
-							console.log (provincia);
-							console.log ( el.html( data ) );
-							console.log ($( el )[0].options );
-							//
 							if ( choichesLoaded && el.hasClass( 'choicesjs-select' ) ) {
 								$( el ).data('choicesjs').setChoices( 
 								Array.from( $( el )[0].options ),
