@@ -54,15 +54,6 @@ function gcmi_admin_menu() {
 	);
 
 	add_action( 'load-' . $edit, 'gcmi_load_contact_form_admin', 10, 0 );
-
-	/*
-	add_submenu_page( 'gcmi', // parent slug
-	__( 'page title', 'campi-moduli-italiani' ), // page title
-	__( 'menu title', 'campi-moduli-italiani' )
-		. gcmi_admin_menu_change_notice( 'gcmi' ), //menu title
-	'update_plugins', 'gcmi', // capability e menu_slug
-	'callable' ); // callable
-	*/
 }
 
 /**

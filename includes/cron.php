@@ -24,6 +24,11 @@ function gcmi_check_update() {
 		$file_opt = $database_file_info[ $i ]['optN_remoteUpd'];
 		if ( $timestamp = gcmi_get_remote_update_timestamp( $name ) ) {
 			update_option( $file_opt, $timestamp, 'no' );
+			
+			// Aggiorno la data di aggiornamento dei codici catastali, con quella dei comuni_attuali.
+			if ( 'comuni_attuali' === $name ) {
+				update_option ('gcmi_codici_catastali_remote_file_time', $timestamp, 'no' );
+			}
 		}
 	}
 	update_option( 'gcmi_last_update_check', time(), 'no' );
