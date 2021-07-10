@@ -81,5 +81,3 @@ function gcmi_get_remote_file_timestamp( $remote_file_url ) {
 	}
 	return false;
 }
-
-
