@@ -20,36 +20,36 @@ class Remote_Files_List extends WP_List_Table {
 	function get_columns() {
 		$columns = array(
 			'cb'         => '<input type="checkbox" />',
-			'dataname'   => __( 'Data', 'campi-moduli-italiani' ),
-			'icon'       => __( 'Status', 'campi-moduli-italiani' ),
-			'remotedate' => __( 'Last modified date of remote file', 'campi-moduli-italiani' ),
-			'localdate'  => __( 'Database update date', 'campi-moduli-italiani' ),
-			'dataURL'    => __( 'URL', 'campi-moduli-italiani' ),
+			'gcmi-dataname'   => __( 'Data', 'campi-moduli-italiani' ),
+			'gcmi-icon'       => __( 'Status', 'campi-moduli-italiani' ),
+			'gcmi-remotedate' => __( 'Last modified date of remote file', 'campi-moduli-italiani' ),
+			'gcmi-localdate'  => __( 'Database update date', 'campi-moduli-italiani' ),
+			'gcmi-dataURL'    => __( 'URL', 'campi-moduli-italiani' ),
 		);
 		return $columns;
 	}
 
 	function get_sortable_columns() {
 		 $sortable_columns = array(
-			 'dataname'   => array( 'dataname', false ),
-			 'remotedate' => array( 'remotedate', false ),
-			 'localdate'  => array( 'localdate', false ),
+			 'gcmi-dataname'   => array( 'gcmi-dataname', false ),
+			 'gcmi-remotedate' => array( 'gcmi-remotedate', false ),
+			 'gcmi-localdate'  => array( 'gcmi-localdate', false ),
 		 );
 		 return $sortable_columns;
 	}
 
 	function usort_reorder( $a, $b ) {
 		// If no sort, default to title
-		$orderby = ( ! empty( $_GET['orderby'] ) ) ? $_GET['orderby'] : 'dataname';
+		$orderby = ( ! empty( $_GET['orderby'] ) ) ? $_GET['orderby'] : 'gcmi-dataname';
 		// If no order, default to asc
 		$order = ( ! empty( $_GET['order'] ) ) ? $_GET['order'] : 'asc';
 		// Determine sort order
 		switch ( $orderby ) {
-			case 'dataname':
+			case 'gcmi-dataname':
 				$result = strnatcmp( $a[ $orderby ], $b[ $orderby ] );
 				break;
-			case 'remotedate':
-			case 'localdate':
+			case 'gcmi-remotedate':
+			case 'gcmi-localdate':
 				$datetimeA = gcmi_convert_datestring( $a[ $orderby ] );
 				$datetimeB = gcmi_convert_datestring( $b[ $orderby ] );
 				$result    = ( $datetimeA - $datetimeB );
@@ -75,11 +75,11 @@ class Remote_Files_List extends WP_List_Table {
 			}
 
 			$data[ $i ] = array(
-				'dataname'   => $database_file_info[ $i ]['name'],
-				'icon'       => $icon,
-				'remotedate' => gcmi_convert_timestamp( get_option( $database_file_info[ $i ]['optN_remoteUpd'] ) ),
-				'localdate'  => gcmi_convert_timestamp( get_option( $database_file_info[ $i ]['optN_dwdtime'] ) ),
-				'dataURL'    => $database_file_info[ $i ]['remote_URL'],
+				'gcmi-dataname'   => $database_file_info[ $i ]['name'],
+				'gcmi-icon'       => $icon,
+				'gcmi-remotedate' => gcmi_convert_timestamp( get_option( $database_file_info[ $i ]['optN_remoteUpd'] ) ),
+				'gcmi-localdate'  => gcmi_convert_timestamp( get_option( $database_file_info[ $i ]['optN_dwdtime'] ) ),
+				'gcmi-dataURL'    => $database_file_info[ $i ]['remote_URL'],
 			);
 		}
 		return $data;
@@ -89,8 +89,8 @@ class Remote_Files_List extends WP_List_Table {
 		return sprintf(
 			'<input type="checkbox" name="%1$s[]" value="%2$s" id="gcmi-%3$s"/>',
 			$this->_args['singular'],
-			$item['dataname'],
-			$item['dataname']
+			$item['gcmi-dataname'],
+			$item['gcmi-dataname']
 		);
 	}
 	function get_bulk_actions() {
@@ -117,11 +117,11 @@ class Remote_Files_List extends WP_List_Table {
 	function column_default( $item, $column_name ) {
 		switch ( $column_name ) {
 			case 'cb':
-			case 'dataname':
-			case 'icon':
-			case 'remotedate':
-			case 'localdate':
-			case 'dataURL':
+			case 'gcmi-dataname':
+			case 'gcmi-icon':
+			case 'gcmi-remotedate':
+			case 'gcmi-localdate':
+			case 'gcmi-dataURL':
 				return $item[ $column_name ];
 			default:
 				return print_r( $item, true ); // Show the whole array for troubleshooting purposes
@@ -154,7 +154,6 @@ class Remote_Files_List extends WP_List_Table {
 		}
 		return;
 	}
-
 }
 
 

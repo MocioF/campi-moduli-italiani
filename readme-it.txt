@@ -5,7 +5,7 @@ Tags: italiano, contact form 7, codice fiscale, comuni italiani, firma digitale
 Requires at least: 4.7
 Tested up to: 5.8
 Requires PHP: 5.6
-Stable tag: 2.0.2
+Stable tag: 2.0.3
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html
 
@@ -19,7 +19,7 @@ In questa versione sono disponibili 4 form-tag (e corrispondenti mail-tag):
 * [comune]: crea una serie di select per la selezione di un comune italiano
 * [cf]: crea un campo per l'inserimento del codice fiscale italiano di una persona fisica
 * [stato]: crea la possibilità di selezionare uno stato
-* [formsign]: crea la possibilità di firmare digitalmente le mail inviate con una coppia di chiavi attribuita ad ogni singolo form
+* [formsign]: crea la possibilità di firmare digitalmente le mail inviate con una chiave privata attribuita ad ogni singolo form
 
 = WPForms =
 Sono disponibili 2 tipi di campi
@@ -27,7 +27,7 @@ Sono disponibili 2 tipi di campi
 * Un campo per selezionare uno stato (restituisce il codice paese ISTAT come valore)
 
 == Dati utilizzati ==
-Il plugin al momento dell'installazione scarica i dati che utilizza dal sito web dell'Istat e da quello dell'Agenzia delle entrate. Questi dati sono aggiornabili dalla console di amministrazione.
+Il plugin al momento dell'attivazione scarica i dati che utilizza dal sito web dell'Istat e da quello dell'Agenzia delle entrate. Questi dati sono aggiornabili dalla console di amministrazione.
 Il download dei dati e l'inserimento degli stessi nel database richiede diversi minuti: pazientate durante la fase di attivazione.
 La selezione dei comuni è stata creata partendo dal codice di https://wordpress.org/plugins/regione-provincia-comune/
 
@@ -74,6 +74,9 @@ Mediante il riscontro dell'hash e della firma, sarà possibile verificare che le
 Per agevolare il riscontro dei dati, è preferibile utilizzare "Flamingo" per l'archiviazione dei messaggi inviati. Infatti, nella schermata di admin di Flamingo viene creato uno specifico box che consente il riscontro dell'hash e della firma digitale inseriti nella mail.
 Il sistema è utile nel caso in cui mediante il form si preveda di ricevere domande di iscrizione o candidature etc.. ed evita contestazioni in merito ai dati che i candidati pretendono di aver inviato e quanto registrato dal sistema in Flamingo.
 
+## Code
+Vuoi controllare il codice?  [https://github.com/MocioF/campi-moduli-italiani](https://github.com/MocioF/campi-moduli-italiani)
+
 == Installation ==
 
 = Installazione automatica =
@@ -109,6 +112,10 @@ Inoltre, tutti supportano valori predefiniti nel tag.
 Cerca qui per maggiori informazioni: https://contactform7.com/getting-default-values-from-the-context/
 [comune] utilizza javascript per essere riempito con il valore predefinito o contestuale.
 
+= Come posso segnalare un bug? =
+Puoi inviare una richiesta nel nostro repository Github:
+[https://github.com/MocioF/campi-moduli-italiani](https://github.com/MocioF/campi-moduli-italiani)
+
 == Screenshots ==
 
 1. Immagine dei form-tag [stato] e [comune] in un form
@@ -118,6 +125,9 @@ Cerca qui per maggiori informazioni: https://contactform7.com/getting-default-va
 5. Immagine della schermata di admin, da cui è possibile effettuare l'aggiornamento dei dati
 
 == Changelog ==
+= 2.0.3 =
+* Correzioni di bug minori [#1](https://github.com/MocioF/campi-moduli-italiani/issues/1).
+
 = 2.0.2 =
 * Utilizza la data di aggiornamento del file remoto di comuni_attuali per codici_catastali
 

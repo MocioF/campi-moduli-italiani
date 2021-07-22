@@ -5,21 +5,21 @@ Tags: contact form 7, wpforms, comuni italiani, codice fiscale, firma digitale
 Requires at least: 4.7
 Tested up to: 5.8
 Requires PHP: 5.6
-Stable tag: 2.0.2
+Stable tag: 2.0.3
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html
 
-Plugin to create useful fields for Italian sites, to be used in the modules produced with Contact Form 7 and WPForms.
+Plugin to create useful fields for Italian sites, to be used in the forms produced with Contact Form 7 and WPForms.
 
 == Description ==
-This plugin creates form tags for Contact Form 7 and form fields WPForms.
+This plugin creates form tags for Contact Form 7 and form fields for WPForms.
 
 = Contact Form 7 =
 4 form-tags (and corresponding mail-tags) are available in this version:
 * [comune]: creates a series of select for the selection of an Italian municipality
 * [cf]: creates a field for entering the Italian tax code of a natural person
-* [stato]: creates the ability to select a state
-* [formsign]: creates the possibility to digitally sign the e-mails sent with a pair of keys attributed to each individual form
+* [stato]: creates the ability to select a country
+* [formsign]: creates the possibility to digitally sign the e-mails sent with a private key attributed to each individual form
 
 = WPForms =
 2 fields types are available:
@@ -27,7 +27,7 @@ This plugin creates form tags for Contact Form 7 and form fields WPForms.
 * A field to select a state (returning Istat's country code as value)
 
 == Data used ==
-At the time of installation, the plugin downloads the data it uses from the Istat and from the Revenue Agency websites. This data can be updated from the administration console.
+At the time of activation, the plugin downloads the data it uses from the Istat and from the Italian Revenue Agency websites. This data can be updated from the administration console.
 Downloading and entering data into the database takes several minutes: be patient during the activation phase.
 The selection of the municipalities was created starting from the code of https://wordpress.org/plugins/regione-provincia-comune/
 
@@ -42,7 +42,7 @@ The data published on the ISTAT website are covered by a Creative Commons licens
 The data taken from the website of the Agenzia delle entrate are in the public domain and constitute a public database made available to allow tax compliance and, more generally, to allow the identification of physical persons with the Italian public administrations, through the personal fiscal code.
 The data on the Agenzia delle entrate website can be freely stored on your computer or printed (https://www.agenziaentrate.gov.it/portale/web/guest/privacy). The data are managed by the Ufficio Archivio of the Agenzia delle entrate.
 This plugin uses the data taken from the website of the Agenzia delle entrate exclusively for the purpose of carrying out a formal regularity check of the pesonal tax code.
-This plugin does not include any links on the external pages of the website on which it is used, neither to the Agenzia delle entrate's site nor to the ISTAT's website; in particular, no form of direct link is made, nor of deep linking.
+This plugin does not include any links on the external pages of the website on which it is used, neither to the Agenzia delle entrate's site nor to the ISTAT's website; in particular, no kind of direct link is made, nor of deep linking.
 
 == How to use form tags in Contact Form 7 ==
 
@@ -74,6 +74,10 @@ The signature is affixed by generating a pair of RSA keys, attributed to each fo
 By checking the hash and the signature, it will be possible to verify that the emails have actually been sent by the form and that the data transmitted by the user correspond to what has been registered.
 To facilitate data feedback, it is preferable to use "Flamingo" for archiving sent messages. In fact, in the Flamingo admin screen, a specific box is created that allows feedback of the hash and the digital signature entered in the email.
 The system is useful in the event that through the form it is expected to receive applications for registration or applications etc... and avoids disputes regarding the data that the candidates claim to have sent and what is recorded by the system in Flamingo.
+
+## Code
+
+Want to check the code? [https://github.com/MocioF/campi-moduli-italiani](https://github.com/MocioF/campi-moduli-italiani)
 
 == Installation ==
 
@@ -109,6 +113,11 @@ More, all of them support predefined values in tag.
 Look here for more informations: https://contactform7.com/getting-default-values-from-the-context/
 [comune] uses javascript to be filled with default or context value.
 
+
+= How do I report a bug? =
+You can create an issue in our Github repo:
+[https://github.com/MocioF/campi-moduli-italiani](https://github.com/MocioF/campi-moduli-italiani)
+
 == Screenshots ==
 
 1. Image of the [stato] and [comune] form tags in a form
@@ -118,6 +127,9 @@ Look here for more informations: https://contactform7.com/getting-default-values
 5. Image of the admin screen, from which it is possible to update the data
 
 == Changelog ==
+= 2.0.3 =
+* Minor bug fixes Fixes [#1](https://github.com/MocioF/campi-moduli-italiani/issues/1).
+
 = 2.0.2 =
 * Use the remote update date of comuni_attuali to set the remote update date of codici_catastali
 
