@@ -52,7 +52,7 @@ function gcmi_get_remote_update_timestamp( $name ) {
 			$result = gcmi_get_remote_file_timestamp( $myfile['remote_URL'] );
 			break;
 		case 'unknown':
-			$result = 0;
+			$result = false;
 			break;
 		default:
 			$result = time();
