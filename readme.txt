@@ -5,11 +5,7 @@ Tags: contact form 7, wpforms, comuni italiani, codice fiscale, firma digitale
 Requires at least: 4.7
 Tested up to: 5.8
 Requires PHP: 5.6
-<<<<<<< HEAD
-Stable tag: 2.0.3
-=======
 Stable tag: 2.0.2
->>>>>>> 5f19d39 (Tagging version 2.0.2)
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html
 
