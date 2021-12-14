@@ -5,7 +5,11 @@ Tags: contact form 7, wpforms, comuni italiani, codice fiscale, firma digitale
 Requires at least: 4.7
 Tested up to: 5.8
 Requires PHP: 5.6
+<<<<<<< HEAD
 Stable tag: 2.0.3
+=======
+Stable tag: 2.0.2
+>>>>>>> 5f19d39 (Tagging version 2.0.2)
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html
 
@@ -127,9 +131,6 @@ You can create an issue in our Github repo:
 5. Image of the admin screen, from which it is possible to update the data
 
 == Changelog ==
-= 2.0.3 =
-* Minor bug fixes Fixes [#1](https://github.com/MocioF/campi-moduli-italiani/issues/1).
-
 = 2.0.2 =
 * Use the remote update date of comuni_attuali to set the remote update date of codici_catastali
 
