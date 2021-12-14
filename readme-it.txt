@@ -125,7 +125,7 @@ Puoi inviare una richiesta nel nostro repository Github:
 5. Immagine della schermata di admin, da cui è possibile effettuare l'aggiornamento dei dati
 
 == Changelog ==
-= 2.0.4 =
+= 2.0.5 =
 * Aggiunto il certificato della nuoca CA di istat.it per cUrl. Corregge: https://wordpress.org/support/topic/attivazione-vietata-forbidden/
 
 = 2.0.3 =
