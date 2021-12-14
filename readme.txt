@@ -127,7 +127,7 @@ You can create an issue in our Github repo:
 5. Image of the admin screen, from which it is possible to update the data
 
 == Changelog ==
-= 2.0.4 =
+= 2.0.5 =
 * Added new istat.it ca cert for cUrl. Fixes: https://wordpress.org/support/topic/attivazione-vietata-forbidden/
 
 = 2.0.3 =
