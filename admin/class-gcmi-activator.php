@@ -365,16 +365,27 @@ class GCMI_Activator {
 		if ( ! function_exists( 'download_url' ) ) {
 			include_once ABSPATH . '/wp-admin/includes/file.php';
 		}
-		$gcmi_download_timeout = 300;
-		$gcmi_download_result  = download_url( $remoteurl, $gcmi_download_timeout, false );
-		if ( is_wp_error( $gcmi_download_result ) ) {
+		$url_filename = basename( parse_url( $remoteurl, PHP_URL_PATH ) );
+		$tmpfname = $tmp_dwld_dir . '/' .$url_filename;
+		$args = array(
+			'timeout'  => 300,
+			'stream'   => true,
+			'sslverify'       => true,
+			'sslcertificates' => GCMI_PLUGIN_DIR . '/admin/assets/istat-it-catena.pem',
+			'filename' => $tmpfname,
+		);
+		
+		$response = wp_remote_get( $remoteurl, $args );
+		
+		if ( is_wp_error( $response ) ) {
 			$error_title = esc_html( sprintf( __( 'Could not download %s', 'campi-moduli-italiani' ), $remoteurl ) );
+			unlink( $tmpfname );
 			wp_die( $gcmi_download_result->get_error_message(), $error_title );
 			return false;
 		} else {
 			$dest_file = $tmp_dwld_dir . '/' . $filename;
-			copy( $gcmi_download_result, $dest_file );
-			unlink( $gcmi_download_result );
+			copy( $tmpfname, $dest_file );
+			unlink( $tmpfname );
 			return true;
 		}
 	}
