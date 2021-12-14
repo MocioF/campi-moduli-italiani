@@ -77,7 +77,7 @@ Il sistema è utile nel caso in cui mediante il form si preveda di ricevere doma
 ## Code
 Vuoi controllare il codice?  [https://github.com/MocioF/campi-moduli-italiani](https://github.com/MocioF/campi-moduli-italiani)
 
-== Installation ==
+== Installazione ==
 
 = Installazione automatica =
 
@@ -125,6 +125,9 @@ Puoi inviare una richiesta nel nostro repository Github:
 5. Immagine della schermata di admin, da cui è possibile effettuare l'aggiornamento dei dati
 
 == Changelog ==
+= 2.0.4 =
+* Aggiunto il certificato della nuoca CA di istat.it per cUrl. Corregge: https://wordpress.org/support/topic/attivazione-vietata-forbidden/
+
 = 2.0.3 =
 * Correzioni di bug minori [#1](https://github.com/MocioF/campi-moduli-italiani/issues/1).
 
