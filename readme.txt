@@ -5,7 +5,7 @@ Tags: contact form 7, wpforms, comuni italiani, codice fiscale, firma digitale
 Requires at least: 4.7
 Tested up to: 5.8
 Requires PHP: 5.6
-Stable tag: 2.0.5
+Stable tag: 2.0.6
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html
 
@@ -127,6 +127,9 @@ You can create an issue in our Github repo:
 5. Image of the admin screen, from which it is possible to update the data
 
 == Changelog ==
+= 2.0.6 =
+* Fixed ssl issue in checking last update date of remote files on ISTAT website
+
 = 2.0.5 =
 * Added new istat.it ca cert for cUrl. Fixes: https://wordpress.org/support/topic/attivazione-vietata-forbidden/
 

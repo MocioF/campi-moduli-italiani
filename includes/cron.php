@@ -15,19 +15,22 @@ add_action( 'gcmi_check_for_remote_data_updates', 'gcmi_check_update', $priority
 
 /**
  * Controlla l'aggiornamento dei dati remoti rispetto a quelli locali
+ *
+ * @since 1.1.0
  */
 function gcmi_check_update() {
 	$database_file_info = GCMI_Activator::$database_file_info;
 	$num_items          = count( $database_file_info );
 	for ( $i = 0; $i < $num_items; $i++ ) {
-		$name     = $database_file_info[ $i ]['name'];
-		$file_opt = $database_file_info[ $i ]['optN_remoteUpd'];
-		if ( $timestamp = gcmi_get_remote_update_timestamp( $name ) ) {
+		$name      = $database_file_info[ $i ]['name'];
+		$file_opt  = $database_file_info[ $i ]['optN_remoteUpd'];
+		$timestamp = gcmi_get_remote_update_timestamp( $name );
+		if ( $timestamp ) {
 			update_option( $file_opt, $timestamp, 'no' );
-			
+
 			// Aggiorno la data di aggiornamento dei codici catastali, con quella dei comuni_attuali.
 			if ( 'comuni_attuali' === $name ) {
-				update_option ('gcmi_codici_catastali_remote_file_time', $timestamp, 'no' );
+				update_option( 'gcmi_codici_catastali_remote_file_time', $timestamp, 'no' );
 			}
 		}
 	}
@@ -37,7 +40,7 @@ function gcmi_check_update() {
 /**
  * Wrapper funzioni per ottenere la data di aggiornamento file remoto - restituisce un timestamp
  *
- * @param string $name the name of data stored in GCMI_Activator $database_file_info['name'].
+ * @param string $name The name of data stored in GCMI_Activator $database_file_info['name'].
  */
 function gcmi_get_remote_update_timestamp( $name ) {
 	$database_file_info = GCMI_Activator::$database_file_info;
@@ -67,7 +70,17 @@ function gcmi_get_remote_update_timestamp( $name ) {
  * @param string $remote_file_url the remote URL of data stored in GCMI_Activator $database_file_info['remote_URL'].
  */
 function gcmi_get_remote_file_timestamp( $remote_file_url ) {
-	$headers     = get_headers( $remote_file_url );
+
+	$args = array(
+		'timeout'         => 300,
+		'stream'          => true,
+		'sslverify'       => true,
+		'sslcertificates' => GCMI_PLUGIN_DIR . '/admin/assets/istat-it-catena.pem',
+		'filename'        => $tmpfname,
+	);
+
+	$headers = wp_remote_head( $remote_file_url, $args );
+
 	$num_headers = count( $headers );
 	for ( $h = 0; $h < $num_headers; $h++ ) {
 		if ( 0 === strpos( $headers[ $h ], 'Last-Modified:' ) ) {
