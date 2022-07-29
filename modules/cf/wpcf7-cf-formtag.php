@@ -120,6 +120,7 @@ function wpcf7_gcmi_cf_formtag_handler( $tag ) {
 GCMI_CF_WPCF7_FormTag::gcmi_cf_WPCF7_addfilter();
 
 /* Tag generator */
+
 add_action( 'wpcf7_admin_init', 'wpcf7_add_tag_generator_gcmi_cf', 36 );
 
 function wpcf7_add_tag_generator_gcmi_cf() {
