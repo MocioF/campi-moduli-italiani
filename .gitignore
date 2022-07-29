@@ -1,2 +1,15 @@
 /vendor/
 /nbproject/private/
+.DS_Store
+wp-cli.local.yml
+node_modules/
+*.zip
+*.tar.gz
+*.log
+phpunit.xml
+phpcs.xml
+node_modules
+npm-debug.log
+docs
+.sass-cache
+/.phpunit.result.cache
