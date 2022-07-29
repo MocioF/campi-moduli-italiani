@@ -1,10 +1,23 @@
 <?php
+/**
+ * Adds the shortcode 'comune' to WP.
+ *
+ * @link       https://profiles.wordpress.org/mociofiletto/
+ * @since      1.0.0
+ *
+ * @package    campi-moduli-italiani
+ * @subpackage campi-moduli-italiani/modules/comune
+ */
 
-/*****************************************************************
- * Comune                                                        *
- *****************************************************************/
 add_shortcode( 'comune', 'gcmi_comune_shortcode' );
 
+/**
+ * The callback function to run when the shortcode is found.
+ *
+ * @since  1.0.0
+ * @param array<string> $atts User defined attributes in shortcode tag.
+ * @return string
+ */
 function gcmi_comune_shortcode( $atts ) {
 	$args                      = shortcode_atts(
 		array(
@@ -21,8 +34,6 @@ function gcmi_comune_shortcode( $atts ) {
 	$args['comu_details']      = filter_var( $args['comu_details'], FILTER_VALIDATE_BOOLEAN );
 	$args['use_label_element'] = filter_var( $args['use_label_element'], FILTER_VALIDATE_BOOLEAN );
 
-	$gcmi_Comune_SC = new GCMI_COMUNE_ShortCode( $args );
-	return $gcmi_Comune_SC->get_html();
+	$gcmi_comune_sc = new GCMI_COMUNE_ShortCode( $args );
+	return $gcmi_comune_sc->get_html();
 }
-
-

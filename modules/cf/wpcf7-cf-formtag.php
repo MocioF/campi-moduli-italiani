@@ -42,7 +42,14 @@ function wpcf7_gcmi_cf_formtag_handler( $tag ) {
 		$atts['aria-required'] = 'true';
 	}
 
-	$atts['aria-invalid'] = $validation_error ? 'true' : 'false';
+	if ( $validation_error ) {
+		$atts['aria-invalid'] = 'true';
+		$atts['aria-describedby'] = wpcf7_get_validation_error_reference(
+			$tag->name
+		);
+	} else {
+		$atts['aria-invalid'] = 'false';
+	}
 
 	$value = (string) reset( $tag->values );
 
@@ -67,7 +74,7 @@ function wpcf7_gcmi_cf_formtag_handler( $tag ) {
 	$html = sprintf(
 		'<span class="wpcf7-form-control-wrap %1$s"><input %2$s />%3$s</span>',
 		sanitize_html_class( $tag->name ),
-		$atts,
+		wpcf7_format_atts( $atts ),
 		$validation_error
 	);
 

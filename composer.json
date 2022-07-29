@@ -1,0 +1,21 @@
+{
+    "name": "mociof/campi-moduli-italiani",
+    "description": "A wordpress plugin to create fields in CF7 useful for italian websites",
+    "type": "wordpress-plugin",
+    "license": "GPL-2.0-or-later",
+    "authors": [
+        {
+            "name": "Giuseppe Foti",
+            "email": "foti.giuseppe@gmail.com"
+        }
+    ],
+    "minimum-stability": "stable",
+    "require-dev": {
+        "szepeviktor/phpstan-wordpress": "^1.1",
+        "wp-coding-standards/wpcs": "^2.3",
+        "phpcompatibility/phpcompatibility-wp": "*",
+        "phpstan/phpstan": "^1.8",
+        "phpstan/extension-installer": "^1.1",
+        "dealerdirect/phpcodesniffer-composer-installer": "^0.7"
+    }
+}

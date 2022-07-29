@@ -1,10 +1,18 @@
 <?php
+/**
+ * Adds the comune formtag to contact form 7 modules.
+ *
+ * @package campi-moduli-italiani
+ * @subpackage campi-moduli-italiani/modules/comune
+ */
 
-/*****************************************************************
- * Comune                                                        *
- *****************************************************************/
 add_action( 'wpcf7_init', 'add_form_tag_gcmi_comune' );
 
+/**
+ * Adds the comune formtag to contact form 7 modules
+ *
+ * @return void
+ */
 function add_form_tag_gcmi_comune() {
 	wpcf7_add_form_tag(
 		array( 'comune', 'comune*' ),
@@ -16,6 +24,12 @@ function add_form_tag_gcmi_comune() {
 	);
 }
 
+/**
+ * Comune's form tag handler
+ *
+ * @param array<string> $tag The CF7 tag object.
+ * @return string
+ */
 function wpcf7_gcmi_comune_formtag_handler( $tag ) {
 	GCMI_COMUNE::gcmi_comune_enqueue_scripts();
 
@@ -26,7 +40,7 @@ function wpcf7_gcmi_comune_formtag_handler( $tag ) {
 	$validation_error = wpcf7_get_validation_error( $tag->name );
 
 	$typebase = rtrim( $tag->type, '*' );
-	$required = ( '*' == substr( $tag->type, -1 ) );
+	$required = ( '*' === substr( $tag->type, -1 ) );
 	if ( $required ) {
 		$class = wpcf7_form_controls_class( 'comune*' );
 	} else {
@@ -40,19 +54,18 @@ function wpcf7_gcmi_comune_formtag_handler( $tag ) {
 	$atts = array();
 
 	$atts['class'] = 'wpcf7-select ' . $tag->get_class_option( $class );
-//
-	$default = '';
+		$default   = '';
 	if ( is_string( $default ) ) {
-		$default = explode ( ' ', $default );
+		$default = explode( ' ', $default );
 	}
 	$options = array_merge(
 		(array) $default,
-		(array) $tag->get_option( 'wrapper_class', 'class' ) );
-	
+		(array) $tag->get_option( 'wrapper_class', 'class' )
+	);
+
 	$options = array_filter( array_unique( $options ) );
-			
-	$wr_class = implode( ' ', $options);
-//
+
+	$wr_class = implode( ' ', $options );
 
 	if ( $tag->is_required() ) {
 		$atts['aria-required'] = 'true';
@@ -61,7 +74,7 @@ function wpcf7_gcmi_comune_formtag_handler( $tag ) {
 
 	$atts['id'] = $tag->get_id_option();
 
-	// usata per le altre select del campo (sempre non richieste)
+	// usata per le altre select del campo (sempre non richieste).
 	$atts['helperclass'] = 'wpcf7-select ' . $tag->get_class_option( wpcf7_form_controls_class( 'comune' ) );
 	$kind                = $tag->get_option( 'kind', '', true );
 
@@ -69,7 +82,7 @@ function wpcf7_gcmi_comune_formtag_handler( $tag ) {
 	$options['comu_details']      = $tag->has_option( 'comu_details' );
 	$options['use_label_element'] = $tag->has_option( 'use_label_element' );
 
-	// codice per gestire i valori di default
+	// codice per gestire i valori di default.
 	$value        = (string) reset( $tag->values );
 	$value        = $tag->get_default_option( $value );
 	$value        = wpcf7_get_hangover( $tag->name, $value );
@@ -86,6 +99,9 @@ GCMI_COMUNE_WPCF7_FormTag::gcmi_comune_WPCF7_addfilter();
 /* Tag generator */
 add_action( 'wpcf7_admin_init', 'wpcf7_add_tag_generator_gcmi_comune', 35 );
 
+/**
+ * Adds the comune form tag generator in cf7 modules builder.
+ */
 function wpcf7_add_tag_generator_gcmi_comune() {
 	if ( class_exists( 'WPCF7_TagGenerator' ) ) {
 		$tag_generator = WPCF7_TagGenerator::get_instance();
@@ -95,6 +111,12 @@ function wpcf7_add_tag_generator_gcmi_comune() {
 	}
 }
 
+/**
+ * Creates html for Contact form 7 panel
+ *
+ * @param mixed $contact_form The form object.
+ * @param array<string> $args FormTag builder args.
+ */
 function wpcf7_tg_pane_gcmi_comune( $contact_form, $args = '' ) {
 	$args = wp_parse_args( $args, array() );
 	/* translators: %s: link to plugin page URL */
@@ -104,7 +126,7 @@ function wpcf7_tg_pane_gcmi_comune( $contact_form, $args = '' ) {
 	<div class="control-box">
 		<fieldset>
 			<legend><?php printf( esc_html( $description ), $desc_link ); ?></legend>
-
+			<?php print_r( $args ); ?>
 			<table class="form-table">
 				<tbody>
 					<tr>
@@ -175,4 +197,3 @@ function wpcf7_tg_pane_gcmi_comune( $contact_form, $args = '' ) {
 	</div>
 	<?php
 }
-?>

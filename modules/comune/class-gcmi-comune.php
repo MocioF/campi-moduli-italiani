@@ -6,12 +6,13 @@
  * Contains a static class to be used both by form-tag and by shortcode
  *
  * @package campi-moduli-italiani
+ * @subpackage campi-moduli-italiani/modules/comune
  * @link https://wordpress.org/plugins/campi-moduli-italiani/
  *
  * @since   1.0.0
  */
 
-defined( 'ABSPATH' ) or die( 'you do not have acces to this page!' );
+defined( 'ABSPATH' ) || die( 'you do not have acces to this page!' );
 
 $stringa = __( ' - (abol.)', 'campi-moduli-italiani' );
 
@@ -20,18 +21,59 @@ $stringa = __( ' - (abol.)', 'campi-moduli-italiani' );
  **/
 class GCMI_COMUNE {
 
-	private static $kinds      = array( 'tutti', 'attuali', 'evidenza_cessati' );
-	private static $DefStrings = array(
+	/**
+	 * Array contenente i tipi del form tag utilizzabili.
+	 *
+	 * La scelta modifica i valori mostrati nelle select.
+	 *
+	 * @var array<string> $kinds Admitted types of lists of municipality.
+	 */
+	private static $kinds = array( 'tutti', 'attuali', 'evidenza_cessati' );
+
+	/**
+	 * Stringhe predefinite utilizzate nella classe
+	 *
+	 * @var array<string> $def_strings Constants used in class.
+	 */
+	private static $def_strings = array(
 		'SFX_SOPPRESSI_CEDUTI' => ' - (sopp.)',
 		'COD_REG_SOPP'         => '00',
 		'COD_REG_ISDA'         => '70',
 	);
 
+	/**
+	 * Array contenente i valori della prima SQL Select per le regioni
+	 *
+	 * @var array<string, string> Array of regions code and regions names.
+	 */
 	public $regioni;
+
+	/**
+	 * Elenco dei tag HTML <option> per la select delle province
+	 *
+	 * @var string $province HTML options for provinces.
+	 */
 	public $province;
+
+	/**
+	 * Elenco dei tag HTML <option> per la select dei comuni
+	 *
+	 * @var string $comuni HTML options for municipalities.
+	 */
 	public $comuni;
+
+	/**
+	 *
+	 * @var string $targa Sigla automobilistica provincia.
+	 */
 	public $targa;
 
+		/**
+		 * Checks if setted kind is valid
+		 *
+		 * @param string $kind One of 'tutti', 'attuali', 'evidenza_cessati'.
+		 * @return boolean
+		 */
 	protected static function is_valid_kind( $kind ) {
 		if ( in_array( $kind, self::$kinds, true ) ) {
 			return true;
@@ -40,24 +82,31 @@ class GCMI_COMUNE {
 		}
 	}
 
+		/**
+		 * Checks if a region code is valid
+		 *
+		 * @global wpdb $wpdb Global wpdb object.
+		 * @param string $i_cod_regione Codice ISTAT della regione.
+		 * @return boolean
+		 */
 	private static function is_valid_cod_regione( $i_cod_regione ) {
 		global $wpdb;
 
 		if ( ! is_numeric( $i_cod_regione ) ) {
 			return false;
 		}
-		if ( strlen( $i_cod_regione ) != 2 ) {
+		if ( strlen( $i_cod_regione ) !== 2 ) {
 			return false;
 		}
 		$sql       = 'SELECT DISTINCT `i_cod_regione` FROM `' . GCMI_TABLE_PREFIX . 'comuni_attuali`';
 		$a_results = array();
-		array_push( $a_results, self::$DefStrings['COD_REG_SOPP'] ); // Comuni cessati
+		array_push( $a_results, self::$def_strings['COD_REG_SOPP'] ); // Comuni cessati.
 		foreach ( $wpdb->get_col( $sql, 0 ) as $value ) {
 			array_push( $a_results, $value );
 		}
-		array_push( $a_results, self::$DefStrings['COD_REG_ISDA'] ); // Istria e Dalmazia
+		array_push( $a_results, self::$def_strings['COD_REG_ISDA'] ); // Istria e Dalmazia.
 
-		if ( in_array( $i_cod_regione, $a_results, false ) ) {
+		if ( in_array( $i_cod_regione, $a_results, true ) ) {
 			return true;
 		} else {
 			return false;
@@ -134,7 +183,7 @@ class GCMI_COMUNE {
 		}
 		switch ( $kind ) {
 			case 'tutti':
-				$sql = "SELECT '" . self::$DefStrings['COD_REG_SOPP'] . "' AS i_cod_regione, '_ Comuni soppressi/ceduti' AS i_den_regione UNION SELECT DISTINCT i_cod_regione, i_den_regione FROM " . GCMI_TABLE_PREFIX . 'comuni_attuali ORDER BY i_den_regione';
+				$sql = "SELECT '" . self::$def_strings['COD_REG_SOPP'] . "' AS i_cod_regione, '_ Comuni soppressi/ceduti' AS i_den_regione UNION SELECT DISTINCT i_cod_regione, i_den_regione FROM " . GCMI_TABLE_PREFIX . 'comuni_attuali ORDER BY i_den_regione';
 				break;
 
 			case 'attuali':
@@ -142,11 +191,11 @@ class GCMI_COMUNE {
 				break;
 
 			case 'evidenza_cessati':
-				$sql = "SELECT '" . self::$DefStrings['COD_REG_ISDA'] . "' AS i_cod_regione, '_ Istria e Dalmazia' AS i_den_regione UNION SELECT DISTINCT i_cod_regione, i_den_regione FROM " . GCMI_TABLE_PREFIX . 'comuni_attuali ORDER BY i_den_regione';
+				$sql = "SELECT '" . self::$def_strings['COD_REG_ISDA'] . "' AS i_cod_regione, '_ Istria e Dalmazia' AS i_den_regione UNION SELECT DISTINCT i_cod_regione, i_den_regione FROM " . GCMI_TABLE_PREFIX . 'comuni_attuali ORDER BY i_den_regione';
 				break;
 
 			default:
-				$sql = "SELECT '" . self::$DefStrings['COD_REG_SOPP'] . "' AS i_cod_regione, '_ Comuni soppressi/ceduti' AS i_den_regione UNION SELECT DISTINCT i_cod_regione, i_den_regione FROM " . GCMI_TABLE_PREFIX . 'comuni_attuali ORDER BY i_den_regione';
+				$sql = "SELECT '" . self::$def_strings['COD_REG_SOPP'] . "' AS i_cod_regione, '_ Comuni soppressi/ceduti' AS i_den_regione UNION SELECT DISTINCT i_cod_regione, i_den_regione FROM " . GCMI_TABLE_PREFIX . 'comuni_attuali ORDER BY i_den_regione';
 		}
 
 		$results = $wpdb->get_results( $sql );
@@ -162,22 +211,22 @@ class GCMI_COMUNE {
 	}
 
 	public static function getIDs( $idprefix ) {
-		$MyPrefix = ( $idprefix ) ? $idprefix : md5( uniqid( mt_rand(), true ) );
-		$IDs      = array(
-			'reg'       => $MyPrefix . '_gcmi_regione',
-			'pro'       => $MyPrefix . '_gcmi_province',
-			'com'       => $MyPrefix . '_gcmi_comuni',
-			'kin'       => $MyPrefix . '_gcmi_kind',
-			'form'      => $MyPrefix . '_gcmi_formatted',
-			'targa'     => $MyPrefix . '_gcmi_targa',
-			'ico'       => $MyPrefix . '_gcmi_icon',
-			'info'      => $MyPrefix . '_gcmi_info',
-			'reg_desc'  => $MyPrefix . '_gcmi_reg_desc',
-			'prov_desc' => $MyPrefix . '_gcmi_prov_desc',
-			'comu_desc' => $MyPrefix . '_gcmi_comu_desc',
-			'pr_vals'   => $MyPrefix . '_gcmi_pr_vals',
+		$my_prefix = ( $idprefix ) ? $idprefix : md5( uniqid( mt_rand(), true ) );
+		$ids       = array(
+			'reg'       => $my_prefix . '_gcmi_regione',
+			'pro'       => $my_prefix . '_gcmi_province',
+			'com'       => $my_prefix . '_gcmi_comuni',
+			'kin'       => $my_prefix . '_gcmi_kind',
+			'form'      => $my_prefix . '_gcmi_formatted',
+			'targa'     => $my_prefix . '_gcmi_targa',
+			'ico'       => $my_prefix . '_gcmi_icon',
+			'info'      => $my_prefix . '_gcmi_info',
+			'reg_desc'  => $my_prefix . '_gcmi_reg_desc',
+			'prov_desc' => $my_prefix . '_gcmi_prov_desc',
+			'comu_desc' => $my_prefix . '_gcmi_comu_desc',
+			'pr_vals'   => $my_prefix . '_gcmi_pr_vals',
 		);
-		return $IDs;
+		return $ids;
 	}
 
 	public static function gcmi_province() {
@@ -193,12 +242,12 @@ class GCMI_COMUNE {
 
 		$kind = self::get_post_gcmi_kind();
 
-		if ( $i_cod_regione != self::$DefStrings['COD_REG_SOPP'] ) {
+		if ( $i_cod_regione != self::$def_strings['COD_REG_SOPP'] ) {
 			// non ha selezionato Comuni soppressi
 			$sql = 'SELECT DISTINCT i_cod_unita_territoriale, i_den_unita_territoriale FROM ' . GCMI_TABLE_PREFIX . "comuni_attuali WHERE i_cod_regione = '" . esc_sql( $i_cod_regione ) . "' ORDER BY i_den_unita_territoriale";
 
 			// solo nel caso in cui la regione = Istria/Dalmazia serve una query diversa
-			if ( $i_cod_regione == self::$DefStrings['COD_REG_ISDA'] ) {
+			if ( $i_cod_regione == self::$def_strings['COD_REG_ISDA'] ) {
 				// $sql = "SELECT DISTINCT `i_cod_unita_territoriale`, CONCAT( UCASE(LEFT(`i_sigla_automobilistica`,1)),LCASE(SUBSTRING(`i_sigla_automobilistica`,2))) AS 'i_den_unita_territoriale' FROM " . GCMI_TABLE_PREFIX . "comuni_soppressi WHERE `i_cod_unita_territoriale` LIKE '7%' ORDER BY `i_sigla_automobilistica` ASC";
 				$sql  = 'SELECT DISTINCT `i_cod_unita_territoriale`, ';
 				$sql .= "IF (`i_cod_unita_territoriale` = '701', 'Fiume', ";
@@ -234,7 +283,6 @@ class GCMI_COMUNE {
 
 	// Carica i comuni della provincia selezionata.
 	public static function gcmi_comuni() {
-
 		global $wpdb;
 		if ( self::is_valid_cod_provincia( $_POST['codice_provincia'] ) ) {
 			$i_cod_unita_territoriale = sanitize_text_field( $_POST['codice_provincia'] );
@@ -260,7 +308,7 @@ class GCMI_COMUNE {
 					// Con 7 cominciano le province di Istria e Dalmazia.
 					$sql  = 'SELECT `i_cod_comune`, `i_denominazione_full` FROM `' . GCMI_TABLE_PREFIX . 'comuni_attuali` WHERE `' . GCMI_TABLE_PREFIX . "comuni_attuali`.`i_cod_unita_territoriale` = '" . esc_sql( $i_cod_unita_territoriale ) . "' ";
 					$sql .= 'UNION ';
-					$sql .= "SELECT `i_cod_comune`, CONCAT(`i_denominazione_full`, ' " . self::$DefStrings['SFX_SOPPRESSI_CEDUTI'] . "') AS 'i_denominazione_full' FROM `" . GCMI_TABLE_PREFIX . 'comuni_soppressi` ';
+					$sql .= "SELECT `i_cod_comune`, CONCAT(`i_denominazione_full`, ' " . self::$def_strings['SFX_SOPPRESSI_CEDUTI'] . "') AS 'i_denominazione_full' FROM `" . GCMI_TABLE_PREFIX . 'comuni_soppressi` ';
 					$sql .= 'WHERE `' . GCMI_TABLE_PREFIX . 'comuni_soppressi`.`i_sigla_automobilistica` IN ';
 					$sql .= '(SELECT DISTINCT `' . GCMI_TABLE_PREFIX . 'comuni_attuali`.`i_sigla_automobilistica` FROM `' . GCMI_TABLE_PREFIX . 'comuni_attuali` WHERE `' . GCMI_TABLE_PREFIX . "comuni_attuali`.`i_cod_unita_territoriale` = '" . esc_sql( $i_cod_unita_territoriale ) . "') ";
 					$sql .= 'ORDER BY `i_denominazione_full` ';
@@ -316,6 +364,7 @@ class GCMI_COMUNE {
 		}
 		wp_register_script( 'gcmi_comune_js', plugins_url( 'modules/comune/js/ajax.js', GCMI_PLUGIN ), array( 'jquery', 'jquery-ui-dialog', 'jquery-ui-tooltip', 'jquery-effects-core', 'jquery-effects-slide', 'jquery-effects-puff', 'wp-i18n' ), $ver = null, $in_footer = false );
 		wp_set_script_translations( 'gcmi_comune_js', 'campi-moduli-italiani', plugin_dir_path( GCMI_PLUGIN ) . 'languages' );
+				wp_localize_script( 'gcmi_comune_js', 'gcmi_ajax', array( 'ajaxurl' => admin_url( 'admin-ajax.php' ) ) );
 	}
 
 	public static function gcmi_comune_enqueue_scripts() {
@@ -330,7 +379,6 @@ class GCMI_COMUNE {
 		}
 		if ( ! wp_script_is( 'gcmi_comune_js', 'enqueued' ) ) {
 			wp_enqueue_script( 'gcmi_comune_js' );
-			wp_localize_script( 'gcmi_comune_js', 'gcmi_ajax', array( 'ajaxurl' => admin_url( 'admin-ajax.php' ) ) );
 		}
 	}
 
@@ -371,7 +419,7 @@ class GCMI_COMUNE {
 		$table .= '<tr>';
 		$table .= '<td class="tg-cly1">' . esc_html( __( 'Municipality name:', 'campi-moduli-italiani' ) ) . '</td>';
 		$table .= '<td class="tg-yla0">' . esc_html( stripslashes( $results['i_denominazione_full'] ) );
-		$table .= ( isset( $sql2 ) ) ? self::$DefStrings['SFX_SOPPRESSI_CEDUTI'] : '';
+		$table .= ( isset( $sql2 ) ) ? self::$def_strings['SFX_SOPPRESSI_CEDUTI'] : '';
 		$table .= '</td>';
 		$table .= '</tr>';
 		if ( isset( $sql2 ) ) {
@@ -636,7 +684,7 @@ class GCMI_COMUNE {
 
 				if ( '7' == substr( $old_provincia, 0, 1 ) ) { // Istria e Dalmazia
 					$cod_provincia = $old_provincia;
-					$cod_regione   = self::$DefStrings['COD_REG_ISDA'];
+					$cod_regione   = self::$def_strings['COD_REG_ISDA'];
 				} else {
 					$sql3  = 'SELECT `i_cod_regione`, `i_cod_unita_territoriale`, `i_sigla_automobilistica` ';
 					$sql3 .= 'FROM `' . GCMI_TABLE_PREFIX . 'comuni_attuali` ';
@@ -653,7 +701,7 @@ class GCMI_COMUNE {
 				}
 
 				if ( 'tutti' == $kind ) {
-					$output_string = self::$DefStrings['COD_REG_SOPP'] . $cod_provincia . $i_cod_comune;
+					$output_string = self::$def_strings['COD_REG_SOPP'] . $cod_provincia . $i_cod_comune;
 				}
 			} else {
 				$output_string = '00000000000';

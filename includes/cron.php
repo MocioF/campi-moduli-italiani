@@ -76,21 +76,25 @@ function gcmi_get_remote_file_timestamp( $remote_file_url ) {
 		'stream'          => true,
 		'sslverify'       => true,
 		'sslcertificates' => GCMI_PLUGIN_DIR . '/admin/assets/istat-it-catena.pem',
-		'filename'        => $tmpfname,
+		'blocking'   	  => true,
+		// ~ 'filename'        => $tmpfname,
 	);
 
 	$headers = wp_remote_head( $remote_file_url, $args );
-
-	$num_headers = count( $headers );
-	for ( $h = 0; $h < $num_headers; $h++ ) {
-		if ( 0 === strpos( $headers[ $h ], 'Last-Modified:' ) ) {
-			$splitted          = explode( ':', $headers[ $h ], $limit = 2 );
-			$lm_date_formatted = trim( $splitted[1] );
-			// Last-Modified: Wed, 19 Feb 2020 14:49:18 GMT .
-			$fmt      = 'D, d M Y H:i:s O+';
-			$datetime = DateTime::createFromFormat( $fmt, $lm_date_formatted );
-			return $datetime->getTimestamp();
+	if ( ! is_wp_error( $headers ) ) {
+		$num_headers = count( $headers );
+		for ( $h = 0; $h < $num_headers; $h++ ) {
+			if ( 0 === strpos( $headers[ $h ], 'Last-Modified:' ) ) {
+				$splitted          = explode( ':', $headers[ $h ], $limit = 2 );
+				$lm_date_formatted = trim( $splitted[1] );
+				// Last-Modified: Wed, 19 Feb 2020 14:49:18 GMT .
+				$fmt      = 'D, d M Y H:i:s O+';
+				$datetime = DateTime::createFromFormat( $fmt, $lm_date_formatted );
+				return $datetime->getTimestamp();
+			}
 		}
+	} else {
+		error_log( print_r( $headers, true ) );
 	}
 	return false;
 }

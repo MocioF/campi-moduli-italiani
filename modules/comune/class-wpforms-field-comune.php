@@ -1,4 +1,10 @@
 <?php
+/**
+ * Class used to add the comune field to wpForms
+ *
+ * @package    campi-moduli-italiani
+ * @subpackage campi-moduli-italiani/modules/comune
+ */
 
 /**
  * Select a Municipality
@@ -10,7 +16,7 @@
  * @link https://wordpress.org/plugins/search/campi+moduli+italiani/
  *
  * @package campi-moduli-italiani
- * @subpackage comune
+ * @subpackage campi-moduli-italiani/modules/comune
  * @since 2.0.0
  */
 class WPForms_Field_Comune extends WPForms_Field {
@@ -623,7 +629,6 @@ class WPForms_Field_Comune extends WPForms_Field {
 	 * @param array $forms Forms on the current page.
 	 */
 	public function enqueue_frontend_css( $forms ) {
-
 		$has_modern_select = false;
 
 		foreach ( $forms as $form ) {
@@ -654,7 +659,6 @@ class WPForms_Field_Comune extends WPForms_Field {
 	 * @param array $forms Forms on the current page.
 	 */
 	public function enqueue_frontend_js( $forms ) {
-
 		$has_modern_select = false;
 
 		foreach ( $forms as $form ) {
@@ -681,16 +685,13 @@ class WPForms_Field_Comune extends WPForms_Field {
 	 * @return bool
 	 */
 	protected function is_field_style( $form, $style ) {
-
 		$is_field_style = false;
 
 		if ( empty( $form['fields'] ) ) {
-
 			return $is_field_style;
 		}
 
 		foreach ( (array) $form['fields'] as $field ) {
-
 			if (
 				! empty( $field['type'] ) &&
 				$field['type'] === $this->type &&

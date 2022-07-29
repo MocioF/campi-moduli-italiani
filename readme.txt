@@ -2,10 +2,10 @@
 Contributors: mociofiletto
 Donate link: https://paypal.me/GiuseppeF77
 Tags: contact form 7, wpforms, comuni italiani, codice fiscale, firma digitale
-Requires at least: 4.7
+Requires at least: 5.2
 Tested up to: 5.8
 Requires PHP: 5.6
-Stable tag: 2.0.6
+Stable tag: 2.1.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html
 
@@ -127,6 +127,10 @@ You can create an issue in our Github repo:
 5. Image of the admin screen, from which it is possible to update the data
 
 == Changelog ==
+= 2.1.0 =
+* Upddated to work in Contact Form 7 > 5.5
+* Minor bugs fixed
+
 = 2.0.6 =
 * Fixed ssl issue in checking last update date of remote files on ISTAT website
 

@@ -1,5 +1,12 @@
 <?php
-/* include i file necessari all'integrazione con contact-form-7 */
+/**
+ * Include i file necessari all'integrazione con contact-form-7
+ *
+ * @link https://wordpress.org/plugins/search/campi+moduli+italiani/
+ *
+ * @package campi-moduli-italiani
+ */
+
 if ( GCMI_USE_COMUNE === true ) {
 	require_once plugin_dir_path( GCMI_PLUGIN ) . 'modules/comune/class-gcmi-comune-wpcf7-formtag.php';
 	require_once plugin_dir_path( GCMI_PLUGIN ) . 'modules/comune/wpcf7-comune-formtag.php';

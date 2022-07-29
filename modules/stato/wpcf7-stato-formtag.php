@@ -150,6 +150,9 @@ function wpcf7_gcmi_stato_formtag_handler( $tag ) {
 
 
 /* validation filter */
+if ( ! function_exists( 'wpcf7_select_validation_filter' ) ) {
+    require_once GCMI_PLUGIN_DIR . '/integrations/contact-form-7/contact-form-7-legacy.php';
+}
 add_filter( 'wpcf7_validate_stato', 'wpcf7_select_validation_filter', 10, 2 );
 add_filter( 'wpcf7_validate_stato*', 'wpcf7_select_validation_filter', 10, 2 );
 
