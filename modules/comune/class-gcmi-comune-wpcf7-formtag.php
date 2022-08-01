@@ -79,9 +79,9 @@ class GCMI_COMUNE_WPCF7_FormTag extends GCMI_COMUNE {
 	/**
 	 * Class constructor
 	 *
-	 * @param string         $name HTML name attribute-
-	 * @param type           $atts
-	 * @param array<integer> $options Form Tag options.
+	 * @param string         $name HTML name attribute.
+	 * @param type           $atts form-tag attributes.
+	 * @param array<integer> $options form-tag options.
 	 * @param string         $validation_error The validation error showed.
 	 * @param type           $wr_class
 	 * @param string         $preset_value The ISTAT municipality code set as selected.
@@ -106,11 +106,11 @@ class GCMI_COMUNE_WPCF7_FormTag extends GCMI_COMUNE {
 		}
 	}
 
-		/**
-		 * Creates HTML code for the form tag.
-		 *
-		 * @return string The HTML code printed.
-		 */
+	/**
+	 * Creates HTML code for the form tag.
+	 *
+	 * @return string The HTML code printed.
+	 */
 	public function get_html() {
 		parent::gcmi_comune_enqueue_scripts();
 
@@ -151,7 +151,7 @@ class GCMI_COMUNE_WPCF7_FormTag extends GCMI_COMUNE {
 
 		$tre .= '<select name="' . $this->name . '" id="' . $my_ids['com'] . '" ' . $atts;
 
-		// gestione valore predefinito
+		// gestione valore predefinito.
 		if ( $this->preset_value != '' ) {
 			$tre .= ' data-prval="';
 			$tre .= parent::gcmi_get_data_from_comune( $this->preset_value, $this->kind ) . '"';
@@ -168,7 +168,7 @@ class GCMI_COMUNE_WPCF7_FormTag extends GCMI_COMUNE {
 		$quattro  = '<input type="hidden" name="' . $this->name . '_kind" id="' . $my_ids['kin'] . '" value="' . $this->kind . '" />';
 		$quattro .= '<input type="hidden" name="' . $this->name . '_targa" id="' . $my_ids['targa'] . '"/>';
 
-		// these fields are useful if you use key/value pairs sent by the form to generate a PDF - from 1.1.1
+		// these fields are useful if you use key/value pairs sent by the form to generate a PDF - from 1.1.1 .
 		$quattro .= '<input type="hidden" name="' . $this->name . '_reg_desc" id="' . $my_ids['reg_desc'] . '"/>';
 		$quattro .= '<input type="hidden" name="' . $this->name . '_prov_desc" id="' . $my_ids['prov_desc'] . '"/>';
 		$quattro .= '<input type="hidden" name="' . $this->name . '_comu_desc" id="' . $my_ids['comu_desc'] . '"/>';
@@ -178,13 +178,21 @@ class GCMI_COMUNE_WPCF7_FormTag extends GCMI_COMUNE {
 		if ( $comu_details ) {
 			$quattro .= '<span id="' . $my_ids['info'] . '" title="' . __( 'Municipality details', 'campi-moduli-italiani' ) . '"' . $helperclass . '></span>';
 		}
-		$html  = '<span class="wpcf7-form-control-wrap ' . $this->name . '">';
+
+		/*
+		 * https://contactform7.com/2022/05/20/contact-form-7-56-beta/#markup-changes-in-form-controls
+		 */
+		if ( version_compare( WPCF7_VERSION, '5.6', '>=' ) ) {
+			$html = '<span class="wpcf7-form-control-wrap" data-name="' . $this->name . '">';
+		} else {
+			$html = '<span class="wpcf7-form-control-wrap ' . $this->name . '">';
+		}
+
 		$html .= '<span class="gcmi-wrap ' . $this->wr_class . '">' . $uno . $due . $tre . $quattro . '</span>';
 		$html .= $this->validation_error . '</span>';
 
 		return $html;
 	}
-
 
 	public static function gcmi_comune_WPCF7_addfilter() {
 		/* validation filter */
@@ -194,7 +202,7 @@ class GCMI_COMUNE_WPCF7_FormTag extends GCMI_COMUNE {
 		add_filter( 'wpcf7_validate_comune', 'wpcf7_select_validation_filter', 10, 2 );
 		add_filter( 'wpcf7_validate_comune*', 'wpcf7_select_validation_filter', 10, 2 );
 
-		// mail tag filter
+		// mail tag filter.
 		add_filter(
 			'wpcf7_mail_tag_replaced_comune*',
 			function ( $replaced, $submitted, $html, $mail_tag ) {

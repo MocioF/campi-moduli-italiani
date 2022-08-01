@@ -71,12 +71,24 @@ function wpcf7_gcmi_cf_formtag_handler( $tag ) {
 
 	$atts = wpcf7_format_atts( $atts );
 
-	$html = sprintf(
-		'<span class="wpcf7-form-control-wrap %1$s"><input %2$s />%3$s</span>',
-		sanitize_html_class( $tag->name ),
-		$atts,
-		$validation_error
-	);
+	/*
+	 * https://contactform7.com/2022/05/20/contact-form-7-56-beta/#markup-changes-in-form-controls
+	 */
+	if ( version_compare( WPCF7_VERSION, '5.6', '>=' ) ) {
+		$html = sprintf(
+			'<span class="wpcf7-form-control-wrap" data-name="%1$s"><input %2$s />%3$s</span>',
+			sanitize_html_class( $tag->name ),
+			$atts,
+			$validation_error
+		);
+	} else {
+		$html = sprintf(
+			'<span class="wpcf7-form-control-wrap %1$s"><input %2$s />%3$s</span>',
+			sanitize_html_class( $tag->name ),
+			$atts,
+			$validation_error
+		);
+	}
 
 	if ( $tag->get_option( 'surname-field', 'id', true ) ) {
 		$html .= '<input type="hidden" name="' . $tag->name . '-surname-field" value="' . $tag->get_option( 'surname-field', 'id', true ) . '">';

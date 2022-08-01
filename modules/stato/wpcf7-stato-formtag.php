@@ -137,13 +137,26 @@ function wpcf7_gcmi_stato_formtag_handler( $tag ) {
 
 	$atts = wpcf7_format_atts( $atts );
 
-	$html = sprintf(
-		'<span class="wpcf7-form-control-wrap %1$s"><select %2$s>%3$s</select>%4$s</span>',
-		sanitize_html_class( $tag->name ),
-		$atts,
-		$html,
-		$validation_error
-	);
+	/*
+	 * https://contactform7.com/2022/05/20/contact-form-7-56-beta/#markup-changes-in-form-controls
+	 */
+	if ( version_compare( WPCF7_VERSION, '5.6', '>=' ) ) {
+		$html = sprintf(
+			'<span class="wpcf7-form-control-wrap" data-name="%1$s"><select %2$s>%3$s</select>%4$s</span>',
+			sanitize_html_class( $tag->name ),
+			$atts,
+			$html,
+			$validation_error
+		);
+	} else {
+		$html = sprintf(
+			'<span class="wpcf7-form-control-wrap %1$s"><select %2$s>%3$s</select>%4$s</span>',
+			sanitize_html_class( $tag->name ),
+			$atts,
+			$html,
+			$validation_error
+		);
+	}
 
 	return $html;
 }
