@@ -5,10 +5,10 @@
  * This form tag adds a select to chose a country.
  * It returns the Istat Country code (usefull to check italian fiscal code for people born outside Italy
  *
- * @link https://wordpress.org/plugins/search/campi+moduli+italiani/
+ * @link https://wordpress.org/plugins/campi-moduli-italiani/
  *
  * @package campi-moduli-italiani
- * @subpackage stato
+ * @subpackage campi-moduli-italiani/modules/stato
  * @since 1.0.0
  */
 
@@ -20,8 +20,9 @@ add_action( 'wpcf7_init', 'add_form_tag_gcmi_statoestero' );
  * Adds stato form tag.
  *
  * @since 1.0.0
+ * @return void
  */
-function add_form_tag_gcmi_statoestero() {
+function add_form_tag_gcmi_statoestero(): void {
 	wpcf7_add_form_tag(
 		array( 'stato', 'stato*' ),
 		'wpcf7_gcmi_stato_formtag_handler',
@@ -39,8 +40,8 @@ function add_form_tag_gcmi_statoestero() {
  *
  * @since 1.0.0
  *
- * @param obj $tag the tag.
- * @return html string used in form or empty string.
+ * @param WPCF7_FormTag $tag the tag.
+ * @return string HTML used in form or empty string.
  */
 function wpcf7_gcmi_stato_formtag_handler( $tag ) {
 	global $wpdb;
@@ -125,12 +126,14 @@ function wpcf7_gcmi_stato_formtag_handler( $tag ) {
 			$html .= '</optgroup>';
 		}
 	} else {
-		$value = 'value="' . esc_html( $stato->i_cod_istat ) . '"';
-		if ( $stato->i_cod_istat === $pr_value ) {
-			$value .= ' selected';
+		foreach ( $stati as $stato ) {
+			$value = 'value="' . esc_html( $stato->i_cod_istat ) . '"';
+			if ( $stato->i_cod_istat === $pr_value ) {
+				$value .= ' selected';
+			}
+			$inset = stripslashes( esc_html( $stato->i_denominazione_ita ) );
+			$html .= sprintf( '<option %1$s>%2$s</option>', $value, $inset );
 		}
-		$inset = stripslashes( esc_html( $stato->i_denominazione_ita ) );
-		$html .= sprintf( '<option %1$s>%2$s</option>', $value, $inset );
 	}
 
 	$atts['name'] = $tag->name;
@@ -213,13 +216,14 @@ add_filter(
 add_action( 'wpcf7_admin_init', 'wpcf7_add_tag_generator_gcmi_stato', 37 );
 
 /**
- * Adds tag-generator for stato form tag.
+ * Adds tag-generator for stato form-tag.
  *
- * Adds tag-generator for stato form tag.
+ * Adds tag-generator for stato form-tag.
  *
  * @since 1.0.0
+ * @return void
  */
-function wpcf7_add_tag_generator_gcmi_stato() {
+function wpcf7_add_tag_generator_gcmi_stato(): void {
 	if ( class_exists( 'WPCF7_TagGenerator' ) ) {
 		$tag_generator = WPCF7_TagGenerator::get_instance();
 		$tag_generator->add( 'gcmi-stato', __( 'Insert a select for Countries', 'campi-moduli-italiani' ), 'wpcf7_tg_pane_gcmi_stato' );
@@ -235,10 +239,11 @@ function wpcf7_add_tag_generator_gcmi_stato() {
  *
  * @since 1.0.0
  *
- * @param obj   $contact_form .
- * @param array $args array of default values.
+ * @param WPCF7_ContactForm   $contact_form The form object.
+ * @param string|array|object $args List of default values.
+ * @return void
  */
-function wpcf7_tg_pane_gcmi_stato( $contact_form, $args = '' ) {
+function wpcf7_tg_pane_gcmi_stato( $contact_form, $args = '' ): void {
 	$args = wp_parse_args( $args, array() );
 	/* translators: %s: link to plugin page URL */
 	$description = __( 'Creates a select with countries %s.', 'campi-moduli-italiani' );
