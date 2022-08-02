@@ -38,5 +38,8 @@ global $wpdb;
 $gcmi_table_prefix = $wpdb->prefix . 'gcmi_';
 define( 'GCMI_TABLE_PREFIX', $gcmi_table_prefix );
 
+define( 'GCMI_CACHE_EXPIRE_SECS', 1000 );
+define( 'GCMI_CACHE_GROUP', 'campi-moduli-italiani' );
+
 require_once plugin_dir_path( GCMI_PLUGIN ) . 'settings.php';
 

@@ -1,4 +1,11 @@
 <?php
+/**
+ * WPForms stato's field class
+ *
+ * @package campi-moduli-italiani
+ * @subpackage campi-moduli-italiani/modules/stato
+ * @since 2.0.0
+ */
 
 /**
  * Select a Country
@@ -6,10 +13,10 @@
  * This field adds a select to choose a country.
  * It returns the Istat Country code (usefull to check italian fiscal code for people born outside Italy)
  *
- * @link https://wordpress.org/plugins/search/campi+moduli+italiani/
+ * @link https://wordpress.org/plugins/campi-moduli-italiani/
  *
  * @package campi-moduli-italiani
- * @subpackage stato
+ * @subpackage campi-moduli-italiani/modules/stato
  * @since 2.0.0
  */
 class WPForms_Field_Stato extends WPForms_Field {
@@ -96,28 +103,45 @@ class WPForms_Field_Stato extends WPForms_Field {
 		$form_id  = absint( $form_data['id'] );
 		$field_id = absint( $field['id'] );
 
-		// qui creo le query.
-		$sql = 'SELECT `i_cod_istat`, `i_cod_continente`, `i_denominazione_ita`, `i_cod_AT` FROM ';
-		if ( ! isset( $field['only_current'] ) ) {
-			$sql .= '( ';
-			$sql .= 'SELECT `i_cod_istat`, `i_cod_continente`, `i_denominazione_ita`, `i_cod_AT` FROM `' . GCMI_TABLE_PREFIX . 'stati` ';
-			$sql .= 'UNION ';
-			$sql .= 'SELECT `i_cod_istat`, `i_cod_continente`, `i_denominazione_ita`, `i_cod_AT` FROM `' . GCMI_TABLE_PREFIX . 'stati_cessati` ';
-			$sql .= ') as subQuery ';
-		} else {
-			$sql .= '`' . GCMI_TABLE_PREFIX . 'stati` ';
-		}
-		if ( isset( $field['use_continent'] ) ) {
-			$sql .= 'ORDER BY `i_cod_continente`, `i_cod_istat`, `i_denominazione_ita` ASC';
-		} else {
-			$sql .= 'ORDER BY `i_cod_istat`, `i_denominazione_ita` ASC';
+		// codice per gestire la cache della query stati.
+		$cache_key  = 'stati_';
+		$cache_key .= isset( $field['use_continent'] ) ? 'cont_' : 'sing_';
+		$cache_key .= isset( $field['only_current'] ) ? 'act' : 'all';
+		$stati      = wp_cache_get( $cache_key, GCMI_CACHE_GROUP );
+
+		if ( false === $stati ) {
+			// qui creo le query.
+			$sql = 'SELECT `i_cod_istat`, `i_cod_continente`, `i_denominazione_ita`, `i_cod_AT` FROM ';
+			if ( ! isset( $field['only_current'] ) ) {
+				$sql .= '( ';
+				$sql .= 'SELECT `i_cod_istat`, `i_cod_continente`, `i_denominazione_ita`, `i_cod_AT` FROM `' . GCMI_TABLE_PREFIX . 'stati` ';
+				$sql .= 'UNION ';
+				$sql .= 'SELECT `i_cod_istat`, `i_cod_continente`, `i_denominazione_ita`, `i_cod_AT` FROM `' . GCMI_TABLE_PREFIX . 'stati_cessati` ';
+				$sql .= ') as subQuery ';
+			} else {
+				$sql .= '`' . GCMI_TABLE_PREFIX . 'stati` ';
+			}
+			if ( isset( $field['use_continent'] ) ) {
+				$sql .= 'ORDER BY `i_cod_continente`, `i_cod_istat`, `i_denominazione_ita` ASC';
+			} else {
+				$sql .= 'ORDER BY `i_cod_istat`, `i_denominazione_ita` ASC';
+			}
+
+			$stati = $wpdb->get_results( $sql ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+			wp_cache_set( $cache_key, $stati, GCMI_CACHE_GROUP, GCMI_CACHE_EXPIRE_SECS );
 		}
 
-		$stati = $wpdb->get_results( $sql );
-
 		if ( isset( $field['use_continent'] ) ) {
-			$sql2       = 'SELECT DISTINCT `i_cod_continente`, `i_den_continente` FROM `' . GCMI_TABLE_PREFIX . 'stati` ORDER BY `i_cod_continente`'; // phpcs:ignore unprepared SQL OK.
-			$continenti = $wpdb->get_results( $sql2 );
+			// codice per gestire la cache della query continenti.
+			$cache_key  = 'continenti';
+			$continenti = wp_cache_get( $cache_key, GCMI_CACHE_GROUP );
+
+			if ( false === $continenti ) {
+				$sql2       = 'SELECT DISTINCT `i_cod_continente`, `i_den_continente` FROM `' . GCMI_TABLE_PREFIX . 'stati` ORDER BY `i_cod_continente`'; // phpcs:ignore unprepared SQL OK.
+				$continenti = $wpdb->get_results( $sql2 ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+				wp_cache_set( $cache_key, $continenti, GCMI_CACHE_GROUP, GCMI_CACHE_EXPIRE_SECS );
+			}
+
 			foreach ( $continenti as $continente ) {
 				$choices[]      = array(
 					'label' => ' ---  ' . stripslashes( esc_html( $continente->i_den_continente ) ),
@@ -390,14 +414,13 @@ class WPForms_Field_Stato extends WPForms_Field {
 		);
 	}
 
-		/**
-		 * Field preview inside the builder.
-		 *
-		 * @since 2.0.0
-		 *
-		 * @param array $field Field settings.
-		 */
-
+	/**
+	 * Field preview inside the builder.
+	 *
+	 * @since 2.0.0
+	 *
+	 * @param array $field Field settings.
+	 */
 	public function field_preview( $field ) {
 		$args = array();
 
@@ -560,14 +583,24 @@ class WPForms_Field_Stato extends WPForms_Field {
 		foreach ( $fields as $key => $field ) {
 			if ( $this->type === $field['type'] ) {
 				if ( ( '' !== $field['value'] ) && ( is_numeric( $field['value'] ) ) ) {
-					$sql                     = 'SELECT `i_denominazione_ita` FROM ';
-					$sql                    .= '( ';
-					$sql                    .= 'SELECT `i_cod_istat`, `i_denominazione_ita` FROM `' . GCMI_TABLE_PREFIX . 'stati` ';
-					$sql                    .= 'UNION ';
-					$sql                    .= 'SELECT `i_cod_istat`, `i_denominazione_ita` FROM `' . GCMI_TABLE_PREFIX . 'stati_cessati` ';
-					$sql                    .= ') as subQuery ';
-					$sql                    .= 'WHERE `i_cod_istat` = "' . $field['value'] . '" LIMIT 1';
-					$stato                   = $wpdb->get_row( $sql, OBJECT );
+
+					$cache_key = 'stato_ita_rowobj_' . strval( $field['value'] );
+					$stato     = wp_cache_get( $cache_key, GCMI_CACHE_GROUP );
+					if ( false === $stato ) {
+						$sql   = 'SELECT `i_denominazione_ita` FROM ';
+						$sql  .= '( ';
+						$sql  .= 'SELECT `i_cod_istat`, `i_denominazione_ita` FROM `' . GCMI_TABLE_PREFIX . 'stati` ';
+						$sql  .= 'UNION ';
+						$sql  .= 'SELECT `i_cod_istat`, `i_denominazione_ita` FROM `' . GCMI_TABLE_PREFIX . 'stati_cessati` ';
+						$sql  .= ') as subQuery ';
+						$sql  .= 'WHERE `i_cod_istat` = %s LIMIT 1';
+						$stato = $wpdb->get_row(
+							$wpdb->prepare( $sql, $field['value'] ),
+							OBJECT
+						);
+						wp_cache_set( $cache_key, $stato, GCMI_CACHE_GROUP, GCMI_CACHE_EXPIRE_SECS );
+					}
+
 					$fields[ $key ]['value'] = $stato->i_denominazione_ita;
 				}
 			}

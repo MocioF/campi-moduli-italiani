@@ -2,8 +2,8 @@
 /**
  * Select a Country
  *
- * This form tag adds a select to chose a country.
- * It returns the Istat Country code (usefull to check italian fiscal code for people born outside Italy
+ * This form-tag adds a select to chose a country.
+ * It returns the Istat Country code (usefull to check Italian fiscal code for people born outside Italy
  *
  * @link https://wordpress.org/plugins/campi-moduli-italiani/
  *
@@ -15,9 +15,9 @@
 add_action( 'wpcf7_init', 'add_form_tag_gcmi_statoestero' );
 
 /**
- * Adds stato form tag.
+ * Adds stato form-tag.
  *
- * Adds stato form tag.
+ * Adds stato form-tag.
  *
  * @since 1.0.0
  * @return void
@@ -34,9 +34,9 @@ function add_form_tag_gcmi_statoestero(): void {
 }
 
 /**
- * Handles stato form tag.
+ * Handles stato form-tag.
  *
- * Handles stato form tag.
+ * Handles stato form-tag.
  *
  * @since 1.0.0
  *
@@ -82,20 +82,31 @@ function wpcf7_gcmi_stato_formtag_handler( $tag ) {
 	$value    = wpcf7_get_hangover( $tag->name, $value );
 	$pr_value = $value;
 
-	$sql = 'SELECT `i_cod_istat`, `i_cod_continente`, `i_denominazione_ita`, `i_cod_AT` FROM ';
-	if ( false === $solo_attuali ) {
-		$sql .= '( ';
-		$sql .= 'SELECT `i_cod_istat`, `i_cod_continente`, `i_denominazione_ita`, `i_cod_AT` FROM `' . GCMI_TABLE_PREFIX . 'stati` ';
-		$sql .= 'UNION ';
-		$sql .= 'SELECT `i_cod_istat`, `i_cod_continente`, `i_denominazione_ita`, `i_cod_AT` FROM `' . GCMI_TABLE_PREFIX . 'stati_cessati` ';
-		$sql .= ') as subQuery ';
-	} else {
-		$sql .= '`' . GCMI_TABLE_PREFIX . 'stati` ';
-	}
-	if ( true === $usa_continenti ) {
-		$sql .= 'ORDER BY `i_cod_continente`, `i_cod_istat`, `i_denominazione_ita` ASC';
-	} else {
-		$sql .= 'ORDER BY `i_cod_istat`, `i_denominazione_ita` ASC';
+	// codice per gestire la cache della query stati.
+	$cache_key  = 'stati_';
+	$cache_key .= $usa_continenti ? 'cont_' : 'sing_';
+	$cache_key .= $solo_attuali ? 'act' : 'all';
+	$stati      = wp_cache_get( $cache_key, GCMI_CACHE_GROUP );
+
+	if ( false === $stati ) {
+		$sql = 'SELECT `i_cod_istat`, `i_cod_continente`, `i_denominazione_ita`, `i_cod_AT` FROM ';
+		if ( false === $solo_attuali ) {
+			$sql .= '( ';
+			$sql .= 'SELECT `i_cod_istat`, `i_cod_continente`, `i_denominazione_ita`, `i_cod_AT` FROM `' . GCMI_TABLE_PREFIX . 'stati` ';
+			$sql .= 'UNION ';
+			$sql .= 'SELECT `i_cod_istat`, `i_cod_continente`, `i_denominazione_ita`, `i_cod_AT` FROM `' . GCMI_TABLE_PREFIX . 'stati_cessati` ';
+			$sql .= ') as subQuery ';
+		} else {
+			$sql .= '`' . GCMI_TABLE_PREFIX . 'stati` ';
+		}
+		if ( true === $usa_continenti ) {
+			$sql .= 'ORDER BY `i_cod_continente`, `i_cod_istat`, `i_denominazione_ita` ASC';
+		} else {
+			$sql .= 'ORDER BY `i_cod_istat`, `i_denominazione_ita` ASC';
+		}
+
+		$stati = $wpdb->get_results( $sql ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+		wp_cache_set( $cache_key, $stati, GCMI_CACHE_GROUP, GCMI_CACHE_EXPIRE_SECS );
 	}
 
 	$html = '';
@@ -104,11 +115,19 @@ function wpcf7_gcmi_stato_formtag_handler( $tag ) {
 		$html .= sprintf( '<option %1$s>%2$s</option>', 'value=""', esc_html( __( 'Select a Country', 'campi-moduli-italiani' ) ) );
 	}
 
-	$stati = $wpdb->get_results( $sql );
-
 	if ( true === $usa_continenti ) {
-		$sql2       = 'SELECT DISTINCT `i_cod_continente`, `i_den_continente` FROM `' . GCMI_TABLE_PREFIX . 'stati` ORDER BY `i_cod_continente`';
-		$continenti = $wpdb->get_results( $sql2 );
+		// codice per gestire la cache della query continenti.
+		$cache_key  = 'continenti';
+		$continenti = wp_cache_get( $cache_key, GCMI_CACHE_GROUP );
+
+		if ( false === $continenti ) {
+
+			$sql2 = 'SELECT DISTINCT `i_cod_continente`, `i_den_continente` FROM `' . GCMI_TABLE_PREFIX . 'stati` ORDER BY `i_cod_continente`';
+
+			$continenti = $wpdb->get_results( $sql2 ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+			wp_cache_set( $cache_key, $continenti, GCMI_CACHE_GROUP, GCMI_CACHE_EXPIRE_SECS );
+		}
+
 		foreach ( $continenti as $continente ) {
 			$html .= sprintf( '<optgroup label="%s">', ' ---  ' . stripslashes( esc_html( $continente->i_den_continente ) ) );
 
@@ -167,7 +186,7 @@ function wpcf7_gcmi_stato_formtag_handler( $tag ) {
 
 /* validation filter */
 if ( ! function_exists( 'wpcf7_select_validation_filter' ) ) {
-    require_once GCMI_PLUGIN_DIR . '/integrations/contact-form-7/contact-form-7-legacy.php';
+	require_once GCMI_PLUGIN_DIR . '/integrations/contact-form-7/contact-form-7-legacy.php';
 }
 add_filter( 'wpcf7_validate_stato', 'wpcf7_select_validation_filter', 10, 2 );
 add_filter( 'wpcf7_validate_stato*', 'wpcf7_select_validation_filter', 10, 2 );
@@ -176,16 +195,22 @@ add_filter( 'wpcf7_validate_stato*', 'wpcf7_select_validation_filter', 10, 2 );
 add_filter(
 	'wpcf7_mail_tag_replaced_stato*',
 	function( $replaced, $submitted, $html, $mail_tag ) {
-		global $wpdb;
-		$sql      = 'SELECT `i_denominazione_ita` FROM  ';
-		$sql     .= '( ';
-		$sql     .= 'SELECT `i_denominazione_ita` FROM `' . GCMI_TABLE_PREFIX . 'stati` ';
-		$sql     .= "WHERE `i_cod_istat` = '" . esc_sql( $submitted ) . "'";
-		$sql     .= 'UNION ';
-		$sql     .= 'SELECT `i_denominazione_ita` FROM `' . GCMI_TABLE_PREFIX . 'stati_cessati` ';
-		$sql     .= "WHERE `i_cod_istat` = '" . esc_sql( $submitted ) . "'";
-		$sql     .= ') as subQuery ';
-		$replaced = $wpdb->get_var( $sql );
+		$cache_key = 'stato_denominazione_' . strval( $submitted );
+		$replaced  = wp_cache_get( $cache_key, GCMI_CACHE_GROUP );
+		if ( false === $replaced ) {
+			global $wpdb;
+			$sql  = 'SELECT `i_denominazione_ita` FROM  ';
+			$sql .= '( ';
+			$sql .= 'SELECT `i_denominazione_ita` FROM `' . GCMI_TABLE_PREFIX . 'stati` ';
+			$sql .= 'WHERE `i_cod_istat` = %s';
+			$sql .= 'UNION ';
+			$sql .= 'SELECT `i_denominazione_ita` FROM `' . GCMI_TABLE_PREFIX . 'stati_cessati` ';
+			$sql .= 'WHERE `i_cod_istat` = %s';
+			$sql .= ') as subQuery ';
+
+			$replaced = $wpdb->get_var( $wpdb->prepare( $sql, $submitted, $submitted ) );
+			wp_cache_set( $cache_key, $replaced, GCMI_CACHE_GROUP, GCMI_CACHE_EXPIRE_SECS );
+		}
 		return $replaced;
 	},
 	10,
@@ -195,16 +220,22 @@ add_filter(
 add_filter(
 	'wpcf7_mail_tag_replaced_stato',
 	function( $replaced, $submitted, $html, $mail_tag ) {
-		global $wpdb;
-		$sql      = 'SELECT `i_denominazione_ita` FROM  ';
-		$sql     .= '( ';
-		$sql     .= 'SELECT `i_denominazione_ita` FROM `' . GCMI_TABLE_PREFIX . 'stati` ';
-		$sql     .= "WHERE `i_cod_istat` = '" . esc_sql( $submitted ) . "'";
-		$sql     .= 'UNION ';
-		$sql     .= 'SELECT `i_denominazione_ita` FROM `' . GCMI_TABLE_PREFIX . 'stati_cessati` ';
-		$sql     .= "WHERE `i_cod_istat` = '" . esc_sql( $submitted ) . "'";
-		$sql     .= ') as subQuery ';
-		$replaced = $wpdb->get_var( $sql );
+		$cache_key = 'stato_denominazione_' . strval( $submitted );
+		$replaced  = wp_cache_get( $cache_key, GCMI_CACHE_GROUP );
+		if ( false === $replaced ) {
+			global $wpdb;
+			$sql  = 'SELECT `i_denominazione_ita` FROM  ';
+			$sql .= '( ';
+			$sql .= 'SELECT `i_denominazione_ita` FROM `' . GCMI_TABLE_PREFIX . 'stati` ';
+			$sql .= 'WHERE `i_cod_istat` = %s';
+			$sql .= 'UNION ';
+			$sql .= 'SELECT `i_denominazione_ita` FROM `' . GCMI_TABLE_PREFIX . 'stati_cessati` ';
+			$sql .= 'WHERE `i_cod_istat` = %s';
+			$sql .= ') as subQuery ';
+
+			$replaced = $wpdb->get_var( $wpdb->prepare( $sql, $submitted, $submitted ) );
+			wp_cache_set( $cache_key, $replaced, GCMI_CACHE_GROUP, GCMI_CACHE_EXPIRE_SECS );
+		}
 		return $replaced;
 	},
 	10,
@@ -239,8 +270,8 @@ function wpcf7_add_tag_generator_gcmi_stato(): void {
  *
  * @since 1.0.0
  *
- * @param WPCF7_ContactForm   $contact_form The form object.
- * @param string|array|object $args List of default values.
+ * @param WPCF7_ContactForm                   $contact_form The form object.
+ * @param string|array<string|integer>|object $args List of default values.
  * @return void
  */
 function wpcf7_tg_pane_gcmi_stato( $contact_form, $args = '' ): void {
