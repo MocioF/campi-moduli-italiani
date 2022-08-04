@@ -49,8 +49,9 @@ class WPForms_Field_Comune extends WPForms_Field {
 	 * Primary class constructor.
 	 *
 	 * @since 2.0.0
+	 * @return void
 	 */
-	public function init() {
+	public function init(): void {
 
 		// Define field type information.
 		$this->name  = esc_html__( 'Municipality', 'campi-moduli-italiani' );
@@ -151,8 +152,9 @@ class WPForms_Field_Comune extends WPForms_Field {
 	 * @since 2.0.0
 	 *
 	 * @param array $field Field data and settings.
+	 * @return void
 	 */
-	public function field_options( $field ) {
+	public function field_options( $field ): void {
 		/*
 		 * Basic field options.
 		 */
@@ -235,7 +237,7 @@ class WPForms_Field_Comune extends WPForms_Field {
 			),
 			false
 		);
-		echo $output; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		echo strval( $output ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 
 		// Options close markup.
 		$this->field_option(
@@ -320,7 +322,7 @@ class WPForms_Field_Comune extends WPForms_Field {
 			),
 			false
 		);
-		echo $output; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		echo strval( $output ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 
 		// Hide label.
 		$this->field_option( 'label_hide', $field );
@@ -372,10 +374,10 @@ class WPForms_Field_Comune extends WPForms_Field {
 	 * Field preview inside the builder.
 	 *
 	 * @since 2.0.0
-	 *
 	 * @param array $field Field settings.
+	 * @return void
 	 */
-	public function field_preview( $field ) {
+	public function field_preview( $field ): void {
 		$use_label_element = ! empty( $field['use_label_element'] ) ? esc_attr( $field['use_label_element'] ) : false;
 
 		// Label.
@@ -392,7 +394,7 @@ class WPForms_Field_Comune extends WPForms_Field {
 			$args['class']  = 'choicesjs-select';
 		}
 
-		echo '<span class="gcmi-wrap ' . ( isset( $field['wrcss'] ) ? wpforms_sanitize_classes( $field['wrcss'] ) : '' ) . '" >'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		echo '<span class="gcmi-wrap ' . ( isset( $field['wrcss'] ) ? sanitize_html_class( $field['wrcss'] ) : '' ) . '" >'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 
 		// Imposto le choices inserendo solo il valore predefinito che fa da placeholder.
 		$args        = array();
@@ -471,8 +473,9 @@ class WPForms_Field_Comune extends WPForms_Field {
 	 * @param array $field      Field data and settings.
 	 * @param array $deprecated Deprecated array of field attributes.
 	 * @param array $form_data  Form data and settings.
+	 * @return void
 	 */
-	public function field_display( $field, $deprecated, $form_data ) {
+	public function field_display( $field, $deprecated, $form_data ): void {
 		// Includo js e css di comune.
 		GCMI_COMUNE::gcmi_comune_enqueue_scripts();
 
@@ -511,13 +514,17 @@ class WPForms_Field_Comune extends WPForms_Field {
 		$container_name = $container['attr']['name'];
 
 		// Creo l'array con i campi ID.
-		$my_ids = GCMI_COMUNE::getIDs( "wpforms-{$form_id}-field_{$field_id}" );
+		$my_ids = GCMI_COMUNE::get_ids( "wpforms-{$form_id}-field_{$field_id}" );
 
 		$uno = '';
 		if ( $use_label_element ) {
 			$uno .= '<label for="' . $my_ids['reg'] . '">' . __( 'Select a region:', 'campi-moduli-italiani' ) . '<br /></label>';
 		}
 
+		// Fix issue #6 https://github.com/MocioF/campi-moduli-italiani/issues/6 .
+		if ( ! empty( $field['required'] ) ) {
+			$container['attr']['required'] = 'required';
+		}
 		$container['attr']['name'] = $container_name . '[IDReg]';
 		$uno                      .= sprintf(
 			'<select %s>',
@@ -534,6 +541,10 @@ class WPForms_Field_Comune extends WPForms_Field {
 			$due .= '<label for="' . $my_ids['pro'] . '">' . __( 'Select a province:', 'campi-moduli-italiani' ) . '<br /></label>';
 		}
 
+		// Fix issue #6 https://github.com/MocioF/campi-moduli-italiani/issues/6 .
+		if ( ! empty( $field['required'] ) ) {
+			$container['attr']['required'] = 'required';
+		}
 		$container['attr']['name'] = $container_name . '[IDPro]';
 		$due                      .= sprintf(
 			'<select %s>',
@@ -547,7 +558,7 @@ class WPForms_Field_Comune extends WPForms_Field {
 			$tre .= '<label for="' . $my_ids['com'] . '">' . __( 'Select a municipality:', 'campi-moduli-italiani' ) . '<br /></label>';
 		}
 
-		// Se comune è richiesto, solo l'ultima select non può essere senza valore.
+		// Se comune è richiesto, l'attributo required va impostato su tutte e tre le select. Verrà ignorato se una è disabilitata.
 		if ( ! empty( $field['required'] ) ) {
 			$container['attr']['required'] = 'required';
 		}
@@ -576,7 +587,7 @@ class WPForms_Field_Comune extends WPForms_Field {
 		}
 
 		$html  = '<div class="wpforms-field-row wpforms-field-' . sanitize_html_class( $field['size'] ) . '">';
-		$html .= '<span class="gcmi-wrap ' . $prefix_name . ' ' . wpforms_sanitize_classes( $field['wrcss'] ) . '" >' . $uno . $due . $tre . '</span>';
+		$html .= '<span class="gcmi-wrap ' . $prefix_name . ' ' . sanitize_html_class( $field['wrcss'] ) . '" >' . $uno . $due . $tre . '</span>';
 		$html .= '</div>';
 		$html .= $quattro;
 
@@ -591,6 +602,7 @@ class WPForms_Field_Comune extends WPForms_Field {
 	 * @param array $fields    List of fields.
 	 * @param array $entry     Submitted form entry.
 	 * @param array $form_data Form data and settings.
+	 * @return array
 	 */
 	public function gcmi_wpf_comune_modify_email_value( $fields, $entry, $form_data ) {
 		foreach ( $fields as $key => $field ) {
@@ -611,6 +623,7 @@ class WPForms_Field_Comune extends WPForms_Field {
 	 * @since 2.0.0
 	 *
 	 * @param array $field      Field data and settings.
+	 * @return array
 	 */
 	public function gcmi_wpf_comune_apply_default( $field ) {
 		if ( 'comune' === $field['type'] ) {
@@ -627,8 +640,9 @@ class WPForms_Field_Comune extends WPForms_Field {
 	 * @since 2.0.0
 	 *
 	 * @param array $forms Forms on the current page.
+	 * @return void
 	 */
-	public function enqueue_frontend_css( $forms ) {
+	public function enqueue_frontend_css( $forms ): void {
 		$has_modern_select = false;
 
 		foreach ( $forms as $form ) {
@@ -657,8 +671,9 @@ class WPForms_Field_Comune extends WPForms_Field {
 	 * @since 2.0.0
 	 *
 	 * @param array $forms Forms on the current page.
+	 * @return void
 	 */
-	public function enqueue_frontend_js( $forms ) {
+	public function enqueue_frontend_js( $forms ): void {
 		$has_modern_select = false;
 
 		foreach ( $forms as $form ) {
@@ -713,6 +728,7 @@ class WPForms_Field_Comune extends WPForms_Field {
 	 *
 	 * @param string $new_class  Nome nuova classe.
 	 * @param array  $field      Field data and settings.
+	 * @return string
 	 */
 	public function gcmi_wpf_comune_add_class_select( $new_class, $field ) {
 		if ( 'comune' === $field['type'] ) {
@@ -728,6 +744,7 @@ class WPForms_Field_Comune extends WPForms_Field {
 	 *
 	 * @param string $css       lista classes separata da ' '.
 	 * @param array  $field      Field data and settings.
+	 * @return string
 	 */
 	public function gcmi_wpf_comune_preview_class_select( $css, $field ) {
 		if ( 'comune' === $field['type'] ) {
