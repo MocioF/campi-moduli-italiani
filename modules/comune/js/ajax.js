@@ -72,7 +72,12 @@ jQuery( document ).ready(
 						$.ajax({
 						type: 'POST',
 						url: gcmi_ajax.ajaxurl,
-						data: {action:'the_ajax_hook_prov',codice_regione:regione,gcmi_kind:gcmi_istance_kind},
+						data: {
+                                                    action:'the_ajax_hook_prov',
+                                                    nonce_ajax : gcmi_ajax.nonce,
+                                                    codice_regione:regione,
+                                                    gcmi_kind:gcmi_istance_kind
+                                                },
 						success: function(data){
 								el = $( "select#" + window.MyPrefix + "gcmi_province" );
 								el.removeAttr( "disabled" );
@@ -121,7 +126,12 @@ jQuery( document ).ready(
 						$.ajax({
 						type: 'POST',
 						url: gcmi_ajax.ajaxurl,
-						data: {action:'the_ajax_hook_prov',codice_regione:regione,gcmi_kind:gcmi_istance_kind},
+						data: {
+                                                    action:'the_ajax_hook_prov',
+                                                    nonce_ajax : gcmi_ajax.nonce,
+                                                    codice_regione:regione,
+                                                    gcmi_kind:gcmi_istance_kind
+                                                },
 						success: function(data){
 								el = $( "select#" + window.MyPrefix + "gcmi_comuni" );
 								el.removeAttr( "disabled" );
@@ -196,7 +206,12 @@ jQuery( document ).ready(
 					$.ajax({
 					type: 'POST',
 					url: gcmi_ajax.ajaxurl,
-					data: {action:'the_ajax_hook_comu',codice_provincia:provincia,gcmi_kind:gcmi_istance_kind},
+					data: {
+                                            action:'the_ajax_hook_comu',
+                                            nonce_ajax : gcmi_ajax.nonce,
+                                            codice_provincia:provincia,
+                                            gcmi_kind:gcmi_istance_kind
+                                        },
 					success: function(data){
 							el.removeAttr( "disabled" );
 							el.html( data );
@@ -238,7 +253,12 @@ jQuery( document ).ready(
 					$.ajax({
 					type: 'POST',
 					url: gcmi_ajax.ajaxurl,
-					data: {action:'the_ajax_hook_targa',codice_comune:comune,gcmi_kind:gcmi_istance_kind},
+					data: {
+                                            action:'the_ajax_hook_targa',
+                                            nonce_ajax : gcmi_ajax.nonce,
+                                            codice_comune:comune,
+                                            gcmi_kind:gcmi_istance_kind
+                                        },
 					success: function(data){
 						$( "input#" + window.MyPrefix + "gcmi_targa" ).val( data );
 						if (regione != '00') {
@@ -265,7 +285,11 @@ jQuery( document ).ready(
 				comune          = $( "select#" + window.MyPrefix + "gcmi_comuni option:selected" ).attr( 'value' );
 				$.post(
 					gcmi_ajax.ajaxurl,
-					{action:'the_ajax_hook_info',codice_comune:comune},
+					{
+                                            action:'the_ajax_hook_info',
+                                            nonce_ajax : gcmi_ajax.nonce,
+                                            codice_comune:comune
+                                        },
 					function(data){
 						$( "#" + window.MyPrefix + "gcmi_info" ).html( data );
 					}

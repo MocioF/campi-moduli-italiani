@@ -198,15 +198,15 @@ class GCMI_COMUNE {
 	}
 
 	/**
-	 * Restituisce il nome della tipologia di risultati mostrati dal gruppo di selecu
+	 * Restituisce il nome della tipologia di risultati mostrati dal gruppo di select
 	 *
 	 * @return string
 	 */
 	private static function get_post_gcmi_kind() {
-		if ( $_POST['gcmi_kind'] ) {
-			if ( self::is_valid_kind( $_POST['gcmi_kind'] ) ) {
-				$kind = sanitize_text_field( $_POST['gcmi_kind'] );
-			} else {
+		check_ajax_referer( 'gcmi-comune-nonce', 'nonce_ajax' );
+		if ( ! empty( sanitize_text_field( wp_unslash( $_POST['gcmi_kind'] ) ) ) ) {
+			$kind = sanitize_text_field( wp_unslash( $_POST['gcmi_kind'] ) );
+			if ( false === self::is_valid_kind( $kind ) ) {
 				$kind = 'tutti';
 			}
 		} else {
@@ -219,11 +219,18 @@ class GCMI_COMUNE {
 	 * Carica l'elenco delle regioni; deve conoscere la tipologia del tag o dello shortcode.
 	 *
 	 * @global wpdb $wpdb
-	 * @param string $kind
-	 * @return type
+	 * @global WP_Error $gcmi_error
+	 * @param string $kind Tipologia di risultati mostrati dal gruppo di select.
+	 * @return array<int, array<string, string>>.
 	 */
 	public static function gcmi_start( $kind ) {
 		global $wpdb;
+
+		// Make the WP_Error object global.
+		global $gcmi_error;
+
+		// instantiate the class.
+		$gcmi_error = new WP_Error();
 
 		if ( ! self::is_valid_kind( $kind ) ) {
 			$kind = 'tutti';
@@ -250,9 +257,16 @@ class GCMI_COMUNE {
 		}
 		$results = wp_cache_get( $cache_key, GCMI_CACHE_GROUP );
 		if ( false === $results ) {
-			$results = $wpdb->get_results( $sql );
-			wp_cache_set( $cache_key, $results, GCMI_CACHE_GROUP, GCMI_CACHE_EXPIRE_SECS );
+			$results = $wpdb->get_results( $sql ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+			if ( $wpdb->last_error ) {
+				$gcmi_error->add( 'gcmi_start', $wpdb->last_error );
+				gcmi_show_error( $gcmi_error );
+				wp_die();
+			} else {
+				wp_cache_set( $cache_key, $results, GCMI_CACHE_GROUP, GCMI_CACHE_EXPIRE_SECS );
+			}
 		}
+		$regioni = array();
 		if ( count( $results ) > 0 ) {
 			foreach ( $results as $result ) {
 				$regioni[] = array(
@@ -267,11 +281,11 @@ class GCMI_COMUNE {
 	/**
 	 * Restituisce gli id dei campi input HTML utilizzati
 	 *
-	 * @param string $idprefix
-	 * @return string
+	 * @param string $idprefix Prefisso utilizzato per gli id dei campi input html.
+	 * @return array<string, string>
 	 */
-	public static function getIDs( $idprefix ) {
-		$my_prefix = ( $idprefix ) ? $idprefix : md5( uniqid( mt_rand(), true ) );
+	public static function get_ids( $idprefix ) {
+		$my_prefix = ( $idprefix ) ? strval( $idprefix ) : md5( uniqid( strval( wp_rand( 0, mt_getrandmax() ) ), true ) );
 		$ids       = array(
 			'reg'       => $my_prefix . '_gcmi_regione',
 			'pro'       => $my_prefix . '_gcmi_province',
@@ -297,28 +311,30 @@ class GCMI_COMUNE {
 	 * @return void
 	 */
 	public static function gcmi_province(): void {
-		// carica le province della regione selezionata oppure carica i Comuni soppressi se selezionata la Regione 00
-
+		check_ajax_referer( 'gcmi-comune-nonce', 'nonce_ajax' );
 		global $wpdb;
 
-		if ( self::is_valid_cod_regione( $_POST['codice_regione'] ) ) {
-			$i_cod_regione = sanitize_text_field( $_POST['codice_regione'] );
+		if ( ! empty( sanitize_text_field( wp_unslash( $_POST['codice_regione'] ) ) ) ) {
+			$i_cod_regione = sanitize_text_field( wp_unslash( $_POST['codice_regione'] ) );
+			if ( false === self::is_valid_cod_regione( $i_cod_regione ) ) {
+				return;
+			}
 		} else {
 			return;
 		}
 
 		$kind = self::get_post_gcmi_kind();
 
-		// codice per gestire la cache della query stati.
+		// codice per gestire la cache della query province.
 		$cache_key = 'gcmi_province_' . $i_cod_regione;
 		$province  = wp_cache_get( $cache_key, GCMI_CACHE_GROUP );
 
-		if ( $i_cod_regione != self::$def_strings['COD_REG_SOPP'] ) {
+		if ( $i_cod_regione !== self::$def_strings['COD_REG_SOPP'] ) {
 			// non ha selezionato Comuni soppressi.
 			$sql = 'SELECT DISTINCT i_cod_unita_territoriale, i_den_unita_territoriale FROM ' . GCMI_TABLE_PREFIX . "comuni_attuali WHERE i_cod_regione = '" . esc_sql( $i_cod_regione ) . "' ORDER BY i_den_unita_territoriale";
 
 			// solo nel caso in cui la regione = Istria/Dalmazia serve una query diversa.
-			if ( $i_cod_regione == self::$def_strings['COD_REG_ISDA'] ) {
+			if ( $i_cod_regione === self::$def_strings['COD_REG_ISDA'] ) {
 				$sql  = 'SELECT DISTINCT `i_cod_unita_territoriale`, ';
 				$sql .= "IF (`i_cod_unita_territoriale` = '701', 'Fiume', ";
 				$sql .= " IF (`i_cod_unita_territoriale` = '702', 'Pola', ";
@@ -327,9 +343,9 @@ class GCMI_COMUNE {
 				$sql .= 'FROM ' . GCMI_TABLE_PREFIX . "comuni_soppressi WHERE `i_cod_unita_territoriale` LIKE '7%' ORDER BY `i_den_unita_territoriale` ASC";
 			}
 
-			// codice per gestire la cache della query stati.
+			// codice per gestire la cache della query province.
 			if ( false === $province ) {
-				$province = $wpdb->get_results( $sql );
+				$province = $wpdb->get_results( $sql ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 				wp_cache_set( $cache_key, $province, GCMI_CACHE_GROUP, GCMI_CACHE_EXPIRE_SECS );
 			}
 
@@ -338,7 +354,12 @@ class GCMI_COMUNE {
 				foreach ( $province as $result ) {
 					$province_options .= '<option value="' . esc_html( $result->i_cod_unita_territoriale ) . '">' . esc_html( stripslashes( $result->i_den_unita_territoriale ) ) . '</option>';
 				}
-				echo $province_options;
+				$allowed_html = array(
+					'option' => array(
+						'value' => array(),
+					),
+				);
+				echo wp_kses( $province_options, $allowed_html );
 			}
 		} else {
 			// ha selezionato Comuni soppressi - in questo caso viene popolata direttamente la select del Comune.
@@ -346,7 +367,7 @@ class GCMI_COMUNE {
 			$results   = wp_cache_get( $cache_key, GCMI_CACHE_GROUP );
 			if ( false === $results ) {
 				$sql     = 'SELECT DISTINCT i_cod_comune, i_denominazione_full FROM ' . GCMI_TABLE_PREFIX . 'comuni_soppressi ORDER BY i_denominazione_full';
-				$results = $wpdb->get_results( $sql );
+				$results = $wpdb->get_results( $sql ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 				wp_cache_set( $cache_key, $results, GCMI_CACHE_GROUP, GCMI_CACHE_EXPIRE_SECS );
 			}
 			$comuni_options = '<option value="">' . __( 'Select a municipality', 'campi-moduli-italiani' ) . '</option>';
@@ -354,7 +375,12 @@ class GCMI_COMUNE {
 				foreach ( $results as $result ) {
 					$comuni_options .= '<option value="' . esc_html( $result->i_cod_comune ) . '">' . esc_html( stripslashes( $result->i_denominazione_full ) ) . '</option>';
 				}
-				echo $comuni_options;
+				$allowed_html = array(
+					'option' => array(
+						'value' => array(),
+					),
+				);
+				echo wp_kses( $comuni_options, $allowed_html );
 			}
 		}
 		wp_die();
@@ -364,15 +390,19 @@ class GCMI_COMUNE {
 	 * Stampa l'elenco delle <option> per i comuni della provincia selezionata
 	 *
 	 * @global wpdb $wpdb
-	 * @return string
+	 * @return void
 	 */
 	public static function gcmi_comuni() {
+		check_ajax_referer( 'gcmi-comune-nonce', 'nonce_ajax' );
 		global $wpdb;
-		if ( self::is_valid_cod_provincia( $_POST['codice_provincia'] ) ) {
-			$i_cod_unita_territoriale = sanitize_text_field( $_POST['codice_provincia'] );
+
+		if ( ! empty( sanitize_text_field( wp_unslash( $_POST['codice_provincia'] ) ) ) ) {
+			$i_cod_unita_territoriale = sanitize_text_field( wp_unslash( $_POST['codice_provincia'] ) );
+			if ( false === self::is_valid_cod_provincia( $i_cod_unita_territoriale ) ) {
+				return;
+			}
 		} else {
-			// INVALIDA.
-			return '';
+			return;
 		}
 
 		$kind = self::get_post_gcmi_kind();
@@ -391,7 +421,7 @@ class GCMI_COMUNE {
 
 			case 'evidenza_cessati':
 				$cache_key = 'gcmi_comuni_evcessati_' . strval( $i_cod_unita_territoriale );
-				if ( substr( $i_cod_unita_territoriale, 0, 1 ) != '7' ) {
+				if ( substr( $i_cod_unita_territoriale, 0, 1 ) !== '7' ) {
 					// Con 7 cominciano le province di Istria e Dalmazia.
 					$sql  = 'SELECT `i_cod_comune`, `i_denominazione_full` FROM `' . GCMI_TABLE_PREFIX . 'comuni_attuali` WHERE `' . GCMI_TABLE_PREFIX . "comuni_attuali`.`i_cod_unita_territoriale` = '" . esc_sql( $i_cod_unita_territoriale ) . "' ";
 					$sql .= 'UNION ';
@@ -411,7 +441,7 @@ class GCMI_COMUNE {
 
 		$results = wp_cache_get( $cache_key, GCMI_CACHE_GROUP );
 		if ( false === $results ) {
-			$results = $wpdb->get_results( $sql );
+			$results = $wpdb->get_results( $sql ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 			wp_cache_set( $cache_key, $results, GCMI_CACHE_GROUP, GCMI_CACHE_EXPIRE_SECS );
 		}
 		$comuni_options = '<option value="">' . __( 'Select a municipality', 'campi-moduli-italiani' ) . '</option>';
@@ -419,7 +449,12 @@ class GCMI_COMUNE {
 			foreach ( $results as $result ) {
 				$comuni_options .= '<option value="' . esc_html( $result->i_cod_comune ) . '">' . esc_html( stripslashes( $result->i_denominazione_full ) ) . '</option>';
 			}
-			echo $comuni_options;
+			$allowed_html = array(
+				'option' => array(
+					'value' => array(),
+				),
+			);
+			echo wp_kses( $comuni_options, $allowed_html );
 		}
 		wp_die();
 	}
@@ -431,11 +466,15 @@ class GCMI_COMUNE {
 	 * @return void
 	 */
 	public static function gcmi_targa() {
+		check_ajax_referer( 'gcmi-comune-nonce', 'nonce_ajax' );
 		global $wpdb;
-		if ( self::is_valid_cod_comune( $_POST['codice_comune'] ) ) {
-			$i_cod_comune = sanitize_text_field( $_POST['codice_comune'] );
+
+		if ( ! empty( sanitize_text_field( wp_unslash( $_POST['codice_comune'] ) ) ) ) {
+			$i_cod_comune = sanitize_text_field( wp_unslash( $_POST['codice_comune'] ) );
+			if ( false === self::is_valid_cod_comune( $i_cod_comune ) ) {
+				return;
+			}
 		} else {
-			// INVALIDA.
 			return;
 		}
 
@@ -446,38 +485,49 @@ class GCMI_COMUNE {
 			$sql .= 'UNION';
 			$sql .= '(SELECT `i_sigla_automobilistica` FROM ' . GCMI_TABLE_PREFIX . "comuni_soppressi WHERE `i_cod_comune` ='" . esc_sql( $i_cod_comune ) . "' LIMIT 1)";
 
-			$results = $wpdb->get_results( $sql );
+			$results = $wpdb->get_results( $sql ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 			wp_cache_set( $cache_key, $results, GCMI_CACHE_GROUP, GCMI_CACHE_EXPIRE_SECS );
 		}
 
+		$targa = '';
 		if ( count( $results ) > 0 ) {
 			foreach ( $results as $result ) {
 				$targa = '' . $result->i_sigla_automobilistica . '';
 			}
-			echo $targa;
+			echo esc_html( $targa );
 		}
 		wp_die();
 	}
 
 	/**
 	 * Registra gli script e gli style utilizzati in frontend
+	 *
+	 * @return void
 	 */
-	public static function gcmi_register_scripts() {
-		wp_register_style( 'gcmi_comune_css', plugins_url( 'modules/comune/css/comune.css', GCMI_PLUGIN ) );
+	public static function gcmi_register_scripts(): void {
+		wp_register_style( 'gcmi_comune_css', plugins_url( 'modules/comune/css/comune.css', GCMI_PLUGIN ), array(), GCMI_VERSION );
 
 		// Se html5_fallback è abilitato, non devo caricare il nuovo tema per evitare conflitti.
 		if ( ! has_filter( 'wpcf7_support_html5_fallback', '__return_true' ) ) {
-			wp_register_style( 'gcmi_jquery-ui-dialog', plugins_url( 'css/jquery-ui-dialog.min.css', GCMI_PLUGIN ) );
+			wp_register_style( 'gcmi_jquery-ui-dialog', plugins_url( 'css/jquery-ui-dialog.min.css', GCMI_PLUGIN ), array(), GCMI_VERSION );
 		}
-		wp_register_script( 'gcmi_comune_js', plugins_url( 'modules/comune/js/ajax.js', GCMI_PLUGIN ), array( 'jquery', 'jquery-ui-dialog', 'jquery-ui-tooltip', 'jquery-effects-core', 'jquery-effects-slide', 'jquery-effects-puff', 'wp-i18n' ), $ver = null, $in_footer = false );
+		wp_register_script( 'gcmi_comune_js', plugins_url( 'modules/comune/js/ajax.js', GCMI_PLUGIN ), array( 'jquery', 'jquery-ui-dialog', 'jquery-ui-tooltip', 'jquery-effects-core', 'jquery-effects-slide', 'jquery-effects-puff', 'wp-i18n' ), $ver = GCMI_VERSION, $in_footer = false );
 		wp_set_script_translations( 'gcmi_comune_js', 'campi-moduli-italiani', plugin_dir_path( GCMI_PLUGIN ) . 'languages' );
-				wp_localize_script( 'gcmi_comune_js', 'gcmi_ajax', array( 'ajaxurl' => admin_url( 'admin-ajax.php' ) ) );
+
+		/* Localize Script Data */
+		$ajax_data = array(
+			'ajaxurl' => admin_url( 'admin-ajax.php' ),
+			'nonce'   => wp_create_nonce( 'gcmi-comune-nonce' ),
+		);
+		wp_localize_script( 'gcmi_comune_js', 'gcmi_ajax', $ajax_data );
 	}
 
 	/**
 	 * Enqueues the styles and scripts if source provided (does NOT overwrite).
+	 *
+	 * @return void
 	 */
-	public static function gcmi_comune_enqueue_scripts() {
+	public static function gcmi_comune_enqueue_scripts(): void {
 		// Incorporo gli script registrati.
 		if ( ! wp_style_is( 'gcmi_comune_css', 'enqueued' ) ) {
 			wp_enqueue_style( 'gcmi_comune_css' );
@@ -500,12 +550,17 @@ class GCMI_COMUNE {
 	 */
 	public static function gcmi_showinfo() {
 		global $wpdb;
+		check_ajax_referer( 'gcmi-comune-nonce', 'nonce_ajax' );
 
-		if ( self::is_valid_cod_comune( $_POST['codice_comune'] ) ) {
-			$i_cod_comune = sanitize_text_field( $_POST['codice_comune'] );
+		if ( ! empty( sanitize_text_field( wp_unslash( $_POST['codice_comune'] ) ) ) ) {
+			$i_cod_comune = sanitize_text_field( wp_unslash( $_POST['codice_comune'] ) );
+			if ( false === self::is_valid_cod_comune( $i_cod_comune ) ) {
+				return;
+			}
 		} else {
 			return;
 		}
+
 		/* translators: put a string matching the local date format to be used in SQL (https://dev.mysql.com/doc/refman/8.0/en/date-and-time-functions.html#function_date-format) */
 		$local_date_format_mysql = $wpdb->_real_escape( esc_html( __( '%m/%d/%Y', 'campi-moduli-italiani' ) ) );
 
@@ -517,7 +572,7 @@ class GCMI_COMUNE {
 			$sql1 .= '`i_sigla_automobilistica`, `i_cod_catastale` FROM `' . GCMI_TABLE_PREFIX . 'comuni_attuali`';
 			$sql1 .= " WHERE `i_cod_comune` = '" . esc_sql( $i_cod_comune ) . "' LIMIT 1)";
 
-			$results = $wpdb->get_row( $sql1, ARRAY_A );
+			$results = $wpdb->get_row( $sql1, ARRAY_A ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 			wp_cache_set( $cache_key, $results, GCMI_CACHE_GROUP, GCMI_CACHE_EXPIRE_SECS );
 
 			if ( ! $results ) { // non ha trovato nulla nei comuni attuali.
@@ -531,7 +586,7 @@ class GCMI_COMUNE {
 				$sql2   .= 'FROM `' . GCMI_TABLE_PREFIX . 'comuni_soppressi` LEFT JOIN `' . GCMI_TABLE_PREFIX . 'comuni_attuali` ';
 				$sql2   .= 'ON `' . GCMI_TABLE_PREFIX . 'comuni_soppressi`.`i_sigla_automobilistica` = `' . GCMI_TABLE_PREFIX . 'comuni_attuali`.`i_sigla_automobilistica` ';
 				$sql2   .= 'WHERE `' . GCMI_TABLE_PREFIX . "comuni_soppressi`.`i_cod_comune` = '" . esc_sql( $i_cod_comune ) . "' LIMIT 1";
-				$results = $wpdb->get_row( $sql2, ARRAY_A );
+				$results = $wpdb->get_row( $sql2, ARRAY_A ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 				wp_cache_set( $cache_key, $results, GCMI_CACHE_GROUP, GCMI_CACHE_EXPIRE_SECS );
 			}
 		}
@@ -557,7 +612,7 @@ class GCMI_COMUNE {
 		$table .= '<td class="tg-5lax">' . esc_html( __( 'Istat code:', 'campi-moduli-italiani' ) ) . '</td>';
 		$table .= '<td class="tg-qw54">' . esc_html( $i_cod_comune ) . '</td>';
 		$table .= '</tr>';
-		if ( ! isset( $sql2 ) ) { // un comune attivo
+		if ( ! isset( $sql2 ) ) { // un comune attivo.
 			$table .= '<tr>';
 			$table .= '<td class="tg-cly1">' . esc_html( __( 'Municipality Italian name:', 'campi-moduli-italiani' ) ) . '</td>';
 			$table .= '<td class="tg-yla0">' . esc_html( stripslashes( $results['i_denominazione_ita'] ) ) . '</td>';
@@ -601,7 +656,7 @@ class GCMI_COMUNE {
 		$table .= '<tr>';
 		$table .= '<td class="tg-5lax">' . esc_html( __( 'Name of the supra-municipal territorial unit (valid for statistical purposes):', 'campi-moduli-italiani' ) ) . '</td>';
 		$table .= '<td class="tg-qw54">';
-		// Istra e Dalmazia: Fiume Pola e Zara
+		// Istra e Dalmazia: Fiume, Pola e Zara .
 		switch ( $results['i_sigla_automobilistica'] ) {
 			case 'FU':
 				$table .= 'Fiume';
@@ -622,7 +677,7 @@ class GCMI_COMUNE {
 		$table .= '<td class="tg-yla0">' . esc_html( $results['i_sigla_automobilistica'] ) . '</td>';
 		$table .= '</tr>';
 
-		if ( isset( $sql2 ) ) { // comune cessato
+		if ( isset( $sql2 ) ) { // comune cessato.
 			$table .= '<tr>';
 			$table .= '<td class="tg-5lax">' . esc_html( __( 'Municipality deleted for spin-off:', 'campi-moduli-italiani' ) ) . '</td>';
 			$table .= '<td class="tg-qw54">';
@@ -635,7 +690,7 @@ class GCMI_COMUNE {
 			$table .= '<tr>';
 		}
 
-		if ( ! isset( $sql2 ) ) { // un comune attivo
+		if ( ! isset( $sql2 ) ) { // un comune attivo.
 			$table .= '<tr>';
 			$table .= '<td class="tg-5lax">' . esc_html( __( 'Is Capital City:', 'campi-moduli-italiani' ) ) . '</td>';
 			$table .= '<td class="tg-qw54">';
@@ -649,12 +704,17 @@ class GCMI_COMUNE {
 		}
 		$table .= '</table>';
 
-		$sql3    = 'SELECT `i_anno_var`, `i_tipo_var`, `i_cod_comune`,`i_denominazione_full`, ';
-		$sql3   .= '`i_cod_comune_nuovo`,  `i_denominazione_nuovo`, `i_documento`, `i_contenuto`, `i_cod_flag_note`, ';
-		$sql3   .= "DATE_FORMAT(`i_data_decorrenza`, '" . esc_sql( $local_date_format_mysql ) . "') AS `i_data_decorrenza` FROM `" . GCMI_TABLE_PREFIX . 'comuni_variazioni` ';
-		$sql3   .= "WHERE (`i_cod_comune` = '" . esc_sql( $i_cod_comune ) . "' OR `i_cod_comune_nuovo` = '" . esc_sql( $i_cod_comune ) . "')";
-		$results = $wpdb->get_results( $sql3 );
-		if ( count( $results ) > 0 ) { // ci sono state delle variazioni
+		$cache_key = 'gcmi_variazioni_comune_' . $i_cod_comune;
+		$results   = wp_cache_get( $cache_key, GCMI_CACHE_GROUP );
+		if ( false === $results ) {
+			$sql3    = 'SELECT `i_anno_var`, `i_tipo_var`, `i_cod_comune`,`i_denominazione_full`, ';
+			$sql3   .= '`i_cod_comune_nuovo`,  `i_denominazione_nuovo`, `i_documento`, `i_contenuto`, `i_cod_flag_note`, ';
+			$sql3   .= "DATE_FORMAT(`i_data_decorrenza`, '" . esc_sql( $local_date_format_mysql ) . "') AS `i_data_decorrenza` FROM `" . GCMI_TABLE_PREFIX . 'comuni_variazioni` ';
+			$sql3   .= "WHERE (`i_cod_comune` = '" . esc_sql( $i_cod_comune ) . "' OR `i_cod_comune_nuovo` = '" . esc_sql( $i_cod_comune ) . "')";
+			$results = $wpdb->get_results( $sql3 ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+			wp_cache_set( $cache_key, $results, GCMI_CACHE_GROUP, GCMI_CACHE_EXPIRE_SECS );
+		}
+		if ( count( $results ) > 0 ) { // ci sono state delle variazioni.
 			$table .= '</br>';
 			$table .= '<table class="gcmiT2">';
 			$table .= '<tr>';
@@ -677,7 +737,7 @@ class GCMI_COMUNE {
 						$tooltip = esc_html( __( 'AQES: Incorporation of the territory of one or more suppressed municipalities. The variation has no effect on the code of the municipality that incorporates', 'campi-moduli-italiani' ) );
 						break;
 					case 'AQ':
-						  $tooltip = esc_html( __( 'AQ: Territory acquisition', 'campi-moduli-italiani' ) );
+						$tooltip = esc_html( __( 'AQ: Territory acquisition', 'campi-moduli-italiani' ) );
 						break;
 					case 'CE':
 						$tooltip = esc_html( __( 'CE: Land transfer', 'campi-moduli-italiani' ) );
@@ -688,6 +748,8 @@ class GCMI_COMUNE {
 					case 'AP':
 						$tooltip = esc_html( __( 'AP: Change of belonging to the hierarchically superior administrative unit (typically, a change of province and or region).', 'campi-moduli-italiani' ) );
 						break;
+					default:
+						$tooltip = '';
 				}
 
 				$table .= '<tr>';
@@ -759,7 +821,24 @@ class GCMI_COMUNE {
 		}
 		$table .= '</div>';
 
-		echo $table;
+		$allowed_html = array(
+			'div'   => array(),
+			'table' => array(
+				'class' => array(),
+			),
+			'tr'    => array(),
+			'td'    => array(
+				'rowspan' => array(),
+				'class'   => array(),
+			),
+			'span'  => array(
+				'id'    => array(),
+				'title' => array(),
+			),
+			'br'    => array(),
+			'b'     => array(),
+		);
+		echo wp_kses( $table, $allowed_html );
 		wp_die();
 	}
 
@@ -775,9 +854,9 @@ class GCMI_COMUNE {
 	 *
 	 * @since 1.2.0
 	 *
-	 * @param string $i_cod_comune Il codice ISTAT del comune
-	 *
-	 * @param string $kind         uno tra 'tutti', 'attuali', 'evidenza_cessati'
+	 * @param string $i_cod_comune Il codice ISTAT del comune.
+	 * @param string $kind         uno tra 'tutti', 'attuali', 'evidenza_cessati'.
+	 * @return string
 	 */
 	public static function gcmi_get_data_from_comune( $i_cod_comune, $kind ) {
 		global $wpdb;
@@ -786,6 +865,8 @@ class GCMI_COMUNE {
 			return '';
 		}
 
+		$output_string = '';
+
 		$cache_key = 'gcmi_data_from_comune_' . strval( $i_cod_comune );
 		$results   = wp_cache_get( $cache_key, GCMI_CACHE_GROUP );
 
@@ -793,13 +874,13 @@ class GCMI_COMUNE {
 			$sql1    = 'SELECT `i_cod_regione`, `i_cod_unita_territoriale`, `i_sigla_automobilistica` ';
 			$sql1   .= 'FROM `' . GCMI_TABLE_PREFIX . 'comuni_attuali` ';
 			$sql1   .= "WHERE `i_cod_comune` = '" . esc_sql( $i_cod_comune ) . "' LIMIT 1";
-			$results = $wpdb->get_row( $sql1, ARRAY_A );
+			$results = $wpdb->get_row( $sql1, ARRAY_A ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 		}
 		if ( $results ) {
 			wp_cache_set( $cache_key, $results, GCMI_CACHE_GROUP, GCMI_CACHE_EXPIRE_SECS );
 			$output_string = $results['i_cod_regione'] . $results['i_cod_unita_territoriale'] . $i_cod_comune;
 		} else { // non ha trovato nulla nei comuni attuali.
-			if ( 'attuali' != $kind ) {
+			if ( 'attuali' !== $kind ) {
 				$cache_key = 'gcmi_data_from_comune_cessato_' . strval( $i_cod_comune );
 				$results   = wp_cache_get( $cache_key, GCMI_CACHE_GROUP );
 				if ( false === $results ) {
@@ -807,13 +888,13 @@ class GCMI_COMUNE {
 					$sql2 .= 'FROM `' . GCMI_TABLE_PREFIX . 'comuni_soppressi` ';
 					$sql2 .= "WHERE `i_cod_comune` = '" . esc_sql( $i_cod_comune ) . "' LIMIT 1";
 
-					$results = $wpdb->get_row( $sql2, ARRAY_A );
+					$results = $wpdb->get_row( $sql2, ARRAY_A ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 					wp_cache_set( $cache_key, $results, GCMI_CACHE_GROUP, GCMI_CACHE_EXPIRE_SECS );
 				}
 				$targa         = $results['i_sigla_automobilistica'];
 				$old_provincia = $results['i_cod_unita_territoriale'];
 
-				if ( '7' == substr( $old_provincia, 0, 1 ) ) { // Istria e Dalmazia
+				if ( '7' === substr( $old_provincia, 0, 1 ) ) { // Istria e Dalmazia.
 					$cod_provincia = $old_provincia;
 					$cod_regione   = self::$def_strings['COD_REG_ISDA'];
 				} else {
@@ -824,7 +905,7 @@ class GCMI_COMUNE {
 						$sql3 .= 'FROM `' . GCMI_TABLE_PREFIX . 'comuni_attuali` ';
 						$sql3 .= 'WHERE `' . GCMI_TABLE_PREFIX . "comuni_attuali`.`i_sigla_automobilistica` = '" . esc_sql( $targa ) . "' LIMIT 1";
 
-						$results = $wpdb->get_row( $sql3, ARRAY_A );
+						$results = $wpdb->get_row( $sql3, ARRAY_A ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 						wp_cache_set( $cache_key, $results, GCMI_CACHE_GROUP, GCMI_CACHE_EXPIRE_SECS );
 					}
 
@@ -832,11 +913,11 @@ class GCMI_COMUNE {
 					$cod_regione   = $results['i_cod_regione'];
 				}
 
-				if ( 'evidenza_cessati' == $kind ) {
+				if ( 'evidenza_cessati' === $kind ) {
 					$output_string = $cod_regione . $cod_provincia . $i_cod_comune;
 				}
 
-				if ( 'tutti' == $kind ) {
+				if ( 'tutti' === $kind ) {
 					$output_string = self::$def_strings['COD_REG_SOPP'] . $cod_provincia . $i_cod_comune;
 				}
 			} else {
