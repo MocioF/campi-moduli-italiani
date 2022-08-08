@@ -39,6 +39,7 @@ class GCMI_COMUNE_WPCF7_FormTag extends GCMI_COMUNE {
 	private $name;
 
 	/**
+	 * Tag attributes
 	 *
 	 * @var array<string> Tag attributes.
 	 * @access private
@@ -64,12 +65,15 @@ class GCMI_COMUNE_WPCF7_FormTag extends GCMI_COMUNE {
 	private $use_label_element;
 
 	/**
+	 * Errore di validazione
 	 *
-	 * @var string The validation error.
+	 * @var string Validation error message in a form of HTML snippet.
 	 */
 	private $validation_error;
 
 	/**
+	 * Valore pre impostato per il comune
+	 *
 	 * @since 1.0.0
 	 * @access private
 	 * @var string $preset_value Municipality ISTAT code selected by default.
@@ -77,27 +81,45 @@ class GCMI_COMUNE_WPCF7_FormTag extends GCMI_COMUNE {
 	private $preset_value;
 
 	/**
+	 * Stringa classi per il wrapper
+	 *
+	 * @access private
+	 * @var string $wr_class Stringa contenente le classi utilizzate per il wrapper.
+	 */
+	private $wr_class;
+
+	/**
 	 * Class constructor
 	 *
-	 * @param string         $name HTML name attribute.
-	 * @param type           $atts form-tag attributes.
-	 * @param array<integer> $options form-tag options.
-	 * @param string         $validation_error The validation error showed.
-	 * @param type           $wr_class
-	 * @param string         $preset_value The ISTAT municipality code set as selected.
+	 * @param string        $name HTML name attribute.
+	 * @param array<string> $atts form-tag attributes.
+	 * @param array{
+	 * 'wr_class'?: array<string>,
+	 * 'comu_details': boolean,
+	 * 'use_label_element': boolean,
+	 * 'kind': string|false
+	 * } $options form-tag options.
+	 * @param string        $validation_error The validation error showed.
+	 * @param string        $preset_value The ISTAT municipality code set as selected.
 	 */
-	public function __construct( $name, $atts, $options, $validation_error, $wr_class, $preset_value ) {
+	public function __construct( $name, $atts, $options, $validation_error, $preset_value ) {
 		if ( ! parent::is_valid_kind( $options['kind'] ) ) {
 			$this->kind = 'tutti';
 		} else {
-			$this->kind = $options['kind'];
+			$this->kind = strval( $options['kind'] );
 		}
 		$this->name              = sanitize_html_class( $name );
 		$this->atts              = $atts;
 		$this->comu_details      = $options['comu_details'];
 		$this->use_label_element = $options['use_label_element'];
 		$this->validation_error  = $validation_error;
-		$this->wr_class          = $wr_class;
+		$this->wr_class          = '';
+
+		if ( isset( $options['wr_class'] ) && is_array( $options['wr_class'] ) ) {
+			$sanitized_classes = array_map( 'sanitize_html_class', $options['wr_class'] );
+			$this->wr_class    = ' ';
+			$this->wr_class   .= implode( ' ', $sanitized_classes );
+		}
 
 		if ( parent::is_valid_cod_comune( $preset_value ) ) {
 			$this->preset_value = $preset_value;
@@ -117,9 +139,7 @@ class GCMI_COMUNE_WPCF7_FormTag extends GCMI_COMUNE {
 		$atts         = $this->atts;
 		$wr_class     = $this->wr_class;
 		$comu_details = $this->comu_details;
-		$my_ids       = parent::getIDs( $atts['id'] );
-		$helperclass  = 'class = "' . $this->atts['helperclass'] . '"';
-		unset( $atts['helperclass'] );
+		$my_ids       = parent::get_ids( $atts['id'] );
 		unset( $atts['id'] );
 		$atts = wpcf7_format_atts( $atts );
 
@@ -129,7 +149,7 @@ class GCMI_COMUNE_WPCF7_FormTag extends GCMI_COMUNE {
 		if ( $this->use_label_element ) {
 			$uno .= '<label for="' . $my_ids['reg'] . '">' . __( 'Select a region:', 'campi-moduli-italiani' ) . '<br /></label>';
 		}
-		$uno .= '<select name="' . $this->name . '_IDReg" id="' . $my_ids['reg'] . '" ' . $helperclass . '>';
+		$uno .= '<select name="' . $this->name . '_IDReg" id="' . $my_ids['reg'] . '" ' . $atts . '>';
 		$uno .= '<option value="">' . __( 'Select a region', 'campi-moduli-italiani' ) . '</option>';
 		foreach ( $regioni as $val ) {
 			$uno .= '<option value="' . $val['i_cod_regione'] . '">' . $val['i_den_regione'] . '</option>';
@@ -140,7 +160,7 @@ class GCMI_COMUNE_WPCF7_FormTag extends GCMI_COMUNE {
 		if ( $this->use_label_element ) {
 			$due .= '<label for="' . $my_ids['pro'] . '">' . __( 'Select a province:', 'campi-moduli-italiani' ) . '<br /></label>';
 		}
-		$due .= '<select name="' . $this->name . '_IDPro" id="' . $my_ids['pro'] . '" ' . $helperclass . '>';
+		$due .= '<select name="' . $this->name . '_IDPro" id="' . $my_ids['pro'] . '" ' . $atts . '>';
 		$due .= '<option value="">' . __( 'Select a province', 'campi-moduli-italiani' ) . '</option>';
 		$due .= '</select>';
 
@@ -152,7 +172,7 @@ class GCMI_COMUNE_WPCF7_FormTag extends GCMI_COMUNE {
 		$tre .= '<select name="' . $this->name . '" id="' . $my_ids['com'] . '" ' . $atts;
 
 		// gestione valore predefinito.
-		if ( $this->preset_value != '' ) {
+		if ( '' !== $this->preset_value ) {
 			$tre .= ' data-prval="';
 			$tre .= parent::gcmi_get_data_from_comune( $this->preset_value, $this->kind ) . '"';
 		}
@@ -162,7 +182,7 @@ class GCMI_COMUNE_WPCF7_FormTag extends GCMI_COMUNE {
 		$tre .= '</select>';
 
 		if ( $comu_details ) {
-			$tre .= '<img src="' . plugin_dir_url( GCMI_PLUGIN ) . '/img/gcmi_info.png" width="30" height="30" id="' . $my_ids['ico'] . '" style="vertical-align: middle; margin-top: 10px; margin-bottom: 10px; margin-right: 10px; margin-left: 10px;">';
+			$tre .= '<img src="' . plugin_dir_url( GCMI_PLUGIN ) . '/img/gcmi_info.png" width="30" height="30" id="' . $my_ids['ico'] . '" class="gcmi-info-image">';
 		}
 
 		$quattro  = '<input type="hidden" name="' . $this->name . '_kind" id="' . $my_ids['kin'] . '" value="' . $this->kind . '" />';
@@ -176,7 +196,7 @@ class GCMI_COMUNE_WPCF7_FormTag extends GCMI_COMUNE {
 		$quattro .= '<input class="comu_mail" type="hidden" name="' . $this->name . '_formatted" id="' . $my_ids['form'] . '"/>';
 
 		if ( $comu_details ) {
-			$quattro .= '<span id="' . $my_ids['info'] . '" title="' . __( 'Municipality details', 'campi-moduli-italiani' ) . '"' . $helperclass . '></span>';
+			$quattro .= '<span id="' . $my_ids['info'] . '" title="' . __( 'Municipality details', 'campi-moduli-italiani' ) . '" ></span>';
 		}
 
 		/*
@@ -188,12 +208,17 @@ class GCMI_COMUNE_WPCF7_FormTag extends GCMI_COMUNE {
 			$html = '<span class="wpcf7-form-control-wrap ' . $this->name . '">';
 		}
 
-		$html .= '<span class="gcmi-wrap ' . $this->wr_class . '">' . $uno . $due . $tre . $quattro . '</span>';
+		$html .= '<span class="gcmi-wrap' . $this->wr_class . '">' . $uno . $due . $tre . $quattro . '</span>';
 		$html .= $this->validation_error . '</span>';
 
 		return $html;
 	}
 
+	/**
+	 * Aggiunge i filtri di validazione per comune e i filtri di sostituzione per il mail-tag
+	 *
+	 * @return void
+	 */
 	public static function gcmi_comune_WPCF7_addfilter() {
 		/* validation filter */
 		if ( ! function_exists( 'wpcf7_select_validation_filter' ) ) {
@@ -206,9 +231,13 @@ class GCMI_COMUNE_WPCF7_FormTag extends GCMI_COMUNE {
 		add_filter(
 			'wpcf7_mail_tag_replaced_comune*',
 			function ( $replaced, $submitted, $html, $mail_tag ) {
-				$MyName                = $mail_tag->field_name();
-				$Nome_campo_formattato = $MyName . '_formatted';
-				$replaced              = $_POST[ $Nome_campo_formattato ];
+				$my_name               = $mail_tag->field_name();
+				$nome_campo_formattato = $my_name . '_formatted';
+				if ( isset( $_POST[ $nome_campo_formattato ] ) ) {
+					$replaced = sanitize_text_field( wp_unslash( $_POST[ $nome_campo_formattato ] ) );
+				} else {
+					$replaced = '';
+				}
 				return $replaced;
 			},
 			10,
@@ -217,9 +246,13 @@ class GCMI_COMUNE_WPCF7_FormTag extends GCMI_COMUNE {
 		add_filter(
 			'wpcf7_mail_tag_replaced_comune',
 			function ( $replaced, $submitted, $html, $mail_tag ) {
-				$MyName                = $mail_tag->field_name();
-				$Nome_campo_formattato = $MyName . '_formatted';
-				$replaced              = $_POST[ $Nome_campo_formattato ];
+				$my_name               = $mail_tag->field_name();
+				$nome_campo_formattato = $my_name . '_formatted';
+				if ( isset( $_POST[ $nome_campo_formattato ] ) ) {
+					$replaced = sanitize_text_field( wp_unslash( $_POST[ $nome_campo_formattato ] ) );
+				} else {
+					$replaced = '';
+				}
 				return $replaced;
 			},
 			10,

@@ -28,6 +28,15 @@
 	width: 80%;
 }
 
+/* classe dell'icona per la visualizzazione dei dettagli del comune */
+.gcmi-info-image img {
+	vertical-align: middle;
+	margin-top: 10px;
+	margin-bottom: 10px;
+	margin-right: 10px;
+	margin-left: 10px;
+}
+
 /* evita visualizzazioni errate se nel tema è attivato wpcf7_support_html5_fallback */
 .ui-dialog-titlebar-close {
 	display: block;

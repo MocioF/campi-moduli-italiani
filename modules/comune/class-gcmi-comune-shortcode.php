@@ -80,7 +80,13 @@ class GCMI_COMUNE_ShortCode extends GCMI_COMUNE {
 	/**
 	 * Class constructor
 	 *
-	 * @param array<string> $atts Attributes for the select's combo.
+	 * @param array{
+	 * 'name': string,
+	 * 'kind': string,
+	 * 'id': string,
+	 * 'comu_details': boolean,
+	 * 'class': string,
+	 * 'use_label_element': boolean } $atts Attributes for the select's combo.
 	 */
 	public function __construct( $atts ) {
 		if ( ! parent::is_valid_kind( $atts['kind'] ) ) {
@@ -93,8 +99,8 @@ class GCMI_COMUNE_ShortCode extends GCMI_COMUNE {
 		if ( preg_match( '/^[a-zA-Z][\w:.-]*$/', $atts['id'] ) ) {
 				$this->id = $atts['id'];
 		}
-		$this->comu_details      = ( $atts['comu_details'] === true ? true : false );
-		$this->use_label_element = ( $atts['use_label_element'] === true ? true : false );
+		$this->comu_details      = ( true === $atts['comu_details'] ? true : false );
+		$this->use_label_element = ( true === $atts['use_label_element'] ? true : false );
 	}
 
 	/**
@@ -106,7 +112,7 @@ class GCMI_COMUNE_ShortCode extends GCMI_COMUNE {
 		parent::gcmi_comune_enqueue_scripts();
 
 		$regioni = $this->gcmi_start( $this->kind );
-		$my_ids  = parent::getIDs( $this->id );
+		$my_ids  = parent::get_ids( $this->id );
 
 		$uno = '';
 		if ( $this->use_label_element ) {

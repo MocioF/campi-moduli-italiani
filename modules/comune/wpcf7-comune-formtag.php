@@ -27,7 +27,7 @@ function add_form_tag_gcmi_comune() {
 /**
  * Comune's form tag handler
  *
- * @param array<string> $tag The CF7 tag object.
+ * @param WPCF7_FormTag $tag The CF7 tag object.
  * @return string
  */
 function wpcf7_gcmi_comune_formtag_handler( $tag ) {
@@ -39,33 +39,16 @@ function wpcf7_gcmi_comune_formtag_handler( $tag ) {
 
 	$validation_error = wpcf7_get_validation_error( $tag->name );
 
-	$typebase = rtrim( $tag->type, '*' );
-	$required = ( '*' === substr( $tag->type, -1 ) );
-	if ( $required ) {
-		$class = wpcf7_form_controls_class( 'comune*' );
-	} else {
-		$class = wpcf7_form_controls_class( 'comune' );
-	}
-
-	if ( $validation_error ) {
-		$class .= ' wpcf7-not-valid';
-	}
+	$class = wpcf7_form_controls_class( $tag->type, 'wpcf7-select' );
 
 	$atts = array();
 
-	$atts['class'] = 'wpcf7-select ' . $tag->get_class_option( $class );
-		$default   = '';
-	if ( is_string( $default ) ) {
-		$default = explode( ' ', $default );
+	$atts['class'] = $tag->get_class_option( $class );
+
+	$wr_class_array = $tag->get_option( 'wrapper_class', 'class', false );
+	if ( false !== ( $wr_class_array ) ) {
+		$options['wr_class'] = $wr_class_array;
 	}
-	$options = array_merge(
-		(array) $default,
-		(array) $tag->get_option( 'wrapper_class', 'class' )
-	);
-
-	$options = array_filter( array_unique( $options ) );
-
-	$wr_class = implode( ' ', $options );
 
 	if ( $tag->is_required() ) {
 		$atts['aria-required'] = 'true';
@@ -74,23 +57,25 @@ function wpcf7_gcmi_comune_formtag_handler( $tag ) {
 
 	$atts['id'] = $tag->get_id_option();
 
-	// usata per le altre select del campo (sempre non richieste).
-	$atts['helperclass'] = 'wpcf7-select ' . $tag->get_class_option( wpcf7_form_controls_class( 'comune' ) );
-	$kind                = $tag->get_option( 'kind', '', true );
+	$kind = strval( $tag->get_option( 'kind', '', true ) );
 
 	$options['kind']              = $kind;
 	$options['comu_details']      = $tag->has_option( 'comu_details' );
 	$options['use_label_element'] = $tag->has_option( 'use_label_element' );
 
 	// codice per gestire i valori di default.
-	$value        = (string) reset( $tag->values );
-	$value        = $tag->get_default_option( $value );
-	$value        = wpcf7_get_hangover( $tag->name, $value );
-	$preset_value = $value;
+	$value = (string) reset( $tag->values );
+	$value = $tag->get_default_option( $value );
+	if ( is_string( $value ) ) {
+		$value        = wpcf7_get_hangover( $tag->name, $value );
+		$preset_value = $value;
+	} else {
+		$preset_value = '';
+	}
 
-	$gcmi_Comune_FT = new GCMI_COMUNE_WPCF7_FormTag( $tag->name, $atts, $options, $validation_error, $wr_class, $preset_value );
+	$gcmi_comune_ft = new GCMI_COMUNE_WPCF7_FormTag( $tag->name, $atts, $options, $validation_error, $preset_value );
 
-	return $gcmi_Comune_FT->get_html();
+	return $gcmi_comune_ft->get_html();
 }
 
 GCMI_COMUNE_WPCF7_FormTag::gcmi_comune_WPCF7_addfilter();
@@ -101,8 +86,10 @@ add_action( 'wpcf7_admin_init', 'wpcf7_add_tag_generator_gcmi_comune', 35 );
 
 /**
  * Adds the comune form tag generator in cf7 modules builder.
+ *
+ * @return void
  */
-function wpcf7_add_tag_generator_gcmi_comune() {
+function wpcf7_add_tag_generator_gcmi_comune(): void {
 	if ( class_exists( 'WPCF7_TagGenerator' ) ) {
 		$tag_generator = WPCF7_TagGenerator::get_instance();
 		$tag_generator->add( 'gcmi-comune', __( 'Select Italian municipality', 'campi-moduli-italiani' ), 'wpcf7_tg_pane_gcmi_comune' );
@@ -114,19 +101,29 @@ function wpcf7_add_tag_generator_gcmi_comune() {
 /**
  * Creates html for Contact form 7 panel
  *
- * @param mixed $contact_form The form object.
- * @param array<string> $args FormTag builder args.
+ * @param WPCF7_ContactForm    $contact_form The form object.
+ * @param array<string>|string $args FormTag builder args.
+ * @return void
  */
-function wpcf7_tg_pane_gcmi_comune( $contact_form, $args = '' ) {
+function wpcf7_tg_pane_gcmi_comune( $contact_form, $args = '' ): void {
 	$args = wp_parse_args( $args, array() );
 	/* translators: %s: link to plugin page URL */
 	$description = __( 'Creates a tag for a concatenated selection of an Italian municipality. To get more information look at %s.', 'campi-moduli-italiani' );
 	$desc_link   = wpcf7_link( 'https://wordpress.org/plugins/campi-moduli-italiani/', __( 'the plugin page at WordPress.org', 'campi-moduli-italiani' ), array( 'target' => '_blank' ) );
 	?>
+	<script type="text/javascript">
+		// This is is needed to simulate tag-generator.js wpcf7.taggen.compose  if ( 'class' == $( this ).attr( 'name' ) ) for wrapper_class.
+		function toggle_wr_class() {
+			e = document.getElementById("<?php echo esc_attr( $args['content'] . '-wrapper-class' ); ?>");
+			val = e.value.trim();
+			val = val.replace( ' wrapper_class:', ' ' );
+			val = val.replace( ' ', ' wrapper_class:');
+			e.value = val;
+		}
+	</script>
 	<div class="control-box">
 		<fieldset>
 			<legend><?php printf( esc_html( $description ), $desc_link ); ?></legend>
-			<?php print_r( $args ); ?>
 			<table class="form-table">
 				<tbody>
 					<tr>
@@ -152,9 +149,9 @@ function wpcf7_tg_pane_gcmi_comune( $contact_form, $args = '' ) {
 						<td>
 							<fieldset>	
 								<legend class="screen-reader-text"><?php echo esc_html( __( 'Type (default "Every: current and deleted")', 'campi-moduli-italiani' ) ); ?></legend>
-								<input type="radio" class="classvalue option" id="<?php echo esc_attr( $args['content'] . '-tutti' ); ?>" name="kind" value="tutti"><label for="<?php echo esc_attr( $args['content'] . '-tutti' ); ?>"><?php _e( 'every', 'campi-moduli-italiani' ); ?></label><br />
-								<input type="radio" class="classvalue option" id="<?php echo esc_attr( $args['content'] . '-attuali' ); ?>" name="kind" value="attuali"><label for="<?php echo esc_attr( $args['content'] . '-attuali' ); ?>"><?php _e( 'only current', 'campi-moduli-italiani' ); ?></label><br />
-								<input type="radio" class="classvalue option" id="<?php echo esc_attr( $args['content'] . '-evidenza_cessati' ); ?>" name="kind" value="evidenza_cessati"><label for="<?php echo esc_attr( $args['content'] . '-evidenza_cessati' ); ?>"><?php _e( 'highlights deleted', 'campi-moduli-italiani' ); ?></label><br/ >
+								<input type="radio" class="option" id="<?php echo esc_attr( $args['content'] . '-tutti' ); ?>" name="kind" value="tutti"><label for="<?php echo esc_attr( $args['content'] . '-tutti' ); ?>"><?php esc_html_e( 'every', 'campi-moduli-italiani' ); ?></label><br />
+								<input type="radio" class="option" id="<?php echo esc_attr( $args['content'] . '-attuali' ); ?>" name="kind" value="attuali"><label for="<?php echo esc_attr( $args['content'] . '-attuali' ); ?>"><?php esc_html_e( 'only current', 'campi-moduli-italiani' ); ?></label><br />
+								<input type="radio" class="option" id="<?php echo esc_attr( $args['content'] . '-evidenza_cessati' ); ?>" name="kind" value="evidenza_cessati"><label for="<?php echo esc_attr( $args['content'] . '-evidenza_cessati' ); ?>"><?php esc_html_e( 'highlights deleted', 'campi-moduli-italiani' ); ?></label><br/ >
 							</fieldset>
 						</td>
 					</tr>
@@ -174,7 +171,7 @@ function wpcf7_tg_pane_gcmi_comune( $contact_form, $args = '' ) {
 					</tr>
 					<tr>
 						<th scope="row"><label for="<?php echo esc_attr( $args['content'] . '-wrapper-class' ); ?>"><?php echo esc_html( __( 'Wrapper class attribute', 'campi-moduli-italiani' ) ); ?></label></th>
-						<td><input type="text" name="wrapper_class" class="classvalue oneline option" id="<?php echo esc_attr( $args['content'] . '-wrapper-class' ); ?>" /></td>
+						<td><input type="text" name="wrapper_class" class="oneline option" id="<?php echo esc_attr( $args['content'] . '-wrapper-class' ); ?>" onchange="toggle_wr_class()"/></td>
 					</tr>
 					<tr>
 						<th scope="row"><label for="<?php echo esc_attr( $args['content'] . '-class' ); ?>"><?php echo esc_html( __( 'Select class attribute', 'campi-moduli-italiani' ) ); ?></label></th>
@@ -192,7 +189,6 @@ function wpcf7_tg_pane_gcmi_comune( $contact_form, $args = '' ) {
 		</div>
 
 		<br class="clear" />
-
 		<p class="description mail-tag"><label for="<?php echo esc_attr( $args['content'] . '-mailtag' ); ?>"><?php echo sprintf( esc_html( __( 'To use the value input through this field in a mail field, you need to insert the corresponding mail-tag (%s) into the field on the Mail tab.', 'contact-form-7' ) ), '<strong><span class="mail-tag"></span></strong>' ); ?><input type="text" class="mail-tag code hidden" readonly="readonly" id="<?php echo esc_attr( $args['content'] . '-mailtag' ); ?>" /></label></p>
 	</div>
 	<?php

@@ -72,7 +72,7 @@ class GCMI_COMUNE {
 	/**
 	 * Checks if setted kind is valid
 	 *
-	 * @param string $kind One of 'tutti', 'attuali', 'evidenza_cessati'.
+	 * @param string|false $kind One of 'tutti', 'attuali', 'evidenza_cessati'.
 	 * @return boolean
 	 */
 	protected static function is_valid_kind( $kind ) {
