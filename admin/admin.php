@@ -25,7 +25,6 @@ function is_wpcf7_active() {
  * Creo il menu di amministrazione.
  */
 function gcmi_admin_menu() {
-
 	global $_wp_last_object_menu;
 
 	$_wp_last_object_menu++;
@@ -175,7 +174,7 @@ function gcmi_update_table( $fname ) {
 		)
 		   ) {
 			$error_title = __( 'Remote file download error', 'campi-moduli-italiani' );
-			
+
 			/* translators: %s is the URL of the file it attempted to download */
 			$error_message = sprintf( __( 'Unable to download %s', 'campi-moduli-italiani' ), $database_file_info[ $id ]['remote_URL'] );
 			wp_die( $error_message, $error_title );

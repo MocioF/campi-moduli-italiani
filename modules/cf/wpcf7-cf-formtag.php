@@ -16,7 +16,6 @@ function add_form_tag_gcmi_cf() {
 }
 
 function wpcf7_gcmi_cf_formtag_handler( $tag ) {
-
 	if ( empty( $tag->name ) ) {
 		return '';
 	}
@@ -43,7 +42,7 @@ function wpcf7_gcmi_cf_formtag_handler( $tag ) {
 	}
 
 	if ( $validation_error ) {
-		$atts['aria-invalid'] = 'true';
+		$atts['aria-invalid']     = 'true';
 		$atts['aria-describedby'] = wpcf7_get_validation_error_reference(
 			$tag->name
 		);

@@ -24,14 +24,12 @@ class GCMI_CF_WPCF7_FormTag {
 			10,
 			4
 		);
-
 	}
 
 	public static function cf_validation_filter( $result, $tag ) {
 		global $wpdb;
 
 		if ( $name = $tag->name ) {
-
 			$is_required = $tag->is_required();
 			$value       = isset( $_POST[ $name ] ) ? $_POST[ $name ] : '';
 			if ( $is_required and empty( $value ) ) {
@@ -80,7 +78,6 @@ class GCMI_CF_WPCF7_FormTag {
 						if ( $nconsonanti >= 3 ) {
 							$parte_cognome = $matches2[0][0] . $matches2[0][1] . $matches2[0][2];
 						} else {
-
 							for ( $i = 0; $i < $nconsonanti; $i++ ) {
 								  $parte_cognome = $parte_cognome . $matches2[0][ $i ];
 							}

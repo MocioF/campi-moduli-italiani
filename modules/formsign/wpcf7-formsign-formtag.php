@@ -40,9 +40,9 @@ function add_form_tag_gcmi_formsign() {
 }
 
 /**
- * Call back function for formsign formtag.
+ * Call back function for formsign form-tag.
  *
- * Call back function for formsign formtag.
+ * Call back function for formsign form-tag.
  *
  * @since 1.0.0
  *

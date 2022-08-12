@@ -7,7 +7,6 @@ class Remote_Files_List extends WP_List_Table {
 
 	/** Class constructor */
 	public function __construct() {
-
 		parent::__construct(
 			array(
 				'singular' => 'fname', // singular name of the listed records
@@ -19,7 +18,7 @@ class Remote_Files_List extends WP_List_Table {
 
 	function get_columns() {
 		$columns = array(
-			'cb'         => '<input type="checkbox" />',
+			'cb'              => '<input type="checkbox" />',
 			'gcmi-dataname'   => __( 'Data', 'campi-moduli-italiani' ),
 			'gcmi-icon'       => __( 'Status', 'campi-moduli-italiani' ),
 			'gcmi-remotedate' => __( 'Last modified date of remote file', 'campi-moduli-italiani' ),
@@ -132,7 +131,6 @@ class Remote_Files_List extends WP_List_Table {
 
 		 // security check!
 		if ( isset( $_POST['_wpnonce'] ) && ! empty( $_POST['_wpnonce'] ) ) {
-
 			$nonce  = filter_input( INPUT_POST, '_wpnonce', FILTER_SANITIZE_STRING );
 			$action = 'bulk-' . $this->_args['plural'];
 

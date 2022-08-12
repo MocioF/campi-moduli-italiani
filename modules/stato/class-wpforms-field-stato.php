@@ -583,7 +583,6 @@ class WPForms_Field_Stato extends WPForms_Field {
 		foreach ( $fields as $key => $field ) {
 			if ( $this->type === $field['type'] ) {
 				if ( ( '' !== $field['value'] ) && ( is_numeric( $field['value'] ) ) ) {
-
 					$cache_key = 'stato_ita_rowobj_' . strval( $field['value'] );
 					$stato     = wp_cache_get( $cache_key, GCMI_CACHE_GROUP );
 					if ( false === $stato ) {
@@ -663,7 +662,6 @@ class WPForms_Field_Stato extends WPForms_Field {
 	 * @param array $forms Forms on the current page.
 	 */
 	public function enqueue_frontend_css( $forms ) {
-
 		$has_modern_select = false;
 
 		foreach ( $forms as $form ) {
@@ -694,7 +692,6 @@ class WPForms_Field_Stato extends WPForms_Field {
 	 * @param array $forms Forms on the current page.
 	 */
 	public function enqueue_frontend_js( $forms ) {
-
 		$has_modern_select = false;
 
 		foreach ( $forms as $form ) {
@@ -721,16 +718,13 @@ class WPForms_Field_Stato extends WPForms_Field {
 	 * @return bool
 	 */
 	protected function is_field_style( $form, $style ) {
-
 		$is_field_style = false;
 
 		if ( empty( $form['fields'] ) ) {
-
 			return $is_field_style;
 		}
 
 		foreach ( (array) $form['fields'] as $field ) {
-
 			if (
 				! empty( $field['type'] ) &&
 				$field['type'] === $this->type &&
@@ -758,7 +752,6 @@ class WPForms_Field_Stato extends WPForms_Field {
 	 * @return string
 	 */
 	public function ajax_error_field_name( $name, $field, $props, $error ) {
-
 		if ( ! isset( $field['type'] ) || 'select' !== $field['type'] ) {
 			return $name;
 		}
