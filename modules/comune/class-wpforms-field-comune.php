@@ -570,7 +570,7 @@ class WPForms_Field_Comune extends WPForms_Field {
 		$tre                      .= '<option value="">' . __( 'Select a municipality', 'campi-moduli-italiani' ) . '</option>';
 		$tre                      .= '</select>';
 		if ( $comu_details ) {
-			$tre .= '<img src="' . plugin_dir_url( GCMI_PLUGIN ) . '/img/gcmi_info.png" width="30" height="30" id="' . $my_ids['ico'] . '" style="vertical-align: middle; margin-top: 10px; margin-bottom: 10px; margin-right: 10px; margin-left: 10px;">';
+			$tre .= '<img src="' . plugin_dir_url( GCMI_PLUGIN ) . '/img/gcmi_info.png" width="30" height="30" id="' . $my_ids['ico'] . '" class="gcmi-info-image">';
 		}
 
 		$quattro  = '<input type="hidden" name="' . $prefix_name . '[kind]" id="' . $my_ids['kin'] . '" value="' . $kind . '" />';
