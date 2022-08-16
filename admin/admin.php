@@ -1,12 +1,30 @@
 <?php
+/**
+ * The admin-specific functionality of the plugin.
+ *
+ * @link https://wordpress.org/plugins/campi-moduli-italiani/
+ * @since      1.0.0
+ *
+ * @package campi-moduli-italiani
+ * @subpackage campi-moduli-italiani/admin
+ */
 
+/**
+ * Requires help tabs file.
+ */
 require_once GCMI_PLUGIN_DIR . '/admin/includes/help-tabs.php';
+
+/**
+ * Requires class that extends wp_list_table.
+ */
 require_once GCMI_PLUGIN_DIR . '/admin/includes/class-gcmi-remote-files-list-table.php';
 
 add_action( 'admin_init', 'gcmi_admin_init', 10, 0 );
 
 /**
  * Creo il mio nuovo hook
+ *
+ * @return void
  */
 function gcmi_admin_init() {
 	do_action( 'gcmi_admin_init' );
@@ -15,14 +33,20 @@ function gcmi_admin_init() {
 add_action( 'admin_menu', 'gcmi_admin_menu', 9, 0 );
 
 /**
- * All'avvio controllo se è installato CF7.
+ * Controlla se è installato CF7.
+ *
+ * La funzione non è utilizzata.
+ *
+ * @return boolean
  */
-function is_wpcf7_active() {
+function gcmi_is_wpcf7_active() {
 	return is_plugin_active( 'contact-form-7/wp-contact-form-7.php' );
 }
 
 /**
  * Creo il menu di amministrazione.
+ *
+ * @return void
  */
 function gcmi_admin_menu() {
 	global $_wp_last_object_menu;
@@ -57,31 +81,36 @@ function gcmi_admin_menu() {
 
 /**
  * Carica la pagina di admin
+ *
+ * @return void
  */
 function gcmi_load_contact_form_admin() {
 	global $plugin_page;
 
 	$current_screen = get_current_screen();
-
-	$help_tabs = new GCMI_Help_Tabs( $current_screen );
-	$help_tabs->set_help_tabs( 'gcmi' );
+	if ( ! is_null( $current_screen ) ) {
+		$help_tabs = new GCMI_Help_Tabs( $current_screen );
+		$help_tabs->set_help_tabs( 'gcmi' );
+	}
 }
 
 /**
  * Crea la pagina di admin per aggiornamento tabelle
+ *
+ * @return void
  */
 function gcmi_admin_update_db() {
 	echo '<h1>' . esc_html( __( 'Management of Italian municipalities database.', 'campi-moduli-italiani' ) ) . '</h1>';
 	echo '<form id="gcmi_update_db" method="post">';
 	echo '<div class="wrap" id="gcmi_data_update">';
 
-	$page  = filter_input( INPUT_GET, 'page', FILTER_SANITIZE_STRIPPED );
+	$page  = filter_input( INPUT_GET, 'page', FILTER_UNSAFE_RAW );
 	$paged = filter_input( INPUT_GET, 'paged', FILTER_SANITIZE_NUMBER_INT );
 
-	printf( '<input type="hidden" name="page" value="%s" />', $page );
-	printf( '<input type="hidden" name="paged" value="%d" />', $paged );
+	printf( '<input type="hidden" name="page" value="%s" />', esc_html( strval( $page ) ) );
+	printf( '<input type="hidden" name="paged" value="%d" />', esc_html( strval( $paged ) ) );
 
-	$my_list_table = new Remote_Files_List();
+	$my_list_table = new Gcmi_Remote_Files_List();
 	$my_list_table->prepare_items();
 	$my_list_table->display();
 	echo '</div>';
@@ -94,6 +123,7 @@ function gcmi_admin_update_db() {
  * Crea l'html per indicare quante tabelle sono aggiornabili
  *
  * @param string $menu_slug lo slug del menu in cui visualizzare la notifica.
+ * @return string
  */
 function gcmi_admin_menu_change_notice( $menu_slug = '' ) {
 	if ( 'gcmi' === $menu_slug ) {
@@ -120,6 +150,7 @@ function gcmi_admin_menu_change_notice( $menu_slug = '' ) {
  * Include script e css necessari per la pagina di admin
  *
  * @param string $hook_suffix suffisso per discriminare le pagine di admin create dal plugin.
+ * @return void
  */
 function gcmi_admin_enqueue_scripts( $hook_suffix ) {
 	wp_enqueue_style(
@@ -146,22 +177,38 @@ add_action( 'admin_enqueue_scripts', 'gcmi_admin_enqueue_scripts', 10, 1 );
 /**
  * Prende in input il nome del dataset e crea la tabella aggiornata
  *
- * @param string $fname the name of data stored in GCMI_Activator $database_file_info['name']
+ * @param string $fname the name of data stored in GCMI_Activator $database_file_info['name'] .
+ * @return void
  */
 function gcmi_update_table( $fname ) {
 	global $wpdb;
+	$gcmi_error = new WP_Error();
+
 	$database_file_info = GCMI_Activator::$database_file_info;
 	$options            = array();
-	for ( $i = 0; $i < count( $database_file_info ); $i++ ) {
+	$num_files_info     = count( $database_file_info );
+	for ( $i = 0; $i < $num_files_info; $i++ ) {
 		if ( $fname === $database_file_info[ $i ]['name'] ) {
 			$id = $i;
 		}
 	}
+	if ( ! isset( $id ) ) {
+		$error_code  = ( 'gcmi_wrong_fname' );
+		$error_title = esc_html__( 'Wrong file name', 'campi-moduli-italiani' );
+		// translators: %s is the fname value for the updating table.
+		$error_message = '<h1>' . $error_title . '</h1>' . sprintf( esc_html__( 'This plugin cannot manage file %s', 'campi-moduli-italiani' ), esc_html( $fname ) );
+		$gcmi_error->add( $error_code, $error_message );
+		gcmi_show_error( $gcmi_error );
+		die;
+	}
 	$i = null;
 	if ( ! $download_temp_dir = GCMI_Activator::make_tmp_dwld_dir() ) {
+		$error_code    = ( 'gcmi_mkdir_fail' );
 		$error_title   = __( 'Error creating download directory', 'campi-moduli-italiani' );
-		$error_message = __( 'Unable to create temporary download directory', 'campi-moduli-italiani' );
-		wp_die( $error_message, $error_title );
+		$error_message = '<h1>' . $error_title . '</h1>' . __( 'Unable to create temporary download directory', 'campi-moduli-italiani' );
+		$gcmi_error->add( $error_code, $error_message );
+		gcmi_show_error( $gcmi_error );
+		die;
 	}
 	if (
 		'zip' === $database_file_info[ $id ]['file_type'] ||
@@ -173,11 +220,14 @@ function gcmi_update_table( $fname ) {
 			$database_file_info[ $id ]['downd_name']
 		)
 		   ) {
+			$error_code  = ( 'gcmi_download_error' );
 			$error_title = __( 'Remote file download error', 'campi-moduli-italiani' );
 
 			/* translators: %s is the URL of the file it attempted to download */
-			$error_message = sprintf( __( 'Unable to download %s', 'campi-moduli-italiani' ), $database_file_info[ $id ]['remote_URL'] );
-			wp_die( $error_message, $error_title );
+			$error_message = '<h1>' . $error_title . '</h1>' . sprintf( __( 'Unable to download %s', 'campi-moduli-italiani' ), $database_file_info[ $id ]['remote_URL'] );
+			$gcmi_error->add( $error_code, $error_message );
+			gcmi_show_error( $gcmi_error );
+			die;
 		}
 	}
 
@@ -187,7 +237,7 @@ function gcmi_update_table( $fname ) {
 	/*
 	 * Decomprimo gli zip
 	 */
-	if ( 'zip' == $database_file_info[ $id ]['file_type'] ) {
+	if ( 'zip' === $database_file_info[ $id ]['file_type'] ) {
 		$pathtozip = $download_temp_dir . $database_file_info[ $id ]['downd_name'];
 		if ( ! GCMI_Activator::extract_csv_from_zip(
 			$pathtozip,
@@ -195,23 +245,29 @@ function gcmi_update_table( $fname ) {
 			$database_file_info[ $id ]['featured_csv']
 		)
 		   ) {
+			$error_code  = ( 'gcmi_zip_extract_error' );
 			$error_title = __( 'Zip archive extraction error', 'campi-moduli-italiani' );
 
 			/* translators: %1$s: the local csv file name; %2$s: the zip archive file name */
-			$error_message = sprintf( __( 'Unable to extract %1$s from %2$s', 'campi-moduli-italiani' ), $database_file_info[ $id ]['featured_csv'], $pathtozip );
-			wp_die( $error_message, $error_title );
+			$error_message = '<h1>' . $error_title . '</h1>' . sprintf( __( 'Unable to extract %1$s from %2$s', 'campi-moduli-italiani' ), $database_file_info[ $id ]['featured_csv'], $pathtozip );
+			$gcmi_error->add( $error_code, $error_message );
+			gcmi_show_error( $gcmi_error );
+			die;
 		}
 	}
-	if ( 'html' == $database_file_info[ $id ]['file_type'] ) {
+	if ( 'html' === $database_file_info[ $id ]['file_type'] ) {
 		if ( ! GCMI_Activator::download_html_data(
 			$download_temp_dir,
 			$database_file_info[ $id ]['name']
 		)
 			) {
+			$error_code  = ( 'gcmi_grab_html_error' );
 			$error_title = __( 'Grab html data error', 'campi-moduli-italiani' );
 			/* translators: remote URL of the table from where it grabs data */
-			$error_message = sprintf( __( 'Unable to grab data from %s', 'campi-moduli-italiani' ), $database_file_info[ $id ]['remote_URL'] );
-			wp_die( $error_message, $error_title );
+			$error_message = '<h1>' . $error_title . '</h1>' . sprintf( __( 'Unable to grab data from %s', 'campi-moduli-italiani' ), $database_file_info[ $id ]['remote_URL'] );
+			$gcmi_error->add( $error_code, $error_message );
+			gcmi_show_error( $gcmi_error );
+			die;
 		}
 	}
 	$tmp_table_name = $database_file_info[ $id ]['table_name'] . '_tmp';
@@ -225,15 +281,18 @@ function gcmi_update_table( $fname ) {
 		$tmp_table_name
 	);
 	if ( '' !== $wpdb->last_error ) { // qualcosa e' andato storto.
+		$error_code    = ( 'gcmi_data_import_error' );
 		$error_title   = __( 'Error in inserting data into the database', 'campi-moduli-italiani' );
 		$str           = htmlspecialchars( print_r( $wpdb->last_result, true ), ENT_QUOTES );
 		$query         = htmlspecialchars( $wpdb->last_query, ENT_QUOTES );
-		$error_message = "[ $str ] <code>$query</code>";
+		$error_message = '<h1>' . $error_title . '</h1>' . "[ $str ] <code>$query</code>";
 
 		// elimino la temporanea.
 		$sql = 'DROP TABLE IF EXISTS ' . $tmp_table_name;
 		$wpdb->query( $sql );
-			wp_die( $error_message, $error_title );
+		$gcmi_error->add( $error_code, $error_message );
+		gcmi_show_error( $gcmi_error );
+		die;
 	} else {
 		$sql = 'DROP TABLE IF EXISTS ' . $database_file_info[ $id ]['table_name'];
 		$wpdb->query( $sql );
@@ -246,14 +305,15 @@ function gcmi_update_table( $fname ) {
 		update_option( $database_file_info[ $id ]['optN_dwdtime'], $download_time, 'no' );
 
 		// elimino la cartella temporanea.
-		GCMI_Activator::deleteDir( $download_temp_dir );
+		GCMI_Activator::delete_dir( $download_temp_dir );
 	}
 }
 
 /**
  * Converte il time stamp in una stringa di data formattata
  *
- * @param timestamp $timestamp .
+ * @param integer $timestamp A unix timestamp.
+ * @return string | false
  */
 function gcmi_convert_timestamp( $timestamp ) {
 	/* translators: enter a format string valid for a date and time value according to the local standard using characters recognized by the php date () function (https://www.php.net/manual/en/function.date.php) */
@@ -266,10 +326,15 @@ function gcmi_convert_timestamp( $timestamp ) {
  * Converte una stringa data formattata, in timestamp
  *
  * @param string $string a date string in $format format to be converted to timestamp.
+ * @return integer | false
  */
 function gcmi_convert_datestring( $string ) {
 	$format   = __( 'Y/m/d g:i:s a', 'campi-moduli-italiani' );
 	$datetime = DateTime::createFromFormat( $format, $string );
-	return $datetime->getTimestamp();
+	if ( false !== $datetime ) {
+		return $datetime->getTimestamp();
+	} else {
+		return false;
+	}
 }
 

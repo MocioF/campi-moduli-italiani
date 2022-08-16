@@ -1,13 +1,52 @@
 <?php
+/**
+ * The class used to render the help tabs.
+ *
+ * @link       https://wordpress.org/plugins/campi-moduli-italiani/
+ * @since      1.0.0
+ *
+ * @package    campi-moduli-italiani
+ * @subpackage campi-moduli-italiani/admin
+ */
 
+/**
+ * The class used to render the help tabs.
+ *
+ * @link       https://wordpress.org/plugins/campi-moduli-italiani/
+ * @since      1.0.0
+ *
+ * @package    campi-moduli-italiani
+ * @subpackage campi-moduli-italiani/admin
+ */
 class GCMI_Help_Tabs {
 
+	/**
+	 * Object containing the screen in admin
+	 *
+	 * @var WP_Screen The Screen object
+	 */
 	private $screen;
 
+	/**
+	 * Class constructor
+	 *
+	 * Sets the screen to value passed
+	 *
+	 * @param WP_Screen $screen The current screen object.
+	 * @return void
+	 */
 	public function __construct( WP_Screen $screen ) {
 		$this->screen = $screen;
 	}
 
+	/**
+	 * Sets help tab based on type
+	 *
+	 * @since 1.0.0
+	 * @access public
+	 * @param string $type A string related to the tab selected in the admin page.
+	 * @return void
+	 */
 	public function set_help_tabs( $type ) {
 		switch ( $type ) {
 			case 'gcmi':
@@ -33,6 +72,13 @@ class GCMI_Help_Tabs {
 		}
 	}
 
+	/**
+	 * Sets help tab based on type
+	 *
+	 * @param string $name A string related to single help voice.
+	 * @access private
+	 * @return string
+	 */
 	private function content( $name ) {
 		$content                  = array();
 		$content['gcmi_overview'] = '<p>' . sprintf(
@@ -54,9 +100,18 @@ class GCMI_Help_Tabs {
 
 		if ( ! empty( $content[ $name ] ) ) {
 			return $content[ $name ];
+		} else {
+			return '';
 		}
 	}
 
+	/**
+	 * Sets the help sidebar
+	 *
+	 * @since 1.0.0
+	 * @access public
+	 * @return void
+	 */
 	public function sidebar() {
 		$content  = '<p><strong>' . __( 'For more information:', 'campi-moduli-italiani' ) . '</strong></p>';
 		$content .= sprintf( '<p><a href="%s" target="_blank">', 'https://wordpress.org/plugins/campi-moduli-italiani/' ) . __( 'Plugin page', 'campi-moduli-italiani' ) . '</a></p>';

@@ -25,7 +25,7 @@ class GCMI_Activator {
 	/**
 	 * Contains data relating to individual imported public databases.
 	 *
-	 * @var $database_file_info
+	 * @var array<int, array{'name': string, 'downd_name': string, 'featured_csv': string, 'remote_file': string, 'remote_URL': string, 'table_name': string, 'optN_dwdtime': string, 'optN_remoteUpd': string, 'remoteUpd_method': string, 'file_type': string, 'orig_encoding': string}> $database_file_info
 	 */
 	public static $database_file_info = array(
 		array(
@@ -37,7 +37,7 @@ class GCMI_Activator {
 			'table_name'       => GCMI_TABLE_PREFIX . 'comuni_attuali',
 			'optN_dwdtime'     => 'gcmi_comuni_attuali_downloaded_time',
 			'optN_remoteUpd'   => 'gcmi_comuni_attuali_remote_file_time',
-			'remoteUpd_method' => 'get_headers',
+			'remoteUpd_method' => 'get_headers_by_get',
 			'file_type'        => 'csv',
 			'orig_encoding'    => 'ISO-8859-1',
 		),
@@ -50,7 +50,7 @@ class GCMI_Activator {
 			'table_name'       => GCMI_TABLE_PREFIX . 'comuni_soppressi',
 			'optN_dwdtime'     => 'gcmi_comuni_soppressi_downloaded_time',
 			'optN_remoteUpd'   => 'gcmi_comuni_soppressi_remote_file_time',
-			'remoteUpd_method' => 'get_headers',
+			'remoteUpd_method' => 'get_headers_by_get',
 			'file_type'        => 'zip',
 			'orig_encoding'    => 'ISO-8859-1',
 		),
@@ -63,7 +63,7 @@ class GCMI_Activator {
 			'table_name'       => GCMI_TABLE_PREFIX . 'comuni_variazioni',
 			'optN_dwdtime'     => 'gcmi_comuni_variazioni_downloaded_time',
 			'optN_remoteUpd'   => 'gcmi_comuni_variazioni_remote_file_time',
-			'remoteUpd_method' => 'get_headers',
+			'remoteUpd_method' => 'get_headers_by_get',
 			'file_type'        => 'zip',
 			'orig_encoding'    => 'ISO-8859-1',
 		),
@@ -89,7 +89,7 @@ class GCMI_Activator {
 			'table_name'       => GCMI_TABLE_PREFIX . 'stati',
 			'optN_dwdtime'     => 'gcmi_stati_downloaded_time',
 			'optN_remoteUpd'   => 'gcmi_stati_remote_file_time',
-			'remoteUpd_method' => 'get_headers',
+			'remoteUpd_method' => 'get_headers_by_get',
 			'file_type'        => 'zip',
 			'orig_encoding'    => 'ISO-8859-1',
 		),
@@ -102,7 +102,7 @@ class GCMI_Activator {
 			'table_name'       => GCMI_TABLE_PREFIX . 'stati_cessati',
 			'optN_dwdtime'     => 'gcmi_stati_cessati_downloaded_time',
 			'optN_remoteUpd'   => 'gcmi_stati_cessati_remote_file_time',
-			'remoteUpd_method' => 'get_headers',
+			'remoteUpd_method' => 'get_headers_by_get',
 			'file_type'        => 'zip',
 			'orig_encoding'    => 'ISO-8859-1',
 		),
@@ -111,7 +111,7 @@ class GCMI_Activator {
 	/**
 	 * Contains the values of the options set in the database at the time of activation.
 	 *
-	 * @var $activator_options
+	 * @var array<string, array{'value': string|int, 'autoload': string}> $activator_options
 	 */
 	private static $activator_options = array(
 		'gcmi_plugin_version'                     => array(
@@ -178,18 +178,33 @@ class GCMI_Activator {
 	 * Downloads all the data, creates and populates the database tables.
 	 *
 	 * @since 1.0.0
+	 * @return void
 	 */
-	public static function activate() {
+	public static function activate(): void {
+		$requirements = self::gcmi_is_requirements_met();
+		if ( is_wp_error( $requirements ) ) {
+			gcmi_show_error( $requirements );
+			die;
+		}
+
 		global $wpdb;
+		global $gcmi_error;
+
+		$gcmi_error = new WP_Error();
+
 		set_time_limit( 360 );
 
 		/**
 		 * I create the temporary download directory.
 		 */
-		if ( ! $download_temp_dir = self::make_tmp_dwld_dir() ) {
+		$download_temp_dir = self::make_tmp_dwld_dir();
+		if ( false === $download_temp_dir ) {
+			$error_code    = ( 'gcmi_make_tmp_dir_error' );
 			$error_title   = __( 'Error creating download directory', 'campi-moduli-italiani' );
-			$error_message = __( 'Unable to create temporary download directory', 'campi-moduli-italiani' );
-			wp_die( esc_html( $error_message ), esc_html( $error_title ) );
+			$error_message = '<h1>' . $error_title . '</h1>' . __( 'Unable to create temporary download directory', 'campi-moduli-italiani' );
+			$gcmi_error->add( $error_code, $error_message );
+			gcmi_show_error( $gcmi_error );
+			die;
 		}
 
 		/**
@@ -201,42 +216,54 @@ class GCMI_Activator {
 				|| 'csv' === self::$database_file_info[ $i ]['file_type']
 			) {
 				// I download remote files if it's not an html table.
-				if ( ! self::download_file(
+				$response = self::download_file(
 					self::$database_file_info[ $i ]['remote_URL'],
 					$download_temp_dir,
 					self::$database_file_info[ $i ]['downd_name']
-				)
-				) {
-					$error_title = esc_html( __( 'Remote file download error', 'campi-moduli-italiani' ) );
+				);
+				if ( is_wp_error( $response ) ) {
+					$error_code = ( 'gcmi_download_error' );
 					/* translators: %s: the remote URL of the file to be downloaded */
 					$error_message = esc_html( sprintf( __( 'Could not download %s', 'campi-moduli-italiani' ), self::$database_file_info[ $i ]['remote_URL'] ) );
-					wp_die( $error_message, $error_title );
+					$response->add( $error_code, $error_message );
+					gcmi_show_error( $response );
+					die;
 				} else {
 					$option_name = self::$database_file_info[ $i ]['optN_dwdtime'];
 					// acquisition time of the remote file.
 					self::$activator_options[ $option_name ]['value'] = time();
+
+					// update time of the remote file on the server.
+					$lm_date_formatted = wp_remote_retrieve_header( $response, 'last-modified' );
+					if ( '' !== $lm_date_formatted && is_string( $lm_date_formatted ) ) {
+						$fmt      = 'D, d M Y H:i:s O+'; // Last-Modified: Wed, 19 Feb 2020 14:49:18 GMT .
+						$datetime = DateTime::createFromFormat( $fmt, $lm_date_formatted );
+						if ( false !== $datetime ) {
+							$option_name                                      = self::$database_file_info[ $i ]['optN_remoteUpd'];
+							self::$activator_options[ $option_name ]['value'] = $datetime->getTimestamp();
+						}
+					}
 				}
 			}
-
-			// update time of the remote file on the server.
-			$option_name                                      = self::$database_file_info[ $i ]['optN_remoteUpd'];
-			self::$activator_options[ $option_name ]['value'] = gcmi_get_remote_update_timestamp( self::$database_file_info[ $i ]['name'] );
 
 			/**
 			 * I unzip the zips
 			 */
 			if ( 'zip' === self::$database_file_info[ $i ]['file_type'] ) {
 				$pathtozip = $download_temp_dir . self::$database_file_info[ $i ]['downd_name'];
-				if ( ! self::extract_csv_from_zip(
+				if ( false === self::extract_csv_from_zip(
 					$pathtozip,
 					$download_temp_dir,
 					self::$database_file_info[ $i ]['featured_csv']
 				)
 				) {
+					$error_code  = ( 'gcmi_zip_extract_error' );
 					$error_title = __( 'Zip archive extraction error', 'campi-moduli-italiani' );
 					/* translators: %1$s: the local csv file name; %2$s: the zip archive file name */
-					$error_message = sprintf( __( 'Unable to extract %1$s from %2$s', 'campi-moduli-italiani' ), self::$database_file_info[ $i ]['featured_csv'], $pathtozip );
-					wp_die( esc_html( $error_message ), esc_html( $error_title ) );
+					$error_message = '<h1>' . $error_title . '</h1>' . sprintf( __( 'Unable to extract %1$s from %2$s', 'campi-moduli-italiani' ), self::$database_file_info[ $i ]['featured_csv'], $pathtozip );
+					$gcmi_error->add( $error_code, $error_message );
+					gcmi_show_error( $gcmi_error );
+					die;
 				}
 			}
 
@@ -251,26 +278,35 @@ class GCMI_Activator {
 			}
 
 			if ( ! self::create_db_table( self::$database_file_info[ $i ]['name'], self::$database_file_info[ $i ]['table_name'] ) ) {
+				$error_code  = ( 'gcmi_create_tables_error' );
 				$error_title = __( 'Errore creating table', 'campi-moduli-italiani' );
 				/* translators: %1$s: the local name of the table it attempted to create in the database */
-				$error_message = sprintf( __( 'Unable to create table %1$s', 'campi-moduli-italiani' ), self::$database_file_info[ $i ]['table_name'] );
-				wp_die( esc_html( $error_message ), esc_html( $error_title ) );
+				$error_message = '<h1>' . $error_title . '</h1>' . sprintf( __( 'Unable to create table %1$s', 'campi-moduli-italiani' ), self::$database_file_info[ $i ]['table_name'] );
+				$gcmi_error->add( $error_code, $error_message );
+				gcmi_show_error( $gcmi_error );
+				die;
 			}
 
 			$csv_file_path = $download_temp_dir . self::$database_file_info[ $i ]['featured_csv'];
 
 			if ( ! self::convert_file_charset( $csv_file_path, self::$database_file_info[ $i ]['orig_encoding'] ) ) {
+				$error_code  = ( 'gcmi_utf8_encoding_error' );
 				$error_title = __( 'Error UTF-8 encoding csv file', 'campi-moduli-italiani' );
 				/* translators: %1$s: the full path of the csv file it tryed to prepare for import */
-				$error_message = sprintf( __( 'Unable to encode %1$s into UTF-8', 'campi-moduli-italiani' ), $csv_file_path );
-				wp_die( esc_html( $error_message ), esc_html( $error_title ) );
+				$error_message = '<h1>' . $error_title . '</h1>' . sprintf( __( 'Unable to encode %1$s into UTF-8', 'campi-moduli-italiani' ), $csv_file_path );
+				$gcmi_error->add( $error_code, $error_message );
+				gcmi_show_error( $gcmi_error );
+				die;
 			}
 
 			if ( ! self::prepare_file( $csv_file_path ) ) {
+				$error_code  = ( 'gcmi_csv_prepare_error' );
 				$error_title = __( 'Error preparing csv file', 'campi-moduli-italiani' );
 				/* translators: %1$s: the full path of the csv file it tryed to prepare for import */
-				$error_message = sprintf( __( 'Unable to prepare %1$s for import', 'campi-moduli-italiani' ), $csv_file_path );
-				wp_die( esc_html( $error_message ), esc_html( $error_title ) );
+				$error_message = '<h1>' . $error_title . '</h1>' . sprintf( __( 'Unable to prepare %1$s for import', 'campi-moduli-italiani' ), $csv_file_path );
+				$gcmi_error->add( $error_code, $error_message );
+				gcmi_show_error( $gcmi_error );
+				die;
 			}
 
 			set_time_limit( 360 );
@@ -281,20 +317,23 @@ class GCMI_Activator {
 				self::$database_file_info[ $i ]['table_name']
 			)
 			) {
+				$error_code  = ( 'gcmi_data_import_error' );
 				$error_title = esc_html( __( 'Error importing data into database', 'campi-moduli-italiani' ) );
 				/* translators: %1$s: the data name; %2$s: the db table name. */
-				$error_message  = esc_html( sprintf( __( 'Unable to import %1$s into %2$s', 'campi-moduli-italiani' ), $csv_file_path, self::$database_file_info[ $i ]['table_name'] ) );
+				$error_message  = '<h1>' . $error_title . '</h1>' . esc_html( sprintf( __( 'Unable to import %1$s into %2$s', 'campi-moduli-italiani' ), $csv_file_path, self::$database_file_info[ $i ]['table_name'] ) );
 				$str            = htmlspecialchars( print_r( $wpdb->last_result, true ), ENT_QUOTES );
 				$query          = htmlspecialchars( $wpdb->last_query, ENT_QUOTES );
 				$error_message .= '[' . $str . '] <br/><code>' . $query . '</code>';
-				wp_die( $error_message, $error_title );
+				$gcmi_error->add( $error_code, $error_message );
+				gcmi_show_error( $gcmi_error );
+				die;
 			}
 		}
 
 		/**
 		 * I remove temporary directory.
 		 */
-		self::deleteDir( $download_temp_dir );
+		self::delete_dir( $download_temp_dir );
 
 		/**
 		 * I set the cron job.
@@ -314,8 +353,9 @@ class GCMI_Activator {
 	 * Deletes the tables from the database and disables the cronjob.
 	 *
 	 * @since 1.0.0
+	 * @return void
 	 */
-	public static function deactivate() {
+	public static function deactivate(): void {
 		$num_tables = count( self::$database_file_info );
 		for ( $i = 0; $i < $num_tables; $i++ ) {
 			self::drop_table( self::$database_file_info[ $i ]['name'], self::$database_file_info[ $i ]['table_name'] );
@@ -332,14 +372,13 @@ class GCMI_Activator {
 	/**
 	 * Creates temporary folder.
 	 *
-	 * Creates a temporary directory in wp-content/uploads to download data from remote servers.s
+	 * Creates a temporary directory in wp-content/uploads to download data from remote servers.
+	 * Returns false on fail, path on success.
 	 *
 	 * @since 1.0.0
+	 * @return string|false
 	 */
 	public static function make_tmp_dwld_dir() {
-		/**
-		 * Creates a temporary directory in the upload folder and return its path
-		 */
 		$upload_dir      = wp_upload_dir();
 		$permitted_chars = '0123456789abcdefghijklmnopqrstuvwxyz';
 		$tmp_dir         = $upload_dir['basedir'] . '/wp_gcmi_' . substr( str_shuffle( $permitted_chars ), 0, 10 ) . '/';
@@ -360,34 +399,46 @@ class GCMI_Activator {
 	 * @param string $remoteurl    Remote URL of the data file.
 	 * @param string $tmp_dwld_dir URL of local created tmp directory.
 	 * @param string $filename     Local file name for downloaded file.
+	 * @return array|WP_Error
 	 */
 	public static function download_file( $remoteurl, $tmp_dwld_dir, $filename ) {
+		global $gcmi_error;
+		$gcmi_error = new WP_Error();
+
 		if ( ! function_exists( 'download_url' ) ) {
 			include_once ABSPATH . '/wp-admin/includes/file.php';
 		}
-		$url_filename = basename( parse_url( $remoteurl, PHP_URL_PATH ) );
-		$tmpfname = $tmp_dwld_dir . '/' .$url_filename;
-		$args = array(
-			'timeout'  => 300,
-			'stream'   => true,
+		$path = wp_parse_url( $remoteurl, PHP_URL_PATH );
+
+		if ( ! is_string( $path ) ) {
+			$error_code = 'gcmi_wrong_url';
+			// translators: %s is a path to a file.
+			$error_message = esc_html( sprintf( __( 'Invalid path: %s', 'campi-moduli-italiani' ), $remoteurl ) );
+			$gcmi_error->add( $error_code, $error_message );
+			gcmi_show_error( $gcmi_error );
+			die;
+		}
+
+		$url_filename = basename( $path );
+		$tmpfname     = $tmp_dwld_dir . '/' . $url_filename;
+		$args         = array(
+			'timeout'         => 300,
+			'stream'          => true,
 			'sslverify'       => true,
 			'sslcertificates' => GCMI_PLUGIN_DIR . '/admin/assets/istat-it-catena.pem',
-			'filename' => $tmpfname,
+			'filename'        => $tmpfname,
 		);
-		
+
 		$response = wp_remote_get( $remoteurl, $args );
-		
+
 		if ( is_wp_error( $response ) ) {
-			$error_title = esc_html( sprintf( __( 'Could not download %s', 'campi-moduli-italiani' ), $remoteurl ) );
 			unlink( $tmpfname );
-			wp_die( $gcmi_download_result->get_error_message(), $error_title );
-			return false;
 		} else {
 			$dest_file = $tmp_dwld_dir . '/' . $filename;
 			copy( $tmpfname, $dest_file );
 			unlink( $tmpfname );
-			return true;
 		}
+		return $response;
 	}
 
 	/**
@@ -396,8 +447,9 @@ class GCMI_Activator {
 	 * Register all plugin's options in _options table.
 	 *
 	 * @since 1.0.0
+	 * @return void
 	 */
-	private static function set_gcmi_options() {
+	private static function set_gcmi_options(): void {
 		foreach ( self::$activator_options as $key => $value ) {
 			update_option( $key, $value['value'], $value['autoload'] );
 		}
@@ -409,8 +461,9 @@ class GCMI_Activator {
 	 * Deletes all plugin's options from _options table.
 	 *
 	 * @since 1.0.0
+	 * @return void
 	 */
-	private static function unset_gcmi_options() {
+	private static function unset_gcmi_options(): void {
 		$keys = array_keys( self::$activator_options );
 		foreach ( $keys as $key ) {
 			delete_option( $key );
@@ -427,13 +480,14 @@ class GCMI_Activator {
 	 * @param string $pathtozip Local path to zip file.
 	 * @param string $outputdir Local path of $tmp_dwld_dir.
 	 * @param string $csv_name  Local name of csv file extracted from zip archive.
+	 * @return boolean
 	 */
 	public static function extract_csv_from_zip( $pathtozip, $outputdir, $csv_name ) {
 		$zip = new ZipArchive();
-		if ( $zip->open( $pathtozip ) === true ) {
+		if ( true === $zip->open( $pathtozip ) ) {
 			for ( $i = 0; $i < $zip->numFiles; $i++ ) {
 				$stat = $zip->statIndex( $i );
-				if ( substr( strtolower( $stat['name'] ), -4 ) === '.csv' ) {
+				if ( is_array( $stat ) && array_key_exists( 'name', $stat ) && substr( strtolower( $stat['name'] ), -4 ) === '.csv' ) {
 					file_put_contents( $outputdir . '/' . $csv_name, $zip->getFromName( $stat['name'] ) );
 				}
 			}
@@ -453,6 +507,7 @@ class GCMI_Activator {
 	 *
 	 * @param string $name  from $database_file_info .
 	 * @param string $table $table_name from $database_file_info .
+	 * @return boolean
 	 */
 	public static function create_db_table( $name, $table ) {
 		global $wpdb;
@@ -506,17 +561,17 @@ class GCMI_Activator {
 			case 'comuni_soppressi':
 				$structure = "CREATE TABLE IF NOT EXISTS $table (
 				id INT(11) NOT NULL AUTO_INCREMENT,
-			i_anno_var YEAR(4) NOT NULL,
-			i_sigla_automobilistica varchar(10) NOT NULL,
+				i_anno_var YEAR(4) NOT NULL,
+				i_sigla_automobilistica varchar(10) NOT NULL,
 				i_cod_unita_territoriale char(3) NOT NULL,
 				i_cod_comune char(6) NOT NULL,
 				i_denominazione_full varchar(255) NOT NULL,
-			i_cod_scorporo char(1) NULL,
-			i_data_variazione DATE NULL,
-			i_cod_comune_nuovo char(6) NULL,
-			i_denominazione_nuovo varchar(255) NULL,
-			i_cod_unita_territoriale_nuovo char(3) NULL,
-			i_sigla_automobilistica_nuovo varchar(10) NULL,
+				i_cod_scorporo char(1) NULL,
+				i_data_variazione DATE NULL,
+				i_cod_comune_nuovo char(6) NULL,
+				i_denominazione_nuovo varchar(255) NULL,
+				i_cod_unita_territoriale_nuovo char(3) NULL,
+				i_sigla_automobilistica_nuovo varchar(10) NULL,
 		
 				PRIMARY KEY (id)
 				) $charset_collate";
@@ -528,17 +583,17 @@ class GCMI_Activator {
 				i_anno_var YEAR(4) NOT NULL,
 				i_tipo_var varchar(4) NOT NULL,
 				i_cod_regione char(2) NOT NULL,
-		i_cod_unita_territoriale char(3) NOT NULL,
+				i_cod_unita_territoriale char(3) NOT NULL,
 				i_cod_comune char(6) NOT NULL,
 				i_denominazione_full varchar(255) NOT NULL,
-		i_cod_regione_nuovo char(2) NOT NULL,
-		i_cod_unita_territoriale_nuovo char(3) NOT NULL,
+				i_cod_regione_nuovo char(2) NOT NULL,
+				i_cod_unita_territoriale_nuovo char(3) NOT NULL,
 				i_cod_comune_nuovo char(6) NOT NULL,
 				i_denominazione_nuovo varchar(255) NOT NULL,
 				i_documento TINYTEXT NULL,
 				i_contenuto TINYTEXT NULL,
 				i_data_decorrenza DATE NULL,
-		i_cod_flag_note char(1) NULL,
+				i_cod_flag_note char(1) NULL,
 				PRIMARY KEY (id)
 				) $charset_collate";
 				break;
@@ -590,11 +645,11 @@ class GCMI_Activator {
 				PRIMARY KEY (id)
 				) $charset_collate";
 				break;
-
 		}
 
 		return $wpdb->query( $structure );
 	}
+
 	/**
 	 * Prepares csv files for import.
 	 *
@@ -603,18 +658,27 @@ class GCMI_Activator {
 	 * @since 1.0.0
 	 *
 	 * @param string $filepath local csv file path .
+	 * @return boolean
 	 */
 	public static function prepare_file( $filepath ) {
-		// i csv dell'INPS utilizzano come newline il formato DOS (CR + LF o chr(13) chr(10)
-		// tuttavia nella riga di intestazione contengono degli LF
-		// probabilmente si tratta di file creati in excel e poi convertiti in csv che avevano degli LF nella riga di intestazione
-		// Per prepararli prima converto tutti i CR non seguiti da LF in caratteri spazio
-		$string = file_get_contents( $filepath ); // reads all file in a string
-		// regexp explained
-		// \n              'newline'
-		// (?<!            look behind to see if there is not:
-		// \r            'carriage return'
-		// )              end of look-ahead
+		/**
+		 * I csv dell'INPS utilizzano come newline il formato DOS (CR + LF o chr(13) chr(10)
+		 * tuttavia nella riga di intestazione contengono degli LF
+		 * probabilmente si tratta di file creati in excel e poi convertiti in csv che avevano degli LF nella riga di intestazione
+		 * Per prepararli prima converto tutti i CR non seguiti da LF in caratteri spazio
+		 */
+		$string = file_get_contents( $filepath ); // reads all file in a string.
+		if ( false === $string ) {
+			return false;
+		}
+
+		/**
+		 * The regexp explained:
+		 * \n        'newline'
+		 * (?<!      look behind to see if there is not:
+		 * \r        'carriage return'
+		 * )         end of look-ahead
+		 */
 		$replaced_string = preg_replace( '/(?<!\r)\n/', '', $string );
 
 		if ( ! ( file_put_contents( dirname( $filepath ) . '/tmp.csv', $replaced_string ) ) ) {
@@ -635,11 +699,9 @@ class GCMI_Activator {
 	 *
 	 * @param string $filepath local CSV file path.
 	 * @param string $orig_enc original encoding from $database_file_info .
+	 * @return boolean
 	 */
-	public static function convert_file_charset( $filepath, $orig_enc ) {
-		if ( ! isset( $orig_enc ) ) {
-			$orig_enc = 'UTF-8';
-		}
+	public static function convert_file_charset( $filepath, $orig_enc = 'UTF-8' ) {
 		switch ( DB_CHARSET ) {
 			case 'utf8mb4':
 			case 'utf8mb3':
@@ -664,6 +726,9 @@ class GCMI_Activator {
 		}
 
 		$string = file_get_contents( $filepath );
+		if ( false === $string ) {
+			return false;
+		}
 		if ( ! ( $encoded_string = mb_convert_encoding( $string, $new_charset, $orig_enc ) ) ) {
 			return false;
 		}
@@ -686,11 +751,14 @@ class GCMI_Activator {
 	 * @param string $name          from $database_file_info .
 	 * @param string $csv_file_path .
 	 * @param string $table         $table_name from $database_file_info .
+	 * @return boolean
 	 */
 	public static function populate_db_table( $name, $csv_file_path, $table ) {
 		global $wpdb;
 		$wpdb->show_errors();
 		global $wp_filesystem;
+		global $gcmi_error;
+		$gcmi_error = new WP_Error();
 
 		$names        = array();
 		$tables_count = count( self::$database_file_info );
@@ -705,24 +773,32 @@ class GCMI_Activator {
 		WP_Filesystem();
 		$arr_dati = array();
 		if ( ! $arr_dati = $wp_filesystem->get_contents_array( $csv_file_path ) ) {
-			$error_title = "Impossibile leggere il file $csv_file_path";
-			wp_die( $arr_dati->get_error_message(), $error_title );
+			$error_code    = 'gcmi_csv_read_error';
+			$error_message = esc_html( sprintf( __( 'Impossibile leggere il file: %s', 'campi-moduli-italiani' ), $csv_file_path ) );
+			$gcmi_error->add( $error_code, $error_message );
+			gcmi_show_error( $gcmi_error );
+			die;
 		}
-		for ( $i = 1; $i < count( $arr_dati ); $i++ ) {
-
+		$num_array_dati = count( $arr_dati );
+		for ( $i = 1; $i < $num_array_dati; $i++ ) {
 			$gcmi_dati_line = array(); // inizializzo ad array vuoto.
-			/*
-			* Aluni file dell'istat generati con excel, contengono migliaia di righe vuote, ma piene solo del carattere delimitatore ";"
-			* come se tutto il foglio contenesse dati nulli.
-			* Queste righe devono essere eliminate e non importate, perché le operazioni di scrittura sul database sono estremamente lunghe e comunque le
-			* tabelle diventano di dimensioni significative.
-			*/
+
+			/**
+			 * Aluni file dell'istat generati con excel, contengono migliaia di righe vuote, ma piene solo del carattere delimitatore ";"
+			 * come se tutto il foglio contenesse dati nulli.
+			 * Queste righe devono essere eliminate e non importate, perché le operazioni di scrittura sul database sono estremamente lunghe e comunque le
+			 * tabelle diventano di dimensioni significative.
+			 */
 			// se la stringa non è costituita da soli ";".
 			if ( ! preg_match( '/^(.)\;*$/u', trim( $arr_dati[ $i ] ) ) ) {
 				$gcmi_dati_line = str_getcsv( $arr_dati[ $i ], ';', '"' ); // non usare explode, perche' ci sono dei ";" nelle stringhe di testo delimitate con "" .
 				$gcmi_dati_line = array_map( 'trim', $gcmi_dati_line );
+				foreach ( $gcmi_dati_line as $index => $value ) {
+					if ( '' === $value ) {
+						$gcmi_dati_line[ $index ] = null;
+					}
+				}
 
-				$gcmi_dati_line = str_replace( '', null, $gcmi_dati_line );
 				$gcmi_dati_line = esc_sql( $gcmi_dati_line );
 				switch ( $name ) {
 					case 'comuni_attuali':
@@ -785,8 +861,13 @@ class GCMI_Activator {
 						}
 						break;
 					case 'comuni_soppressi':
-						if ( $gcmi_dati_line[6] != null ) {
-							$formatted_date = DateTime::createFromFormat( 'd/m/Y', $gcmi_dati_line[6] )->format( 'Y-m-d' );
+						if ( null != $gcmi_dati_line[6] ) { // phpcs:ignore WordPress.PHP.StrictComparisons.LooseComparison .
+							$date = DateTime::createFromFormat( 'd/m/Y', $gcmi_dati_line[6] );
+							if ( false === $date ) {
+								$formatted_date = null;
+							} else {
+								$formatted_date = $date->format( 'Y-m-d' );
+							}
 						} else {
 							$formatted_date = null;
 						}
@@ -824,9 +905,13 @@ class GCMI_Activator {
 						}
 						break;
 					case 'comuni_variazioni':
-						if ( $gcmi_dati_line[12] != null ) {
-							  // $formatted_date = DateTime::createFromFormat( 'd/m/Y', $gcmi_dati_line[9] )->format( 'Y-m-d' );
-							$formatted_date = DateTime::createFromFormat( 'd/m/Y', $gcmi_dati_line[12] )->format( 'Y-m-d' );
+						if ( null != $gcmi_dati_line[12] ) { // phpcs:ignore WordPress.PHP.StrictComparisons.LooseComparison .
+							$date = DateTime::createFromFormat( 'd/m/Y', $gcmi_dati_line[12] );
+							if ( false === $date ) {
+								$formatted_date = null;
+							} else {
+								$formatted_date = $date->format( 'Y-m-d' );
+							}
 						} else {
 							$formatted_date = null;
 						}
@@ -886,7 +971,7 @@ class GCMI_Activator {
 						}
 						break;
 					case 'stati':
-						 // n.d. to empty string
+						 // n.d. to empty string.
 						if ( 'n.d.' === $gcmi_dati_line[8] || 'n.d' === $gcmi_dati_line[8] ) {
 							$gcmi_dati_line[8] = null;
 						}
@@ -999,9 +1084,11 @@ class GCMI_Activator {
 	 * @since 1.0.0
 	 *
 	 * @param string $dir_path .
+	 * @throws InvalidArgumentException If supplied argument is not a directory.
+	 * @return void
 	 */
-	public static function deleteDir( $dir_path ) {
-		// cancella una directory e tutto il suo contenuto
+	public static function delete_dir( $dir_path ): void {
+		// cancella una directory e tutto il suo contenuto.
 		if ( ! is_dir( $dir_path ) ) {
 			throw new InvalidArgumentException( "$dir_path must be a directory" );
 		}
@@ -1009,11 +1096,13 @@ class GCMI_Activator {
 			$dir_path .= '/';
 		}
 		$files = glob( $dir_path . '*', GLOB_MARK );
-		foreach ( $files as $file ) {
-			if ( is_dir( $file ) ) {
-				deleteDir( $file );
-			} else {
-				unlink( $file );
+		if ( false !== $files ) {
+			foreach ( $files as $file ) {
+				if ( is_dir( $file ) ) {
+					self::delete_dir( $file );
+				} else {
+					unlink( $file );
+				}
 			}
 		}
 		rmdir( $dir_path );
@@ -1028,12 +1117,14 @@ class GCMI_Activator {
 	 *
 	 * @param string $name  from $database_file_info .
 	 * @param string $table $table_name from $database_file_info .
+	 * @return boolean
 	 */
 	public static function drop_table( $name, $table ) {
 		global $wpdb;
 
-		$names = array();
-		for ( $i = 0; $i < count( self::$database_file_info ); $i++ ) {
+		$names     = array();
+		$num_files = count( self::$database_file_info );
+		for ( $i = 0; $i < $num_files; $i++ ) {
 			array_push( $names, self::$database_file_info[ $i ]['name'] );
 		}
 
@@ -1052,8 +1143,9 @@ class GCMI_Activator {
 	 * Creates a cronjob to check for remote file upadetes.
 	 *
 	 * @since 1.0.0
+	 * @return void
 	 */
-	public static function create_gcmi_cron_job() {
+	public static function create_gcmi_cron_job(): void {
 		if ( ! wp_next_scheduled( 'gcmi_check_for_remote_data_updates' ) ) {
 			wp_schedule_event( time() + 86400, 'daily', 'gcmi_check_for_remote_data_updates' );
 		}
@@ -1065,10 +1157,13 @@ class GCMI_Activator {
 	 * Destroys the cron job for remote file upadetes.
 	 *
 	 * @since 1.0.0
+	 * @return void
 	 */
-	public static function destroy_gcmi_cron_job() {
+	public static function destroy_gcmi_cron_job(): void {
 		$timestamp = wp_next_scheduled( 'gcmi_check_for_remote_data_updates' );
-		wp_unschedule_event( $timestamp, 'gcmi_check_for_remote_data_updates' );
+		if ( false !== $timestamp ) {
+			wp_unschedule_event( $timestamp, 'gcmi_check_for_remote_data_updates' );
+		}
 	}
 
 	/**
@@ -1080,13 +1175,15 @@ class GCMI_Activator {
 	 *
 	 * @param string $tmp_dwld_dir temporary download directory.
 	 * @param string $name         from $database_file_info .
+	 * @return boolean
 	 */
 	public static function download_html_data( $tmp_dwld_dir, $name ) {
-		// wrapper per le funzioni specifiche per ogni singolo file
+		// wrapper per le funzioni specifiche per ogni singolo file.
 		switch ( $name ) {
 			case 'codici_catastali':
 				return ( self::get_csvdata_codici_catastali( $tmp_dwld_dir ) );
-			break;
+			default:
+				return false;
 		}
 	}
 
@@ -1098,60 +1195,112 @@ class GCMI_Activator {
 	 * @since 1.0.0
 	 *
 	 * @param string $tmp_dwld_dir temporary download directory.
+	 * @return boolean
 	 */
 	public static function get_csvdata_codici_catastali( $tmp_dwld_dir ) {
-		/*
-		* l'Agenzia delle entrate mette a disposizione i dati relativi ai codici catastali dei comuni in una tabella HTML
-		* che puo' essere interrogata solo chiedendo l'elenco per iniziale del comune.
-		* Questa funzione richiede le tabelle per tutte le lettere e inserisce i dati in un file csv, che successivamente
-		* verrà importato nel database.
-		* Il file e' necessario per ottenere l'informazione sul codice catastale dei comuni cessati, in quanto i dati ISTAT
-		* contengono il valore del codice catastale solo per i comuni attuali (questo dato è funzionale al riscontro del codice fiscale)
-		*/
-
+		/**
+		 * L'Agenzia delle entrate mette a disposizione i dati relativi ai codici catastali dei comuni in una tabella HTML
+		 * che puo' essere interrogata solo chiedendo l'elenco per iniziale del comune.
+		 * Questa funzione richiede le tabelle per tutte le lettere e inserisce i dati in un file csv, che successivamente
+		 * verrà importato nel database.
+		 * Il file e' necessario per ottenere l'informazione sul codice catastale dei comuni cessati, in quanto i dati ISTAT
+		 * contengono il valore del codice catastale solo per i comuni attuali (questo dato è funzionale al riscontro del codice fiscale)
+		 */
 		$alphas = range( 'A', 'Z' );
 		// inserisco riga intestazione.
 		file_put_contents( $tmp_dwld_dir . '/codici_catastali.csv', "Codice Ente;Denominazione\r\n", FILE_APPEND | LOCK_EX );
-		$args = array(
+		$args        = array(
 			'sslverify'       => true,
 			'sslcertificates' => GCMI_PLUGIN_DIR . '/admin/assets/www1-Ade.pem',
 		);
+		$page_errors = new WP_Error();
+		$num_letters = count( $alphas );
+		for ( $i = 0; $i < $num_letters; $i++ ) {
+			$remote_url = 'https://www1.agenziaentrate.gov.it/documentazione/versamenti/codici/ricerca/VisualizzaTabella.php?iniz=' . $alphas[ $i ] . '&ArcName=COM-ICI';
 
-		for ( $i = 0; $i < count( $alphas ); $i++ ) {
-			$remote_URL = 'https://www1.agenziaentrate.gov.it/documentazione/versamenti/codici/ricerca/VisualizzaTabella.php?iniz=' . $alphas[ $i ] . '&ArcName=COM-ICI';
-			/*
-			* Il server Agenzia al momento è mal configurato perchè non serve tutta la catena di certificati intermedi, ma solo quello del server;
-			* utilizzo una copia locale del certificato (ambiente impostato prima della routine).
-			*/
-			$response    = wp_remote_get( $remote_URL, $args );
-			$htmlContent = wp_remote_retrieve_body( $response );
+			/**
+			 * Il server Agenzia al momento è mal configurato perchè non serve tutta la catena di certificati intermedi, ma solo quello del server;
+			 * utilizzo una copia locale del certificato (ambiente impostato prima della routine).
+			 */
+			$response     = wp_remote_get( $remote_url, $args );
+			$html_content = wp_remote_retrieve_body( $response );
 
-			$DOM = new DOMDocument();
+			$dom_document = new DOMDocument();
 			libxml_use_internal_errors( true );
-			$DOM->loadHTML( $htmlContent );
+			$dom_document->loadHTML( $html_content );
 			libxml_use_internal_errors( false );
 
-			$tables = $DOM->getElementsByTagName( 'table' );
+			$tables = $dom_document->getElementsByTagName( 'table' );
 			/* individuo nel codice la tabella di interesse */
 			$table = $tables->item( 0 );
-			$rows  = $table->getElementsByTagName( 'tr' );
+			if ( null === $table ) {
+				$err_code = 'gcmi_codici_catastali';
+				// translators: %s is a capital letter
+				$err_message = esc_html( sprintf( __( 'Impossible to find the cadastral codes table for the municipalities with the name that begins for: %s', 'campi-moduli-italiani' ), $alphas[ $i ] ) );
+				$page_errors->add( $err_code, $err_message );
+			} else {
+				$rows = $table->getElementsByTagName( 'tr' );
+				foreach ( $rows as $row ) {
+					$cols      = $row->getElementsByTagName( 'td' );
+					$file_line = '';
+					foreach ( $cols as $t ) {
+						$file_line .= trim( strval( $t->nodeValue ) );
+						$file_line .= ';';
+					}
+					if ( '' !== $file_line ) {
+						/* rimuovo l'ultimo ";" */
+						$file_line  = substr( $file_line, 0, -1 );
+						$file_line .= "\r\n";
+						file_put_contents( $tmp_dwld_dir . '/codici_catastali.csv', $file_line, FILE_APPEND | LOCK_EX );
+					}
+				}
+			}
+		}
+		if ( $page_errors->has_errors() ) {
+			gcmi_show_error( $page_errors );
+		}
+		return true;
+	}
 
-			foreach ( $rows as $row ) {
-				$cols      = $row->getElementsByTagName( 'td' );
-				$file_line = '';
-				foreach ( $cols as $t ) {
-					$file_line .= trim( $t->nodeValue );
-					$file_line .= ';';
-				}
-				if ( '' !== $file_line ) {
-					/* rimuovo l'ultimo ";" */
-					$file_line  = substr( $file_line, 0, -1 );
-					$file_line .= "\r\n";
-					file_put_contents( $tmp_dwld_dir . '/codici_catastali.csv', $file_line, FILE_APPEND | LOCK_EX );
-				}
+	/**
+	 * Checks if requirements are mets before installation
+	 *
+	 * @since 2.1.0
+	 * @return WP_Error | true
+	 */
+	private static function gcmi_is_requirements_met() {
+		$min_wp  = GCMI_MINIMUM_WP_VERSION;
+		$min_php = GCMI_MINIMUM_PHP_VERSION;
+		$exts    = array( 'zip', 'dom' );
+
+		// Check for WordPress version.
+		if ( version_compare( get_bloginfo( 'version' ), $min_wp, '<' ) ) {
+			$err_code = 'gcmi_min_wp_versione_required';
+			// translators: %s is the minimum WordPress version required.
+			$err_message = sprintf( esc_html__( 'Campi Moduli Italiani requires at least WordPress version %s', 'campi-moduli-italiani' ), $min_wp );
+			$my_error    = new WP_Error( $err_code, $err_message, $err_data = '' );
+			return $my_error;
+		}
+
+		// Check the PHP version.
+		if ( version_compare( PHP_VERSION, $min_php, '<' ) ) {
+			$err_code = 'gcmi_min_php_versione_required';
+			// translators: %s is the minimum PHP version required.
+			$err_message = sprintf( esc_html__( 'Campi Moduli Italiani requires at least PHP version %s', 'campi-moduli-italiani' ), $min_php );
+			$my_error    = new WP_Error( $err_code, $err_message, $err_data = '' );
+			return $my_error;
+		}
+
+		// Check PHP loaded extensions.
+		foreach ( $exts as $ext ) {
+			if ( ! extension_loaded( $ext ) ) {
+				$err_code = 'gcmi_extension_required';
+				// translators: %s is the name of the needed PHP extension.
+				$err_message = sprintf( esc_html__( 'Campi Moduli Italiani requires PHP extension %s. Enable it on your server and then try plugin\'s acrivation again.', 'campi-moduli-italiani' ), $ext );
+				$my_error    = new WP_Error( $err_code, $err_message, $err_data = '' );
+				return $my_error;
 			}
 		}
 		return true;
 	}
 }
-

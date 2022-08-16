@@ -49,7 +49,6 @@ if ( ! defined( 'GCMI_USE_WPFORMS_INTEGRATION' ) ) {
 /* fine sezione editabile */
 
 if ( GCMI_USE_COMUNE === true ) {
-	
 	require_once plugin_dir_path( GCMI_PLUGIN ) . 'modules/comune/class-gcmi-comune.php';
 	require_once plugin_dir_path( GCMI_PLUGIN ) . 'modules/comune/class-gcmi-comune-shortcode.php';
 	require_once plugin_dir_path( GCMI_PLUGIN ) . 'modules/comune/comune-shortcode.php';
@@ -69,13 +68,13 @@ if ( GCMI_USE_COMUNE === true ) {
 
 function gcmi_load_integrations() {
 	if ( GCMI_USE_CF7_INTEGRATION === true ) {
-		if( class_exists('WPCF7') ) {
+		if ( class_exists( 'WPCF7' ) ) {
 			require_once plugin_dir_path( GCMI_PLUGIN ) . 'integrations/contact-form-7/contact-form-7-integrations.php';
 		}
 	}
 
 	if ( GCMI_USE_WPFORMS_INTEGRATION === true ) {
-		if( class_exists('WPForms') ) {
+		if ( class_exists( 'WPForms' ) ) {
 			require_once plugin_dir_path( GCMI_PLUGIN ) . 'integrations/wpforms/wpforms-integration.php';
 		}
 	}
@@ -169,3 +168,29 @@ function prefix_ms_plugin_update_message( $file, $plugin ) {
 }
 add_action( 'after_plugin_row_wp-campi-moduli-italiani/campi-moduli-italiani.php', 'prefix_ms_plugin_update_message', 10, 2 );
 
+/**
+ * Show error in front end
+ *
+ * @param WP_Error $gcmi_error
+ * @retur void
+ * @since 2.1.0
+ */
+function gcmi_show_error( $gcmi_error ) {
+	if ( is_wp_error( $gcmi_error ) ) {
+		foreach ( $gcmi_error->get_error_messages() as $error ) {
+			$output  = '<div class="gcmi_error notice notice-error is-dismissible">';
+			$output .= '<strong>ERROR: ' . $gcmi_error->get_error_code() . '</strong><br/>';
+			$output .= $error . '<br/>';
+			$output .= '</div>';
+
+			$allowed_html = array(
+				'div'    => array(
+					'class' => array(),
+				),
+				'strong' => array(),
+				'br'     => array(),
+			);
+			echo wp_kses( $output, $allowed_html );
+		}
+	}
+}
