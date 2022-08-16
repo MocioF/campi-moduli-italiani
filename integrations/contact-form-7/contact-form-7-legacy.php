@@ -19,7 +19,7 @@
  * @param array<string> $tag
  * @return mixed
  */
-function wpcf7_select_validation_filter( $result, $tag ) {
+function gcmi_wpcf7_select_validation_filter( $result, $tag ) {
 	$name = $tag->name;
 
 	$has_value = isset( $_POST[ $name ] ) && '' !== $_POST[ $name ];
