@@ -2,7 +2,7 @@
 /**
  * Legacy contact-form-7 functions
  *
- * @link https://wordpress.org/plugins/search/campi+moduli+italiani/
+ * @link https://wordpress.org/plugins/campi-moduli-italiani/
  *
  * @package    campi-moduli-italiani
  * @subpackage integrations/contact-form-7
@@ -15,9 +15,9 @@
  * This code is copied from https://plugins.trac.wordpress.org/browser/contact-form-7/tags/5.5.6.1/modules/select.php#L136
  *
  * @author takayukister
- * @param mixed         $result
- * @param array<string> $tag
- * @return mixed
+ * @param WPCF7_Validation $result The validation object.
+ * @param WPCF7_FormTag    $tag The form-tag.
+ * @return WPCF7_Validation
  */
 function gcmi_wpcf7_select_validation_filter( $result, $tag ) {
 	$name = $tag->name;

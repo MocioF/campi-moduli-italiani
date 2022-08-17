@@ -1,21 +1,45 @@
 <?php
-/*****************************************************************
- * Codice Fiscale                                                *
- *****************************************************************/
+/**
+ * Adds the cf formtag to contact form 7 modules.
+ *
+ * @package campi-moduli-italiani
+ * @subpackage campi-moduli-italiani/modules/cf
+ *
+ * @link https://wordpress.org/plugins/campi-moduli-italiani/
+ * @since 1.0.0
+ */
 
-add_action( 'wpcf7_init', 'add_form_tag_gcmi_cf' );
+add_action( 'wpcf7_init', 'gcmi_add_form_tag_cf' );
 
-function add_form_tag_gcmi_cf() {
+/**
+ * Adds cf form-tag.
+ *
+ * Adds cf form-tag.
+ *
+ * @since 1.0.0
+ * @return void
+ */
+function gcmi_add_form_tag_cf(): void {
 	wpcf7_add_form_tag(
 		array( 'cf', 'cf*' ),
-		'wpcf7_gcmi_cf_formtag_handler',
+		'gcmi_wpcf7_cf_formtag_handler',
 		array(
 			'name-attr' => true,
 		)
 	);
 }
 
-function wpcf7_gcmi_cf_formtag_handler( $tag ) {
+/**
+ * Handles cf form-tag.
+ *
+ * Handles codice fiscale form-tag.
+ *
+ * @since 1.0.0
+ *
+ * @param WPCF7_FormTag $tag the tag.
+ * @return string HTML used in form or empty string.
+ */
+function gcmi_wpcf7_cf_formtag_handler( $tag ) {
 	if ( empty( $tag->name ) ) {
 		return '';
 	}
@@ -52,8 +76,7 @@ function wpcf7_gcmi_cf_formtag_handler( $tag ) {
 
 	$value = (string) reset( $tag->values );
 
-	if ( $tag->has_option( 'placeholder' )
-	or $tag->has_option( 'watermark' ) ) {
+	if ( $tag->has_option( 'placeholder' ) || $tag->has_option( 'watermark' ) ) {
 		$atts['placeholder'] = $value;
 		$value               = '';
 	}
@@ -132,18 +155,37 @@ GCMI_CF_WPCF7_FormTag::gcmi_cf_WPCF7_addfilter();
 
 /* Tag generator */
 
-add_action( 'wpcf7_admin_init', 'wpcf7_add_tag_generator_gcmi_cf', 36 );
+add_action( 'wpcf7_admin_init', 'gcmi_wpcf7_add_tag_generator_cf', 36 );
 
-function wpcf7_add_tag_generator_gcmi_cf() {
+/**
+ * Adds tag-generator for cf form-tag.
+ *
+ * Adds tag-generator for cf form-tag.
+ *
+ * @since 1.0.0
+ * @return void
+ */
+function gcmi_wpcf7_add_tag_generator_cf(): void {
 	if ( class_exists( 'WPCF7_TagGenerator' ) ) {
 		$tag_generator = WPCF7_TagGenerator::get_instance();
-		$tag_generator->add( 'gcmi-cf', __( 'Insert Italian Tax Code', 'campi-moduli-italiani' ), 'wpcf7_tg_pane_gcmi_cf' );
+		$tag_generator->add( 'gcmi-cf', __( 'Insert Italian Tax Code', 'campi-moduli-italiani' ), 'gcmi_wpcf7_tg_pane_cf' );
 	} elseif ( function_exists( 'wpcf7_add_tag_generator' ) ) {
-		wpcf7_add_tag_generator( 'gcmi-cf', __( 'Insert Italian Tax Code', 'campi-moduli-italiani' ), 'wpcf7_tg_pane_gcmi_cf', 'wpcf7_tg_pane_gcmi_cf' );
+		wpcf7_add_tag_generator( 'gcmi-cf', __( 'Insert Italian Tax Code', 'campi-moduli-italiani' ), 'gcmi_wpcf7_tg_pane_cf', 'gcmi_wpcf7_tg_pane_cf' );
 	}
 }
 
-function wpcf7_tg_pane_gcmi_cf( $contact_form, $args = '' ) {
+/**
+ * Handles tag-generator for cf form-tag.
+ *
+ * Handles tag-generator for cf form-tag.
+ *
+ * @since 1.0.0
+ *
+ * @param WPCF7_ContactForm                   $contact_form The form object.
+ * @param string|array<string|integer>|object $args List of default values.
+ * @return void
+ */
+function gcmi_wpcf7_tg_pane_cf( $contact_form, $args = '' ): void {
 	$args = wp_parse_args( $args, array() );
 	/* translators: %s: link to plugin page URL */
 	$description = __( 'Creates a form tag for natural person Italian tax code. To get more informations look at %s.', 'campi-moduli-italiani' );
@@ -234,7 +276,12 @@ function wpcf7_tg_pane_gcmi_cf( $contact_form, $args = '' ) {
 
 		<br class="clear" />
 
-		<p class="description mail-tag"><label for="<?php echo esc_attr( $args['content'] . '-mailtag' ); ?>"><?php echo sprintf( esc_html( __( 'To use the value input through this field in a mail field, you need to insert the corresponding mail-tag (%s) into the field on the Mail tab.', 'contact-form-7' ) ), '<strong><span class="mail-tag"></span></strong>' ); ?><input type="text" class="mail-tag code hidden" readonly="readonly" id="<?php echo esc_attr( $args['content'] . '-mailtag' ); ?>" /></label></p>
+		<p class="description mail-tag"><label for="<?php echo esc_attr( $args['content'] . '-mailtag' ); ?>">
+		<?php
+		// translators: %s is the name of the mail-tag.
+		echo sprintf( esc_html( __( 'To use the value input through this field in a mail field, you need to insert the corresponding mail-tag (%s) into the field on the Mail tab.', 'contact-form-7' ) ), '<strong><span class="mail-tag"></span></strong>' );
+		?>
+		<input type="text" class="mail-tag code hidden" readonly="readonly" id="<?php echo esc_attr( $args['content'] . '-mailtag' ); ?>" /></label></p>
 	</div>
 	<?php
 }
