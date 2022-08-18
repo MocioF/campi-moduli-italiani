@@ -6,17 +6,17 @@
  * @subpackage campi-moduli-italiani/modules/comune
  */
 
-add_action( 'wpcf7_init', 'add_form_tag_gcmi_comune' );
+add_action( 'wpcf7_init', 'gcmi_add_form_tag_comune' );
 
 /**
  * Adds the comune formtag to contact form 7 modules
  *
  * @return void
  */
-function add_form_tag_gcmi_comune() {
+function gcmi_add_form_tag_comune() {
 	wpcf7_add_form_tag(
 		array( 'comune', 'comune*' ),
-		'wpcf7_gcmi_comune_formtag_handler',
+		'gcmi_wpcf7_comune_formtag_handler',
 		array(
 			'name-attr'         => true,
 			'selectable-values' => true,
@@ -30,7 +30,7 @@ function add_form_tag_gcmi_comune() {
  * @param WPCF7_FormTag $tag The CF7 tag object.
  * @return string
  */
-function wpcf7_gcmi_comune_formtag_handler( $tag ) {
+function gcmi_wpcf7_comune_formtag_handler( $tag ) {
 	GCMI_COMUNE::gcmi_comune_enqueue_scripts();
 
 	if ( empty( $tag->name ) ) {

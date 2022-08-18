@@ -225,7 +225,6 @@ class GCMI_COMUNE_WPCF7_FormTag extends GCMI_COMUNE {
 			require_once GCMI_PLUGIN_DIR . '/integrations/contact-form-7/contact-form-7-legacy.php';
 			add_filter( 'wpcf7_validate_comune', 'gcmi_wpcf7_select_validation_filter', 10, 2 );
 			add_filter( 'wpcf7_validate_comune*', 'gcmi_wpcf7_select_validation_filter', 10, 2 );
-
 		} else {
 			add_filter( 'wpcf7_validate_comune', 'wpcf7_select_validation_filter', 10, 2 );
 			add_filter( 'wpcf7_validate_comune*', 'wpcf7_select_validation_filter', 10, 2 );
