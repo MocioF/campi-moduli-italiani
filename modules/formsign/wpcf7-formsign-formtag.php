@@ -11,15 +11,15 @@
  * calculate the hash;
  * check the signature.
  *
- * @link https://wordpress.org/plugins/search/campi+moduli+italiani/
+ * @link https://wordpress.org/plugins/campi-moduli-italiani/
  *
  * @package campi-moduli-italiani
- * @subpackage formsign
+ * @subpackage campi-moduli-italiani/modules/formsign
  * @since 1.0.0
  */
 
 if ( extension_loaded( 'openssl' ) ) {
-	add_action( 'wpcf7_init', 'add_form_tag_gcmi_formsign' );
+	add_action( 'wpcf7_init', 'gcmi_add_form_tag_formsign' );
 }
 
 /**
@@ -28,11 +28,12 @@ if ( extension_loaded( 'openssl' ) ) {
  * Adds formsign form tag..
  *
  * @since 1.0.0
+ * @return void
  */
-function add_form_tag_gcmi_formsign() {
+function gcmi_add_form_tag_formsign(): void {
 	wpcf7_add_form_tag(
 		array( 'formsign' ),
-		'wpcf7_gcmi_formsign_formtag_handler',
+		'gcmi_wpcf7_formsign_formtag_handler',
 		array(
 			'name-attr' => true,
 		)
@@ -42,14 +43,14 @@ function add_form_tag_gcmi_formsign() {
 /**
  * Call back function for formsign form-tag.
  *
- * Call back function for formsign form-tag.
+ * Returns the html string used in form or empty string.
  *
  * @since 1.0.0
  *
- * @param type $tag the tag.
- * @return html string used in form or empty string.
+ * @param WPCF7_FormTag $tag The CF7 tag object.
+ * @return string
  */
-function wpcf7_gcmi_formsign_formtag_handler( $tag ) {
+function gcmi_wpcf7_formsign_formtag_handler( $tag ) {
 	if ( empty( $tag->name ) ) {
 		return '';
 	}
@@ -64,7 +65,11 @@ function wpcf7_gcmi_formsign_formtag_handler( $tag ) {
 			metadata_exists( 'post', $the_id, '_gcmi_wpcf7_enc_privKey' )
 		&& metadata_exists( 'post', $the_id, '_gcmi_wpcf7_enc_pubKey' )
 	) ) {
-		gcmi_generate_keypair( $the_id );
+		$generate = gcmi_generate_keypair( $the_id );
+		if ( is_wp_error( $generate ) ) {
+			gcmi_show_error( $generate );
+			die;
+		}
 	}
 
 	$atts = array();
@@ -91,8 +96,8 @@ function wpcf7_gcmi_formsign_formtag_handler( $tag ) {
  * Private key is 4096 bits long. Keytype is RSA.
  *
  * @since 1.0.0
- *
- * @param type $form_post_id The form id stored in wp_posts.
+ * @param integer $form_post_id The form id stored in wp_posts.
+ * @return WP_Error | true
  */
 function gcmi_generate_keypair( $form_post_id ) {
 	$config = array(
@@ -100,20 +105,38 @@ function gcmi_generate_keypair( $form_post_id ) {
 		'private_key_bits' => 4096,
 		'private_key_type' => OPENSSL_KEYTYPE_RSA,
 	);
-	$res    = openssl_pkey_new( $config );
 
 	/* Creates the private and public key */
 	$res = openssl_pkey_new( $config );
+
+	if ( false === $res ) {
+		$gcmi_error  = new WP_Error();
+		$err_code    = 'gcmi_keypair_generation';
+		$err_message = esc_html__( 'Impossible to generate a key pair for the form', 'campi-moduli-italiani' );
+		$gcmi_error->add( $err_code, $err_message, $config );
+		return $gcmi_error;
+	}
 
 	/* Extracts the private key from $res to $priv_key */
 	openssl_pkey_export( $res, $priv_key );
 
 	/* Extracts the public key from $res to $pub_key */
 	$pub_key = openssl_pkey_get_details( $res );
+
+	if ( false === $pub_key ) {
+		$gcmi_error  = new WP_Error();
+		$err_code    = 'gcmi_get_key_details';
+		$err_message = esc_html__( 'Impossible to get new generated key details', 'campi-moduli-italiani' );
+		$gcmi_error->add( $err_code, $err_message );
+		return $gcmi_error;
+	}
+
 	$pub_key = $pub_key['key'];
 
 	update_post_meta( $form_post_id, '_gcmi_wpcf7_enc_privKey', $priv_key );
 	update_post_meta( $form_post_id, '_gcmi_wpcf7_enc_pubKey', $pub_key );
+
+	return true;
 }
 
 add_filter(
@@ -124,8 +147,9 @@ add_filter(
 
 		$submission = WPCF7_Submission::get_instance();
 
-		if ( ! $submission
-		|| ! $posted_data = $submission->get_posted_data() ) {
+		$posted_data = $submission->get_posted_data();
+
+		if ( is_null( $submission ) || is_null( $posted_data ) ) {
 			return;
 		}
 
@@ -141,8 +165,8 @@ add_filter(
 		$exclude_names[] = 'g-recaptcha-response';
 
 		foreach ( $posted_data as $key => $value ) {
-			if ( '_' == substr( $key, 0, 1 )
-			or in_array( $key, $exclude_names ) ) {
+			if ( '_' === substr( $key, 0, 1 )
+			|| in_array( $key, $exclude_names ) ) {
 				unset( $posted_data[ $key ] );
 			}
 		}
@@ -187,7 +211,7 @@ add_filter(
 require_once ABSPATH . 'wp-admin/includes/plugin.php';
 if ( is_plugin_active( 'flamingo/flamingo.php' ) && extension_loaded( 'openssl' ) ) {
 	add_action( 'load-flamingo_page_flamingo_inbound', 'gcmi_flamingo_check_sign' );
-	add_action( 'admin_enqueue_scripts', 'formsign_enqueue_flamingo_admin_script' );
+	add_action( 'admin_enqueue_scripts', 'gcmi_formsign_enqueue_flamingo_admin_script' );
 
 	add_action( 'wp_ajax_gcmi_flamingo_check_codes', 'gcmi_flamingo_meta_box_ajax_handler' );
 }
@@ -196,8 +220,9 @@ if ( is_plugin_active( 'flamingo/flamingo.php' ) && extension_loaded( 'openssl' 
  * Enqueues js script in admin area.
  *
  * @since 1.0.0
+ * @return void
  */
-function formsign_enqueue_flamingo_admin_script() {
+function gcmi_formsign_enqueue_flamingo_admin_script() {
 	$screen = get_current_screen();
 	if ( is_object( $screen ) ) {
 		wp_register_script( 'formsign_flamingo', plugins_url( GCMI_PLUGIN_NAME ) . '/admin/js/formsign.js', array( 'jquery', 'wp-i18n' ), GCMI_VERSION, true );
@@ -218,6 +243,7 @@ function formsign_enqueue_flamingo_admin_script() {
  * Adds metabox in flamingo.
  *
  * @since 1.0.0
+ * @return void
  */
 function gcmi_flamingo_check_sign() {
 	add_meta_box(
@@ -235,33 +261,40 @@ function gcmi_flamingo_check_sign() {
  *
  * @since 1.0.0
  *
- * @param type $post The post showed by flamingo.
+ * @param Flamingo_Inbound_Message $post The post showed by flamingo.
+ * @return void
  */
 function gcmi_flamingo_formsig_meta_box( $post ) {
 	/*
 	 * In 1.0.3 this has been modified because radio opts values are stored as arrays and array_map sets option's value to null (with a warning)
 	 * In 1.1.3 this has been removed because we don't need to add slashes in array of data
 	 *
+	 * array_walk_recursive(
+	 *	$post->fields,
+	 *	function( &$item, $key ) {
+	 *		$item = addslashes( $item );
+	 *	}
+	 * );
 	 */
-
-	// array_walk_recursive(
-	// $post->fields,
-	// function( &$item, $key ) {
-	// $item = addslashes( $item );
-	// }
-	// );
 	$postfields = $post->fields;
 	$serialized = serialize( $postfields );
 	$hash       = md5( $serialized );
 	$formid     = gcmi_get_form_post_id( $post );
-	?>
-	<p><label for="mail_hash"><?php echo esc_html( __( 'Insert/Paste hash from mail', 'campi-moduli-italiani' ) ); ?></label><input type="text" name="mail_hash" id="gcmi_flamingo_input_hash" minlength="32" maxlength="32"/></p>
-	<p><label><?php echo esc_html( __( 'Insert/Paste signature from mail', 'campi-moduli-italiani' ) ); ?></label><input type="text" name="mail_signature" id="gcmi_flamingo_input_signature"/></p>
-	<input type="hidden" id="gcmi_flamingo_input_form_ID" value="<?php echo ( esc_html( $formid ) ); ?>">
-	<input type="hidden" id="gcmi_flamingo_calc_hash" value="<?php echo ( esc_html( $hash ) ); ?>">
-	<div class="gcmi-flamingo-response" id="gcmi-flamingo-response"></div>
-	<p><input type="button" class="button input.submit button-secondary" value="<?php echo esc_html( __( 'Check Hash and signature', 'campi-moduli-italiani' ) ); ?>" id="gcmi_btn_check_sign"></p>	
-	<?php
+	if ( false !== $formid ) {
+		$formid = strval( $formid );
+		?>
+		<p><label for="mail_hash"><?php echo esc_html( __( 'Insert/Paste hash from mail', 'campi-moduli-italiani' ) ); ?></label><input type="text" name="mail_hash" id="gcmi_flamingo_input_hash" minlength="32" maxlength="32"/></p>
+		<p><label><?php echo esc_html( __( 'Insert/Paste signature from mail', 'campi-moduli-italiani' ) ); ?></label><input type="text" name="mail_signature" id="gcmi_flamingo_input_signature"/></p>
+		<input type="hidden" id="gcmi_flamingo_input_form_ID" value="<?php echo ( esc_html( $formid ) ); ?>">
+		<input type="hidden" id="gcmi_flamingo_calc_hash" value="<?php echo ( esc_html( $hash ) ); ?>">
+		<div class="gcmi-flamingo-response" id="gcmi-flamingo-response"></div>
+		<p><input type="button" class="button input.submit button-secondary" value="<?php echo esc_html( __( 'Check Hash and signature', 'campi-moduli-italiani' ) ); ?>" id="gcmi_btn_check_sign"></p>	
+		<?php
+	} else {
+		?>
+		<p><?php echo esc_html( __( 'Impossible to retrieve form ID for this message', 'campi-moduli-italiani' ) ); ?></p>
+		<?php
+	}
 }
 
 /**
@@ -271,12 +304,17 @@ function gcmi_flamingo_formsig_meta_box( $post ) {
  *
  * @since 1.0.4
  *
- * @param type $post The post showed by flamingo.
+ * @param Flamingo_Inbound_Message $post The post showed by flamingo.
+ * @return integer | false
  */
 function gcmi_get_form_post_id( $post ) {
 	$flamingo_inbound_channel_slug = $post->channel;
 	$myform                        = get_page_by_path( $flamingo_inbound_channel_slug, '', 'wpcf7_contact_form' );
-	return $myform->ID;
+	if ( ! is_null( $myform ) ) {
+		return $myform->ID;
+	} else {
+		return false;
+	}
 }
 
 
@@ -284,6 +322,7 @@ function gcmi_get_form_post_id( $post ) {
  * Ajax handler for flamingo metabox.
  *
  * @since 1.0.0
+ * @return void
  */
 function gcmi_flamingo_meta_box_ajax_handler() {
 	if ( isset( $_POST['checksignnonce'] ) ) {
@@ -297,7 +336,8 @@ function gcmi_flamingo_meta_box_ajax_handler() {
 		if ( sanitize_text_field( wp_unslash( $_POST['hash_input'] ) ) !== sanitize_text_field( wp_unslash( $_POST['hash_calc'] ) ) ) {
 			echo 'hash_mismatch';
 		} else { // hash match.
-			if ( ! $public_key = get_post_meta( sanitize_text_field( wp_unslash( $_POST['formID_input'] ) ), '_gcmi_wpcf7_enc_pubKey', true ) ) {
+			$public_key = get_post_meta( intval( sanitize_text_field( wp_unslash( $_POST['formID_input'] ) ) ), '_gcmi_wpcf7_enc_pubKey', true );
+			if ( '' === $public_key || false === $public_key ) {
 				echo 'no_pubkey_found';
 			} else {
 				if ( isset( $_POST['sign_input'] ) ) {
@@ -330,5 +370,3 @@ function gcmi_flamingo_meta_box_ajax_handler() {
 	}
 	die;
 }
-
-?>
