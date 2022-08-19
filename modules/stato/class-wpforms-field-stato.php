@@ -49,6 +49,7 @@ class WPForms_Field_Stato extends WPForms_Field {
 	 * Primary class constructor.
 	 *
 	 * @since 2.0.0
+	 * @return void
 	 */
 	public function init() {
 		// Define field type information.
@@ -96,6 +97,8 @@ class WPForms_Field_Stato extends WPForms_Field {
 	public function field_properties( $properties, $field, $form_data ) {
 		global $wpdb;
 
+		$choices = array();
+
 		// Remove primary input.
 		unset( $properties['inputs']['primary'] );
 
@@ -122,9 +125,9 @@ class WPForms_Field_Stato extends WPForms_Field {
 				$sql .= '`' . GCMI_TABLE_PREFIX . 'stati` ';
 			}
 			if ( isset( $field['use_continent'] ) ) {
-				$sql .= 'ORDER BY `i_cod_continente`, `i_cod_istat`, `i_denominazione_ita` ASC';
+				$sql .= 'ORDER BY `i_cod_continente`, `i_denominazione_ita`, `i_cod_istat` ASC';
 			} else {
-				$sql .= 'ORDER BY `i_cod_istat`, `i_denominazione_ita` ASC';
+				$sql .= 'ORDER BY `i_denominazione_ita`, `i_cod_istat` ASC';
 			}
 
 			$stati = $wpdb->get_results( $sql ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
@@ -147,6 +150,7 @@ class WPForms_Field_Stato extends WPForms_Field {
 					'label' => ' ---  ' . stripslashes( esc_html( $continente->i_den_continente ) ),
 					'value' => '',
 					'image' => '',
+					'depth' => 1,
 				);
 				$cod_continente = $continente->i_cod_continente;
 				foreach ( $stati as $stato ) {
@@ -155,7 +159,15 @@ class WPForms_Field_Stato extends WPForms_Field {
 							'label' => stripslashes( esc_html( $stato->i_denominazione_ita ) ),
 							'value' => esc_html( $stato->i_cod_istat ),
 							'image' => '',
+							'depth' => 2,
 						);
+					}
+					if ( isset( $field['default_value'] ) && ( '' !== $field['default_value'] ) ) {
+						if ( sanitize_text_field( strval( $field['default_value'] ) ) === stripslashes( $stato->i_denominazione_ita ) ||
+							sanitize_text_field( strval( $field['default_value'] ) ) === $stato->i_cod_istat ) {
+							$key                        = array_key_last( $choices );
+							$choices[ $key ]['default'] = 'default';
+						}
 					}
 				}
 			}
@@ -166,6 +178,13 @@ class WPForms_Field_Stato extends WPForms_Field {
 					'value' => esc_html( $stato->i_cod_istat ),
 					'image' => '',
 				);
+				if ( isset( $field['default_value'] ) && ( '' !== $field['default_value'] ) ) {
+					if ( sanitize_text_field( strval( $field['default_value'] ) ) === stripslashes( $stato->i_denominazione_ita ) ||
+						sanitize_text_field( strval( $field['default_value'] ) ) === $stato->i_cod_istat ) {
+						$key                        = array_key_last( $choices );
+						$choices[ $key ]['default'] = 'default';
+					}
+				}
 			}
 		}
 
@@ -314,24 +333,34 @@ class WPForms_Field_Stato extends WPForms_Field {
 		);
 		echo $output; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 
-		// Show Values toggle option.
-		$output = $this->field_element(
-			'checkbox',
+		// Default selected value.
+		$lbl = $this->field_element(
+			'label',
 			$field,
 			array(
-				'slug'    => 'show_values',
-				'value'   => isset( $field['show_values'] ) ? $field['show_values'] : '0',
-				'desc'    => esc_html__( 'Use values', 'campi-moduli-italiani' ),
-				'tooltip' => esc_html__( 'Check this to use Istat code as values.', 'campi-moduli-italiani' ),
+				'slug'    => 'default_value',
+				'value'   => esc_html__( 'Default value', 'campi-moduli-italiani' ),
+				'tooltip' => esc_html__( 'Country\'s ISTAT Code (3 digits) or Country\'s Italian denomination (case sensitive).', 'campi-moduli-italiani' ),
 			),
 			false
 		);
-		$output = $this->field_element(
+		$fld = $this->field_element(
+			'text',
+			$field,
+			array(
+				'slug'        => 'default_value',
+				'value'       => isset( $field['default_value'] ) ? $field['default_value'] : '',
+				'placeholder' => 'Italia',
+				'content'     => $output,
+			),
+			false
+		);
+		$this->field_element(
 			'row',
 			$field,
 			array(
-				'slug'    => 'show_values',
-				'content' => $output,
+				'slug'    => 'default_value',
+				'content' => $lbl . $fld,
 			)
 		);
 
@@ -420,6 +449,7 @@ class WPForms_Field_Stato extends WPForms_Field {
 	 * @since 2.0.0
 	 *
 	 * @param array $field Field settings.
+	 * @return void
 	 */
 	public function field_preview( $field ) {
 		$args = array();
@@ -484,6 +514,7 @@ class WPForms_Field_Stato extends WPForms_Field {
 	 * @param array $field      Field data and settings.
 	 * @param array $deprecated Deprecated array of field attributes.
 	 * @param array $form_data  Form data and settings.
+	 * @return void
 	 */
 	public function field_display( $field, $deprecated, $form_data ) {
 		$container         = $field['properties']['input_container'];
@@ -577,6 +608,7 @@ class WPForms_Field_Stato extends WPForms_Field {
 	 * @param array $fields    List of fields.
 	 * @param array $entry     Submitted form entry.
 	 * @param array $form_data Form data and settings.
+	 * @return array
 	 */
 	public function gcmi_wpf_stato_modify_email_value( $fields, $entry, $form_data ) {
 		global $wpdb;
@@ -614,6 +646,7 @@ class WPForms_Field_Stato extends WPForms_Field {
 	 *
 	 * @param string $new_class  Nome nuova classe.
 	 * @param array  $field      Field data and settings.
+	 * @return string
 	 */
 	public function gcmi_wpf_country_add_class_select( $new_class, $field ) {
 		if ( 'country' === $field['type'] ) {
@@ -629,6 +662,7 @@ class WPForms_Field_Stato extends WPForms_Field {
 	 *
 	 * @param string $css       lista classes separata da ' '.
 	 * @param array  $field      Field data and settings.
+	 * @return string
 	 */
 	public function gcmi_wpf_country_preview_class_select( $css, $field ) {
 		if ( 'country' === $field['type'] ) {
@@ -643,6 +677,7 @@ class WPForms_Field_Stato extends WPForms_Field {
 	 * @since 2.0.0
 	 *
 	 * @param array $field      Field data and settings.
+	 * @return array
 	 */
 	public function gcmi_wpf_country_apply_default( $field ) {
 		if ( 'country' === $field['type'] ) {
@@ -660,6 +695,7 @@ class WPForms_Field_Stato extends WPForms_Field {
 	 * @since 2.0.0
 	 *
 	 * @param array $forms Forms on the current page.
+	 * @return void
 	 */
 	public function enqueue_frontend_css( $forms ) {
 		$has_modern_select = false;
@@ -690,6 +726,7 @@ class WPForms_Field_Stato extends WPForms_Field {
 	 * @since 2.0.0
 	 *
 	 * @param array $forms Forms on the current page.
+	 * @return void
 	 */
 	public function enqueue_frontend_js( $forms ) {
 		$has_modern_select = false;

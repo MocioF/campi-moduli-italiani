@@ -134,7 +134,8 @@ function gcmi_wpcf7_stato_formtag_handler( $tag ) {
 			foreach ( $stati as $stato ) {
 				if ( $stato->i_cod_continente === $cod_continente ) {
 					$value = 'value="' . esc_html( $stato->i_cod_istat ) . '"';
-					if ( $stato->i_cod_istat === $pr_value ) {
+					if ( $stato->i_cod_istat === $pr_value ||
+						 stripslashes( $stato->i_denominazione_ita ) === $pr_value ) {
 						$value .= ' selected';
 					}
 					$inset = stripslashes( esc_html( $stato->i_denominazione_ita ) );
@@ -278,7 +279,8 @@ function gcmi_wpcf7_add_tag_generator_stato(): void {
  */
 function gcmi_wpcf7_tg_pane_stato( $contact_form, $args = '' ): void {
 	$args = wp_parse_args( $args, array() );
-	/* translators: %s: link to plugin page URL */
+
+	// translators: %s is the link to plugin page URL.
 	$description = __( 'Creates a select with countries %s.', 'campi-moduli-italiani' );
 	$desc_link   = wpcf7_link( 'https://wordpress.org/plugins/campi-moduli-italiani/', __( 'the plugin page at WordPress.org', 'campi-moduli-italiani' ), array( 'target' => '_blank' ) );
 	?>
@@ -303,7 +305,7 @@ function gcmi_wpcf7_tg_pane_stato( $contact_form, $args = '' ): void {
 					<tr>
 						<th scope="row"><label for="<?php echo esc_attr( $args['content'] . '-values' ); ?>"><?php echo esc_html( __( 'Default value', 'contact-form-7' ) ); ?></label></th>
 						<td><input type="text" name="values" class="oneline" id="<?php echo esc_attr( $args['content'] . '-values' ); ?>" /><br />
-						<?php echo esc_html( __( 'Country\'s ISTAT Code (3 digits)', 'campi-moduli-italiani' ) ); ?></td>
+						<?php echo esc_html( __( 'Country\'s ISTAT Code (3 digits) or Country\'s Italian denomination (case sensitive).', 'campi-moduli-italiani' ) ); ?></td>
 					</tr>
 					<tr>
 					<th scope="row"><?php echo esc_html( __( 'Options', 'contact-form-7' ) ); ?></th>
@@ -342,7 +344,12 @@ function gcmi_wpcf7_tg_pane_stato( $contact_form, $args = '' ): void {
 
 		<br class="clear" />
 
-		<p class="description mail-tag"><label for="<?php echo esc_attr( $args['content'] . '-mailtag' ); ?>"><?php echo sprintf( esc_html( __( 'To use the value input through this field in a mail field, you need to insert the corresponding mail-tag (%s) into the field on the Mail tab.', 'contact-form-7' ) ), '<strong><span class="mail-tag"></span></strong>' ); ?><input type="text" class="mail-tag code hidden" readonly="readonly" id="<?php echo esc_attr( $args['content'] . '-mailtag' ); ?>" /></label></p>
+		<p class="description mail-tag"><label for="<?php echo esc_attr( $args['content'] . '-mailtag' ); ?>">
+		<?php
+		// translators: %s is the name of the mail-tag.
+		echo sprintf( esc_html( __( 'To use the value input through this field in a mail field, you need to insert the corresponding mail-tag (%s) into the field on the Mail tab.', 'contact-form-7' ) ), '<strong><span class="mail-tag"></span></strong>' );
+		?>
+		<input type="text" class="mail-tag code hidden" readonly="readonly" id="<?php echo esc_attr( $args['content'] . '-mailtag' ); ?>" /></label></p>
 	</div>
 	<?php
 }
