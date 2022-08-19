@@ -13,7 +13,14 @@
  * by setting GCMI_USE_[] costants to false.
  */
 
+/**
+ * Requires the activator class
+ */
 require_once plugin_dir_path( GCMI_PLUGIN ) . 'admin/class-gcmi-activator.php';
+
+/**
+ * Requires file used to run the cron job to check remote files update
+ */
 require_once plugin_dir_path( GCMI_PLUGIN ) . 'includes/cron.php';
 
 if ( is_admin() ) {
@@ -34,7 +41,11 @@ if ( ! defined( 'GCMI_USE_STATO' ) ) {
 }
 
 if ( ! defined( 'GCMI_USE_FORMSIGN' ) ) {
-	define( 'GCMI_USE_FORMSIGN', true );
+	if ( extension_loaded( 'openssl' ) ) {
+		define( 'GCMI_USE_FORMSIGN', true );
+	} else {
+		define( 'GCMI_USE_FORMSIGN', false );
+	}
 }
 
 /* configurazione integrazioni utilizzate */
@@ -65,7 +76,11 @@ if ( GCMI_USE_COMUNE === true ) {
 	add_action( 'wp_enqueue_scripts', 'GCMI_COMUNE::gcmi_register_scripts' );
 }
 
-
+/**
+ * Requires files needed to load integrations for forms builders
+ *
+ * @return void
+ */
 function gcmi_load_integrations() {
 	if ( GCMI_USE_CF7_INTEGRATION === true ) {
 		if ( class_exists( 'WPCF7' ) ) {
@@ -87,6 +102,7 @@ add_action( 'admin_init', 'gcmi_upgrade', 10, 0 );
  * Updates the plugin version number in the database
  *
  * @since 1.0.0
+ * @return void
  */
 function gcmi_upgrade() {
 	$old_ver = get_option( 'gcmi_plugin_version', '0' );
@@ -104,11 +120,11 @@ function gcmi_upgrade() {
 /**
  * Adds extra links to the plugin activation page
  *
- * @param  array  $meta   Extra meta links.
- * @param  string $file   Specific file to compare against the base plugin.
- * @return array          Return the meta links array
+ * @param  array<string> $meta   Extra meta links.
+ * @param  string        $file   Specific file to compare against the base plugin.
+ * @return array<string>  Return the meta links array
  */
-function get_extra_meta_links( $meta, $file ) {
+function gcmi_get_extra_meta_links( $meta, $file ) {
 	if ( GCMI_PLUGIN_BASENAME === $file ) {
 		$plugin_page = admin_url( 'admin.php?page=gcmi' );
 		$meta[]      = "<a href='https://wordpress.org/support/plugin/campi-moduli-italiani/' target='_blank' title'" . __( 'Support', 'campi-moduli-italiani' ) . "'>" . __( 'Support', 'campi-moduli-italiani' ) . '</a>';
@@ -116,11 +132,14 @@ function get_extra_meta_links( $meta, $file ) {
 	}
 	return $meta;
 }
+add_filter( 'plugin_row_meta', 'gcmi_get_extra_meta_links', 10, 2 );
 
 /**
  * Adds styles to admin head to allow for stars animation and coloring
+ *
+ * @return void
  */
-function add_star_styles() {
+function gcmi_add_star_styles() {
 	global $pagenow;
 	if ( 'plugins.php' === $pagenow ) {?>
 		<style>
@@ -132,65 +151,97 @@ function add_star_styles() {
 		<?php
 	}
 }
+add_action( 'admin_head', 'gcmi_add_star_styles' );
 
-add_filter( 'plugin_row_meta', 'get_extra_meta_links', 10, 2 );
-add_action( 'admin_head', 'add_star_styles' );
+/**
+ * The code that runs during plugin activation.
+ * This action is documented in admin/class-gcmi-activator.php
+ *
+ * @since 1.0.0
+ * @param bool $network_wide True if plugin is network-wide activated.
+ * @return void
+ */
+function campi_moduli_italiani_activate( $network_wide ) {
+	require_once plugin_dir_path( __FILE__ ) . 'admin/class-gcmi-activator.php';
+	GCMI_Activator::activate( $network_wide );
+}
 
-register_activation_hook( GCMI_PLUGIN, array( GCMI_Activator::class, 'activate' ) );
-register_deactivation_hook( GCMI_PLUGIN, array( GCMI_Activator::class, 'deactivate' ) );
+/**
+ * The code that runs during plugin deactivation.
+ * This action is documented in admin/class-gcmi-activator.php
+ *
+ * @since 1.0.0
+ * @param bool $network_wide True if plugin is network-wide activated.
+ * @return void
+ */
+function campi_moduli_italiani_deactivate( $network_wide ) {
+	require_once plugin_dir_path( __FILE__ ) . 'admin/class-gcmi-activator.php';
+	GCMI_Activator::deactivate( $network_wide );
+}
+
+register_activation_hook( GCMI_PLUGIN, 'campi_moduli_italiani_activate' );
+register_deactivation_hook( GCMI_PLUGIN, 'campi_moduli_italiani_deactivate' );
 
 /**
  * Display plugin upgrade notice to users
+ *
+ * @param array<string> $data An array of plugin metadata.
+ * @param Object        $response  An object of metadata about the available plugin update.
+ * @return void
  */
-function prefix_plugin_update_message( $data, $response ) {
+function gcmi_plugin_update_message( $data, $response ) {
 	if ( isset( $data['upgrade_notice'] ) ) {
 		printf(
 			'<div class="update-message">%s</div>',
-			wpautop( $data['upgrade_notice'] )
+			esc_html( wpautop( $data['upgrade_notice'] ) )
 		);
 	}
 }
-add_action( 'in_plugin_update_message-campi-moduli-italiani/campi-moduli-italiani.php', 'prefix_plugin_update_message', 10, 2 );
+add_action( 'in_plugin_update_message-campi-moduli-italiani/campi-moduli-italiani.php', 'gcmi_plugin_update_message', 10, 2 );
 
 /**
  * Display plugin upgrade notice to users on multisite installations
+ *
+ * @param string        $file Path to the plugin file relative to the plugins directory.
+ * @param array<string> $plugin An array of plugin data.
+ * @return void
  */
-function prefix_ms_plugin_update_message( $file, $plugin ) {
+function gcmi_ms_plugin_update_message( $file, $plugin ) {
 	if ( is_multisite() && version_compare( $plugin['Version'], $plugin['new_version'], '<' ) ) {
 		$wp_list_table = _get_list_table( 'WP_Plugins_List_Table' );
-		printf(
-			'<tr class="plugin-update-tr"><td colspan="%s" class="plugin-update update-message notice inline notice-warning notice-alt"><div class="update-message"><h4 style="margin: 0; font-size: 14px;">%s</h4>%s</div></td></tr>',
-			$wp_list_table->get_column_count(),
-			$plugin['Name'],
-			wpautop( $plugin['upgrade_notice'] )
-		);
+		if ( false !== $wp_list_table ) {
+			printf(
+				'<tr class="plugin-update-tr"><td colspan="%s" class="plugin-update update-message notice inline notice-warning notice-alt"><div class="update-message"><h4 style="margin: 0; font-size: 14px;">%s</h4>%s</div></td></tr>',
+				esc_html( strval( $wp_list_table->get_column_count() ) ),
+				esc_html( $plugin['Name'] ),
+				esc_html( wpautop( $plugin['upgrade_notice'] ) )
+			);
+		}
 	}
 }
-add_action( 'after_plugin_row_wp-campi-moduli-italiani/campi-moduli-italiani.php', 'prefix_ms_plugin_update_message', 10, 2 );
+add_action( 'after_plugin_row_wp-campi-moduli-italiani/campi-moduli-italiani.php', 'gcmi_ms_plugin_update_message', 10, 2 );
 
 /**
  * Show error in front end
  *
- * @param WP_Error $gcmi_error
- * @retur void
+ * @param WP_Error $gcmi_error The error to be shown.
+ * @return void
  * @since 2.1.0
  */
 function gcmi_show_error( $gcmi_error ) {
-	if ( is_wp_error( $gcmi_error ) ) {
-		foreach ( $gcmi_error->get_error_messages() as $error ) {
-			$output  = '<div class="gcmi_error notice notice-error is-dismissible">';
-			$output .= '<strong>ERROR: ' . $gcmi_error->get_error_code() . '</strong><br/>';
-			$output .= $error . '<br/>';
-			$output .= '</div>';
+	foreach ( $gcmi_error->get_error_messages() as $error ) {
+		$output  = '<div class="gcmi_error notice notice-error is-dismissible">';
+		$output .= '<strong>ERROR: ' . $gcmi_error->get_error_code() . '</strong><br/>';
+		$output .= $error . '<br/>';
+		$output .= '</div>';
 
-			$allowed_html = array(
-				'div'    => array(
-					'class' => array(),
-				),
-				'strong' => array(),
-				'br'     => array(),
-			);
-			echo wp_kses( $output, $allowed_html );
-		}
+		$allowed_html = array(
+			'div'    => array(
+				'class' => array(),
+			),
+			'strong' => array(),
+			'br'     => array(),
+		);
+		echo wp_kses( $output, $allowed_html );
 	}
 }
