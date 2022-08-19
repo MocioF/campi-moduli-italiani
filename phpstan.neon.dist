@@ -1,0 +1,27 @@
+parameters:
+	level: 9
+	paths:
+		- campi-moduli-italiani.php
+		- settings.php
+		- admin
+		- includes
+		- integrations
+		- modules
+	scanFiles:
+		- campi-moduli-italiani.php
+	scanDirectories:
+		- vendor
+		- ../contact-form-7
+		- ../flamingo
+		- ../wpforms-lite
+	bootstrapFiles:
+		- campi-moduli-italiani.php
+	ignoreErrors:
+		- 
+		    message: '#Method [a-zA-Z0-9\\_]+::[a-zA-Z0-9\\_]+\(\) has parameter \$[a-zA-Z0-9\\_]+ with no value type specified in iterable type array.#'
+		    path: modules/comune/class-wpforms-field-comune.php
+		- 
+		    message: '#Method [a-zA-Z0-9\\_]+::[a-zA-Z0-9\\_]+\(\) return type has no value type specified in iterable type array.#'
+		    path: modules/comune/class-wpforms-field-comune.php
+		- '#Constant WPFORMS_PLUGIN_URL not found.#'
+		- '#Constant DB_CHARSET not found.#'

@@ -1,6 +1,6 @@
 {
     "name": "mociof/campi-moduli-italiani",
-    "description": "A wordpress plugin to create fields in CF7 useful for italian websites",
+    "description": "A wordpress plugin to create fields in Contact Form 7 e WPForms useful for Italian websites",
     "type": "wordpress-plugin",
     "license": "GPL-2.0-or-later",
     "authors": [
@@ -17,6 +17,8 @@
         "phpstan/phpstan": "^1.8",
         "phpstan/extension-installer": "^1.1",
         "dealerdirect/phpcodesniffer-composer-installer": "^0.7",
-        "phpunit/phpunit": "^9"
+        "phpunit/phpunit": "^9",
+        "yoast/phpunit-polyfills": "^1.0",
+        "phpcompatibility/php-compatibility": "^9.3"
     }
 }

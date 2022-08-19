@@ -77,9 +77,7 @@ OUTPUT_PATH="$DIST_PATH/source"
 create_dist() {
   rm -rf $DIST_PATH
   mkdir -p $SVN_PATH $OUTPUT_PATH
-  cp -Rp admin css img includes integrations languages modules campi-moduli-italiani.php settings.php composer.json composer.lock index.php license.txt readme.txt readme-it.txt $OUTPUT_PATH
-  (cd $OUTPUT_PATH && composer install --quiet --no-dev --optimize-autoloader)
-  cp index.php $OUTPUT_PATH/vendor/
+  cp -Rp admin css img includes integrations languages modules campi-moduli-italiani.php settings.php index.php license.txt readme.txt readme-it.txt $OUTPUT_PATH
 }
 
 bundle() {
