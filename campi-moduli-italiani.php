@@ -22,8 +22,8 @@
 defined( 'ABSPATH' ) || die( 'you do not have acces to this page!' );
 
 define( 'GCMI_VERSION', '2.0.8' );
-define( 'GCMI_MINIMUM_WP_VERSION', '5.2' );
-define( 'GCMI_MINIMUM_PHP_VERSION', '5.6' );
+define( 'GCMI_MINIMUM_WP_VERSION', '5.9' );
+define( 'GCMI_MINIMUM_PHP_VERSION', '7.2' );
 define( 'GCMI_MINIMUM_CF7_VERSION', '5.1.7' );
 define( 'GCMI_PLUGIN', __FILE__ );
 define( 'GCMI_PLUGIN_BASENAME', plugin_basename( GCMI_PLUGIN ) );
