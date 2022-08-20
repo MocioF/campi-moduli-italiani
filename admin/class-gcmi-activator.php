@@ -178,9 +178,10 @@ class GCMI_Activator {
 	 * Downloads all the data, creates and populates the database tables.
 	 *
 	 * @since 1.0.0
+	 * @param bool $network_wide Indicates if the plugin is network activated.
 	 * @return void
 	 */
-	public static function activate(): void {
+	public static function activate( $network_wide ): void {
 		$requirements = self::gcmi_is_requirements_met();
 		if ( is_wp_error( $requirements ) ) {
 			gcmi_show_error( $requirements );
@@ -353,9 +354,10 @@ class GCMI_Activator {
 	 * Deletes the tables from the database and disables the cronjob.
 	 *
 	 * @since 1.0.0
+	 * @param bool $network_wide Indicates if the plugin is network activated.
 	 * @return void
 	 */
-	public static function deactivate(): void {
+	public static function deactivate( $network_wide ): void {
 		$num_tables = count( self::$database_file_info );
 		for ( $i = 0; $i < $num_tables; $i++ ) {
 			self::drop_table( self::$database_file_info[ $i ]['name'], self::$database_file_info[ $i ]['table_name'] );

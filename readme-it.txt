@@ -1,10 +1,10 @@
 === Campi Moduli Italiani ===
 Contributors: mociofiletto
 Donate link: https://paypal.me/GiuseppeF77
-Tags: italiano, contact form 7, codice fiscale, comuni italiani, firma digitale
+Tags: contact form 7, wpforms, comuni italiani, codice fiscale, firma digitale
 Requires at least: 5.2
-Tested up to: 5.8
-Requires PHP: 5.6
+Tested up to: 6.0
+Requires PHP: 7.2
 Stable tag: 2.0.8
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html
@@ -125,6 +125,14 @@ Puoi inviare una richiesta nel nostro repository Github:
 5. Immagine della schermata di admin, da cui è possibile effettuare l'aggiornamento dei dati
 
 == Changelog ==
+= 2.1.0 =
+* Modificato il metodo HTTP da HEAD a GET per ottenere la data di aggiornamento dal sito ISTAT
+* Corretto l'errore che consentiva l'invio del wpform senza che il comune (indicato come richiesto) venisse selezionato
+* Aggiunto controllo sicurezza tramite un none nel codice ajax di comune
+* Aggiunto l'utilizzo della cache ad oggetti di WordPress alle query sul db
+* Sistemato il cambio di markup nei controlli del form per CF7 v.5.6
+* Aggiunta possibilità di inserire un valore di default per "stato" in wpforms; modificato l'ordinamento delle scelte (ora alfabetico)
+
 = 2.0.8 =
 * Corretto bug nel campo CF
 
@@ -220,4 +228,9 @@ Dopo questo aggiornamento è necessario aggiornare la tabella relativa ai comuni
 
 = 1.0.0 =
 Prima installazione
+
+== Upgrade Notice ==
+
+= 2.1.0 =
+Corretti problemi di sicurezza e implementata la cache per le query
 

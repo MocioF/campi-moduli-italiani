@@ -3,8 +3,8 @@ Contributors: mociofiletto
 Donate link: https://paypal.me/GiuseppeF77
 Tags: contact form 7, wpforms, comuni italiani, codice fiscale, firma digitale
 Requires at least: 5.2
-Tested up to: 5.8
-Requires PHP: 5.6
+Tested up to: 6.0
+Requires PHP: 7.2
 Stable tag: 2.0.8
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html
@@ -127,6 +127,14 @@ You can create an issue in our Github repo:
 5. Image of the admin screen, from which it is possible to update the data
 
 == Changelog ==
+= 2.1.0 =
+* Changed method to get remote file update time on ISTAT website from HEAD to GET
+* Fixed bug in wpforms allowing form submission without a full selection in municipality
+* Securing comune's ajax with nonce
+* Adding use of WordPress Object Cache to db queries
+* Fixing markup changes in form control for CF7 v.5.6
+* Adding default value in wpforms for "stato"; changed order of choices (now unsing denominations)
+
 = 2.0.8 =
 * Fixed bug in cf atts
 
@@ -222,3 +230,8 @@ It is also recommended to update the tables relating to the municipalities suppr
 
 = 1.0.0 =
 First installation
+
+== Upgrade Notice ==
+
+= 2.1.0 =
+Security fixes and object cache implementation.

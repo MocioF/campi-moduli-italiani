@@ -337,4 +337,3 @@ function gcmi_convert_datestring( $string ) {
 		return false;
 	}
 }
-
