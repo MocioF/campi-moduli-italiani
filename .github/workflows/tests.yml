@@ -12,7 +12,7 @@ jobs:
     strategy:
       matrix:
         # See: https://make.wordpress.org/core/handbook/references/php-compatibility-and-wordpress-versions/
-        wordpress-version: ['5.2', '5.3', '5.4', '5.5', '5.6', '5.7', '5.8', '5.9', '6.0']
+        wordpress-version: ['5.9', '6.0']
         php-versions: ['7.4', '8.0']
         exclude:
           - php-versions: '8.0'
@@ -66,9 +66,9 @@ jobs:
         key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
         restore-keys: ${{ runner.os }}-composer-
 
-    - name: Only for WP 5.9 and PHP 8
+    - name: Only for WP 5.9 / WP 6.0 and PHP 8
       # See: https://make.wordpress.org/core/2021/09/27/changes-to-the-wordpress-core-php-test-suite/
-      if: ${{ matrix.php-versions == '8.0' && matrix.wordpress-version == '5.9' }}
+      if: ${{ matrix.php-versions == '8.0' && ( matrix.wordpress-version == '5.9' || matrix.wordpress-version == '6.0' ) }}
       run: (composer remove --dev phpunit/phpunit || true ) && composer update --dev yoast/phpunit-polyfills --with-dependencies && composer install --no-progress --prefer-dist --optimize-autoloader
 
     - name: When using PHP 8 and WP <= 5.8

@@ -2,7 +2,7 @@
 Contributors: mociofiletto
 Donate link: https://paypal.me/GiuseppeF77
 Tags: contact form 7, wpforms, comuni italiani, codice fiscale, firma digitale
-Requires at least: 5.2
+Requires at least: 5.9
 Tested up to: 6.0
 Requires PHP: 7.2
 Stable tag: 2.0.8
