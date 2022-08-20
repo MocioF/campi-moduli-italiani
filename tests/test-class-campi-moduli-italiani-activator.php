@@ -94,11 +94,7 @@ final class Campi_Moduli_Italiani_ActivatorTest extends WP_UnitTestCase {
 				$gcmi_now,
 			],
 		];
-}
-
-	
-
-	
+	}
 }
 	
 	
