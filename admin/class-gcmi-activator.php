@@ -205,6 +205,7 @@ class GCMI_Activator {
 		'Y',
 		'Z',
 	);
+
 	/**
 	 * Activate the plugin.
 	 *
@@ -221,6 +222,60 @@ class GCMI_Activator {
 			die;
 		}
 
+		if ( true === $network_wide ) {
+			if ( false === self::gcmi_tables_exist() ) {
+				self::single_activate();
+			}
+		} else {
+			if ( true === is_multisite() ) {
+				if ( false === self::gcmi_tables_exist() ) {
+					self::single_activate();
+				}
+			} else {
+				self::single_activate();
+			}
+		}
+	}
+
+	/**
+	 * Check if all gcmi table exists in database
+	 *
+	 * @return boolean
+	 */
+	private static function gcmi_tables_exist() {
+		$result = true;
+		foreach ( self::$database_file_info as $dataset ) {
+			$table_exists = self::gcmi_table_exists( $dataset['table_name'] );
+			$result       = $result && $table_exists;
+		}
+		return $result;
+	}
+
+	/**
+	 * Check if a table exists in database
+	 *
+	 * @param string $table_name The table name to check if exists
+	 * @return boolean
+	 */
+	private static function gcmi_table_exists( $table_name ) {
+		global $wpdb;
+		if ( $table_name !== strval( $wpdb->get_var( "SHOW TABLES LIKE '$table_name'" ) ) ) {
+			return false;
+		} else {
+			return true;
+		}
+	}
+
+	/**
+	 * Single plugin activation.
+	 *
+	 * Downloads all the data, creates and populates the database tables;
+	 * activates the cron job if not exists.
+	 *
+	 * @since 1.0.0
+	 * @return void
+	 */
+	public static function single_activate(): void {
 		global $wpdb;
 		global $gcmi_error;
 
@@ -400,7 +455,70 @@ class GCMI_Activator {
 	 * @param bool $network_wide Indicates if the plugin is network activated.
 	 * @return void
 	 */
-	public static function deactivate( $network_wide ): void {
+	public static function deactivate( $network_wide ) {
+		if ( false === is_multisite() ) {
+			self::single_deactivate();
+		} else {
+			if ( true === $network_wide ) {
+				if ( false === self::gcmi_check_if_single_activated() ) {
+					self::single_deactivate();
+				}
+			}
+		}
+	}
+
+	/**
+	 * Checks if the plugin is activated on at least one blog.
+	 *
+	 * @return boolean
+	 */
+	private static function gcmi_check_if_single_activated() {
+		if ( false === is_multisite() ) {
+			return false;
+		}
+
+		if ( function_exists( 'get_sites' ) && class_exists( 'WP_Site_Query' ) ) {
+			$args  = array(
+				'orderby' => 'id',
+				'order'   => 'asc',
+			);
+			$sites = get_sites( $args );
+		} else {
+			// WP < 4.6; however it is unsupported.
+			$sites = wp_get_sites();
+		}
+		if ( is_iterable( $sites ) && ! empty( $sites ) ) {
+			foreach ( $sites as $site ) {
+				if ( is_object( $site ) && ( isset( $site->blog_id ) ) ) {
+					switch_to_blog( $site->blog_id );
+				} else {
+					switch_to_blog( $site['blog_id'] );
+				}
+
+				$plugin = 'campi-moduli-italiani/campi-moduli-italiani.php';
+				/*
+				 * just check if the plugin is enabled in a single site
+				 * (it can happen, it was enabled before a network activation occurred)
+				 *
+				 */
+				if ( in_array( $plugin, (array) get_option( 'active_plugins', array() ), true ) ) {
+					return true;
+				}
+				restore_current_blog();
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * Disables the plugin.
+	 *
+	 * Deletes the tables from the database and disables the cronjob.
+	 *
+	 * @since 1.0.0
+	 * @return void
+	 */
+	public static function single_deactivate(): void {
 		$num_tables = count( self::$database_file_info );
 		for ( $i = 0; $i < $num_tables; $i++ ) {
 			self::drop_table( self::$database_file_info[ $i ]['name'], self::$database_file_info[ $i ]['table_name'] );
@@ -496,7 +614,7 @@ class GCMI_Activator {
 	 */
 	private static function set_gcmi_options(): void {
 		foreach ( self::$activator_options as $key => $value ) {
-			update_option( $key, $value['value'], $value['autoload'] );
+			update_site_option( $key, $value['value'], $value['autoload'] ); // errore
 		}
 	}
 
@@ -511,7 +629,7 @@ class GCMI_Activator {
 	private static function unset_gcmi_options(): void {
 		$keys = array_keys( self::$activator_options );
 		foreach ( $keys as $key ) {
-			delete_option( $key );
+			delete_site_option( $key );
 		}
 	}
 
@@ -819,7 +937,8 @@ class GCMI_Activator {
 		$arr_dati = array();
 		if ( ! $arr_dati = $wp_filesystem->get_contents_array( $csv_file_path ) ) {
 			$error_code    = 'gcmi_csv_read_error';
-			$error_message = esc_html( sprintf( __( 'Impossibile leggere il file: %s', 'campi-moduli-italiani' ), $csv_file_path ) );
+			// translators: %s is the file name.
+			$error_message = esc_html( sprintf( __( 'Impossible to read the file: %s', 'campi-moduli-italiani' ), $csv_file_path ) );
 			$gcmi_error->add( $error_code, $error_message );
 			gcmi_show_error( $gcmi_error );
 			die;

@@ -35,7 +35,11 @@ if ( ! defined( 'GCMI_UPDATE_DB' ) ) {
 }
 
 global $wpdb;
-$gcmi_table_prefix = $wpdb->prefix . 'gcmi_';
+if ( true === is_multisite() ) {
+	$gcmi_table_prefix = $wpdb->base_prefix . 'gcmi_';
+} else {
+	$gcmi_table_prefix = $wpdb->prefix . 'gcmi_';
+}
 define( 'GCMI_TABLE_PREFIX', $gcmi_table_prefix );
 
 define( 'GCMI_CACHE_EXPIRE_SECS', 1000 );

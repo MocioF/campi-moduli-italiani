@@ -105,7 +105,7 @@ add_action( 'admin_init', 'gcmi_upgrade', 10, 0 );
  * @return void
  */
 function gcmi_upgrade() {
-	$old_ver = get_option( 'gcmi_plugin_version', '0' );
+	$old_ver = get_site_option( 'gcmi_plugin_version', '0' );
 	$new_ver = GCMI_VERSION;
 
 	if ( $old_ver === $new_ver ) {
@@ -161,7 +161,7 @@ add_action( 'admin_head', 'gcmi_add_star_styles' );
  * @param bool $network_wide True if plugin is network-wide activated.
  * @return void
  */
-function campi_moduli_italiani_activate( $network_wide ) {
+function gcmi_activate( $network_wide ) {
 	require_once plugin_dir_path( __FILE__ ) . 'admin/class-gcmi-activator.php';
 	GCMI_Activator::activate( $network_wide );
 }
@@ -174,13 +174,13 @@ function campi_moduli_italiani_activate( $network_wide ) {
  * @param bool $network_wide True if plugin is network-wide activated.
  * @return void
  */
-function campi_moduli_italiani_deactivate( $network_wide ) {
+function gcmi_deactivate( $network_wide ) {
 	require_once plugin_dir_path( __FILE__ ) . 'admin/class-gcmi-activator.php';
 	GCMI_Activator::deactivate( $network_wide );
 }
 
-register_activation_hook( GCMI_PLUGIN, 'campi_moduli_italiani_activate' );
-register_deactivation_hook( GCMI_PLUGIN, 'campi_moduli_italiani_deactivate' );
+register_activation_hook( GCMI_PLUGIN, 'gcmi_activate' );
+register_deactivation_hook( GCMI_PLUGIN, 'gcmi_deactivate' );
 
 /**
  * Display plugin upgrade notice to users

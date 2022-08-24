@@ -6,11 +6,11 @@ final class Campi_Moduli_Italiani_ActivatorTest extends WP_UnitTestCase {
 		global $gcmi_now;
 		$gcmi_now = time();
 		parent::set_up();
-		campi_moduli_italiani_activate( false );
+		gcmi_activate( false );
 	}
 
 	public function tear_down() {
-		campi_moduli_italiani_deactivate( false );
+		gcmi_deactivate( false );
 		parent::tear_down();
 	}
 	
