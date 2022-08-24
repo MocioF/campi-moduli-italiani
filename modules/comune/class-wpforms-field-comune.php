@@ -187,7 +187,7 @@ class WPForms_Field_Comune extends WPForms_Field {
 			array(
 				'slug'    => 'kind',
 				'value'   => esc_html__( 'Type (default "Every: current and deleted")', 'campi-moduli-italiani' ),
-				'tooltip' => esc_html__( 'Choose wich municipality to show.', 'campi-moduli-italiani' ),
+				'tooltip' => esc_html__( 'Choose which municipalities to show.', 'campi-moduli-italiani' ),
 			),
 			false
 		);

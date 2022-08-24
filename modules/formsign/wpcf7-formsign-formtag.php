@@ -126,7 +126,7 @@ function gcmi_generate_keypair( $form_post_id ) {
 	if ( false === $pub_key ) {
 		$gcmi_error  = new WP_Error();
 		$err_code    = 'gcmi_get_key_details';
-		$err_message = esc_html__( 'Impossible to get new generated key details', 'campi-moduli-italiani' );
+		$err_message = esc_html__( 'Impossible to get new generated public key', 'campi-moduli-italiani' );
 		$gcmi_error->add( $err_code, $err_message );
 		return $gcmi_error;
 	}
