@@ -5,8 +5,8 @@ msgstr ""
 "Project-Id-Version: Plugins - Campi Moduli Italiani - Development (trunk)\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/campi-moduli-"
 "italiani\n"
-"POT-Creation-Date: 2022-08-24T23:29:17+00:00\n"
-"PO-Revision-Date: 2022-08-25 01:30+0200\n"
+"POT-Creation-Date: 2022-08-28 17:28:15+00:00\n"
+"PO-Revision-Date: 2022-08-28 19:32+0200\n"
 "Last-Translator: Giuseppe Foti <foti.giuseppe@gmail.com>\n"
 "Language-Team: \n"
 "Language: it\n"
@@ -15,50 +15,6 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
 "X-Generator: Poedit 2.3.1\n"
-
-#. Plugin Name of the plugin
-#: integrations/wpforms/wpforms-integration.php:14
-msgid "Campi Moduli Italiani"
-msgstr "Campi Moduli Italiani"
-
-#. Plugin URI of the plugin
-msgid "https://wordpress.org/plugins/campi-moduli-italiani/"
-msgstr "https://it.wordpress.org/plugins/campi-moduli-italiani/"
-
-#. Description of the plugin
-msgid ""
-"(Generator of) Fields for Italian CF7 and wpforms modules. The plugin "
-"generates specific fields for Italian forms created with Contact Form 7 and "
-"wpforms. This version makes available 4 form-tags for CF7 and 2 fields for "
-"wpforms: a cascade selection for an Italian municipality (CF7 + wpforms), a "
-"select for a state (CF7 + wpforms), an Italian tax code field with "
-"validation (CF7 only), a hidden field that allows you to digitally sign e-"
-"mails to ensure that they have been sent via the form (CF7 only). The "
-"databases are taken from the Istat and Agenzia delle entrate websites. The "
-"digital signature on the form data uses the RSA algorithm with a 4096 bit "
-"private key. <strong> Activation can take a few minutes to download the "
-"updated data and to import them into the database </strong>."
-msgstr ""
-"(Generatore di) Campi per moduli CF7 italiani. Il plugin genera campi "
-"specifici per i moduli italiani creati con Contact Form 7 e WPForms. Questa "
-"versione mette a disposizione quattro formtag per CF7 e 2 campi per wpforms: "
-"una selezione a cascata per un comune italiano (CF7 + wpforms), una "
-"selezione per uno stato (CF7 + wpforms), un campo codice fiscale italiano "
-"con convalida (solo CF7), un campo nascosto che consente di firmare "
-"digitalmente le email per assicurarsi che siano state inviate tramite il "
-"modulo (solo CF7). I database sono prelevati dai siti web dell'Istat e "
-"dell'Agenzia delle entrate. La firma digitale sui dati del modulo utilizza "
-"l'algoritmo RSA con una chiave privata a 4096 bit. <strong> L'attivazione "
-"può richiedere alcuni minuti per scaricare i dati aggiornati e importarli "
-"nel database </strong>."
-
-#. Author of the plugin
-msgid "Giuseppe Foti"
-msgstr "Giuseppe Foti"
-
-#. Author URI of the plugin
-msgid "https://bertocchi28.ddns.net/"
-msgstr "https://bertocchi28.ddns.net/"
 
 #: admin/admin.php:59 admin/admin.php:60
 msgid "Italian forms fields"
@@ -124,7 +80,9 @@ msgstr "Impossibile estrarre dati da %s"
 msgid "Error in inserting data into the database"
 msgstr "Errore nell'inserimento di dati nel database"
 
-#. translators: enter a format string valid for a date and time value according to the local standard using characters recognized by the php date () function (https://www.php.net/manual/en/function.date.php)
+#. translators: enter a format string valid for a date and time value according
+#. to the local standard using characters recognized by the php date ()
+#. function (https:www.php.net/manual/en/function.date.php)
 #: admin/admin.php:320 admin/admin.php:332
 msgid "Y/m/d g:i:s a"
 msgstr "d/m/Y H:i:s"
@@ -147,7 +105,8 @@ msgstr "Impossibile scaricare i dati html: %s"
 msgid "Errore creating table"
 msgstr "Errore nella creazione della tabella"
 
-#. translators: %1$s: the local name of the table it attempted to create in the database
+#. translators: %1$s: the local name of the table it attempted to create in the
+#. database
 #: admin/class-gcmi-activator.php:383
 msgid "Unable to create table %1$s"
 msgstr "Impossibile creare la tabella %1$s"
@@ -156,7 +115,8 @@ msgstr "Impossibile creare la tabella %1$s"
 msgid "Error UTF-8 encoding csv file"
 msgstr "Errore nel codificare in UTF-8 il file csv"
 
-#. translators: %1$s: the full path of the csv file it tryed to prepare for import
+#. translators: %1$s: the full path of the csv file it tryed to prepare for
+#. import
 #: admin/class-gcmi-activator.php:395
 msgid "Unable to encode %1$s into UTF-8"
 msgstr "Impossibile codificare %1$s in UTF-8"
@@ -165,7 +125,8 @@ msgstr "Impossibile codificare %1$s in UTF-8"
 msgid "Error preparing csv file"
 msgstr "Errore nella preparazione del file CSV"
 
-#. translators: %1$s: the full path of the csv file it tryed to prepare for import
+#. translators: %1$s: the full path of the csv file it tryed to prepare for
+#. import
 #: admin/class-gcmi-activator.php:405
 msgid "Unable to prepare %1$s for import"
 msgstr "Impossibile preparare il file %1$s per l'importazione"
@@ -240,7 +201,9 @@ msgstr "Panoramica"
 msgid "Update tables"
 msgstr "Aggiorna tabelle"
 
-#. translators: %1$s: Contact Form 7, plugin page link; %2$s: link to the page where ISTAT publishes used data; %3$s: link to the page where Agenzia delle entrate publishes used data
+#. translators: %1$s: Contact Form 7, plugin page link; %2$s: link to the page
+#. where ISTAT publishes used data; %3$s: link to the page where Agenzia delle
+#. entrate publishes used data
 #: admin/includes/help-tabs.php:86
 msgid ""
 "\"Campi Moduli Italiani\" creates shortcodes and, if %1$s is activated, form-"
@@ -254,7 +217,8 @@ msgstr ""
 "può mostrare i dettagli del comune selezionato. I dati utilizzati sono "
 "prelevati da  %2$s e da %3$s."
 
-#. translators: %1$s: link to ISTAT website; %2$s: link to the page where ISTAT publishes used data
+#. translators: %1$s: link to ISTAT website; %2$s: link to the page where ISTAT
+#. publishes used data
 #: admin/includes/help-tabs.php:94
 msgid ""
 "On this screen, you can update tables by direct data download from %1$s and "
@@ -280,6 +244,10 @@ msgstr "Per maggiori informazioni:"
 #: admin/includes/help-tabs.php:117
 msgid "Plugin page"
 msgstr "Pagina del plugin"
+
+#. Plugin Name of the plugin/theme
+msgid "Campi Moduli Italiani"
+msgstr "Campi Moduli Italiani"
 
 #: modules/cf/class-gcmi-cf-wpcf7-formtag.php:74
 msgid "Italian Tax Code has to be 16 characters long."
@@ -389,6 +357,48 @@ msgstr ""
 msgid "the plugin page at WordPress.org"
 msgstr "la pagina del plugin su WordPress.org"
 
+#: modules/cf/wpcf7-cf-formtag.php:201 modules/cf/wpcf7-cf-formtag.php:204
+#: modules/comune/wpcf7-comune-formtag.php:130
+#: modules/comune/wpcf7-comune-formtag.php:133
+#: modules/stato/wpcf7-stato-formtag.php:293
+#: modules/stato/wpcf7-stato-formtag.php:296
+msgid "Field type"
+msgstr "Tipo di campo"
+
+#: modules/cf/wpcf7-cf-formtag.php:205
+#: modules/comune/wpcf7-comune-formtag.php:134
+#: modules/stato/wpcf7-stato-formtag.php:297
+msgid "Required field"
+msgstr "Campo obbligatorio"
+
+#: modules/cf/wpcf7-cf-formtag.php:210
+#: modules/comune/wpcf7-comune-formtag.php:139
+#: modules/stato/wpcf7-stato-formtag.php:302
+msgid "Name"
+msgstr "Nome"
+
+#: modules/cf/wpcf7-cf-formtag.php:214
+#: modules/comune/wpcf7-comune-formtag.php:143
+#: modules/stato/class-wpforms-field-stato.php:342
+#: modules/stato/wpcf7-stato-formtag.php:306
+msgid "Default value"
+msgstr "Valore predefinito"
+
+#: modules/cf/wpcf7-cf-formtag.php:216
+msgid "Use this text as the placeholder of the field"
+msgstr "Usa questo testo come segnaposto del campo"
+
+#: modules/cf/wpcf7-cf-formtag.php:219
+#: modules/comune/wpcf7-comune-formtag.php:169
+#: modules/stato/wpcf7-stato-formtag.php:327
+msgid "Id attribute"
+msgstr "Attributo Id"
+
+#: modules/cf/wpcf7-cf-formtag.php:223
+#: modules/stato/wpcf7-stato-formtag.php:331
+msgid "Class attribute"
+msgstr "Attributo class delle select"
+
 #: modules/cf/wpcf7-cf-formtag.php:227
 msgid ""
 "If you want tax code to match  form's others fields, please indicate the "
@@ -439,6 +449,23 @@ msgstr "Attributo \"name\" del campo \"comune di nascita\" (italiano)"
 msgid "\"name\" attr of Country of birth field"
 msgstr "Attributo \"name\" del campo paese di nascita"
 
+#: modules/cf/wpcf7-cf-formtag.php:274
+#: modules/comune/wpcf7-comune-formtag.php:188
+#: modules/stato/wpcf7-stato-formtag.php:342
+msgid "Insert Tag"
+msgstr "Inserisci tag"
+
+#. translators: %s is the name of the mail-tag.
+#: modules/cf/wpcf7-cf-formtag.php:282
+#: modules/comune/wpcf7-comune-formtag.php:192
+#: modules/stato/wpcf7-stato-formtag.php:350
+msgid ""
+"To use the value input through this field in a mail field, you need to "
+"insert the corresponding mail-tag (%s) into the field on the Mail tab."
+msgstr ""
+"Per usare il valore inserito per questo campo nell'email, devi inserire il "
+"corrispondente mail-tag (%s) nella scheda Mail."
+
 #: modules/comune/class-gcmi-comune-shortcode.php:119
 #: modules/comune/class-gcmi-comune-wpcf7-formtag.php:150
 #: modules/comune/class-wpforms-field-comune.php:436
@@ -487,7 +514,6 @@ msgstr "Seleziona un comune"
 #: modules/comune/class-gcmi-comune-shortcode.php:157
 #: modules/comune/class-gcmi-comune-wpcf7-formtag.php:199
 #: modules/comune/class-wpforms-field-comune.php:586
-#: modules/comune/js/ajax.js:314
 msgid "Municipality details"
 msgstr "Dettagli comune"
 
@@ -495,7 +521,8 @@ msgstr "Dettagli comune"
 msgid " - (abol.)"
 msgstr " - (sopp.)"
 
-#. translators: put a string matching the local date format to be used in SQL (https://dev.mysql.com/doc/refman/8.0/en/date-and-time-functions.html#function_date-format)
+#. translators: put a string matching the local date format to be used in SQL
+#. (https:dev.mysql.com/doc/refman/8.0/en/date-and-time-functions.html#function_date-format)
 #: modules/comune/class-gcmi-comune.php:565
 msgid "%m/%d/%Y"
 msgstr "%d/%m/%Y"
@@ -752,12 +779,39 @@ msgstr ""
 "Mostra un'icona per visualizzare una tabella con i dettagli del comune."
 
 #: modules/comune/class-wpforms-field-comune.php:226
+#: modules/comune/wpcf7-comune-formtag.php:159
 #: modules/comune/wpcf7-comune-formtag.php:162
 #: modules/comune/wpcf7-comune-formtag.php:163
 msgid "Show details"
 msgstr "Mostra dettagli"
 
+#: modules/comune/class-wpforms-field-comune.php:270
+#: modules/stato/class-wpforms-field-stato.php:395
+msgid "Style"
+msgstr "Stile"
+
+#: modules/comune/class-wpforms-field-comune.php:271
+#: modules/stato/class-wpforms-field-stato.php:396
+msgid ""
+"Classic style is the default one generated by your browser. Modern has a "
+"fresh look and displays all selected options in a single row."
+msgstr ""
+"Lo stile classico è quello predefinito generato dal browser. Lo stile "
+"moderno ha un look più fresco e mostra tutte le opzioni selezionate in una "
+"singola riga."
+
+#: modules/comune/class-wpforms-field-comune.php:283
+#: modules/stato/class-wpforms-field-stato.php:408
+msgid "Classic"
+msgstr "Classico"
+
+#: modules/comune/class-wpforms-field-comune.php:284
+#: modules/stato/class-wpforms-field-stato.php:409
+msgid "Modern"
+msgstr "Moderno"
+
 #: modules/comune/class-wpforms-field-comune.php:304
+#: modules/comune/wpcf7-comune-formtag.php:164
 msgid "Wrap each item with label element"
 msgstr "Racchiudi ogni elemento in un'etichetta"
 
@@ -856,10 +910,6 @@ msgstr "Solo stati attualmente esistenti (non cessati)"
 msgid "Only actual States (not ceased)"
 msgstr "Solo stati attualmente esistenti (non cessati)"
 
-#: modules/stato/class-wpforms-field-stato.php:342
-msgid "Default value"
-msgstr "Valore predefinito"
-
 #: modules/stato/class-wpforms-field-stato.php:343
 #: modules/stato/wpcf7-stato-formtag.php:308
 msgid ""
@@ -885,6 +935,11 @@ msgstr "Inserisce un menu a discesa per i paesi"
 msgid "Creates a select with countries %s."
 msgstr "Crea un menu a discesa con i paesi %s."
 
+#: modules/stato/wpcf7-stato-formtag.php:311
+#: modules/stato/wpcf7-stato-formtag.php:314
+msgid "Options"
+msgstr "Opzioni"
+
 #: modules/stato/wpcf7-stato-formtag.php:317
 msgid "Add a first element as label saying: "
 msgstr "Aggiungi un primo elemento come etichetta con la dicitura: "
@@ -897,78 +952,82 @@ msgstr "Assistenza"
 msgid "Leave a review"
 msgstr "Scrivi una recensione"
 
-#: admin/js/formsign.js:40
+#. Plugin URI of the plugin/theme
+msgid "https://wordpress.org/plugins/campi-moduli-italiani/"
+msgstr "https://it.wordpress.org/plugins/campi-moduli-italiani/"
+
+#. Description of the plugin/theme
 msgid ""
-"Hash you pasted doesn't match calculated hash. This means that the hash you "
-"pasted was not calculated on this form' submission."
+"(Generator of) Fields for Italian CF7 and wpforms modules. The plugin "
+"generates specific fields for Italian forms created with Contact Form 7 and "
+"wpforms. This version makes available 4 form-tags for CF7 and 2 fields for "
+"wpforms: a cascade selection for an Italian municipality (CF7 + wpforms), a "
+"select for a state (CF7 + wpforms), an Italian tax code field with "
+"validation (CF7 only), a hidden field that allows you to digitally sign e-"
+"mails to ensure that they have been sent via the form (CF7 only). The "
+"databases are taken from the Istat and Agenzia delle entrate websites. The "
+"digital signature on the form data uses the RSA algorithm with a 4096 bit "
+"private key. <strong> Activation can take a few minutes to download the "
+"updated data and to import them into the database </strong>."
 msgstr ""
-"L'hash che hai incollato non corrisponde a quello calcolato. Questo "
-"significa che l'hash che hai incollato non è stato calcolato al momento di "
-"invio del modulo."
+"(Generatore di) Campi per moduli CF7 italiani. Il plugin genera campi "
+"specifici per i moduli italiani creati con Contact Form 7 e WPForms. Questa "
+"versione mette a disposizione quattro formtag per CF7 e 2 campi per wpforms: "
+"una selezione a cascata per un comune italiano (CF7 + wpforms), una "
+"selezione per uno stato (CF7 + wpforms), un campo codice fiscale italiano "
+"con convalida (solo CF7), un campo nascosto che consente di firmare "
+"digitalmente le email per assicurarsi che siano state inviate tramite il "
+"modulo (solo CF7). I database sono prelevati dai siti web dell'Istat e "
+"dell'Agenzia delle entrate. La firma digitale sui dati del modulo utilizza "
+"l'algoritmo RSA con una chiave privata a 4096 bit. <strong> L'attivazione "
+"può richiedere alcuni minuti per scaricare i dati aggiornati e importarli "
+"nel database </strong>."
 
-#: admin/js/formsign.js:48
-msgid "No public key found for this form ID."
-msgstr "Non è stata trovata alcuna chiave pubblica per l'ID di questo modulo."
+#. Author of the plugin/theme
+msgid "Giuseppe Foti"
+msgstr "Giuseppe Foti"
 
-#: admin/js/formsign.js:54
-msgid ""
-"Signature verified. The signature you pasted, matches form' certificate and "
-"hash of posted values."
-msgstr ""
-"Firma verificata. La firma incollata corrisponde al certificato del modulo e "
-"all'hash dei dati trasmessi."
+#. Author URI of the plugin/theme
+msgid "https://bertocchi28.ddns.net/"
+msgstr "https://bertocchi28.ddns.net/"
 
-#: admin/js/formsign.js:60
-msgid ""
-"The signature is invalid. The signature you pasted doesn't match form "
-"certificate and hash of posted values."
-msgstr ""
-"La firma non è valida. La firma che hai incollato non corrisponde al "
-"certificato del modulo e all'hash dei valori inviati."
+#~ msgid ""
+#~ "Hash you pasted doesn't match calculated hash. This means that the hash "
+#~ "you pasted was not calculated on this form' submission."
+#~ msgstr ""
+#~ "L'hash che hai incollato non corrisponde a quello calcolato. Questo "
+#~ "significa che l'hash che hai incollato non è stato calcolato al momento "
+#~ "di invio del modulo."
 
-#: admin/js/formsign.js:68
-msgid "There is a problem in running openssl_verify function."
-msgstr "C'è un problema nell'esecuzione della funzione openssl_verify."
+#~ msgid "No public key found for this form ID."
+#~ msgstr ""
+#~ "Non è stata trovata alcuna chiave pubblica per l'ID di questo modulo."
 
-#: modules/comune/js/ajax.js:5
-msgid "Select..."
-msgstr "Seleziona..."
+#~ msgid ""
+#~ "Signature verified. The signature you pasted, matches form' certificate "
+#~ "and hash of posted values."
+#~ msgstr ""
+#~ "Firma verificata. La firma incollata corrisponde al certificato del "
+#~ "modulo e all'hash dei dati trasmessi."
 
-#: modules/comune/js/ajax.js:6
-msgid "Wait..."
-msgstr "Attendi..."
+#~ msgid ""
+#~ "The signature is invalid. The signature you pasted doesn't match form "
+#~ "certificate and hash of posted values."
+#~ msgstr ""
+#~ "La firma non è valida. La firma che hai incollato non corrisponde al "
+#~ "certificato del modulo e all'hash dei valori inviati."
 
-#: modules/comune/js/ajax.js:315
-msgid "Close"
-msgstr "Chiudi"
+#~ msgid "There is a problem in running openssl_verify function."
+#~ msgstr "C'è un problema nell'esecuzione della funzione openssl_verify."
+
+#~ msgid "Select..."
+#~ msgstr "Seleziona..."
+
+#~ msgid "Wait..."
+#~ msgstr "Attendi..."
+
+#~ msgid "Close"
+#~ msgstr "Chiudi"
 
 #~ msgid "Country's ISTAT Code (3 digits)"
 #~ msgstr "Codice ISTAT del paese (3 cifre)"
-
-#~ msgid "Use this text as the placeholder of the field"
-#~ msgstr "Usa questo testo come segnaposto del campo"
-
-#~ msgid "Id attribute"
-#~ msgstr "Attributo Id"
-
-#~ msgid ""
-#~ "To use the value input through this field in a mail field, you need to "
-#~ "insert the corresponding mail-tag (%s) into the field on the Mail tab."
-#~ msgstr ""
-#~ "Per usare il valore inserito per questo campo nell'email, devi inserire "
-#~ "il corrispondente mail-tag (%s) nella scheda Mail."
-
-#~ msgid "Insert Tag"
-#~ msgstr "Inserisci tag"
-
-#~ msgid "Options"
-#~ msgstr "Opzioni"
-
-#~ msgid "Name"
-#~ msgstr "Nome"
-
-#~ msgid "Required field"
-#~ msgstr "Campo obbligatorio"
-
-#~ msgid "Field type"
-#~ msgstr "Tipo di campo"

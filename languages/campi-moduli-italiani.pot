@@ -1,42 +1,31 @@
 # Copyright (C) 2022 Giuseppe Foti
-# This file is distributed under the same license as the Campi Moduli Italiani plugin.
+# This file is distributed under the GPLv2 or later.
 msgid ""
 msgstr ""
 "Project-Id-Version: Campi Moduli Italiani 2.0.8\n"
-"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/campi-moduli-italiani\n"
+"Report-Msgid-Bugs-To: "
+"https://wordpress.org/support/plugin/campi-moduli-italiani\n"
+"POT-Creation-Date: 2022-08-28 17:28:15+00:00\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"PO-Revision-Date: 2022-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
-"MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=UTF-8\n"
-"Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2022-08-24T23:29:17+00:00\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"X-Generator: WP-CLI 2.4.0\n"
-"X-Domain: campi-moduli-italiani\n"
+"Language: en\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Poedit-Country: United States\n"
+"X-Poedit-SourceCharset: UTF-8\n"
+"X-Poedit-KeywordsList: "
+"__;_e;_x:1,2c;_ex:1,2c;_n:1,2;_nx:1,2,4c;_n_noop:1,2;_nx_noop:1,2,3c;esc_"
+"attr__;esc_html__;esc_attr_e;esc_html_e;esc_attr_x:1,2c;esc_html_x:1,2c;\n"
+"X-Poedit-Basepath: ../\n"
+"X-Poedit-SearchPath-0: .\n"
+"X-Poedit-Bookmarks: \n"
+"X-Textdomain-Support: yes\n"
+"X-Generator: grunt-wp-i18n 1.0.3\n"
 
-#. Plugin Name of the plugin
-#: integrations/wpforms/wpforms-integration.php:14
-msgid "Campi Moduli Italiani"
-msgstr ""
-
-#. Plugin URI of the plugin
-msgid "https://wordpress.org/plugins/campi-moduli-italiani/"
-msgstr ""
-
-#. Description of the plugin
-msgid "(Generator of) Fields for Italian CF7 and wpforms modules. The plugin generates specific fields for Italian forms created with Contact Form 7 and wpforms. This version makes available 4 form-tags for CF7 and 2 fields for wpforms: a cascade selection for an Italian municipality (CF7 + wpforms), a select for a state (CF7 + wpforms), an Italian tax code field with validation (CF7 only), a hidden field that allows you to digitally sign e-mails to ensure that they have been sent via the form (CF7 only). The databases are taken from the Istat and Agenzia delle entrate websites. The digital signature on the form data uses the RSA algorithm with a 4096 bit private key. <strong> Activation can take a few minutes to download the updated data and to import them into the database </strong>."
-msgstr ""
-
-#. Author of the plugin
-msgid "Giuseppe Foti"
-msgstr ""
-
-#. Author URI of the plugin
-msgid "https://bertocchi28.ddns.net/"
-msgstr ""
-
-#: admin/admin.php:59
-#: admin/admin.php:60
+#: admin/admin.php:59 admin/admin.php:60
 msgid "Italian forms fields"
 msgstr ""
 
@@ -56,18 +45,16 @@ msgstr ""
 msgid "Wrong file name"
 msgstr ""
 
-#. translators: %s is the fname value for the updating table.
 #: admin/admin.php:199
+#. translators: %s is the fname value for the updating table.
 msgid "This plugin cannot manage file %s"
 msgstr ""
 
-#: admin/admin.php:207
-#: admin/class-gcmi-activator.php:292
+#: admin/admin.php:207 admin/class-gcmi-activator.php:292
 msgid "Error creating download directory"
 msgstr ""
 
-#: admin/admin.php:208
-#: admin/class-gcmi-activator.php:293
+#: admin/admin.php:208 admin/class-gcmi-activator.php:293
 msgid "Unable to create temporary download directory"
 msgstr ""
 
@@ -75,19 +62,17 @@ msgstr ""
 msgid "Remote file download error"
 msgstr ""
 
-#. translators: %s is the URL of the file it attempted to download
 #: admin/admin.php:227
+#. translators: %s is the URL of the file it attempted to download
 msgid "Unable to download %s"
 msgstr ""
 
-#: admin/admin.php:249
-#: admin/class-gcmi-activator.php:350
+#: admin/admin.php:249 admin/class-gcmi-activator.php:350
 msgid "Zip archive extraction error"
 msgstr ""
 
+#: admin/admin.php:252 admin/class-gcmi-activator.php:352
 #. translators: %1$s: the local csv file name; %2$s: the zip archive file name
-#: admin/admin.php:252
-#: admin/class-gcmi-activator.php:352
 msgid "Unable to extract %1$s from %2$s"
 msgstr ""
 
@@ -95,8 +80,8 @@ msgstr ""
 msgid "Grab html data error"
 msgstr ""
 
-#. translators: remote URL of the table from where it grabs data
 #: admin/admin.php:267
+#. translators: remote URL of the table from where it grabs data
 msgid "Unable to grab data from %s"
 msgstr ""
 
@@ -104,14 +89,15 @@ msgstr ""
 msgid "Error in inserting data into the database"
 msgstr ""
 
-#. translators: enter a format string valid for a date and time value according to the local standard using characters recognized by the php date () function (https://www.php.net/manual/en/function.date.php)
-#: admin/admin.php:320
-#: admin/admin.php:332
+#: admin/admin.php:320 admin/admin.php:332
+#. translators: enter a format string valid for a date and time value according
+#. to the local standard using characters recognized by the php date ()
+#. function (https:www.php.net/manual/en/function.date.php)
 msgid "Y/m/d g:i:s a"
 msgstr ""
 
-#. translators: %s: the remote URL of the file to be downloaded
 #: admin/class-gcmi-activator.php:316
+#. translators: %s: the remote URL of the file to be downloaded
 msgid "Could not download %s"
 msgstr ""
 
@@ -119,8 +105,8 @@ msgstr ""
 msgid "Error retrieving html data"
 msgstr ""
 
-#. translators: %s: The name of attempted downloaded data
 #: admin/class-gcmi-activator.php:372
+#. translators: %s: The name of attempted downloaded data
 msgid "Unable to download html data: %s"
 msgstr ""
 
@@ -128,8 +114,9 @@ msgstr ""
 msgid "Errore creating table"
 msgstr ""
 
-#. translators: %1$s: the local name of the table it attempted to create in the database
 #: admin/class-gcmi-activator.php:383
+#. translators: %1$s: the local name of the table it attempted to create in the
+#. database
 msgid "Unable to create table %1$s"
 msgstr ""
 
@@ -137,8 +124,9 @@ msgstr ""
 msgid "Error UTF-8 encoding csv file"
 msgstr ""
 
-#. translators: %1$s: the full path of the csv file it tryed to prepare for import
 #: admin/class-gcmi-activator.php:395
+#. translators: %1$s: the full path of the csv file it tryed to prepare for
+#. import
 msgid "Unable to encode %1$s into UTF-8"
 msgstr ""
 
@@ -146,8 +134,9 @@ msgstr ""
 msgid "Error preparing csv file"
 msgstr ""
 
-#. translators: %1$s: the full path of the csv file it tryed to prepare for import
 #: admin/class-gcmi-activator.php:405
+#. translators: %1$s: the full path of the csv file it tryed to prepare for
+#. import
 msgid "Unable to prepare %1$s for import"
 msgstr ""
 
@@ -155,34 +144,36 @@ msgstr ""
 msgid "Error importing data into database"
 msgstr ""
 
-#. translators: %1$s: the data name; %2$s: the db table name.
 #: admin/class-gcmi-activator.php:422
+#. translators: %1$s: the data name; %2$s: the db table name.
 msgid "Unable to import %1$s into %2$s"
 msgstr ""
 
-#. translators: %s is a path to a file.
 #: admin/class-gcmi-activator.php:579
+#. translators: %s is a path to a file.
 msgid "Invalid path: %s"
 msgstr ""
 
-#. translators: %s is the file name.
 #: admin/class-gcmi-activator.php:941
+#. translators: %s is the file name.
 msgid "Impossible to read the file: %s"
 msgstr ""
 
-#. translators: %s is the minimum WordPress version required.
 #: admin/class-gcmi-activator.php:1475
+#. translators: %s is the minimum WordPress version required.
 msgid "Campi Moduli Italiani requires at least WordPress version %s"
 msgstr ""
 
-#. translators: %s is the minimum PHP version required.
 #: admin/class-gcmi-activator.php:1484
+#. translators: %s is the minimum PHP version required.
 msgid "Campi Moduli Italiani requires at least PHP version %s"
 msgstr ""
 
-#. translators: %s is the name of the needed PHP extension.
 #: admin/class-gcmi-activator.php:1494
-msgid "Campi Moduli Italiani requires PHP extension %s. Enable it on your server and then try plugin's acrivation again."
+#. translators: %s is the name of the needed PHP extension.
+msgid ""
+"Campi Moduli Italiani requires PHP extension %s. Enable it on your server "
+"and then try plugin's acrivation again."
 msgstr ""
 
 #: admin/includes/class-gcmi-remote-files-list-table.php:46
@@ -217,18 +208,30 @@ msgstr ""
 msgid "Update tables"
 msgstr ""
 
-#. translators: %1$s: Contact Form 7, plugin page link; %2$s: link to the page where ISTAT publishes used data; %3$s: link to the page where Agenzia delle entrate publishes used data
 #: admin/includes/help-tabs.php:86
-msgid "\"Campi Moduli Italiani\" creates shortcodes and, if %1$s is activated, form-tags, useful into Italian forms. The first module written is used to select an Italian municipality. Optionally it can show details of selected municipality. The data used are retrivied from %2$s and from %3$s."
+#. translators: %1$s: Contact Form 7, plugin page link; %2$s: link to the page
+#. where ISTAT publishes used data; %3$s: link to the page where Agenzia delle
+#. entrate publishes used data
+msgid ""
+"\"Campi Moduli Italiani\" creates shortcodes and, if %1$s is activated, "
+"form-tags, useful into Italian forms. The first module written is used to "
+"select an Italian municipality. Optionally it can show details of selected "
+"municipality. The data used are retrivied from %2$s and from %3$s."
 msgstr ""
 
-#. translators: %1$s: link to ISTAT website; %2$s: link to the page where ISTAT publishes used data
 #: admin/includes/help-tabs.php:94
-msgid "On this screen, you can update tables by direct data download from %1$s and %2$s. For details about downloaded data, visit %3$s."
+#. translators: %1$s: link to ISTAT website; %2$s: link to the page where ISTAT
+#. publishes used data
+msgid ""
+"On this screen, you can update tables by direct data download from %1$s and "
+"%2$s. For details about downloaded data, visit %3$s."
 msgstr ""
 
 #: admin/includes/help-tabs.php:99
-msgid "Check the update dates of your data and the update dates of the online files, pick tables to update, select the \"Update tables\" bulk action and click on \"Apply\"."
+msgid ""
+"Check the update dates of your data and the update dates of the online "
+"files, pick tables to update, select the \"Update tables\" bulk action and "
+"click on \"Apply\"."
 msgstr ""
 
 #: admin/includes/help-tabs.php:116
@@ -237,6 +240,10 @@ msgstr ""
 
 #: admin/includes/help-tabs.php:117
 msgid "Plugin page"
+msgstr ""
+
+#. Plugin Name of the plugin/theme
+msgid "Campi Moduli Italiani"
 msgstr ""
 
 #: modules/cf/class-gcmi-cf-wpcf7-formtag.php:74
@@ -327,14 +334,15 @@ msgstr ""
 msgid "Incorrect tax code"
 msgstr ""
 
-#: modules/cf/wpcf7-cf-formtag.php:171
-#: modules/cf/wpcf7-cf-formtag.php:173
+#: modules/cf/wpcf7-cf-formtag.php:171 modules/cf/wpcf7-cf-formtag.php:173
 msgid "Insert Italian Tax Code"
 msgstr ""
 
-#. translators: %s: link to plugin page URL
 #: modules/cf/wpcf7-cf-formtag.php:191
-msgid "Creates a form tag for natural person Italian tax code. To get more informations look at %s."
+#. translators: %s: link to plugin page URL
+msgid ""
+"Creates a form tag for natural person Italian tax code. To get more "
+"informations look at %s."
 msgstr ""
 
 #: modules/cf/wpcf7-cf-formtag.php:192
@@ -343,8 +351,55 @@ msgstr ""
 msgid "the plugin page at WordPress.org"
 msgstr ""
 
+#: modules/cf/wpcf7-cf-formtag.php:201 modules/cf/wpcf7-cf-formtag.php:204
+#: modules/comune/wpcf7-comune-formtag.php:130
+#: modules/comune/wpcf7-comune-formtag.php:133
+#: modules/stato/wpcf7-stato-formtag.php:293
+#: modules/stato/wpcf7-stato-formtag.php:296
+msgid "Field type"
+msgstr ""
+
+#: modules/cf/wpcf7-cf-formtag.php:205
+#: modules/comune/wpcf7-comune-formtag.php:134
+#: modules/stato/wpcf7-stato-formtag.php:297
+msgid "Required field"
+msgstr ""
+
+#: modules/cf/wpcf7-cf-formtag.php:210
+#: modules/comune/wpcf7-comune-formtag.php:139
+#: modules/stato/wpcf7-stato-formtag.php:302
+msgid "Name"
+msgstr ""
+
+#: modules/cf/wpcf7-cf-formtag.php:214
+#: modules/comune/wpcf7-comune-formtag.php:143
+#: modules/stato/class-wpforms-field-stato.php:342
+#: modules/stato/wpcf7-stato-formtag.php:306
+msgid "Default value"
+msgstr ""
+
+#: modules/cf/wpcf7-cf-formtag.php:216
+msgid "Use this text as the placeholder of the field"
+msgstr ""
+
+#: modules/cf/wpcf7-cf-formtag.php:219
+#: modules/comune/wpcf7-comune-formtag.php:169
+#: modules/stato/wpcf7-stato-formtag.php:327
+msgid "Id attribute"
+msgstr ""
+
+#: modules/cf/wpcf7-cf-formtag.php:223
+#: modules/stato/wpcf7-stato-formtag.php:331
+msgid "Class attribute"
+msgstr ""
+
 #: modules/cf/wpcf7-cf-formtag.php:227
-msgid "If you want tax code to match  form's others fields, please indicate the names given to these fields in the form. Tax code will be matched only against named fields (if you have just one field for born date, it is not necessary to check tax code against different fileds for day month and year of birth)."
+msgid ""
+"If you want tax code to match  form's others fields, please indicate the "
+"names given to these fields in the form. Tax code will be matched only "
+"against named fields (if you have just one field for born date, it is not "
+"necessary to check tax code against different fileds for day month and year "
+"of birth)."
 msgstr ""
 
 #: modules/cf/wpcf7-cf-formtag.php:230
@@ -381,6 +436,21 @@ msgstr ""
 
 #: modules/cf/wpcf7-cf-formtag.php:263
 msgid "\"name\" attr of Country of birth field"
+msgstr ""
+
+#: modules/cf/wpcf7-cf-formtag.php:274
+#: modules/comune/wpcf7-comune-formtag.php:188
+#: modules/stato/wpcf7-stato-formtag.php:342
+msgid "Insert Tag"
+msgstr ""
+
+#: modules/cf/wpcf7-cf-formtag.php:282
+#: modules/comune/wpcf7-comune-formtag.php:192
+#: modules/stato/wpcf7-stato-formtag.php:350
+#. translators: %s is the name of the mail-tag.
+msgid ""
+"To use the value input through this field in a mail field, you need to "
+"insert the corresponding mail-tag (%s) into the field on the Mail tab."
 msgstr ""
 
 #: modules/comune/class-gcmi-comune-shortcode.php:119
@@ -431,7 +501,6 @@ msgstr ""
 #: modules/comune/class-gcmi-comune-shortcode.php:157
 #: modules/comune/class-gcmi-comune-wpcf7-formtag.php:199
 #: modules/comune/class-wpforms-field-comune.php:586
-#: modules/comune/js/ajax.js:314
 msgid "Municipality details"
 msgstr ""
 
@@ -439,8 +508,9 @@ msgstr ""
 msgid " - (abol.)"
 msgstr ""
 
-#. translators: put a string matching the local date format to be used in SQL (https://dev.mysql.com/doc/refman/8.0/en/date-and-time-functions.html#function_date-format)
 #: modules/comune/class-gcmi-comune.php:565
+#. translators: put a string matching the local date format to be used in SQL
+#. (https:dev.mysql.com/doc/refman/8.0/en/date-and-time-functions.html#function_date-format)
 msgid "%m/%d/%Y"
 msgstr ""
 
@@ -501,7 +571,9 @@ msgid "Non administrative unit"
 msgstr ""
 
 #: modules/comune/class-gcmi-comune.php:657
-msgid "Name of the supra-municipal territorial unit (valid for statistical purposes):"
+msgid ""
+"Name of the supra-municipal territorial unit (valid for statistical "
+"purposes):"
 msgstr ""
 
 #: modules/comune/class-gcmi-comune.php:676
@@ -563,7 +635,10 @@ msgid "CD: Change of name of the municipality"
 msgstr ""
 
 #: modules/comune/class-gcmi-comune.php:737
-msgid "AQES: Incorporation of the territory of one or more suppressed municipalities. The variation has no effect on the code of the municipality that incorporates"
+msgid ""
+"AQES: Incorporation of the territory of one or more suppressed "
+"municipalities. The variation has no effect on the code of the municipality "
+"that incorporates"
 msgstr ""
 
 #: modules/comune/class-gcmi-comune.php:740
@@ -575,15 +650,23 @@ msgid "CE: Land transfer"
 msgstr ""
 
 #: modules/comune/class-gcmi-comune.php:746
-msgid "CECS: Transfer of one or more portions of territory against the establishment of a new unit. The change has no effect on the code of the municipality that gives territory"
+msgid ""
+"CECS: Transfer of one or more portions of territory against the "
+"establishment of a new unit. The change has no effect on the code of the "
+"municipality that gives territory"
 msgstr ""
 
 #: modules/comune/class-gcmi-comune.php:749
-msgid "AP: Change of belonging to the hierarchically superior administrative unit (typically, a change of province and or region)."
+msgid ""
+"AP: Change of belonging to the hierarchically superior administrative unit "
+"(typically, a change of province and or region)."
 msgstr ""
 
 #: modules/comune/class-gcmi-comune.php:758
-msgid "Istat code of the municipality. For changes of province and / or region (AP) membership, the code is the one prior to the validity date of the provision:"
+msgid ""
+"Istat code of the municipality. For changes of province and / or region "
+"(AP) membership, the code is the one prior to the validity date of the "
+"provision:"
 msgstr ""
 
 #: modules/comune/class-gcmi-comune.php:764
@@ -591,7 +674,9 @@ msgid "Official name of the municipality on the date of the event:"
 msgstr ""
 
 #: modules/comune/class-gcmi-comune.php:770
-msgid "Istat code of the municipality associated with the change or new Istat code of the municipality:"
+msgid ""
+"Istat code of the municipality associated with the change or new Istat code "
+"of the municipality:"
 msgstr ""
 
 #: modules/comune/class-gcmi-comune.php:782
@@ -615,7 +700,9 @@ msgid "Territorial variations with population shift"
 msgstr ""
 
 #: modules/comune/class-gcmi-comune.php:807
-msgid "Territorial variations with ascertainment of the number of transferred inhabitants (inhabitants surveyed as of 9 October 2011)"
+msgid ""
+"Territorial variations with ascertainment of the number of transferred "
+"inhabitants (inhabitants surveyed as of 9 October 2011)"
 msgstr ""
 
 #: modules/comune/class-gcmi-comune.php:810
@@ -656,16 +743,42 @@ msgid "highlights deleted"
 msgstr ""
 
 #: modules/comune/class-wpforms-field-comune.php:219
-msgid "Check this option to show an icon to render a table with municipality details."
+msgid ""
+"Check this option to show an icon to render a table with municipality "
+"details."
 msgstr ""
 
 #: modules/comune/class-wpforms-field-comune.php:226
+#: modules/comune/wpcf7-comune-formtag.php:159
 #: modules/comune/wpcf7-comune-formtag.php:162
 #: modules/comune/wpcf7-comune-formtag.php:163
 msgid "Show details"
 msgstr ""
 
+#: modules/comune/class-wpforms-field-comune.php:270
+#: modules/stato/class-wpforms-field-stato.php:395
+msgid "Style"
+msgstr ""
+
+#: modules/comune/class-wpforms-field-comune.php:271
+#: modules/stato/class-wpforms-field-stato.php:396
+msgid ""
+"Classic style is the default one generated by your browser. Modern has a "
+"fresh look and displays all selected options in a single row."
+msgstr ""
+
+#: modules/comune/class-wpforms-field-comune.php:283
+#: modules/stato/class-wpforms-field-stato.php:408
+msgid "Classic"
+msgstr ""
+
+#: modules/comune/class-wpforms-field-comune.php:284
+#: modules/stato/class-wpforms-field-stato.php:409
+msgid "Modern"
+msgstr ""
+
 #: modules/comune/class-wpforms-field-comune.php:304
+#: modules/comune/wpcf7-comune-formtag.php:164
 msgid "Wrap each item with label element"
 msgstr ""
 
@@ -687,9 +800,11 @@ msgstr ""
 msgid "Select Italian municipality"
 msgstr ""
 
-#. translators: %s: link to plugin page URL
 #: modules/comune/wpcf7-comune-formtag.php:111
-msgid "Creates a tag for a concatenated selection of an Italian municipality. To get more information look at %s."
+#. translators: %s: link to plugin page URL
+msgid ""
+"Creates a tag for a concatenated selection of an Italian municipality. To "
+"get more information look at %s."
 msgstr ""
 
 #: modules/comune/wpcf7-comune-formtag.php:145
@@ -758,13 +873,11 @@ msgstr ""
 msgid "Only actual States (not ceased)"
 msgstr ""
 
-#: modules/stato/class-wpforms-field-stato.php:342
-msgid "Default value"
-msgstr ""
-
 #: modules/stato/class-wpforms-field-stato.php:343
 #: modules/stato/wpcf7-stato-formtag.php:308
-msgid "Country's ISTAT Code (3 digits) or Country's Italian denomination (case sensitive)."
+msgid ""
+"Country's ISTAT Code (3 digits) or Country's Italian denomination (case "
+"sensitive)."
 msgstr ""
 
 #: modules/stato/class-wpforms-field-stato.php:687
@@ -778,9 +891,14 @@ msgstr ""
 msgid "Insert a select for Countries"
 msgstr ""
 
-#. translators: %s is the link to plugin page URL.
 #: modules/stato/wpcf7-stato-formtag.php:284
+#. translators: %s is the link to plugin page URL.
 msgid "Creates a select with countries %s."
+msgstr ""
+
+#: modules/stato/wpcf7-stato-formtag.php:311
+#: modules/stato/wpcf7-stato-formtag.php:314
+msgid "Options"
 msgstr ""
 
 #: modules/stato/wpcf7-stato-formtag.php:317
@@ -795,34 +913,29 @@ msgstr ""
 msgid "Leave a review"
 msgstr ""
 
-#: admin/js/formsign.js:40
-msgid "Hash you pasted doesn't match calculated hash. This means that the hash you pasted was not calculated on this form' submission."
+#. Plugin URI of the plugin/theme
+msgid "https://wordpress.org/plugins/campi-moduli-italiani/"
 msgstr ""
 
-#: admin/js/formsign.js:48
-msgid "No public key found for this form ID."
+#. Description of the plugin/theme
+msgid ""
+"(Generator of) Fields for Italian CF7 and wpforms modules. The plugin "
+"generates specific fields for Italian forms created with Contact Form 7 and "
+"wpforms. This version makes available 4 form-tags for CF7 and 2 fields for "
+"wpforms: a cascade selection for an Italian municipality (CF7 + wpforms), a "
+"select for a state (CF7 + wpforms), an Italian tax code field with "
+"validation (CF7 only), a hidden field that allows you to digitally sign "
+"e-mails to ensure that they have been sent via the form (CF7 only). The "
+"databases are taken from the Istat and Agenzia delle entrate websites. The "
+"digital signature on the form data uses the RSA algorithm with a 4096 bit "
+"private key. <strong> Activation can take a few minutes to download the "
+"updated data and to import them into the database </strong>."
 msgstr ""
 
-#: admin/js/formsign.js:54
-msgid "Signature verified. The signature you pasted, matches form' certificate and hash of posted values."
+#. Author of the plugin/theme
+msgid "Giuseppe Foti"
 msgstr ""
 
-#: admin/js/formsign.js:60
-msgid "The signature is invalid. The signature you pasted doesn't match form certificate and hash of posted values."
-msgstr ""
-
-#: admin/js/formsign.js:68
-msgid "There is a problem in running openssl_verify function."
-msgstr ""
-
-#: modules/comune/js/ajax.js:5
-msgid "Select..."
-msgstr ""
-
-#: modules/comune/js/ajax.js:6
-msgid "Wait..."
-msgstr ""
-
-#: modules/comune/js/ajax.js:315
-msgid "Close"
+#. Author URI of the plugin/theme
+msgid "https://bertocchi28.ddns.net/"
 msgstr ""
