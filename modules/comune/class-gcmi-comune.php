@@ -505,13 +505,13 @@ class GCMI_COMUNE {
 	 * @return void
 	 */
 	public static function gcmi_register_scripts(): void {
-		wp_register_style( 'gcmi_comune_css', plugins_url( 'modules/comune/css/comune.css', GCMI_PLUGIN ), array(), GCMI_VERSION );
+		wp_register_style( 'gcmi_comune_css', plugins_url( 'modules/comune/css/comune.min.css', GCMI_PLUGIN ), array(), GCMI_VERSION );
 
 		// Se html5_fallback è abilitato, non devo caricare il nuovo tema per evitare conflitti.
 		if ( ! has_filter( 'wpcf7_support_html5_fallback', '__return_true' ) ) {
 			wp_register_style( 'gcmi_jquery-ui-dialog', plugins_url( 'css/jquery-ui-dialog.min.css', GCMI_PLUGIN ), array(), GCMI_VERSION );
 		}
-		wp_register_script( 'gcmi_comune_js', plugins_url( 'modules/comune/js/ajax.js', GCMI_PLUGIN ), array( 'jquery', 'jquery-ui-dialog', 'jquery-ui-tooltip', 'jquery-effects-core', 'jquery-effects-slide', 'jquery-effects-puff', 'wp-i18n' ), $ver = GCMI_VERSION, $in_footer = false );
+		wp_register_script( 'gcmi_comune_js', plugins_url( 'modules/comune/js/ajax.min.js', GCMI_PLUGIN ), array( 'jquery', 'jquery-ui-dialog', 'jquery-ui-tooltip', 'jquery-effects-core', 'jquery-effects-slide', 'jquery-effects-puff', 'wp-i18n' ), $ver = GCMI_VERSION, $in_footer = false );
 		wp_set_script_translations( 'gcmi_comune_js', 'campi-moduli-italiani', plugin_dir_path( GCMI_PLUGIN ) . 'languages' );
 
 		/* Localize Script Data */

@@ -155,7 +155,7 @@ function gcmi_admin_menu_change_notice( $menu_slug = '' ) {
 function gcmi_admin_enqueue_scripts( $hook_suffix ) {
 	wp_enqueue_style(
 		'gcmi-admin',
-		plugins_url( GCMI_PLUGIN_NAME . '/admin/css/styles.css' ),
+		plugins_url( GCMI_PLUGIN_NAME . '/admin/css/styles.min.css' ),
 		array(),
 		GCMI_VERSION,
 		'all'
@@ -166,7 +166,7 @@ function gcmi_admin_enqueue_scripts( $hook_suffix ) {
 	}
 	wp_enqueue_script(
 		'gcmi-admin',
-		plugins_url( GCMI_PLUGIN_NAME . '/admin/js/scripts.js' ),
+		plugins_url( GCMI_PLUGIN_NAME . '/admin/js/scripts.min.js' ),
 		array( 'jquery', 'jquery-ui-tabs' ),
 		GCMI_VERSION,
 		true

@@ -3,7 +3,7 @@
  * Select a Country
  *
  * This form-tag adds a select to chose a country.
- * It returns the Istat Country code (usefull to check Italian fiscal code for people born outside Italy
+ * It returns the Istat Country code (useful to check Italian fiscal code for people born outside Italy
  *
  * @link https://wordpress.org/plugins/campi-moduli-italiani/
  *

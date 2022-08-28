@@ -11,7 +11,7 @@
  * Select a Country
  *
  * This field adds a select to choose a country.
- * It returns the Istat Country code (usefull to check italian fiscal code for people born outside Italy)
+ * It returns the Istat Country code (useful to check italian fiscal code for people born outside Italy)
  *
  * @link https://wordpress.org/plugins/campi-moduli-italiani/
  *
