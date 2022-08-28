@@ -1,0 +1,33 @@
+{
+  "name": "campi-moduli-italiani",
+  "version": "2.1.0",
+  "main": "Gruntfile.js",
+  "author": "Giuseppe Foti",
+  "license": "GPL-2.0-or-later",
+  "description": "A wordpress plugin to create fields in CF7 and WPForms useful for Italian websites",
+  "scripts": {
+    "start": "grunt default",
+    "readme": "grunt readme",
+    "i18n": "grunt i18n"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/MocioF/campi-moduli-italiani"
+  },
+  "keywords": [
+    "wordpress-plugin",
+    "csp",
+    "content-security-policy"
+  ],
+  "devDependencies": {
+    "grunt": "^1.5.3",
+    "grunt-contrib-cssmin": "^4.0.0",
+    "grunt-contrib-jshint": "^3.2.0",
+    "grunt-contrib-sass": "^2.0.0",
+    "grunt-contrib-uglify": "^5.2.1",
+    "grunt-contrib-watch": "^1.1.0",
+    "grunt-wp-i18n": "^1.0.3",
+    "grunt-wp-readme-to-markdown": "^2.1.0",
+    "npm-check-updates": "^16.0.6"
+  }
+}
