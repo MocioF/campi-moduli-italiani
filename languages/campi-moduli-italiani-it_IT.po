@@ -5,8 +5,8 @@ msgstr ""
 "Project-Id-Version: Plugins - Campi Moduli Italiani - Development (trunk)\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/campi-moduli-"
 "italiani\n"
-"POT-Creation-Date: 2022-08-28 17:28:15+00:00\n"
-"PO-Revision-Date: 2022-08-28 19:32+0200\n"
+"POT-Creation-Date: 2022-08-29 19:06:36+00:00\n"
+"PO-Revision-Date: 2022-08-29 21:07+0200\n"
 "Last-Translator: Giuseppe Foti <foti.giuseppe@gmail.com>\n"
 "Language-Team: \n"
 "Language: it\n"
@@ -32,58 +32,65 @@ msgstr "Database comuni italiani"
 msgid "Management of Italian municipalities database."
 msgstr "Gestione database comuni italiani."
 
-#: admin/admin.php:197
+#. translators: %1$s is a date string; %2$s is a time string.
+#: admin/admin.php:122
+msgid "Last remote files update check on %1$s at %2$s."
+msgstr ""
+"Ultimo controllo della data di aggiornamento dei file remoti effettuato il "
+"%1$s alle %2$s."
+
+#: admin/admin.php:207
 msgid "Wrong file name"
 msgstr "Nome file errato"
 
 #. translators: %s is the fname value for the updating table.
-#: admin/admin.php:199
+#: admin/admin.php:209
 msgid "This plugin cannot manage file %s"
 msgstr "Questo plugin non può gestire il file %s"
 
-#: admin/admin.php:207 admin/class-gcmi-activator.php:292
+#: admin/admin.php:217 admin/class-gcmi-activator.php:292
 msgid "Error creating download directory"
 msgstr "Errore nella creazione della directory di download"
 
-#: admin/admin.php:208 admin/class-gcmi-activator.php:293
+#: admin/admin.php:218 admin/class-gcmi-activator.php:293
 msgid "Unable to create temporary download directory"
 msgstr "Impossibile creare la directory temporanea di download"
 
-#: admin/admin.php:224
+#: admin/admin.php:234
 msgid "Remote file download error"
 msgstr "Errore nel download del file remoto"
 
 #. translators: %s is the URL of the file it attempted to download
-#: admin/admin.php:227
+#: admin/admin.php:237
 msgid "Unable to download %s"
 msgstr "Impossibile scaricare %s"
 
-#: admin/admin.php:249 admin/class-gcmi-activator.php:350
+#: admin/admin.php:259 admin/class-gcmi-activator.php:350
 msgid "Zip archive extraction error"
 msgstr "Errore di estrazione dell'archivio zip"
 
 #. translators: %1$s: the local csv file name; %2$s: the zip archive file name
-#: admin/admin.php:252 admin/class-gcmi-activator.php:352
+#: admin/admin.php:262 admin/class-gcmi-activator.php:352
 msgid "Unable to extract %1$s from %2$s"
 msgstr "Impossibile estrarre %1$s da %2$s"
 
-#: admin/admin.php:265
+#: admin/admin.php:275
 msgid "Grab html data error"
 msgstr "Recupera errore dati html"
 
 #. translators: remote URL of the table from where it grabs data
-#: admin/admin.php:267
+#: admin/admin.php:277
 msgid "Unable to grab data from %s"
 msgstr "Impossibile estrarre dati da %s"
 
-#: admin/admin.php:285
+#: admin/admin.php:295
 msgid "Error in inserting data into the database"
 msgstr "Errore nell'inserimento di dati nel database"
 
 #. translators: enter a format string valid for a date and time value according
 #. to the local standard using characters recognized by the php date ()
 #. function (https:www.php.net/manual/en/function.date.php)
-#: admin/admin.php:320 admin/admin.php:332
+#: admin/admin.php:334 admin/admin.php:346
 msgid "Y/m/d g:i:s a"
 msgstr "d/m/Y H:i:s"
 
@@ -146,22 +153,22 @@ msgid "Invalid path: %s"
 msgstr "Percorso non valido: %s"
 
 #. translators: %s is the file name.
-#: admin/class-gcmi-activator.php:941
+#: admin/class-gcmi-activator.php:951
 msgid "Impossible to read the file: %s"
 msgstr "Impossibile leggere il file %s"
 
 #. translators: %s is the minimum WordPress version required.
-#: admin/class-gcmi-activator.php:1475
+#: admin/class-gcmi-activator.php:1485
 msgid "Campi Moduli Italiani requires at least WordPress version %s"
 msgstr "Campi Moduli Italiani richiede almeno la versione %s di WordPress"
 
 #. translators: %s is the minimum PHP version required.
-#: admin/class-gcmi-activator.php:1484
+#: admin/class-gcmi-activator.php:1494
 msgid "Campi Moduli Italiani requires at least PHP version %s"
 msgstr "Campi Moduli Italiani richiede almeno la versione %s di PHP"
 
 #. translators: %s is the name of the needed PHP extension.
-#: admin/class-gcmi-activator.php:1494
+#: admin/class-gcmi-activator.php:1504
 msgid ""
 "Campi Moduli Italiani requires PHP extension %s. Enable it on your server "
 "and then try plugin's acrivation again."
@@ -944,11 +951,11 @@ msgstr "Opzioni"
 msgid "Add a first element as label saying: "
 msgstr "Aggiungi un primo elemento come etichetta con la dicitura: "
 
-#: settings.php:130
+#: settings.php:134
 msgid "Support"
 msgstr "Assistenza"
 
-#: settings.php:131
+#: settings.php:135
 msgid "Leave a review"
 msgstr "Scrivi una recensione"
 

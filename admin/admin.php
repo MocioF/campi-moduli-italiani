@@ -115,6 +115,19 @@ function gcmi_admin_update_db() {
 	$my_list_table->display();
 	echo '</div>';
 	echo '</form>';
+
+	$last_check  = intval( get_site_option( 'gcmi_last_update_check' ) );
+	$date_format = get_site_option( 'date_format' ) ? strval( get_site_option( 'date_format' ) ) : 'j F Y';
+	$time_format = get_site_option( 'time_format' ) ? strval( get_site_option( 'time_format' ) ) : 'H:i';
+	if ( false !== $last_check && function_exists( 'wp_date' ) ) {
+		$last_check_string = sprintf(
+			// translators: %1$s is a date string; %2$s is a time string.
+			esc_html__( 'Last remote files update check on %1$s at %2$s.', 'campi-moduli-italiani' ),
+			wp_date( $date_format, $last_check ),
+			wp_date( $time_format, $last_check ),
+		);
+		echo '<p id="gcmi_table_footer" class="alignleft"><span id="gcmi_last_check">' . $last_check_string . '</span></p>';
+	}
 }
 
 
@@ -131,7 +144,7 @@ function gcmi_admin_menu_change_notice( $menu_slug = '' ) {
 		$counts             = 0;
 		$num_items          = count( $database_file_info );
 		for ( $i = 0; $i < $num_items; $i++ ) {
-			if ( get_option( $database_file_info[ $i ]['optN_remoteUpd'] ) > get_option( $database_file_info[ $i ]['optN_dwdtime'] ) ) {
+			if ( get_site_option( $database_file_info[ $i ]['optN_remoteUpd'] ) > get_site_option( $database_file_info[ $i ]['optN_dwdtime'] ) ) {
 				$counts++;
 			}
 		}
@@ -302,7 +315,11 @@ function gcmi_update_table( $fname ) {
 		$wpdb->query( $sql );
 
 		// aggiorno opzione sul database.
-		update_option( $database_file_info[ $id ]['optN_dwdtime'], $download_time, 'no' );
+		if ( false === is_multisite() ) {
+			update_option( $database_file_info[ $id ]['optN_dwdtime'], $download_time, 'no' );
+		} else {
+			update_site_option( $database_file_info[ $id ]['optN_dwdtime'], $download_time );
+		}
 
 		// elimino la cartella temporanea.
 		GCMI_Activator::delete_dir( $download_temp_dir );

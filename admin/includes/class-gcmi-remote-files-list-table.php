@@ -106,7 +106,7 @@ class Gcmi_Remote_Files_List extends WP_List_Table {
 		$data               = array();
 		$count              = count( $database_file_info );
 		for ( $i = 0; $i < $count; $i++ ) {
-			if ( get_option( $database_file_info[ $i ]['optN_remoteUpd'] ) <= get_option( $database_file_info[ $i ]['optN_dwdtime'] ) ) {
+			if ( get_site_option( $database_file_info[ $i ]['optN_remoteUpd'] ) <= get_site_option( $database_file_info[ $i ]['optN_dwdtime'] ) ) {
 				$icon  = '<span class="dashicons dashicons-yes-alt" id="gcmi-icon-' . $database_file_info[ $i ]['name'] . '" style="color:green"></span>';
 				$icon .= '<input type="hidden" id="gcmi-updated-' . $database_file_info[ $i ]['name'] . '" value="true">';
 			} else {
@@ -117,8 +117,8 @@ class Gcmi_Remote_Files_List extends WP_List_Table {
 			$data[ $i ] = array(
 				'gcmi-dataname'   => $database_file_info[ $i ]['name'],
 				'gcmi-icon'       => $icon,
-				'gcmi-remotedate' => gcmi_convert_timestamp( intval( get_option( $database_file_info[ $i ]['optN_remoteUpd'] ) ) ),
-				'gcmi-localdate'  => gcmi_convert_timestamp( intval( get_option( $database_file_info[ $i ]['optN_dwdtime'] ) ) ),
+				'gcmi-remotedate' => gcmi_convert_timestamp( intval( get_site_option( $database_file_info[ $i ]['optN_remoteUpd'] ) ) ),
+				'gcmi-localdate'  => gcmi_convert_timestamp( intval( get_site_option( $database_file_info[ $i ]['optN_dwdtime'] ) ) ),
 				'gcmi-dataURL'    => $database_file_info[ $i ]['remote_URL'],
 			);
 		}

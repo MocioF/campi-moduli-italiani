@@ -614,7 +614,11 @@ class GCMI_Activator {
 	 */
 	private static function set_gcmi_options(): void {
 		foreach ( self::$activator_options as $key => $value ) {
-			update_site_option( $key, $value['value'], $value['autoload'] ); // errore
+			if ( false === is_multisite() ) {
+				update_option( $key, $value['value'], $value['autoload'] );
+			} else {
+				update_site_option( $key, $value['value'] );
+			}
 		}
 	}
 
@@ -628,8 +632,14 @@ class GCMI_Activator {
 	 */
 	private static function unset_gcmi_options(): void {
 		$keys = array_keys( self::$activator_options );
-		foreach ( $keys as $key ) {
-			delete_site_option( $key );
+		if ( false === is_multisite() ) {
+			foreach ( $keys as $key ) {
+				delete_option( $key );
+			}
+		} else {
+			foreach ( $keys as $key ) {
+				delete_site_option( $key );
+			}
 		}
 	}
 
@@ -936,7 +946,7 @@ class GCMI_Activator {
 		WP_Filesystem();
 		$arr_dati = array();
 		if ( ! $arr_dati = $wp_filesystem->get_contents_array( $csv_file_path ) ) {
-			$error_code    = 'gcmi_csv_read_error';
+			$error_code = 'gcmi_csv_read_error';
 			// translators: %s is the file name.
 			$error_message = esc_html( sprintf( __( 'Impossible to read the file: %s', 'campi-moduli-italiani' ), $csv_file_path ) );
 			$gcmi_error->add( $error_code, $error_message );

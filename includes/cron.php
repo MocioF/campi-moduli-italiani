@@ -30,7 +30,7 @@ function gcmi_check_update(): void {
 			if ( false === is_multisite() ) {
 				update_option( $file_opt, $timestamp, 'no' );
 			} else {
-				update_network_option( $file_opt, $timestamp, 'no' );
+				update_site_option( $file_opt, $timestamp );
 			}
 
 			// Aggiorno la data di aggiornamento dei codici catastali, con quella dei comuni_attuali.
@@ -38,7 +38,7 @@ function gcmi_check_update(): void {
 				if ( false === is_multisite() ) {
 					update_option( 'gcmi_codici_catastali_remote_file_time', $timestamp, 'no' );
 				} else {
-					update_network_option( 'gcmi_codici_catastali_remote_file_time', $timestamp, 'no' );
+					update_site_option( 'gcmi_codici_catastali_remote_file_time', $timestamp );
 				}
 			}
 		}
@@ -46,7 +46,7 @@ function gcmi_check_update(): void {
 	if ( false === is_multisite() ) {
 		update_option( 'gcmi_last_update_check', time(), 'no' );
 	} else {
-		update_network_option( 'gcmi_last_update_check', time(), 'no' );
+		update_site_option( 'gcmi_last_update_check', time() );
 	}
 }
 

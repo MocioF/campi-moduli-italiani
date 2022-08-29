@@ -113,7 +113,11 @@ function gcmi_upgrade() {
 	}
 
 	do_action( 'gcmi_upgrade', $new_ver, $old_ver );
-	update_option( 'gcmi_plugin_version', $new_ver );
+	if ( false === is_multisite() ) {
+		update_option( 'gcmi_plugin_version', $new_ver );
+	} else {
+		update_site_option( 'gcmi_plugin_version', $new_ver );
+	}
 }
 
 
