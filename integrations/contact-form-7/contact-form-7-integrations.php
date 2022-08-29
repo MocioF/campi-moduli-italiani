@@ -1,10 +1,12 @@
 <?php
 /**
- * Include i file necessari all'integrazione con contact-form-7
+ * Adds files required for Contact Form 7 integration
  *
- * @link https://wordpress.org/plugins/search/campi+moduli+italiani/
+ * @link https://wordpress.org/plugins/campi-moduli-italiani/
  *
- * @package campi-moduli-italiani
+ * @package    campi-moduli-italiani
+ * @subpackage integrations/contact-form-7
+ * @since      2.1.0
  */
 
 if ( GCMI_USE_COMUNE === true ) {

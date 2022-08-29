@@ -254,12 +254,12 @@ class GCMI_Activator {
 	/**
 	 * Check if a table exists in database
 	 *
-	 * @param string $table_name The table name to check if exists
+	 * @param string $table_name The table name to check if exists.
 	 * @return boolean
 	 */
 	private static function gcmi_table_exists( $table_name ) {
 		global $wpdb;
-		if ( $table_name !== strval( $wpdb->get_var( "SHOW TABLES LIKE '$table_name'" ) ) ) {
+		if ( strval( $wpdb->get_var( "SHOW TABLES LIKE '$table_name'" ) ) !== $table_name ) {
 			return false;
 		} else {
 			return true;
@@ -485,7 +485,7 @@ class GCMI_Activator {
 			$sites = get_sites( $args );
 		} else {
 			// WP < 4.6; however it is unsupported.
-			$sites = wp_get_sites();
+			$sites = wp_get_sites(); // phpcs:ignore WordPress.WP.DeprecatedFunctions.wp_get_sitesFound
 		}
 		if ( is_iterable( $sites ) && ! empty( $sites ) ) {
 			foreach ( $sites as $site ) {
@@ -944,8 +944,8 @@ class GCMI_Activator {
 		}
 
 		WP_Filesystem();
-		$arr_dati = array();
-		if ( ! $arr_dati = $wp_filesystem->get_contents_array( $csv_file_path ) ) {
+		$arr_dati = $wp_filesystem->get_contents_array( $csv_file_path );
+		if ( false === $arr_dati ) {
 			$error_code = 'gcmi_csv_read_error';
 			// translators: %s is the file name.
 			$error_message = esc_html( sprintf( __( 'Impossible to read the file: %s', 'campi-moduli-italiani' ), $csv_file_path ) );
@@ -1415,7 +1415,7 @@ class GCMI_Activator {
 				}
 			}
 		}
-		$max_retry = $max_retry - 1;
+		--$max_retry;
 
 		if ( $max_retry > 0 && false === empty( $failed_letters ) ) {
 			self:$alphas = $failed_letters;
@@ -1431,7 +1431,7 @@ class GCMI_Activator {
 	/**
 	 * Scarica i dati da una singola tabella / lettera del sito Agenzia entrate
 	 *
-	 * @param array $response Array returned by wp_remote_get if success
+	 * @param array $response Array returned by wp_remote_get if success.
 	 * @return string
 	 */
 	public static function get_data_from_response( $response ) {
