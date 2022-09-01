@@ -1,7 +1,7 @@
 <?php
 
 final class Campi_Moduli_Italiani_ActivatorTest extends WP_UnitTestCase {
-	
+	/*
 	public function set_up() {
 		global $gcmi_now;
 		$gcmi_now = time();
@@ -13,7 +13,26 @@ final class Campi_Moduli_Italiani_ActivatorTest extends WP_UnitTestCase {
 		gcmi_deactivate( false );
 		parent::tear_down();
 	}
-	
+	*/
+	public function set_up() {
+		global $gcmi_now;
+		$gcmi_now = time();
+		parent::set_up();
+	}
+
+	public static function setUpBeforeClass(): void {
+		gcmi_activate( false );
+	}
+
+	public function tear_down() {
+		parent::tear_down();
+	}
+
+	public static function tearDownAfterClass(): void {
+		gcmi_deactivate( false );
+	}
+
+
 	function test_make_dir() {
 		$tmp_dir = GCMI_Activator::make_tmp_dwld_dir();
 		$message = 'Attempt to create dir failed';
@@ -27,7 +46,7 @@ final class Campi_Moduli_Italiani_ActivatorTest extends WP_UnitTestCase {
 		$this->assertTrue( $removed );
 		
 	}
-	
+
 	protected static function getMethod( $name ) {
 		$class = new ReflectionClass('GCMI_Activator');
 		$method = $class->getMethod($name);
@@ -40,10 +59,13 @@ final class Campi_Moduli_Italiani_ActivatorTest extends WP_UnitTestCase {
 		$object = new GCMI_Activator();
 		$args = array();
 		$requirements_met = $gcmi_is_requirements_met->invokeArgs( $object, $args );
-		$message = 'Requirements unmet; WP_Error is: ' . print_r( $requirements_met, true );
+		if ( is_wp_error($requirements_met)) {
+			$message = 'Requirements unmet; WP_Error is: ' . print_r( $requirements_met, true );
+			fwrite( STDERR, print_r( $message, TRUE ) );
+		}
 		$this->assertTrue( $requirements_met );
 	}
-	
+
 	function test_plugin_version() {
 		$installed_version = get_option( 'gcmi_plugin_version' );
 		$plugin_version_expected = GCMI_VERSION;
@@ -57,7 +79,7 @@ final class Campi_Moduli_Italiani_ActivatorTest extends WP_UnitTestCase {
 		
 		$this->assertEqualsWithDelta($expectedResult, $input, 300 );
 	}
-	
+
 	public function provideDownloadedTimes() {
 		global $gcmi_now;
 		return [
@@ -96,5 +118,3 @@ final class Campi_Moduli_Italiani_ActivatorTest extends WP_UnitTestCase {
 		];
 	}
 }
-	
-	
