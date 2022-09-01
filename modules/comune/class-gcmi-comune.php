@@ -12,7 +12,7 @@
  * @since   1.0.0
  */
 
-defined( 'ABSPATH' ) || die( 'you do not have acces to this page!' );
+defined( 'ABSPATH' ) || die( 'you do not have access to this page!' );
 
 $stringa = __( ' - (abol.)', 'campi-moduli-italiani' );
 
@@ -843,6 +843,38 @@ class GCMI_COMUNE {
 	}
 
 	/**
+	 * Restiuisce il codice comune dalla denominazione
+	 *
+	 * @global wpdb $wpdb
+	 * @param string $i_denominazione_ita La denominazione italiana di un comune.
+	 * @return false | string
+	 */
+	protected static function get_cod_comune_from_denominazione( $i_denominazione_ita ) {
+		global $wpdb;
+		$cache_key = 'gcmi_cod_comune_' . sanitize_key( $i_denominazione_ita );
+		$result    = wp_cache_get( $cache_key, GCMI_CACHE_GROUP );
+		if ( false === $result ) {
+			$result = $wpdb->get_var(
+				$wpdb->prepare(
+					'SELECT `i_cod_comune` FROM `' . GCMI_TABLE_PREFIX . 'comuni_attuali` ' .
+					'WHERE `i_denominazione_ita` = %s ' .
+					'UNION ' .
+					'SELECT `i_cod_comune` FROM `' . GCMI_TABLE_PREFIX . 'comuni_soppressi` ' .
+					'WHERE `i_denominazione_full` = %s',
+					addslashes( $i_denominazione_ita ),
+					addslashes( $i_denominazione_ita )
+				)
+			);
+			if ( null === $result ) {
+				return false;
+			} else {
+				wp_cache_set( $cache_key, $result, GCMI_CACHE_GROUP, GCMI_CACHE_EXPIRE_SECS );
+			}
+		}
+		return strval( $result );
+	}
+
+	/**
 	 * Gets data of administrative units from code comune
 	 *
 	 * Restituisce una stringa contenente il valore delle opzioni da selezionare delle select.
@@ -871,24 +903,33 @@ class GCMI_COMUNE {
 		$results   = wp_cache_get( $cache_key, GCMI_CACHE_GROUP );
 
 		if ( false === $results ) {
-			$sql1    = 'SELECT `i_cod_regione`, `i_cod_unita_territoriale`, `i_sigla_automobilistica` ';
-			$sql1   .= 'FROM `' . GCMI_TABLE_PREFIX . 'comuni_attuali` ';
-			$sql1   .= "WHERE `i_cod_comune` = '" . esc_sql( $i_cod_comune ) . "' LIMIT 1";
-			$results = $wpdb->get_row( $sql1, ARRAY_A ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+			$results = $wpdb->get_row(
+				$wpdb->prepare(
+					'SELECT `i_cod_regione`, `i_cod_unita_territoriale`, `i_sigla_automobilistica` ' .
+					'FROM `' . GCMI_TABLE_PREFIX . 'comuni_attuali` ' .
+					'WHERE `i_cod_comune` = %s LIMIT 1',
+					$i_cod_comune
+				),
+				ARRAY_A
+			);
 		}
 		if ( $results ) {
 			wp_cache_set( $cache_key, $results, GCMI_CACHE_GROUP, GCMI_CACHE_EXPIRE_SECS );
 			$output_string = $results['i_cod_regione'] . $results['i_cod_unita_territoriale'] . $i_cod_comune;
 		} else { // non ha trovato nulla nei comuni attuali.
 			if ( 'attuali' !== $kind ) {
-				$cache_key = 'gcmi_data_from_comune_cessato_' . strval( $i_cod_comune );
+				$cache_key = 'gcmi_data_from_comune_cessato_' . sanitize_key( $i_cod_comune );
 				$results   = wp_cache_get( $cache_key, GCMI_CACHE_GROUP );
 				if ( false === $results ) {
-					$sql2  = 'SELECT `i_cod_unita_territoriale`, `i_sigla_automobilistica` ';
-					$sql2 .= 'FROM `' . GCMI_TABLE_PREFIX . 'comuni_soppressi` ';
-					$sql2 .= "WHERE `i_cod_comune` = '" . esc_sql( $i_cod_comune ) . "' LIMIT 1";
-
-					$results = $wpdb->get_row( $sql2, ARRAY_A ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+					$results = $wpdb->get_row(
+						$wpdb->prepare(
+							'SELECT `i_cod_unita_territoriale`, `i_sigla_automobilistica` ' .
+							'FROM `' . GCMI_TABLE_PREFIX . 'comuni_soppressi` ' .
+							'WHERE `i_cod_comune` = %s LIMIT 1',
+							$i_cod_comune
+						),
+						ARRAY_A
+					);
 					wp_cache_set( $cache_key, $results, GCMI_CACHE_GROUP, GCMI_CACHE_EXPIRE_SECS );
 				}
 				$targa         = $results['i_sigla_automobilistica'];
@@ -901,11 +942,15 @@ class GCMI_COMUNE {
 					$cache_key = 'gcmi_data_from_targa_' . strval( $targa );
 					$results   = wp_cache_get( $cache_key, GCMI_CACHE_GROUP );
 					if ( false === $results ) {
-						$sql3  = 'SELECT `i_cod_regione`, `i_cod_unita_territoriale`, `i_sigla_automobilistica` ';
-						$sql3 .= 'FROM `' . GCMI_TABLE_PREFIX . 'comuni_attuali` ';
-						$sql3 .= 'WHERE `' . GCMI_TABLE_PREFIX . "comuni_attuali`.`i_sigla_automobilistica` = '" . esc_sql( $targa ) . "' LIMIT 1";
-
-						$results = $wpdb->get_row( $sql3, ARRAY_A ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+						$results = $wpdb->get_row(
+							$wpdb->prepare(
+								'SELECT `i_cod_regione`, `i_cod_unita_territoriale`, `i_sigla_automobilistica` ' .
+								'FROM `' . GCMI_TABLE_PREFIX . 'comuni_attuali` ' .
+								'WHERE `' . GCMI_TABLE_PREFIX . 'comuni_attuali`.`i_sigla_automobilistica` = %s LIMIT 1',
+								$targa
+							),
+							ARRAY_A
+						);
 						wp_cache_set( $cache_key, $results, GCMI_CACHE_GROUP, GCMI_CACHE_EXPIRE_SECS );
 					}
 

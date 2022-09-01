@@ -124,7 +124,12 @@ class GCMI_COMUNE_WPCF7_FormTag extends GCMI_COMUNE {
 		if ( parent::is_valid_cod_comune( $preset_value ) ) {
 			$this->preset_value = $preset_value;
 		} else {
-			$this->preset_value = '';
+			$got_cod_comune = parent::get_cod_comune_from_denominazione( $preset_value );
+			if ( parent::is_valid_cod_comune( strval( $got_cod_comune ) ) ) {
+				$this->preset_value = strval( $got_cod_comune );
+			} else {
+				$this->preset_value = '';
+			}
 		}
 	}
 
@@ -263,8 +268,3 @@ class GCMI_COMUNE_WPCF7_FormTag extends GCMI_COMUNE {
 		);
 	}
 }
-
-
-
-
-

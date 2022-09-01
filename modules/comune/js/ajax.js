@@ -329,7 +329,7 @@ jQuery( document ).ready(
 
 		async function setDefault(CurPrefix, predefiniti) {
 			try {
-				let response = await $( 'select#' + CurPrefix + 'gcmi_regione' )
+                                let response = await $( 'select#' + CurPrefix + 'gcmi_regione' )
 					.find( 'option[value="' + predefiniti.substring( 0, 2 ) + '"]' )
 					.prop( 'selected',true )
 					.trigger( 'change' );
