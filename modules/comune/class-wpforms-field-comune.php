@@ -179,7 +179,7 @@ class WPForms_Field_Comune extends WPForms_Field {
 
 		// Crea la select per il tipo di campo da creare.
 		$kind    = isset( $field['kind'] ) ? $field['kind'] : 'tutti';
-		$tooltip = 'il tooltip';
+		$tooltip = esc_html__( 'Choose which municipalities to show.', 'campi-moduli-italiani' );
 
 		$field_kind_label = $this->field_element(
 			'label',
@@ -187,7 +187,7 @@ class WPForms_Field_Comune extends WPForms_Field {
 			array(
 				'slug'    => 'kind',
 				'value'   => esc_html__( 'Type (default "Every: current and deleted")', 'campi-moduli-italiani' ),
-				'tooltip' => esc_html__( 'Choose which municipalities to show.', 'campi-moduli-italiani' ),
+				'tooltip' => $tooltip,
 			),
 			false
 		);
@@ -238,6 +238,37 @@ class WPForms_Field_Comune extends WPForms_Field {
 			false
 		);
 		echo strval( $output ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+
+		// Default selected value.
+		$lbl = $this->field_element(
+			'label',
+			$field,
+			array(
+				'slug'    => 'default_value',
+				'value'   => esc_html__( 'Default value', 'campi-moduli-italiani' ),
+				'tooltip' => esc_html__( 'Municipality\'s ISTAT Code (6 digits) or Italian Numicipality\'s full denomination (case sensitive).', 'campi-moduli-italiani' ),
+			),
+			false
+		);
+		$fld = $this->field_element(
+			'text',
+			$field,
+			array(
+				'slug'        => 'default_value',
+				'value'       => isset( $field['default_value'] ) ? $field['default_value'] : '',
+				'placeholder' => 'Roma',
+				'content'     => $output,
+			),
+			false
+		);
+		$this->field_element(
+			'row',
+			$field,
+			array(
+				'slug'    => 'default_value',
+				'content' => $lbl . $fld,
+			)
+		);
 
 		// Options close markup.
 		$this->field_option(
@@ -563,12 +594,29 @@ class WPForms_Field_Comune extends WPForms_Field {
 			$container['attr']['required'] = 'required';
 		}
 		$container['attr']['name'] = $container_name . '[IDCom]';
-		$tre                      .= sprintf(
+
+		// è impostato il valore predefinito
+		if ( isset( $field['default_value'] ) && '' !== strval( $field['default_value'] ) ) {
+			$default_value = strval( $field['default_value'] );
+			if ( GCMI_COMUNE::is_valid_cod_comune( $default_value ) ) {
+				$container['attr']['data-prval'] = GCMI_COMUNE::gcmi_get_data_from_comune( $default_value, $field['kind'] );
+			} else {
+				$got_cod_comune = GCMI_COMUNE::get_cod_comune_from_denominazione( $default_value );
+				if ( GCMI_COMUNE::is_valid_cod_comune( strval( $got_cod_comune ) ) ) {
+					$prval = GCMI_COMUNE::gcmi_get_data_from_comune( strval( $got_cod_comune ), $field['kind'] );
+					if ( false !== $prval ) {
+						$container['attr']['data-prval'] = $prval;
+					}
+				}
+			}
+		}
+
+		$tre .= sprintf(
 			'<select %s>',
 			wpforms_html_attributes( $my_ids['com'], $container['class'], $container['data'], $container['attr'] )
 		);
-		$tre                      .= '<option value="">' . __( 'Select a municipality', 'campi-moduli-italiani' ) . '</option>';
-		$tre                      .= '</select>';
+		$tre .= '<option value="">' . __( 'Select a municipality', 'campi-moduli-italiani' ) . '</option>';
+		$tre .= '</select>';
 		if ( $comu_details ) {
 			$tre .= '<img src="' . plugin_dir_url( GCMI_PLUGIN ) . '/img/gcmi_info.png" width="30" height="30" id="' . $my_ids['ico'] . '" class="gcmi-info-image">';
 		}

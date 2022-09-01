@@ -167,7 +167,7 @@ class GCMI_COMUNE {
 	 * @param string $i_cod_comune Codice Istat del Comune.
 	 * @return boolean
 	 */
-	protected static function is_valid_cod_comune( $i_cod_comune ) {
+	public static function is_valid_cod_comune( $i_cod_comune ) {
 		global $wpdb;
 		if ( ! is_numeric( $i_cod_comune ) ) {
 			return false;
@@ -849,7 +849,7 @@ class GCMI_COMUNE {
 	 * @param string $i_denominazione_ita La denominazione italiana di un comune.
 	 * @return false | string
 	 */
-	protected static function get_cod_comune_from_denominazione( $i_denominazione_ita ) {
+	public static function get_cod_comune_from_denominazione( $i_denominazione_ita ) {
 		global $wpdb;
 		$cache_key = 'gcmi_cod_comune_' . sanitize_key( $i_denominazione_ita );
 		$result    = wp_cache_get( $cache_key, GCMI_CACHE_GROUP );
