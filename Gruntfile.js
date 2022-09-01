@@ -9,7 +9,7 @@ module.exports = function( grunt ) {
 
 		addtextdomain: {
 			options: {
-				textdomain: 'campi-moduli-italiani',
+				textdomain: 'campi-moduli-italiani'
 			},
 			update_all_domains: {
 				options: {
@@ -24,7 +24,7 @@ module.exports = function( grunt ) {
 				files: {
 					'README.md': 'readme.txt'
 				}
-			},
+			}
 		},
 
 		makepot: {
@@ -132,7 +132,7 @@ module.exports = function( grunt ) {
 				src: [
 				'Gruntfile.js',
 				'admin/**/*.js',
-				'modules/**/js/*.js',
+				'modules/**/js/*.js'
 				]
 			}
 		},
@@ -142,8 +142,8 @@ module.exports = function( grunt ) {
 				files: ['admin/js/*.js', 'modules/**/js/*.js'],
 				tasks: ['uglify:dist'],
 				options: {
-					spawn: false,
-				},
+					spawn: false
+				}
 			},
 			stylesheets: {
 				files: ['admin/css/*.css', 'modules/**/css/*.css'],

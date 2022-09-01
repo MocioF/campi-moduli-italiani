@@ -246,7 +246,7 @@ class WPForms_Field_Comune extends WPForms_Field {
 			array(
 				'slug'    => 'default_value',
 				'value'   => esc_html__( 'Default value', 'campi-moduli-italiani' ),
-				'tooltip' => esc_html__( 'Municipality\'s ISTAT Code (6 digits) or Italian Numicipality\'s full denomination (case sensitive).', 'campi-moduli-italiani' ),
+				'tooltip' => esc_html__( 'Municipality\'s ISTAT Code (6 digits) or Italian Municipality\'s full denomination (case sensitive).', 'campi-moduli-italiani' ),
 			),
 			false
 		);

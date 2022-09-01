@@ -142,7 +142,7 @@ function wpcf7_tg_pane_gcmi_comune( $contact_form, $args = '' ): void {
 					<tr>
 						<th scope="row"><label for="<?php echo esc_attr( $args['content'] . '-values' ); ?>"><?php echo esc_html( __( 'Default value', 'contact-form-7' ) ); ?></label></th>
 						<td><input type="text" name="values" class="oneline" id="<?php echo esc_attr( $args['content'] . '-values' ); ?>" /><br />
-						<?php echo esc_html( __( 'Municipality\'s ISTAT Code (6 digits) or Italian Numicipality\'s full denomination (case sensitive).', 'campi-moduli-italiani' ) ); ?></td>
+						<?php echo esc_html( __( 'Municipality\'s ISTAT Code (6 digits) or Italian Municipality\'s full denomination (case sensitive).', 'campi-moduli-italiani' ) ); ?></td>
 					</tr>
 					<tr>
 						<th scope="row"><?php echo esc_html( __( 'Type (default "Every: current and deleted")', 'campi-moduli-italiani' ) ); ?></th>

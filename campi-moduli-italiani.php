@@ -19,7 +19,7 @@
  * License: GPLv2 or later
  **/
 
-defined( 'ABSPATH' ) || die( 'you do not have acces to this page!' );
+defined( 'ABSPATH' ) || die( 'you do not have access to this page!' );
 
 define( 'GCMI_VERSION', '2.0.8' );
 define( 'GCMI_MINIMUM_WP_VERSION', '5.9' );

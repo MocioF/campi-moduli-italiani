@@ -11,7 +11,7 @@
  * @link https://wordpress.org/plugins/campi-moduli-italiani/
  */
 
-defined( 'ABSPATH' ) || die( 'you do not have acces to this page!' );
+defined( 'ABSPATH' ) || die( 'you do not have access to this page!' );
 
 /**
  * Class with methods used on plugin activation

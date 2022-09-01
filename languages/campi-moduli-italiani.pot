@@ -5,7 +5,7 @@ msgstr ""
 "Project-Id-Version: Campi Moduli Italiani 2.0.8\n"
 "Report-Msgid-Bugs-To: "
 "https://wordpress.org/support/plugin/campi-moduli-italiani\n"
-"POT-Creation-Date: 2022-08-29 19:06:36+00:00\n"
+"POT-Creation-Date: 2022-09-01 22:39:08+00:00\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -41,60 +41,60 @@ msgstr ""
 msgid "Management of Italian municipalities database."
 msgstr ""
 
-#: admin/admin.php:122
+#: admin/admin.php:125
 #. translators: %1$s is a date string; %2$s is a time string.
 msgid "Last remote files update check on %1$s at %2$s."
 msgstr ""
 
-#: admin/admin.php:207
+#: admin/admin.php:210
 msgid "Wrong file name"
 msgstr ""
 
-#: admin/admin.php:209
+#: admin/admin.php:212
 #. translators: %s is the fname value for the updating table.
 msgid "This plugin cannot manage file %s"
 msgstr ""
 
-#: admin/admin.php:217 admin/class-gcmi-activator.php:292
+#: admin/admin.php:220 admin/class-gcmi-activator.php:292
 msgid "Error creating download directory"
 msgstr ""
 
-#: admin/admin.php:218 admin/class-gcmi-activator.php:293
+#: admin/admin.php:221 admin/class-gcmi-activator.php:293
 msgid "Unable to create temporary download directory"
 msgstr ""
 
-#: admin/admin.php:234
+#: admin/admin.php:237
 msgid "Remote file download error"
 msgstr ""
 
-#: admin/admin.php:237
+#: admin/admin.php:240
 #. translators: %s is the URL of the file it attempted to download
 msgid "Unable to download %s"
 msgstr ""
 
-#: admin/admin.php:259 admin/class-gcmi-activator.php:350
+#: admin/admin.php:262 admin/class-gcmi-activator.php:350
 msgid "Zip archive extraction error"
 msgstr ""
 
-#: admin/admin.php:262 admin/class-gcmi-activator.php:352
+#: admin/admin.php:265 admin/class-gcmi-activator.php:352
 #. translators: %1$s: the local csv file name; %2$s: the zip archive file name
 msgid "Unable to extract %1$s from %2$s"
 msgstr ""
 
-#: admin/admin.php:275
+#: admin/admin.php:278
 msgid "Grab html data error"
 msgstr ""
 
-#: admin/admin.php:277
+#: admin/admin.php:280
 #. translators: remote URL of the table from where it grabs data
 msgid "Unable to grab data from %s"
 msgstr ""
 
-#: admin/admin.php:295
+#: admin/admin.php:298
 msgid "Error in inserting data into the database"
 msgstr ""
 
-#: admin/admin.php:334 admin/admin.php:346
+#: admin/admin.php:337 admin/admin.php:349
 #. translators: enter a format string valid for a date and time value according
 #. to the local standard using characters recognized by the php date ()
 #. function (https:www.php.net/manual/en/function.date.php)
@@ -377,6 +377,7 @@ msgid "Name"
 msgstr ""
 
 #: modules/cf/wpcf7-cf-formtag.php:214
+#: modules/comune/class-wpforms-field-comune.php:248
 #: modules/comune/wpcf7-comune-formtag.php:143
 #: modules/stato/class-wpforms-field-stato.php:342
 #: modules/stato/wpcf7-stato-formtag.php:306
@@ -459,53 +460,53 @@ msgid ""
 msgstr ""
 
 #: modules/comune/class-gcmi-comune-shortcode.php:119
-#: modules/comune/class-gcmi-comune-wpcf7-formtag.php:150
-#: modules/comune/class-wpforms-field-comune.php:436
-#: modules/comune/class-wpforms-field-comune.php:521
+#: modules/comune/class-gcmi-comune-wpcf7-formtag.php:155
+#: modules/comune/class-wpforms-field-comune.php:467
+#: modules/comune/class-wpforms-field-comune.php:552
 msgid "Select a region:"
 msgstr ""
 
 #: modules/comune/class-gcmi-comune-shortcode.php:122
-#: modules/comune/class-gcmi-comune-wpcf7-formtag.php:153
-#: modules/comune/class-wpforms-field-comune.php:406
-#: modules/comune/class-wpforms-field-comune.php:533
+#: modules/comune/class-gcmi-comune-wpcf7-formtag.php:158
+#: modules/comune/class-wpforms-field-comune.php:437
+#: modules/comune/class-wpforms-field-comune.php:564
 msgid "Select a region"
 msgstr ""
 
 #: modules/comune/class-gcmi-comune-shortcode.php:130
-#: modules/comune/class-gcmi-comune-wpcf7-formtag.php:161
-#: modules/comune/class-wpforms-field-comune.php:445
-#: modules/comune/class-wpforms-field-comune.php:541
+#: modules/comune/class-gcmi-comune-wpcf7-formtag.php:166
+#: modules/comune/class-wpforms-field-comune.php:476
+#: modules/comune/class-wpforms-field-comune.php:572
 msgid "Select a province:"
 msgstr ""
 
 #: modules/comune/class-gcmi-comune-shortcode.php:133
-#: modules/comune/class-gcmi-comune-wpcf7-formtag.php:164
+#: modules/comune/class-gcmi-comune-wpcf7-formtag.php:169
 #: modules/comune/class-gcmi-comune.php:352
-#: modules/comune/class-wpforms-field-comune.php:411
-#: modules/comune/class-wpforms-field-comune.php:553
+#: modules/comune/class-wpforms-field-comune.php:442
+#: modules/comune/class-wpforms-field-comune.php:584
 msgid "Select a province"
 msgstr ""
 
 #: modules/comune/class-gcmi-comune-shortcode.php:138
-#: modules/comune/class-gcmi-comune-wpcf7-formtag.php:169
-#: modules/comune/class-wpforms-field-comune.php:454
-#: modules/comune/class-wpforms-field-comune.php:558
+#: modules/comune/class-gcmi-comune-wpcf7-formtag.php:174
+#: modules/comune/class-wpforms-field-comune.php:485
+#: modules/comune/class-wpforms-field-comune.php:589
 msgid "Select a municipality:"
 msgstr ""
 
 #: modules/comune/class-gcmi-comune-shortcode.php:141
-#: modules/comune/class-gcmi-comune-wpcf7-formtag.php:181
+#: modules/comune/class-gcmi-comune-wpcf7-formtag.php:186
 #: modules/comune/class-gcmi-comune.php:373
 #: modules/comune/class-gcmi-comune.php:447
-#: modules/comune/class-wpforms-field-comune.php:416
-#: modules/comune/class-wpforms-field-comune.php:570
+#: modules/comune/class-wpforms-field-comune.php:447
+#: modules/comune/class-wpforms-field-comune.php:618
 msgid "Select a municipality"
 msgstr ""
 
 #: modules/comune/class-gcmi-comune-shortcode.php:157
-#: modules/comune/class-gcmi-comune-wpcf7-formtag.php:199
-#: modules/comune/class-wpforms-field-comune.php:586
+#: modules/comune/class-gcmi-comune-wpcf7-formtag.php:204
+#: modules/comune/class-wpforms-field-comune.php:634
 msgid "Municipality details"
 msgstr ""
 
@@ -722,14 +723,14 @@ msgstr ""
 msgid "Municipality"
 msgstr ""
 
+#: modules/comune/class-wpforms-field-comune.php:182
+msgid "Choose which municipalities to show."
+msgstr ""
+
 #: modules/comune/class-wpforms-field-comune.php:189
 #: modules/comune/wpcf7-comune-formtag.php:148
 #: modules/comune/wpcf7-comune-formtag.php:151
 msgid "Type (default \"Every: current and deleted\")"
-msgstr ""
-
-#: modules/comune/class-wpforms-field-comune.php:190
-msgid "Choose which municipalities to show."
 msgstr ""
 
 #: modules/comune/class-wpforms-field-comune.php:201
@@ -760,43 +761,50 @@ msgstr ""
 msgid "Show details"
 msgstr ""
 
-#: modules/comune/class-wpforms-field-comune.php:270
+#: modules/comune/class-wpforms-field-comune.php:249
+#: modules/comune/wpcf7-comune-formtag.php:145
+msgid ""
+"Municipality's ISTAT Code (6 digits) or Italian Municipality's full "
+"denomination (case sensitive)."
+msgstr ""
+
+#: modules/comune/class-wpforms-field-comune.php:301
 #: modules/stato/class-wpforms-field-stato.php:395
 msgid "Style"
 msgstr ""
 
-#: modules/comune/class-wpforms-field-comune.php:271
+#: modules/comune/class-wpforms-field-comune.php:302
 #: modules/stato/class-wpforms-field-stato.php:396
 msgid ""
 "Classic style is the default one generated by your browser. Modern has a "
 "fresh look and displays all selected options in a single row."
 msgstr ""
 
-#: modules/comune/class-wpforms-field-comune.php:283
+#: modules/comune/class-wpforms-field-comune.php:314
 #: modules/stato/class-wpforms-field-stato.php:408
 msgid "Classic"
 msgstr ""
 
-#: modules/comune/class-wpforms-field-comune.php:284
+#: modules/comune/class-wpforms-field-comune.php:315
 #: modules/stato/class-wpforms-field-stato.php:409
 msgid "Modern"
 msgstr ""
 
-#: modules/comune/class-wpforms-field-comune.php:304
+#: modules/comune/class-wpforms-field-comune.php:335
 #: modules/comune/wpcf7-comune-formtag.php:164
 msgid "Wrap each item with label element"
 msgstr ""
 
-#: modules/comune/class-wpforms-field-comune.php:311
+#: modules/comune/class-wpforms-field-comune.php:342
 msgid "Show labels for each select"
 msgstr ""
 
-#: modules/comune/class-wpforms-field-comune.php:339
+#: modules/comune/class-wpforms-field-comune.php:370
 #: modules/comune/wpcf7-comune-formtag.php:173
 msgid "Wrapper class attribute"
 msgstr ""
 
-#: modules/comune/class-wpforms-field-comune.php:340
+#: modules/comune/class-wpforms-field-comune.php:371
 msgid "Add a custom class to the <span> element wrapping the three selects."
 msgstr ""
 
@@ -810,10 +818,6 @@ msgstr ""
 msgid ""
 "Creates a tag for a concatenated selection of an Italian municipality. To "
 "get more information look at %s."
-msgstr ""
-
-#: modules/comune/wpcf7-comune-formtag.php:145
-msgid "Municipality's ISTAT Code (6 digits)"
 msgstr ""
 
 #: modules/comune/wpcf7-comune-formtag.php:177
