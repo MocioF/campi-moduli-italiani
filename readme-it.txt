@@ -1,11 +1,11 @@
 === Campi Moduli Italiani ===
 Contributors: mociofiletto
 Donate link: https://paypal.me/GiuseppeF77
-Tags: contact form 7, wpforms, comuni italiani, codice fiscale, firma digitale
+Tags: Contact Form 7, WPForms, comuni italiani, codice fiscale, firma digitale, multisite
 Requires at least: 5.9
 Tested up to: 6.0
 Requires PHP: 7.2
-Stable tag: 2.0.8
+Stable tag: 2.1.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html
 
@@ -126,19 +126,23 @@ Puoi inviare una richiesta nel nostro repository Github:
 
 == Changelog ==
 = 2.1.0 =
-* Modificato il metodo HTTP da HEAD a GET per ottenere la data di aggiornamento dal sito ISTAT
-* Corretto l'errore che consentiva l'invio del wpform senza che il comune (indicato come richiesto) venisse selezionato
-* Aggiunto controllo sicurezza tramite un none nel codice ajax di comune
-* Aggiunto l'utilizzo della cache ad oggetti di WordPress alle query sul db
-* Sistemato il cambio di markup nei controlli del form per CF7 v.5.6
-* Aggiunta possibilità di inserire un valore di default per "stato" in wpforms; modificato l'ordinamento delle scelte (ora alfabetico)
+* Modificato il metodo HTTP da HEAD a GET per ottenere la data di aggiornamento dei file dal sito web dell'ISTAT
+* Corretto il bug in wpforms che consentiva l'invio del modulo senza che il comune (indicato come richiesto) venisse selezionato
+* Aggiunto controllo sicurezza tramite un nonce nel codice AJAX di comune
+* Aggiunto l'utilizzo della cache degli oggetti di WordPress alle query sul db
+* Corretto il cambio di markup nei controlli del modulo per CF7 v.5.6
+* Aggiunta possibilità di inserire un valore predefinito per "stato" in wpforms; modificato l'ordinamento delle scelte (ora alfabetico)
+* Aggiunta possibilità di attivazione multisito
+* Utilizzate versioni minificate di script e stili
+* Il valore preimpostato del comune del form-tag per CF7 può ora essere impostato indicando anche il nome del Comune
+* Aggiunta possibilità di inserire un valore di default per "comune" in wpforms
 
 = 2.0.8 =
 * Corretto bug nel campo CF
 
 = 2.0.7 =
 * Aggiornato per funzionare con Contact Form 7 > 5.5
-* Correzioni di bug minori
+* Corretti bug minori
 
 = 2.0.6 =
 * Corretto errore nel controllo dell'ultima data di aggiornamento dei file sul sito ISTAT

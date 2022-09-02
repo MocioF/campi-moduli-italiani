@@ -124,7 +124,7 @@ function gcmi_admin_update_db() {
 			// translators: %1$s is a date string; %2$s is a time string.
 			esc_html__( 'Last remote files update check on %1$s at %2$s.', 'campi-moduli-italiani' ),
 			wp_date( $date_format, $last_check ),
-			wp_date( $time_format, $last_check ),
+			wp_date( $time_format, $last_check )
 		);
 		echo '<p id="gcmi_table_footer" class="alignleft"><span id="gcmi_last_check">' . $last_check_string . '</span></p>';
 	}

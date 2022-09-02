@@ -1,11 +1,11 @@
 === Campi Moduli Italiani ===
 Contributors: mociofiletto
 Donate link: https://paypal.me/GiuseppeF77
-Tags: contact form 7, wpforms, comuni italiani, codice fiscale, firma digitale
+Tags: Contact Form 7, WPForms, comuni italiani, codice fiscale, firma digitale, multisite
 Requires at least: 5.9
 Tested up to: 6.0
 Requires PHP: 7.2
-Stable tag: 2.0.8
+Stable tag: 2.1.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html
 
@@ -129,17 +129,21 @@ You can create an issue in our Github repo:
 == Changelog ==
 = 2.1.0 =
 * Changed method to get remote file update time on ISTAT website from HEAD to GET
-* Fixed bug in wpforms allowing form submission without a full selection in municipality
-* Securing comune's ajax with nonce
-* Adding use of WordPress Object Cache to db queries
-* Fixing markup changes in form control for CF7 v.5.6
-* Adding default value in wpforms for "stato"; changed order of choices (now unsing denominations)
+* Fixed bug in wpforms allowing form submission without a full selection of a municipality (marked as compulsory)
+* Secured comune's ajax with nonce
+* Added use of WordPress Object Cache to db queries
+* Fixed markup changes in form control for CF7 v.5.6
+* Added default value in wpforms for "stato"; changed order of choices (now using denominations)
+* Added multisite activation feature
+* Switch to minified scripts and styles
+* Default value in CF7 comune form-tag can be set by municipality's name
+* Added default value in wpforms for "comune"
 
 = 2.0.8 =
 * Fixed bug in cf atts
 
 = 2.0.7 =
-* Upddated to work in Contact Form 7 > 5.5
+* Updated to work in Contact Form 7 > 5.5
 * Minor bugs fixed
 
 = 2.0.6 =

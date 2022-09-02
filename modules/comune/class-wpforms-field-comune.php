@@ -595,7 +595,7 @@ class WPForms_Field_Comune extends WPForms_Field {
 		}
 		$container['attr']['name'] = $container_name . '[IDCom]';
 
-		// è impostato il valore predefinito
+		// è impostato il valore predefinito.
 		if ( isset( $field['default_value'] ) && '' !== strval( $field['default_value'] ) ) {
 			$default_value = strval( $field['default_value'] );
 			if ( GCMI_COMUNE::is_valid_cod_comune( $default_value ) ) {
