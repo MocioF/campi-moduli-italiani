@@ -20,12 +20,12 @@ add_action( 'gcmi_check_for_remote_data_updates', 'gcmi_check_update', 10, 0 );
  * @return void
  */
 function gcmi_check_update(): void {
-	$database_file_info = GCMI_Activator::$database_file_info;
-	$num_items          = count( $database_file_info );
+		$database_file_info = GCMI_Activator::$database_file_info;
+	$num_items              = count( $database_file_info );
 	for ( $i = 0; $i < $num_items; $i++ ) {
 		$name      = $database_file_info[ $i ]['name'];
 		$file_opt  = $database_file_info[ $i ]['optN_remoteUpd'];
-		$timestamp = gcmi_get_remote_update_timestamp( $name );
+		$timestamp = gcmi_get_remote_update_timestamp( $database_file_info[ $i ] );
 		if ( false !== $timestamp ) {
 			if ( false === is_multisite() ) {
 				update_option( $file_opt, $timestamp, 'no' );
@@ -53,24 +53,17 @@ function gcmi_check_update(): void {
 /**
  * Wrapper funzioni per ottenere la data di aggiornamento file remoto - restituisce un timestamp
  *
- * @param string $name The name of data stored in GCMI_Activator $database_file_info['name'].
+ * @param array{'name': string, 'downd_name': string, 'featured_csv': string, 'remote_file': string, 'remote_URL': string, 'table_name': string, 'optN_dwdtime': string, 'optN_remoteUpd': string, 'remoteUpd_method': string, 'file_type': string, 'orig_encoding': string} $myfile_info Associative array of data in file
  * @return int | false
  */
-function gcmi_get_remote_update_timestamp( $name ) {
-	$database_file_info = GCMI_Activator::$database_file_info;
-	$num_items          = count( $database_file_info );
-	for ( $i = 0; $i < $num_items; $i++ ) {
-		if ( $database_file_info[ $i ]['name'] === $name ) {
-			$myfile = $database_file_info[ $i ];
-		}
-	}
-	if ( isset( $myfile ) && is_array( $myfile ) ) {
-		switch ( $myfile['remoteUpd_method'] ) {
+function gcmi_get_remote_update_timestamp( $myfile_info ) {
+	if ( is_array( $myfile_info ) && array_key_exists( 'remoteUpd_method', $myfile_info ) ) {
+		switch ( $myfile_info['remoteUpd_method'] ) {
 			case 'get_headers_by_head':
-				$result = gcmi_get_remote_file_timestamp_by_head( $myfile['remote_URL'] );
+				$result = gcmi_get_remote_file_timestamp_by_head( $myfile_info['remote_URL'] );
 				break;
 			case 'get_headers_by_get':
-				$result = gcmi_get_remote_file_timestamp_by_get( $myfile['remote_URL'] );
+				$result = gcmi_get_remote_file_timestamp_by_get( $myfile_info['remote_URL'] );
 				break;
 			case 'unknown':
 				$result = false;
@@ -144,8 +137,49 @@ function gcmi_get_remote_file_timestamp_by_get( $remote_file_url ) {
 			$datetime = DateTime::createFromFormat( $fmt, $lm_date_formatted );
 			if ( false !== $datetime ) {
 				return $datetime->getTimestamp();
+			} else {
+				return gcmi_get_remote_file_timestamp_by_wget( $remote_file_url );
 			}
 		}
 	}
 	return false;
+}
+
+/**
+ * Ottiene il timestamp del file remoto dall'header HTTP 'Last-Modified' utilizzando il comando wget
+ *
+ * @param string $remote_file_url the remote URL of data stored in GCMI_Activator $database_file_info['remote_URL'].
+ * @return int | false
+ */
+function gcmi_get_remote_file_timestamp_by_wget( $remote_file_url ) {
+	$wget_command = exec( 'which wget' );
+	if ( false !== $wget_command && 'which:' !== substr( $wget_command, 0, 6 ) ) {
+		$dwl_command = "$wget_command --server-response -qO /dev/null $remote_file_url 2>&1";
+		exec( $dwl_command, $wget_res );
+		if ( false === $wget_res ) {
+			return false;
+		} else {
+			// $headers_array = explode("\n", str_replace(array("\r\n", "\r"), array("\n", "\n"), $wget_res ) );
+			$headers_array = array_map( 'strtolower', $wget_res );
+			foreach ( $headers_array as $line ) {
+				if ( strpos( $line, 'last-modified' ) !== false ) {
+					$exploded          = explode( ':', $line, 2 );
+					$lm_date_formatted = trim( $exploded[1] );
+					break;
+				}
+			}
+
+			if ( is_string( $lm_date_formatted ) && '' !== $lm_date_formatted ) {
+
+				// Last-Modified: Wed, 19 Feb 2020 14:49:18 GMT .
+				$fmt      = 'D, d M Y H:i:s O+';
+				$datetime = DateTime::createFromFormat( $fmt, $lm_date_formatted );
+				if ( false !== $datetime ) {
+					return $datetime->getTimestamp();
+				}
+			}
+		}
+	} else {
+		return false;
+	}
 }

@@ -324,6 +324,19 @@ class GCMI_Activator {
 
 					// update time of the remote file on the server.
 					$lm_date_formatted = wp_remote_retrieve_header( $response, 'last-modified' );
+
+					// nel caso in cui $response sia un array contenente lo sterr di wget.
+					if ( '' === $lm_date_formatted && array_key_exists( 0, $response ) ) {
+						$headers_array = array_map( 'strtolower', $response );
+						foreach ( $headers_array as $line ) {
+							if ( strpos( $line, 'last-modified' ) !== false ) {
+								$exploded          = explode( ':', $line, 2 );
+								$lm_date_formatted = trim( $exploded[1] );
+								break;
+							}
+						}
+					}
+
 					if ( '' !== $lm_date_formatted && is_string( $lm_date_formatted ) ) {
 						$fmt      = 'D, d M Y H:i:s O+'; // Last-Modified: Wed, 19 Feb 2020 14:49:18 GMT .
 						$datetime = DateTime::createFromFormat( $fmt, $lm_date_formatted );
@@ -496,6 +509,7 @@ class GCMI_Activator {
 				}
 
 				$plugin = 'campi-moduli-italiani/campi-moduli-italiani.php';
+
 				/*
 				 * just check if the plugin is enabled in a single site
 				 * (it can happen, it was enabled before a network activation occurred)
@@ -600,6 +614,30 @@ class GCMI_Activator {
 			$dest_file = $tmp_dwld_dir . '/' . $filename;
 			copy( $tmpfname, $dest_file );
 			unlink( $tmpfname );
+		}
+		// tentativo di scaricare i file tramite wget.
+		if ( is_wp_error( $response ) ) {
+			$wget_command = exec( 'which wget' );
+			if ( false !== $wget_command && 'which:' !== substr( $wget_command, 0, 6 ) ) {
+				$dwl_command = "$wget_command $remoteurl -O $tmp_dwld_dir" . "$filename";
+				$wget_res    = exec( $dwl_command );
+				$size        = filesize( "$tmp_dwld_dir" . "$filename" );
+				if ( 0 === $size ) {
+					// translators: %s is the remote url of a file.
+					$response->add( 'wget', esc_html( sprintf( __( 'Unable to download %s via wget', 'campi-moduli-italiani' ), $remoteurl ) ) );
+					unlink( "$tmp_dwld_dir" . "$filename" );
+				} else {
+					$dwl_command = "$wget_command --server-response -qO /dev/null $remote_file_url 2>&1";
+					exec( $dwl_command, $wget_res );
+					if ( false === $wget_res ) {
+						return false;
+					} else {
+						return $wget_res;
+					}
+				}
+			} else {
+				$response->add( 'wget', esc_html( sprintf( __( 'Unable to find wget command', 'campi-moduli-italiani' ) ) ) );
+			}
 		}
 		return $response;
 	}
