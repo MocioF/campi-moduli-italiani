@@ -130,8 +130,6 @@ function gcmi_admin_update_db() {
 	}
 }
 
-
-
 /**
  * Crea l'html per indicare quante tabelle sono aggiornabili
  *
@@ -353,4 +351,21 @@ function gcmi_convert_datestring( $string ) {
 	} else {
 		return false;
 	}
+}
+
+/**
+ * Conta le righe nella tabella
+ *
+ * @param string $tablename Il nome completo della tabella.
+ * @return integer
+ */
+function gcmi_count_table_rows( $tablename ) {
+	global $wpdb;
+	$cache_key = 'gcmi_count_' . $tablename;
+	$result    = wp_cache_get( $cache_key, GCMI_CACHE_GROUP );
+	if ( false === $result ) {
+		$result = $wpdb->get_var( 'SELECT COUNT(*) AS count FROM ' . $tablename ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+		wp_cache_set( $cache_key, $result, GCMI_CACHE_GROUP, GCMI_CACHE_EXPIRE_SECS );
+	}
+	return $result;
 }

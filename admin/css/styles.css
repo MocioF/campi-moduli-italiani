@@ -11,6 +11,7 @@
 
 .wp-list-table .column-gcmi-icon { width: 5%; }
 .wp-list-table .column-gcmi-dataname { width: 15%; }
-.wp-list-table .column-gcmi-remotedate { width: 20%; }
-.wp-list-table .column-gcmi-localdate { width: 20%; }
-.wp-list-table .column-gcmi-dataURL { width: 35%; }
+.wp-list-table .column-gcmi-rows { width: 5%; text-align: right; }
+.wp-list-table .column-gcmi-remotedate { width: 18%; }
+.wp-list-table .column-gcmi-localdate { width: 18%; }
+.wp-list-table .column-gcmi-dataURL { width: 34%; }

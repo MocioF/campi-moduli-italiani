@@ -45,6 +45,7 @@ class Gcmi_Remote_Files_List extends WP_List_Table {
 			'cb'              => '<input type="checkbox" />',
 			'gcmi-dataname'   => __( 'Data', 'campi-moduli-italiani' ),
 			'gcmi-icon'       => __( 'Status', 'campi-moduli-italiani' ),
+			'gcmi-rows'       => __( 'Num.', 'campi-moduli-italiani' ),
 			'gcmi-remotedate' => __( 'Last modified date of remote file', 'campi-moduli-italiani' ),
 			'gcmi-localdate'  => __( 'Database update date', 'campi-moduli-italiani' ),
 			'gcmi-dataURL'    => __( 'URL', 'campi-moduli-italiani' ),
@@ -117,6 +118,7 @@ class Gcmi_Remote_Files_List extends WP_List_Table {
 			$data[ $i ] = array(
 				'gcmi-dataname'   => $database_file_info[ $i ]['name'],
 				'gcmi-icon'       => $icon,
+				'gcmi-rows'       => number_format( gcmi_count_table_rows( $database_file_info[ $i ]['table_name'] ), 0, ',', '.' ),
 				'gcmi-remotedate' => gcmi_convert_timestamp( intval( get_site_option( $database_file_info[ $i ]['optN_remoteUpd'] ) ) ),
 				'gcmi-localdate'  => gcmi_convert_timestamp( intval( get_site_option( $database_file_info[ $i ]['optN_dwdtime'] ) ) ),
 				'gcmi-dataURL'    => $database_file_info[ $i ]['remote_URL'],
@@ -184,6 +186,7 @@ class Gcmi_Remote_Files_List extends WP_List_Table {
 			case 'cb':
 			case 'gcmi-dataname':
 			case 'gcmi-icon':
+			case 'gcmi-rows';
 			case 'gcmi-remotedate':
 			case 'gcmi-localdate':
 			case 'gcmi-dataURL':
