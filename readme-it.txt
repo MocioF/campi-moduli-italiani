@@ -3,9 +3,9 @@ Contributors: mociofiletto
 Donate link: https://paypal.me/GiuseppeF77
 Tags: Contact Form 7, WPForms, comuni italiani, codice fiscale, firma digitale, multisite
 Requires at least: 5.9
-Tested up to: 6.0
+Tested up to: 6.2
 Requires PHP: 7.2
-Stable tag: 2.1.0
+Stable tag: 2.1.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html
 
@@ -125,6 +125,10 @@ Puoi inviare una richiesta nel nostro repository Github:
 5. Immagine della schermata di admin, da cui è possibile effettuare l'aggiornamento dei dati
 
 == Changelog ==
+= 2.1.1 =
+* Aggiornati i certificati PEM
+* Aggiunto un sistema di emergenza con wget per scaricare i dati dal sito dell'Istat
+
 = 2.1.0 =
 * Modificato il metodo HTTP da HEAD a GET per ottenere la data di aggiornamento dei file dal sito web dell'ISTAT
 * Corretto il bug in wpforms che consentiva l'invio del modulo senza che il comune (indicato come richiesto) venisse selezionato

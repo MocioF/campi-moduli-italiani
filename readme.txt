@@ -3,9 +3,9 @@ Contributors: mociofiletto
 Donate link: https://paypal.me/GiuseppeF77
 Tags: Contact Form 7, WPForms, comuni italiani, codice fiscale, firma digitale, multisite
 Requires at least: 5.9
-Tested up to: 6.0
+Tested up to: 6.2
 Requires PHP: 7.2
-Stable tag: 2.1.0
+Stable tag: 2.1.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html
 
@@ -127,6 +127,10 @@ You can create an issue in our Github repo:
 5. Image of the admin screen, from which it is possible to update the data
 
 == Changelog ==
+= 2.1.1 =
+* Updated PEM chains
+* Added a wget fallback to download from Istat's website
+
 = 2.1.0 =
 * Changed method to get remote file update time on ISTAT website from HEAD to GET
 * Fixed bug in wpforms allowing form submission without a full selection of a municipality (marked as compulsory)
