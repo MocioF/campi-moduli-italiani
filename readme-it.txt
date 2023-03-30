@@ -5,7 +5,7 @@ Tags: Contact Form 7, WPForms, comuni italiani, codice fiscale, firma digitale, 
 Requires at least: 5.9
 Tested up to: 6.2
 Requires PHP: 7.2
-Stable tag: 2.1.1
+Stable tag: 2.1.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html
 
@@ -125,6 +125,10 @@ Puoi inviare una richiesta nel nostro repository Github:
 5. Immagine della schermata di admin, da cui è possibile effettuare l'aggiornamento dei dati
 
 == Changelog ==
+= 2.1.2 =
+* Aggiornato il certificato del sito www1.agenziaentrate.gov.it
+* Aggiornato url dei dati di Agenziaentrate
+
 = 2.1.1 =
 * Aggiornati i certificati PEM
 * Aggiunto un sistema di emergenza con wget per scaricare i dati dal sito dell'Istat
