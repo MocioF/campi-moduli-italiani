@@ -72,7 +72,7 @@ class GCMI_Activator {
 			'downd_name'       => 'index.html',
 			'featured_csv'     => 'codici_catastali.csv',
 			'remote_file'      => 'index.html',
-			'remote_URL'       => 'https://www1.agenziaentrate.gov.it/documentazione/versamenti/codici/ricerca/VisualizzaTabella.php?ArcName=COM-ICI',
+			'remote_URL'       => 'https://www1.agenziaentrate.gov.it/servizi/codici/ricerca/VisualizzaTabella.php?ArcName=COM-ICI',
 			'table_name'       => GCMI_TABLE_PREFIX . 'codici_catastali',
 			'optN_dwdtime'     => 'gcmi_codici_catastali_downloaded_time',
 			'optN_remoteUpd'   => 'gcmi_codici_catastali_remote_file_time',
@@ -1436,8 +1436,7 @@ class GCMI_Activator {
 
 		$num_letters = count( $alphas );
 		for ( $i = 0; $i < $num_letters; $i++ ) {
-			$remote_url = 'https://www1.agenziaentrate.gov.it/documentazione/versamenti/codici/ricerca/VisualizzaTabella.php?iniz=' . $alphas[ $i ] . '&ArcName=COM-ICI';
-
+			$remote_url = 'https://www1.agenziaentrate.gov.it/servizi/codici/ricerca/VisualizzaTabella.php?iniz=' . $alphas[ $i ] . '&ArcName=COM-ICI';
 			/**
 			 * Il server Agenzia al momento è mal configurato perchè non serve tutta la catena di certificati intermedi, ma solo quello del server;
 			 * utilizzo una copia locale del certificato (ambiente impostato prima della routine).
