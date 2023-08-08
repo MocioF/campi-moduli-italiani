@@ -5,7 +5,7 @@ Tags: Contact Form 7, WPForms, comuni italiani, codice fiscale, firma digitale, 
 Requires at least: 5.9
 Tested up to: 6.2
 Requires PHP: 7.2
-Stable tag: 2.1.2
+Stable tag: 2.1.3
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html
 
@@ -127,6 +127,10 @@ You can create an issue in our Github repo:
 5. Image of the admin screen, from which it is possible to update the data
 
 == Changelog ==
+= 2.1.3 =
+* Updated www1.agenziaentrate.gov.it pem chain
+* Updated istat.it pem chain
+
 = 2.1.2 =
 * Updated agenziaentrate.gov.it pem chain
 * Updated agenziaentrate's data url

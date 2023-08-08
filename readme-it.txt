@@ -125,6 +125,10 @@ Puoi inviare una richiesta nel nostro repository Github:
 5. Immagine della schermata di admin, da cui è possibile effettuare l'aggiornamento dei dati
 
 == Changelog ==
+= 2.1.3 =
+* Aggiornato il certificato del sito www1.agenziaentrate.gov.it
+* Aggiornato il certificato del sito istat.it
+
 = 2.1.2 =
 * Aggiornato il certificato del sito www1.agenziaentrate.gov.it
 * Aggiornato url dei dati di Agenziaentrate
@@ -156,7 +160,7 @@ Puoi inviare una richiesta nel nostro repository Github:
 * Corretto errore nel controllo dell'ultima data di aggiornamento dei file sul sito ISTAT
 
 = 2.0.5 =
-* Aggiunto il certificato della nuoca CA di istat.it per cUrl. Corregge: https://wordpress.org/support/topic/attivazione-vietata-forbidden/
+* Aggiunto il certificato della nuova CA di istat.it per cUrl. Corregge: https://wordpress.org/support/topic/attivazione-vietata-forbidden/
 
 = 2.0.3 =
 * Correzioni di bug minori [#1](https://github.com/MocioF/campi-moduli-italiani/issues/1).
