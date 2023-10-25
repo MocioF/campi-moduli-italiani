@@ -12,7 +12,7 @@
 /**
  * Requires help tabs file.
  */
-require_once GCMI_PLUGIN_DIR . '/admin/includes/help-tabs.php';
+require_once GCMI_PLUGIN_DIR . '/admin/includes/class-gcmi-help-tabs.php';
 
 /**
  * Requires class that extends wp_list_table.
@@ -85,8 +85,6 @@ function gcmi_admin_menu() {
  * @return void
  */
 function gcmi_load_contact_form_admin() {
-	global $plugin_page;
-
 	$current_screen = get_current_screen();
 	if ( ! is_null( $current_screen ) ) {
 		$help_tabs = new GCMI_Help_Tabs( $current_screen );
