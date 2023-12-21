@@ -72,7 +72,7 @@ class GCMI_Activator {
 			'downd_name'       => 'index.html',
 			'featured_csv'     => 'codici_catastali.csv',
 			'remote_file'      => 'index.html',
-			'remote_URL'       => 'https://www1.agenziaentrate.gov.it/servizi/codici/ricerca/VisualizzaTabella.php?ArcName=COM-ICI',
+			'remote_URL'       => 'https://www1.agenziaentrate.gov.it/servizi/codici/ricerca/VisualizzaTabella.php?ArcName=00T4',
 			'table_name'       => GCMI_TABLE_PREFIX . 'codici_catastali',
 			'optN_dwdtime'     => 'gcmi_codici_catastali_downloaded_time',
 			'optN_remoteUpd'   => 'gcmi_codici_catastali_remote_file_time',
@@ -204,6 +204,25 @@ class GCMI_Activator {
 		'X',
 		'Y',
 		'Z',
+	);
+
+	/**
+	 * Elenco lettere utilizzato per il download codici catastali dal sito Agenzia delle entrate
+	 *
+	 * @var array<string> $alphas
+	 */
+	private static $alphas_codes = array(
+		'A',
+		'B',
+		'C',
+		'D',
+		'E',
+		'F',
+		'G',
+		'H',
+		'I',
+		'L',
+		'M',
 	);
 
 	/**
@@ -1071,7 +1090,7 @@ class GCMI_Activator {
 						}
 						break;
 					case 'comuni_soppressi':
-						if ( null != $gcmi_dati_line[6] ) { // phpcs:ignore WordPress.PHP.StrictComparisons.LooseComparison .
+						if ( null != $gcmi_dati_line[6] ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseNotEqual .
 							$date = DateTime::createFromFormat( 'd/m/Y', $gcmi_dati_line[6] );
 							if ( false === $date ) {
 								$formatted_date = null;
@@ -1115,7 +1134,7 @@ class GCMI_Activator {
 						}
 						break;
 					case 'comuni_variazioni':
-						if ( null != $gcmi_dati_line[12] ) { // phpcs:ignore WordPress.PHP.StrictComparisons.LooseComparison .
+						if ( null != $gcmi_dati_line[12] ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseNotEqual .
 							$date = DateTime::createFromFormat( 'd/m/Y', $gcmi_dati_line[12] );
 							if ( false === $date ) {
 								$formatted_date = null;
@@ -1391,7 +1410,7 @@ class GCMI_Activator {
 		// wrapper per le funzioni specifiche per ogni singolo file.
 		switch ( $name ) {
 			case 'codici_catastali':
-				return ( self::get_csvdata_codici_catastali( $tmp_dwld_dir ) );
+				return ( self::get_csvdata_codici_catastali_new( $tmp_dwld_dir ) );
 			default:
 				return false;
 		}
@@ -1405,6 +1424,8 @@ class GCMI_Activator {
 	 *
 	 * @since 1.0.0
 	 *
+	 * @deprecated 2.1.4 L'agenzia delle entrate non mette più a disposizione l'elenco completo dei codici catastali.
+	 * @see GCMI_Activator::get_csvdata_codici_catastali_new()
 	 * @param string $tmp_dwld_dir temporary download directory.
 	 * @param int    $max_retry Number of time, it will try to download data, on failure.
 	 * @return boolean
@@ -1455,6 +1476,70 @@ class GCMI_Activator {
 		if ( $max_retry > 0 && false === empty( $failed_letters ) ) {
 			self:$alphas = $failed_letters;
 			self::get_csvdata_codici_catastali( $tmp_dwld_dir, $max_retry );
+		}
+		if ( empty( $failed_letters ) ) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+
+	public static function get_csvdata_codici_catastali_new( $tmp_dwld_dir, $max_retry = 3 ) {
+		/**
+		 * L'Agenzia delle entrate mette a disposizione i dati relativi ai codici catastali dei comuni in una tabella HTML
+		 * che puo' essere interrogata solo chiedendo l'elenco per iniziale del codice.
+		 * Questa funzione richiede le tabelle per tutte le lettere con cui iniziano i codici catastali
+		 * e inserisce i dati in un file csv, che successivamente verrà importato nel database.
+		 * Il file e' necessario per ottenere l'informazione sul codice catastale dei comuni cessati, in quanto i dati ISTAT
+		 * contengono il valore del codice catastale solo per i comuni attuali (questo dato è funzionale al riscontro del codice fiscale)
+		 */
+		$alphas = self::$alphas_codes;
+
+		// Evito che nei test automatici, i server (GitHub) richiedano nella stessa sequenza e più volte la stessa pagina.
+		shuffle( $alphas );
+		// inserisco riga intestazione.
+		if ( 3 === $max_retry ) {
+			file_put_contents( $tmp_dwld_dir . '/codici_catastali.csv', "Codice Ente;Denominazione\r\n", FILE_APPEND | LOCK_EX );
+		}
+
+		$remote_url = 'https://www1.agenziaentrate.gov.it/servizi/codici/ricerca/VisualizzaTabella.php';
+
+		$args = array(
+			'sslverify'       => true,
+			'sslcertificates' => GCMI_PLUGIN_DIR . '/admin/assets/www1-Ade.pem',
+			'method'          => 'POST',
+			'headers'         => array( 'Content-Type' => 'application/x-www-form-urlencoded' ),
+			'body'            => array(
+				'ArcName' => '00T4',
+				'lettera' => '',
+			),
+		);
+
+		$num_letters = count( $alphas );
+		for ( $i = 0; $i < $num_letters; $i++ ) {
+			$args['body']['lettera'] = $alphas[ $i ];
+
+			/**
+			 * Il server Agenzia al momento è mal configurato perchè non serve tutta la catena di certificati intermedi, ma solo quello del server;
+			 * utilizzo una copia locale del certificato (ambiente impostato prima della routine).
+			 */
+			$response = wp_remote_post( $remote_url, $args );
+
+			if ( is_wp_error( $response ) ) {
+				$failed_letters[] = $alphas[ $i ];
+			} else {
+				$file_content = self::get_data_from_response( $response );
+				if ( '' !== $file_content ) {
+					file_put_contents( $tmp_dwld_dir . '/codici_catastali.csv', $file_content, FILE_APPEND | LOCK_EX );
+				}
+			}
+		}
+		--$max_retry;
+
+		if ( $max_retry > 0 && false === empty( $failed_letters ) ) {
+			self:$alphas = $failed_letters;
+			self::get_csvdata_codici_catastali_new( $tmp_dwld_dir, $max_retry );
 		}
 		if ( empty( $failed_letters ) ) {
 			return true;

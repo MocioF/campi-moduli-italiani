@@ -96,7 +96,7 @@ class GCMI_Help_Tabs {
 			esc_html__( '"Campi Moduli Italiani" creates shortcodes and, if %1$s is activated, form-tags, useful into Italian forms. The first module written is used to select an Italian municipality. Optionally it can show details of selected municipality. The data used are retrivied from %2$s and from %3$s.', 'campi-moduli-italiani' ),
 			'<a href="https://contactform7.com" target="_blank">Contact Form 7</a>',
 			'<a href="https://www.istat.it/it/archivio/6789" target="_blank">https://www.istat.it/it/archivio/6789</a>',
-			'<a href="https://www1.agenziaentrate.gov.it/documentazione/versamenti/codici/ricerca/VisualizzaTabella.php?ArcName=COM-ICI" target="_blank">https://www1.agenziaentrate.gov.it/documentazione/versamenti/codici/ricerca/VisualizzaTabella.php?ArcName=COM-ICI</a>'
+			'<a href="https://www1.agenziaentrate.gov.it/servizi/codici/ricerca/VisualizzaTabella.php?ArcName=00T4" target="_blank">https://www1.agenziaentrate.gov.it/servizi/codici/ricerca/VisualizzaTabella.php?ArcName=00T4</a>'
 		) . '</p>';
 
 		$content['update_tables_overview'] = '<p>' . sprintf(

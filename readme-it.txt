@@ -3,9 +3,9 @@ Contributors: mociofiletto
 Donate link: https://paypal.me/GiuseppeF77
 Tags: Contact Form 7, WPForms, comuni italiani, codice fiscale, firma digitale, multisite
 Requires at least: 5.9
-Tested up to: 6.2
+Tested up to: 6.4
 Requires PHP: 7.2
-Stable tag: 2.1.2
+Stable tag: 2.1.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html
 
@@ -36,7 +36,7 @@ In particolare, vengono acquisiti e memorizzati dati messi a disposizione a ques
 
 * https://www.istat.it/it/archivio/6789
 * https://www.istat.it/it/archivio/6747
-* https://www1.agenziaentrate.gov.it/documentazione/versamenti/codici/ricerca/VisualizzaTabella.php?ArcName=COM-ICI
+* https://www1.agenziaentrate.gov.it/servizi/codici/ricerca/VisualizzaTabella.php?ArcName=00T4
 
 I dati pubblicati sul sito dell'ISTAT sono coperti da licenza Creative Commons - Attribuzione (CC-by) (https://creativecommons.org/licenses/by/3.0/it/), come indicato qui: https://www.istat.it/it/note-legali
 I dati prelevati dal sito web dell'Agenzia delle entrate sono di pubblico dominio e costituiscono una banca dati pubblica resa disponibile per consentire gli adempimenti tributari e, più in generale, per consentire l'identificazione delle persone fisiche presso le pubbliche amministrazioni italiane, tramite il codice fiscale.
@@ -125,6 +125,10 @@ Puoi inviare una richiesta nel nostro repository Github:
 5. Immagine della schermata di admin, da cui è possibile effettuare l'aggiornamento dei dati
 
 == Changelog ==
+= 2.1.4 =
+* Aggiornato URL per archivio codici catastali
+* Aggiornato il certificato del sito istat.it
+
 = 2.1.3 =
 * Aggiornato il certificato del sito www1.agenziaentrate.gov.it
 * Aggiornato il certificato del sito istat.it
