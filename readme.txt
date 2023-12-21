@@ -3,9 +3,9 @@ Contributors: mociofiletto
 Donate link: https://paypal.me/GiuseppeF77
 Tags: Contact Form 7, WPForms, comuni italiani, codice fiscale, firma digitale, multisite
 Requires at least: 5.9
-Tested up to: 6.2
+Tested up to: 6.4
 Requires PHP: 7.2
-Stable tag: 2.1.3
+Stable tag: 2.1.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html
 
@@ -36,7 +36,7 @@ In particular, data made available at these URLs are acquired and stored:
 
 * https://www.istat.it/it/archivio/6789
 * https://www.istat.it/it/archivio/6747
-* https://www1.agenziaentrate.gov.it/documentazione/versamenti/codici/ricerca/VisualizzaTabella.php?ArcName=COM-ICI
+* https://www1.agenziaentrate.gov.it/servizi/codici/ricerca/VisualizzaTabella.php?ArcName=00T4
 
 The data published on the ISTAT website are covered by a Creative Commons license - Attribution (CC-by) (https://creativecommons.org/licenses/by/3.0/it/), as indicated here: https://www.istat.it/it/note-legali
 The data taken from the website of the Agenzia delle entrate are in the public domain and constitute a public database made available to allow tax compliance and, more generally, to allow the identification of physical persons with the Italian public administrations, through the personal fiscal code.
@@ -127,6 +127,10 @@ You can create an issue in our Github repo:
 5. Image of the admin screen, from which it is possible to update the data
 
 == Changelog ==
+= 2.1.4 =
+* Update URL for cadastrial codes
+* Updated istat.it pem chain
+
 = 2.1.3 =
 * Updated www1.agenziaentrate.gov.it pem chain
 * Updated istat.it pem chain

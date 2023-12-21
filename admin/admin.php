@@ -51,7 +51,7 @@ function gcmi_is_wpcf7_active() {
 function gcmi_admin_menu() {
 	global $_wp_last_object_menu;
 
-	$_wp_last_object_menu++;
+	++$_wp_last_object_menu;
 
 	do_action( 'gcmi_admin_menu' );
 
@@ -143,7 +143,7 @@ function gcmi_admin_menu_change_notice( $menu_slug = '' ) {
 		$num_items          = count( $database_file_info );
 		for ( $i = 0; $i < $num_items; $i++ ) {
 			if ( get_site_option( $database_file_info[ $i ]['optN_remoteUpd'] ) > get_site_option( $database_file_info[ $i ]['optN_dwdtime'] ) ) {
-				$counts++;
+				++$counts;
 			}
 		}
 		if ( $counts > 0 ) {
@@ -224,13 +224,13 @@ function gcmi_update_table( $fname ) {
 	if (
 		'zip' === $database_file_info[ $id ]['file_type'] ||
 		'csv' === $database_file_info[ $id ]['file_type']
-	   ) {
+		) {
 		if ( ! GCMI_Activator::download_file(
 			$database_file_info[ $id ]['remote_URL'],
 			$download_temp_dir,
 			$database_file_info[ $id ]['downd_name']
 		)
-		   ) {
+			) {
 			$error_code  = ( 'gcmi_download_error' );
 			$error_title = __( 'Remote file download error', 'campi-moduli-italiani' );
 
@@ -255,7 +255,7 @@ function gcmi_update_table( $fname ) {
 			$download_temp_dir,
 			$database_file_info[ $id ]['featured_csv']
 		)
-		   ) {
+			) {
 			$error_code  = ( 'gcmi_zip_extract_error' );
 			$error_title = __( 'Zip archive extraction error', 'campi-moduli-italiani' );
 
