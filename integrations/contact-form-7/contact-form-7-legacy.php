@@ -27,7 +27,7 @@ function gcmi_wpcf7_select_validation_filter( $result, $tag ) {
 	if ( $has_value and $tag->has_option( 'multiple' ) ) {
 		$vals = array_filter(
 			(array) $_POST[ $name ],
-			function( $val ) {
+			function ( $val ) {
 				return '' !== $val;
 			}
 		);

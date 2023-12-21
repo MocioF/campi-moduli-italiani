@@ -21,7 +21,7 @@
 
 defined( 'ABSPATH' ) || die( 'you do not have access to this page!' );
 
-define( 'GCMI_VERSION', '2.1.3' );
+define( 'GCMI_VERSION', '2.2.0' );
 define( 'GCMI_MINIMUM_WP_VERSION', '5.9' );
 define( 'GCMI_MINIMUM_PHP_VERSION', '7.2' );
 define( 'GCMI_MINIMUM_CF7_VERSION', '5.1.7' );
@@ -41,9 +41,8 @@ if ( true === is_multisite() ) {
 	$gcmi_table_prefix = $wpdb->prefix . 'gcmi_';
 }
 define( 'GCMI_TABLE_PREFIX', $gcmi_table_prefix );
-
+define( 'GCMI_SVIEW_PREFIX', $wpdb->prefix . 'gcmi_' );
 define( 'GCMI_CACHE_EXPIRE_SECS', 1000 );
 define( 'GCMI_CACHE_GROUP', 'campi-moduli-italiani' );
 
 require_once plugin_dir_path( GCMI_PLUGIN ) . 'settings.php';
-

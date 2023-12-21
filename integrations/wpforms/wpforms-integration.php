@@ -34,7 +34,7 @@ add_filter( 'wpforms_builder_fields_buttons', 'gcmi_wpforms_builder_fields_butto
 if ( GCMI_USE_STATO === true ) {
 	add_action(
 		'init',
-		function() {
+		function () {
 			require_once plugin_dir_path( GCMI_PLUGIN ) . 'modules/stato/class-wpforms-field-stato.php';
 		},
 		99
@@ -45,10 +45,9 @@ if ( GCMI_USE_STATO === true ) {
 if ( GCMI_USE_COMUNE === true ) {
 	add_action(
 		'init',
-		function() {
+		function () {
 			require_once plugin_dir_path( GCMI_PLUGIN ) . 'modules/comune/class-wpforms-field-comune.php';
 		},
 		99
 	);
 }
-

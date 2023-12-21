@@ -135,7 +135,7 @@ function gcmi_wpcf7_stato_formtag_handler( $tag ) {
 				if ( $stato->i_cod_continente === $cod_continente ) {
 					$value = 'value="' . esc_html( $stato->i_cod_istat ) . '"';
 					if ( $stato->i_cod_istat === $pr_value ||
-						 stripslashes( $stato->i_denominazione_ita ) === $pr_value ) {
+						stripslashes( $stato->i_denominazione_ita ) === $pr_value ) {
 						$value .= ' selected';
 					}
 					$inset = stripslashes( esc_html( $stato->i_denominazione_ita ) );
@@ -197,7 +197,7 @@ if ( ! function_exists( 'wpcf7_select_validation_filter' ) ) {
 // mail tag filter.
 add_filter(
 	'wpcf7_mail_tag_replaced_stato*',
-	function( $replaced, $submitted, $html, $mail_tag ) {
+	function ( $replaced, $submitted, $html, $mail_tag ) {
 		$cache_key = 'stato_denominazione_' . strval( $submitted );
 		$replaced  = wp_cache_get( $cache_key, GCMI_CACHE_GROUP );
 		if ( false === $replaced ) {
@@ -222,7 +222,7 @@ add_filter(
 
 add_filter(
 	'wpcf7_mail_tag_replaced_stato',
-	function( $replaced, $submitted, $html, $mail_tag ) {
+	function ( $replaced, $submitted, $html, $mail_tag ) {
 		$cache_key = 'stato_denominazione_' . strval( $submitted );
 		$replaced  = wp_cache_get( $cache_key, GCMI_CACHE_GROUP );
 		if ( false === $replaced ) {
@@ -347,7 +347,7 @@ function gcmi_wpcf7_tg_pane_stato( $contact_form, $args = '' ): void {
 		<p class="description mail-tag"><label for="<?php echo esc_attr( $args['content'] . '-mailtag' ); ?>">
 		<?php
 		// translators: %s is the name of the mail-tag.
-		echo sprintf( esc_html( __( 'To use the value input through this field in a mail field, you need to insert the corresponding mail-tag (%s) into the field on the Mail tab.', 'contact-form-7' ) ), '<strong><span class="mail-tag"></span></strong>' );
+		printf( esc_html( __( 'To use the value input through this field in a mail field, you need to insert the corresponding mail-tag (%s) into the field on the Mail tab.', 'contact-form-7' ) ), '<strong><span class="mail-tag"></span></strong>' );
 		?>
 		<input type="text" class="mail-tag code hidden" readonly="readonly" id="<?php echo esc_attr( $args['content'] . '-mailtag' ); ?>" /></label></p>
 	</div>

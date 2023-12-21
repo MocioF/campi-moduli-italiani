@@ -497,4 +497,3 @@ class GCMI_CODICEFISCALE {
 		return $this->ggNascita;
 	}
 }
-

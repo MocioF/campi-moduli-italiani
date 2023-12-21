@@ -13,20 +13,6 @@
  * by setting GCMI_USE_[] costants to false.
  */
 
-/**
- * Requires the activator class
- */
-require_once plugin_dir_path( GCMI_PLUGIN ) . 'admin/class-gcmi-activator.php';
-
-/**
- * Requires file used to run the cron job to check remote files update
- */
-require_once plugin_dir_path( GCMI_PLUGIN ) . 'includes/cron.php';
-
-if ( is_admin() ) {
-	require_once plugin_dir_path( GCMI_PLUGIN ) . 'admin/admin.php';
-}
-
 /* configurazione tipo campi utilizzati */
 if ( ! defined( 'GCMI_USE_COMUNE' ) ) {
 	define( 'GCMI_USE_COMUNE', true );
@@ -59,6 +45,20 @@ if ( ! defined( 'GCMI_USE_WPFORMS_INTEGRATION' ) ) {
 
 /* fine sezione editabile */
 
+/**
+ * Requires the activator class
+ */
+require_once plugin_dir_path( GCMI_PLUGIN ) . 'admin/class-gcmi-activator.php';
+
+/**
+ * Requires file used to run the cron job to check remote files update
+ */
+require_once plugin_dir_path( GCMI_PLUGIN ) . 'includes/cron.php';
+
+if ( is_admin() ) {
+	require_once plugin_dir_path( GCMI_PLUGIN ) . 'admin/admin.php';
+}
+
 if ( GCMI_USE_COMUNE === true ) {
 	require_once plugin_dir_path( GCMI_PLUGIN ) . 'modules/comune/class-gcmi-comune.php';
 	require_once plugin_dir_path( GCMI_PLUGIN ) . 'modules/comune/class-gcmi-comune-shortcode.php';
@@ -74,6 +74,7 @@ if ( GCMI_USE_COMUNE === true ) {
 	add_action( 'wp_ajax_nopriv_the_ajax_hook_info', 'GCMI_COMUNE::gcmi_showinfo' );
 
 	add_action( 'wp_enqueue_scripts', 'GCMI_COMUNE::gcmi_register_scripts' );
+	add_action( 'wp_initialize_site', 'gcmi_create_unfiltered_views' );
 }
 
 /**
@@ -96,8 +97,6 @@ function gcmi_load_integrations() {
 }
 add_action( 'plugins_loaded', 'gcmi_load_integrations' );
 
-add_action( 'admin_init', 'gcmi_upgrade', 10, 0 );
-
 /**
  * Updates the plugin version number in the database
  *
@@ -112,6 +111,11 @@ function gcmi_upgrade() {
 		return;
 	}
 
+	if ( version_compare( $old_ver, '2.2.0', '<' ) ) {
+		gcmi_create_unfiltered_views();
+	}
+
+	// Calls the callback functions that have been added to the gcmi_upgrade action hook.
 	do_action( 'gcmi_upgrade', $new_ver, $old_ver );
 	if ( false === is_multisite() ) {
 		update_option( 'gcmi_plugin_version', $new_ver );
@@ -119,7 +123,40 @@ function gcmi_upgrade() {
 		update_site_option( 'gcmi_plugin_version', $new_ver );
 	}
 }
+add_action( 'admin_init', 'gcmi_upgrade', 10, 0 );
 
+
+/**
+ * Crea le view utilizzate dai filtri.
+ *
+ * Funzione chiamata in gcmi_upgrade, hooked su admin_init.
+ *
+ * @since 2.2.0
+ * @return void
+ */
+function gcmi_create_unfiltered_views(): void {
+	if ( true !== GCMI_USE_COMUNE ) {
+		return;
+	}
+	if ( false === is_multisite() ) {
+		GCMI_comune_filter_builder::create_view( 'unfiltered' );
+	} else {
+		$args  = array(
+			'orderby' => 'id',
+			'order'   => 'asc',
+		);
+		$sites = get_sites( $args );
+		foreach ( $sites as $site ) {
+			if ( is_object( $site ) ) {
+				switch_to_blog( intval( $site->blog_id ) );
+				if ( ! is_plugin_active( 'campi-moduli-italiani/campi-moduli-italiani.php' ) ) {
+					GCMI_comune_filter_builder::create_view( 'unfiltered' );
+				}
+			}
+			restore_current_blog();
+		}
+	}
+}
 
 /**
  * Adds extra links to the plugin activation page

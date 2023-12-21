@@ -1,0 +1,1 @@
+openssl s_client -showcerts -verify 5 -connect www.istat.it:443 < /dev/null | awk '/BEGIN/,/END/{ if(/BEGIN/){a++}; out="cert"a".pem"; print >out}'

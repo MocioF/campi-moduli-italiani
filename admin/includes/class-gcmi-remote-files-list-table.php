@@ -59,12 +59,12 @@ class Gcmi_Remote_Files_List extends WP_List_Table {
 	 * @return array<string, array<int, bool|string>>
 	 */
 	protected function get_sortable_columns() {
-		 $sortable_columns = array(
-			 'gcmi-dataname'   => array( 'gcmi-dataname', false ),
-			 'gcmi-remotedate' => array( 'gcmi-remotedate', false ),
-			 'gcmi-localdate'  => array( 'gcmi-localdate', false ),
-		 );
-		 return $sortable_columns;
+		$sortable_columns = array(
+			'gcmi-dataname'   => array( 'gcmi-dataname', false ),
+			'gcmi-remotedate' => array( 'gcmi-remotedate', false ),
+			'gcmi-localdate'  => array( 'gcmi-localdate', false ),
+		);
+		return $sortable_columns;
 	}
 
 	/**
@@ -203,7 +203,7 @@ class Gcmi_Remote_Files_List extends WP_List_Table {
 	 * @return void
 	 */
 	public function process_bulk_action() {
-		 // security check!
+		// security check!
 		if ( isset( $_POST['_wpnonce'] ) && ! empty( $_POST['_wpnonce'] ) ) {
 			$nonce = filter_input( INPUT_POST, '_wpnonce', FILTER_UNSAFE_RAW );
 			if ( ! is_string( $nonce ) ) {

@@ -226,15 +226,15 @@ class GCMI_Activator {
 			if ( false === self::gcmi_tables_exist() ) {
 				self::single_activate();
 			}
-		} else {
-			if ( true === is_multisite() ) {
-				if ( false === self::gcmi_tables_exist() ) {
-					self::single_activate();
-				}
-			} else {
+		} elseif ( true === is_multisite() ) {
+			if ( false === self::gcmi_tables_exist() ) {
 				self::single_activate();
 			}
+		} else {
+			self::single_activate();
 		}
+
+		gcmi_create_unfiltered_views();
 	}
 
 	/**
@@ -471,11 +471,9 @@ class GCMI_Activator {
 	public static function deactivate( $network_wide ) {
 		if ( false === is_multisite() ) {
 			self::single_deactivate();
-		} else {
-			if ( true === $network_wide ) {
-				if ( false === self::gcmi_check_if_single_activated() ) {
-					self::single_deactivate();
-				}
+		} elseif ( true === $network_wide ) {
+			if ( false === self::gcmi_check_if_single_activated() ) {
+				self::single_deactivate();
 			}
 		}
 	}
@@ -1179,11 +1177,11 @@ class GCMI_Activator {
 							)
 						) )
 						) {
-							 return false;
+							return false;
 						}
 						break;
 					case 'stati':
-						 // n.d. to empty string.
+						// n.d. to empty string.
 						if ( 'n.d.' === $gcmi_dati_line[8] || 'n.d' === $gcmi_dati_line[8] ) {
 							$gcmi_dati_line[8] = null;
 						}
@@ -1544,5 +1542,22 @@ class GCMI_Activator {
 			}
 		}
 		return true;
+	}
+
+	/**
+	 * Running setup whenever a new blog is created
+	 *
+	 * @since 1.0.0
+	 * @param WP_Site $params New site object.
+	 * @return void
+	 */
+	public static function add_blog( $params ) {
+		if ( is_plugin_active_for_network( 'campi-moduli-italiani/campi-moduli-italiani.php' ) ) {
+			switch_to_blog( intval( $params->blog_id ) );
+
+			gcmi_create_unfiltered_views();
+
+			restore_current_blog();
+		}
 	}
 }

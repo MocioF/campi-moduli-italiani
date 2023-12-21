@@ -69,6 +69,16 @@ class GCMI_Help_Tabs {
 				$this->sidebar();
 
 				return;
+			case 'comune-fb':
+				$this->screen->add_help_tab(
+					array(
+						'id'      => 'gcmi_comune_filter_builder',
+						'title'   => __( 'Overview', 'campi-moduli-italiani' ),
+						'content' => $this->content( 'comune_filter_builder' ),
+					)
+				);
+
+				return;
 		}
 	}
 
@@ -97,6 +107,11 @@ class GCMI_Help_Tabs {
 			'<a href="https://www.istat.it/it/archivio/6789" target="_blank">https://www.istat.it/it/archivio/6789</a>'
 		) . '</p>';
 		$content['update_tables_overview'] .= '<p>' . esc_html__( 'Check the update dates of your data and the update dates of the online files, pick tables to update, select the "Update tables" bulk action and click on "Apply".', 'campi-moduli-italiani' ) . '</p>';
+
+		$content['comune_filter_builder'] = '<p>' . sprintf(
+			esc_html__( 'la stringa di aiuto per il costruttore di filtri %1$s', 'campi-moduli-italiani' ),
+			'<b>RICORDATI DI SCRIVERLA</b>'
+		) . '</p>';
 
 		if ( ! empty( $content[ $name ] ) ) {
 			return $content[ $name ];

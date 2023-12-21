@@ -19,6 +19,13 @@ require_once GCMI_PLUGIN_DIR . '/admin/includes/class-gcmi-help-tabs.php';
  */
 require_once GCMI_PLUGIN_DIR . '/admin/includes/class-gcmi-remote-files-list-table.php';
 
+/**
+ * Requires class that contains comune's filter builder.
+ */
+if ( true === GCMI_USE_COMUNE ) {
+	require_once GCMI_PLUGIN_DIR . '/admin/includes/class-gcmi-comune-filter-builder.php';
+}
+
 add_action( 'admin_init', 'gcmi_admin_init', 10, 0 );
 
 /**
@@ -51,7 +58,7 @@ function gcmi_is_wpcf7_active() {
 function gcmi_admin_menu() {
 	global $_wp_last_object_menu;
 
-	$_wp_last_object_menu++;
+	++$_wp_last_object_menu;
 
 	do_action( 'gcmi_admin_menu' );
 
@@ -67,16 +74,27 @@ function gcmi_admin_menu() {
 	);
 
 	$edit = add_submenu_page(
-		'gcmi', // parent slug.
-		__( 'Management of Italian form fields db tables', 'campi-moduli-italiani' ), // page title.
-		__( 'Italian municipalities DB', 'campi-moduli-italiani' )
-		. gcmi_admin_menu_change_notice( 'gcmi' ), // menu title.
+		'gcmi',
+		__( 'Management of Italian form fields db tables', 'campi-moduli-italiani' ),
+		__( 'Italian municipalities DB', 'campi-moduli-italiani' ) . gcmi_admin_menu_change_notice( 'gcmi' ),
 		'update_plugins',
-		'gcmi', // capability e menu_slug.
-		'gcmi_admin_update_db' // callable.
+		'gcmi',
+		'gcmi_admin_update_db'
 	);
 
-	add_action( 'load-' . $edit, 'gcmi_load_contact_form_admin', 10, 0 );
+	add_action( 'load-' . $edit, 'gcmi_load_db_management', 10, 0 );
+
+	if ( true === GCMI_USE_COMUNE ) {
+		$builder = add_submenu_page(
+			'gcmi', // parent slug.
+			__( 'Italian municipalities\' filter builder ', 'campi-moduli-italiani' ), // page title.
+			__( 'comune\'s filter builder', 'campi-moduli-italiani' ), // menu title.
+			'update_plugins', // capability.
+			'gcmi-comune-filter-builder', // menu_slug.
+			'GCMI_comune_filter_builder::show_comune_filter_builder_page' // callable.
+		);
+		add_action( 'load-' . $builder, 'gcmi_load_comune_filter_builder', 10, 0 );
+	}
 }
 
 /**
@@ -84,11 +102,24 @@ function gcmi_admin_menu() {
  *
  * @return void
  */
-function gcmi_load_contact_form_admin() {
+function gcmi_load_db_management() {
 	$current_screen = get_current_screen();
 	if ( ! is_null( $current_screen ) ) {
 		$help_tabs = new GCMI_Help_Tabs( $current_screen );
 		$help_tabs->set_help_tabs( 'gcmi' );
+	}
+}
+
+/**
+ * Aggiunge la help tab alla pagina di creazione del filtro
+ *
+ * @return void
+ */
+function gcmi_load_comune_filter_builder() {
+	$current_screen = get_current_screen();
+	if ( ! is_null( $current_screen ) ) {
+		$help_tabs = new GCMI_Help_Tabs( $current_screen );
+		$help_tabs->set_help_tabs( 'comune-fb' );
 	}
 }
 
@@ -124,7 +155,7 @@ function gcmi_admin_update_db() {
 			wp_date( $date_format, $last_check ),
 			wp_date( $time_format, $last_check )
 		);
-		echo '<p id="gcmi_table_footer" class="alignleft"><span id="gcmi_last_check">' . $last_check_string . '</span></p>';
+		echo '<p id="gcmi_table_footer" class="alignleft"><span id="gcmi_last_check">' . esc_html( $last_check_string ) . '</span></p>';
 	}
 }
 
@@ -141,7 +172,7 @@ function gcmi_admin_menu_change_notice( $menu_slug = '' ) {
 		$num_items          = count( $database_file_info );
 		for ( $i = 0; $i < $num_items; $i++ ) {
 			if ( get_site_option( $database_file_info[ $i ]['optN_remoteUpd'] ) > get_site_option( $database_file_info[ $i ]['optN_dwdtime'] ) ) {
-				$counts++;
+				++$counts;
 			}
 		}
 		if ( $counts > 0 ) {
@@ -210,8 +241,9 @@ function gcmi_update_table( $fname ) {
 		gcmi_show_error( $gcmi_error );
 		die;
 	}
-	$i = null;
-	if ( ! $download_temp_dir = GCMI_Activator::make_tmp_dwld_dir() ) {
+	$i                 = null;
+	$download_temp_dir = GCMI_Activator::make_tmp_dwld_dir();
+	if ( ! $download_temp_dir ) {
 		$error_code    = ( 'gcmi_mkdir_fail' );
 		$error_title   = __( 'Error creating download directory', 'campi-moduli-italiani' );
 		$error_message = '<h1>' . $error_title . '</h1>' . __( 'Unable to create temporary download directory', 'campi-moduli-italiani' );
@@ -222,13 +254,13 @@ function gcmi_update_table( $fname ) {
 	if (
 		'zip' === $database_file_info[ $id ]['file_type'] ||
 		'csv' === $database_file_info[ $id ]['file_type']
-	   ) {
+		) {
 		if ( ! GCMI_Activator::download_file(
 			$database_file_info[ $id ]['remote_URL'],
 			$download_temp_dir,
 			$database_file_info[ $id ]['downd_name']
 		)
-		   ) {
+			) {
 			$error_code  = ( 'gcmi_download_error' );
 			$error_title = __( 'Remote file download error', 'campi-moduli-italiani' );
 
@@ -253,7 +285,7 @@ function gcmi_update_table( $fname ) {
 			$download_temp_dir,
 			$database_file_info[ $id ]['featured_csv']
 		)
-		   ) {
+			) {
 			$error_code  = ( 'gcmi_zip_extract_error' );
 			$error_title = __( 'Zip archive extraction error', 'campi-moduli-italiani' );
 

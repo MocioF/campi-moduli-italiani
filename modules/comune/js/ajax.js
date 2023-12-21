@@ -1,6 +1,10 @@
 'use strict';
 jQuery( document ).ready(
 	function($) {
+            
+                /// DA RIMUOVERE
+                //$('select').niceSelect();
+                
 		const { __, _x, _n, _nx } = wp.i18n;
 		var scegli                = '<option value="">' + __( 'Select...', 'campi-moduli-italiani' ) + '</option>';
 		var attendere             = '<option value="">' + __( 'Wait...', 'campi-moduli-italiani' ) + '</option>';
@@ -30,6 +34,27 @@ jQuery( document ).ready(
 		$( "input[id$='gcmi_targa']" ).val( "" );
 		$( "input[id$='gcmi_mail']" ).val( "" );
 
+                // compatibilità con JQuery Nice Select
+                if(typeof $.fn.niceSelect !== 'undefined') {
+                    var targetNodes = $( "select[id*='gcmi'][style='display: none']" );
+                    var MutationObserver = window.MutationObserver || window.WebKitMutationObserver;
+                    var myObserver = new MutationObserver(mutationHandler);
+                    var obsConfig = {
+                        childList: true,
+                        characterData: true,
+                        attributes: true,
+                        subtree: true
+                    };
+                    //--- Add a target node to the observer. Can only add one node at a time.
+                    targetNodes.each(function() {
+                        myObserver.observe(this, obsConfig);
+                    });
+                    function mutationHandler(mutationRecords) {
+                        var target = mutationRecords[0].target;
+                        $( target ).niceSelect('update');
+                    }
+                }
+                
 		$( "select[id$='gcmi_regione']" ).change(
 			function(){
 				window.MyPrefix = this.id.substring( 0, (this.id.length - ("gcmi_regione").length) );

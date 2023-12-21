@@ -15,3 +15,6 @@
 .wp-list-table .column-gcmi-remotedate { width: 18%; }
 .wp-list-table .column-gcmi-localdate { width: 18%; }
 .wp-list-table .column-gcmi-dataURL { width: 34%; }
+
+.gcmi-fb-regione-container { display: grid; grid-template-columns: repeat( auto-fit, minmax(200px, 1fr) ); row-gap: 15px; }
+.gcmi-fb-regione-item { white-space: nowrap; }
