@@ -209,7 +209,7 @@ class GCMI_Activator {
 	/**
 	 * Elenco lettere utilizzato per il download codici catastali dal sito Agenzia delle entrate
 	 *
-	 * @var array<string> $alphas
+	 * @var array<string> $alphas_codes
 	 */
 	private static $alphas_codes = array(
 		'A',
@@ -544,12 +544,15 @@ class GCMI_Activator {
 	/**
 	 * Disables the plugin.
 	 *
-	 * Deletes the tables from the database and disables the cronjob.
+	 * Deletes the tables from the database, removes all views and disables the cronjob.
 	 *
 	 * @since 1.0.0
 	 * @return void
 	 */
 	public static function single_deactivate(): void {
+		
+		self::drop_views();
+		
 		$num_tables = count( self::$database_file_info );
 		for ( $i = 0; $i < $num_tables; $i++ ) {
 			self::drop_table( self::$database_file_info[ $i ]['name'], self::$database_file_info[ $i ]['table_name'] );
@@ -782,7 +785,8 @@ class GCMI_Activator {
 				i_nuts1 char(3) NOT NULL,
 				i_nuts23 char(4) NOT NULL,
 				i_nuts3 char(5) NOT NULL,
-				PRIMARY KEY (id)
+				PRIMARY KEY (id),
+				INDEX `i_cod_comune` (`i_cod_comune`)
 				) $charset_collate";
 				break;
 
@@ -800,8 +804,8 @@ class GCMI_Activator {
 				i_denominazione_nuovo varchar(255) NULL,
 				i_cod_unita_territoriale_nuovo char(3) NULL,
 				i_sigla_automobilistica_nuovo varchar(10) NULL,
-		
-				PRIMARY KEY (id)
+				PRIMARY KEY (id),
+				INDEX `i_cod_comune` (`i_cod_comune`)
 				) $charset_collate";
 				break;
 
@@ -1364,6 +1368,30 @@ class GCMI_Activator {
 		$structure = "drop table if exists $table";
 		$wpdb->query( $structure );
 		return true;
+	}
+	
+	/**
+	 * Elimina tutti i filtri dal database (per singolo sito)
+	 * 
+	 * @since 2.2.0
+	 * @global type $wpdb
+	 * @return bool
+	 */
+	private static function drop_views(){
+		global $wpdb;
+		
+		$lista_views_attuali = array_map('strval', $wpdb->get_col(
+			$wpdb->prepare('SHOW TABLES like %s', GCMI_SVIEW_PREFIX . 'comuni_attuali%')
+		));
+		
+		$lista_views_soppressi = array_map('strval', $wpdb->get_col(
+			$wpdb->prepare('SHOW TABLES like %s', GCMI_SVIEW_PREFIX . 'comuni_soppressi%')
+		));
+		
+		$lista_views = array_merge( $lista_views_attuali,$lista_views_soppressi );
+		$views = implode(',', $lista_views );
+		
+		return $wpdb->query( 'DROP VIEW IF EXISTS ' . $views );
 	}
 
 	/**

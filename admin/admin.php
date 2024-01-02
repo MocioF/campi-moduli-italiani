@@ -24,6 +24,14 @@ require_once GCMI_PLUGIN_DIR . '/admin/includes/class-gcmi-remote-files-list-tab
  */
 if ( true === GCMI_USE_COMUNE ) {
 	require_once GCMI_PLUGIN_DIR . '/admin/includes/class-gcmi-comune-filter-builder.php';
+
+	$gcmi_fb = new GCMI_comune_filter_builder();
+	add_action( 'wp_ajax_gcmi_fb_requery_comuni', array( $gcmi_fb, 'ajax_get_tabs_html' ), 10, 0 );
+	add_action( 'wp_ajax_gcmi_fb_create_filter', array( $gcmi_fb, 'ajax_create_filter' ), 10, 0 );
+	add_action( 'wp_ajax_gcmi_fb_get_locale', array( $gcmi_fb, 'ajax_get_locale' ), 10, 0 );
+	add_action( 'wp_ajax_gcmi_fb_get_filters', array( $gcmi_fb, 'ajax_get_filters_html' ), 10, 0 );
+	add_action( 'wp_ajax_gcmi_fb_delete_filter', array( $gcmi_fb, 'ajax_delete_filter' ), 10, 0 );
+	add_action( 'wp_ajax_gcmi_fb_edit_filter', array( $gcmi_fb, 'ajax_get_tabs_html' ), 10, 0 );
 }
 
 add_action( 'admin_init', 'gcmi_admin_init', 10, 0 );
@@ -201,15 +209,37 @@ function gcmi_admin_enqueue_scripts( $hook_suffix ) {
 		'all'
 	);
 
+	$wp_scripts = wp_scripts();
+	wp_enqueue_style(
+		'jquery-ui-theme-smoothness',
+		plugin_dir_url( __FILE__ ) .
+		sprintf(
+			'css/jqueryui/%s/themes/smoothness/jquery-ui.min.css',
+			$wp_scripts->registered['jquery-ui-core']->ver
+		),
+		array(),
+		GCMI_VERSION,
+		'all'
+	);
+
 	if ( false === strpos( $hook_suffix, 'campi-moduli-italiani' ) ) {
 		return;
 	}
 	wp_enqueue_script(
 		'gcmi-admin',
 		plugins_url( GCMI_PLUGIN_NAME . '/admin/js/scripts.min.js' ),
-		array( 'jquery', 'jquery-ui-tabs' ),
+		array( 'jquery', 'jquery-ui-tabs', 'jquery-ui-dialog' ),
 		GCMI_VERSION,
 		true
+	);
+
+	wp_localize_script(
+		'gcmi-admin',
+		'gcmi_fb_obj',
+		array(
+			'ajax_url' => admin_url( 'admin-ajax.php' ),
+			'nonce'    => wp_create_nonce( 'gcmi_fb_nonce' ),
+		)
 	);
 }
 add_action( 'admin_enqueue_scripts', 'gcmi_admin_enqueue_scripts', 10, 1 );

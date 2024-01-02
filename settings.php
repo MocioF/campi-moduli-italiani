@@ -112,6 +112,7 @@ function gcmi_upgrade() {
 	}
 
 	if ( version_compare( $old_ver, '2.2.0', '<' ) ) {
+		gcmi_add_index_on_tables();
 		gcmi_create_unfiltered_views();
 	}
 
@@ -126,6 +127,12 @@ function gcmi_upgrade() {
 add_action( 'admin_init', 'gcmi_upgrade', 10, 0 );
 
 
+function gcmi_add_index_on_tables(): void {
+	global $wpdb;
+	$wpdb->query( 'ALTER TABLE ` ' . GCMI_TABLE_PREFIX . 'comuni_attuali` ADD INDEX(`i_cod_comune`);' );
+	$wpdb->query( 'ALTER TABLE ` ' . GCMI_TABLE_PREFIX . 'comuni_soppressi` ADD INDEX(`i_cod_comune`);' );
+}
+
 /**
  * Crea le view utilizzate dai filtri.
  *
@@ -139,7 +146,7 @@ function gcmi_create_unfiltered_views(): void {
 		return;
 	}
 	if ( false === is_multisite() ) {
-		GCMI_comune_filter_builder::create_view( 'unfiltered' );
+		GCMI_comune_filter_builder::create_view( 'unfiltered', 'true', array() );
 	} else {
 		$args  = array(
 			'orderby' => 'id',
@@ -150,7 +157,7 @@ function gcmi_create_unfiltered_views(): void {
 			if ( is_object( $site ) ) {
 				switch_to_blog( intval( $site->blog_id ) );
 				if ( ! is_plugin_active( 'campi-moduli-italiani/campi-moduli-italiani.php' ) ) {
-					GCMI_comune_filter_builder::create_view( 'unfiltered' );
+					GCMI_comune_filter_builder::create_view( 'unfiltered', 'true', array() );
 				}
 			}
 			restore_current_blog();
