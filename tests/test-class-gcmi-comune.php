@@ -8,17 +8,17 @@ final class GCMI_COMUNETest extends WP_UnitTestCase {
 		parent::set_up();
 	}
 	
-	public static function setUpBeforeClass(): void {
-		gcmi_activate( false );
-	}
+//	public static function setUpBeforeClass(): void {
+//		gcmi_activate( false );
+//	}
 
 	public function tear_down() {
-		parent::tear_down();
+//		parent::tear_down();
 	}
 	
-	public static function tearDownAfterClass(): void {
-		gcmi_deactivate( false );
-	}
+//	public static function tearDownAfterClass(): void {
+//		gcmi_deactivate( false );
+//	}
 	
 	protected static function getMethod( $name ) {
 		$class = new ReflectionClass('GCMI_COMUNE');

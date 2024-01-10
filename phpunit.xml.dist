@@ -7,10 +7,21 @@
 	convertNoticesToExceptions="true"
 	convertWarningsToExceptions="true"
 	>
+	<extensions>
+            <extension class="tests\Extensions\Boot"/>
+	</extensions>
 	<testsuites>
 		<testsuite name="default">
 			<directory prefix="test-" suffix=".php">./tests/</directory>
 			<exclude>./tests/test-sample.php</exclude>
 		</testsuite>
 	</testsuites>
+        <coverage>
+                <include>
+                        <directory suffix=".php">./admin</directory>
+                        <directory suffix=".php">./includes</directory>
+                        <directory suffix=".php">./integrations</directory>
+                        <directory suffix=".php">./modules</directory>
+                </include>
+        </coverage>
 </phpunit>

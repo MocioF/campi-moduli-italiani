@@ -32,3 +32,6 @@ tests_add_filter( 'muplugins_loaded', '_manually_load_plugin' );
 
 // Start up the WP testing environment.
 require $_tests_dir . '/includes/bootstrap.php';
+
+// Downloads file and activates the plugin
+require_once dirname( dirname( __FILE__ ) ) . "/tests/Extensions/Boot.php";

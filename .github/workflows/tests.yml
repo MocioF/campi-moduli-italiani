@@ -2,6 +2,7 @@ on:
   push:
     branches:
       - main
+      - filtro-comuni
   pull_request:
 
 name: Tests
@@ -69,7 +70,8 @@ jobs:
     - name: Only for WP >= 5.9 Install Composer dependencies
       # See: https://make.wordpress.org/core/2021/09/27/changes-to-the-wordpress-core-php-test-suite/
       if: ${{ ( matrix.wordpress-version == '5.9' || matrix.wordpress-version == '6.0' || matrix.wordpress-version == '6.1' || matrix.wordpress-version == '6.2' || matrix.wordpress-version == '6.3' || matrix.wordpress-version == '6.4' ) }}
-      run: (composer remove --dev phpunit/phpunit || true ) && composer update --dev yoast/phpunit-polyfills --with-dependencies && composer install --no-progress --prefer-dist --optimize-autoloader --ignore-platform-reqs
+      run: composer install --no-progress --prefer-dist --optimize-autoloader --ignore-platform-reqs
+      #run: (composer remove --dev phpunit/phpunit || true ) && composer update --dev yoast/phpunit-polyfills --with-dependencies && composer install --no-progress --prefer-dist --optimize-autoloader --ignore-platform-reqs
       
     - name: When using PHP 8 and WP <= 5.8
       # See: https://core.trac.wordpress.org/ticket/50902
