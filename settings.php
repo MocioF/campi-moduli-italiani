@@ -107,7 +107,7 @@ function gcmi_upgrade() {
 	$new_ver = GCMI_VERSION;
 
 	if ( $old_ver === $new_ver ) {
-		return;
+			return;
 	}
 
 	if ( version_compare( $old_ver, '2.2.0', '<' ) ) {
@@ -133,18 +133,54 @@ add_action( 'admin_init', 'gcmi_upgrade', 10, 0 );
  */
 function gcmi_add_index_on_tables(): void {
 	global $wpdb;
-	$wpdb->query(
+	if ( false === gcmi_index_exist( GCMI_TABLE_PREFIX . 'comuni_attuali', 'i_cod_comune' ) ) {
+		$wpdb->query(
+			$wpdb->prepare(
+				'ALTER TABLE `%1$s` ADD INDEX(`i_cod_comune`);',
+				GCMI_TABLE_PREFIX . 'comuni_attuali'
+			)
+		);
+	}
+	if ( false === gcmi_index_exist( GCMI_TABLE_PREFIX . 'comuni_soppressi', 'i_cod_comune' ) ) {
+		$wpdb->query(
+			$wpdb->prepare(
+				'ALTER TABLE `%1$s` ADD INDEX(`i_cod_comune`);',
+				GCMI_TABLE_PREFIX . 'comuni_soppressi'
+			)
+		);
+	}
+}
+
+/**
+ * Controlla se su un campo di una tabella è presente già un indice
+ *
+ * @param string $table_name
+ * @param string $field_name
+ * @since 2.2.0
+ * @return bool
+ */
+function gcmi_index_exist( $table_name, $field_name ) {
+	global $wpdb;
+	if ( function_exists( 'str_starts_with' ) && false === str_starts_with( $table_name, GCMI_TABLE_PREFIX ) ) {
+		$table_name = GCMI_TABLE_PREFIX . $table_name;
+	}
+	if ( ! function_exists( 'str_starts_with' ) && 0 === strpos( $table_name, GCMI_TABLE_PREFIX ) ) {
+		$table_name = GCMI_TABLE_PREFIX . $table_name;
+	}
+
+	$index_fields = $wpdb->get_col(
 		$wpdb->prepare(
-			'ALTER TABLE `%1$s` ADD INDEX(`i_cod_comune`);',
-			GCMI_TABLE_PREFIX . 'comuni_attuali'
-		)
+			'SHOW INDEX FROM `%1$s`',
+			$table_name
+		),
+		4 // Column_name .
 	);
-	$wpdb->query(
-		$wpdb->prepare(
-			'ALTER TABLE `%1$s` ADD INDEX(`i_cod_comune`);',
-			GCMI_TABLE_PREFIX . 'comuni_soppressi'
-		)
-	);
+	$unique       = array_unique( $index_fields );
+
+	if ( in_array( $field_name, $unique ) ) {
+		return true;
+	}
+	return false;
 }
 
 /**
