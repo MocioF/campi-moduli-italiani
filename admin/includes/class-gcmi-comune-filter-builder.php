@@ -737,10 +737,11 @@ class GCMI_Comune_Filter_Builder {
 		) {
 			$error_string = esc_html__( 'Received an incomplete request to create a filter.', 'campi-moduli-italiani' );
 			$error->add( '-1', $error_string );
+			return $error; // necessario perché in PHP7 l'assegnazione successiva, genera un error.
 		}
 
-		$filter_name = strval( $posted['filtername'] );
-		$use_cessati = strval( $posted['includi'] );
+		$filter_name = gcmi_safe_strval( $posted['filtername'] );
+		$use_cessati = gcmi_safe_strval( $posted['includi'] );
 		$codici      = $posted['codici'];
 
 		$sanitized_name = self::sanitize_table_name( $filter_name );

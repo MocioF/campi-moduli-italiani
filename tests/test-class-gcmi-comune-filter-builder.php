@@ -8,12 +8,6 @@ final class GCMI_Comune_Filter_BuilderTest extends WP_Ajax_UnitTestCase {
 	 */
 	private $gcmi_fb;
 	
-	private $html_test_page = "<!DOCTYPE html>\n" .
-		"<html>\n" .
-		"<head><title>A testing html returning methods</title></head>\n" .
-		'<body>%1$s</body>' . // tutta la stringa viene inserita qui
-		"\n</html>";
-	
 	public function set_up() {
 		parent::set_up();
 		require_once 'admin/includes/class-gcmi-comune-filter-builder.php';
@@ -73,10 +67,16 @@ final class GCMI_Comune_Filter_BuilderTest extends WP_Ajax_UnitTestCase {
 	function test_ajax_create_filter( $input, $expectedResult ) {
 		$this->_setRole( 'administrator' );
 		$_POST['_ajax_nonce'] = wp_create_nonce( 'gcmi_fb_nonce' );
-		$_POST['filtername'] = $input['filtername'];
-		$_POST['includi'] = $input['includi'];
-		$_POST['codici'] = $input['codici'];
-		//add_action( 'wp_ajax_gcmi_fb_create_filter' , array( $this->gcmi_fb , 'ajax_create_filter' ) );
+		if ( array_key_exists( 'filtername', $input ) ) {
+			$_POST['filtername'] = $input['filtername'];
+		}
+		if ( array_key_exists( 'includi', $input ) ) {
+			$_POST['includi'] = $input['includi'];
+		}
+		if ( array_key_exists( 'codici', $input ) ) {
+			$_POST['codici'] = $input['codici'];
+		}
+
 		try {
 			$this->_handleAjax( 'gcmi_fb_create_filter' );
 		} catch ( WPAjaxDieContinueException $e ) {
@@ -222,7 +222,6 @@ final class GCMI_Comune_Filter_BuilderTest extends WP_Ajax_UnitTestCase {
 	}
 	
 	/**
-	 * 
 	 * @group ajax
 	 */
 	function test_ajax_get_filters_html(): void {
@@ -343,7 +342,7 @@ final class GCMI_Comune_Filter_BuilderTest extends WP_Ajax_UnitTestCase {
 					'includi' => false,
 					'codici' => ['C076001', 'C076013', 'C076059', 'C076062', 'C076063', 'C076079', 'C076082', 'C076083', 'C076084']
 				] ],
-				3
+				1
 			],
 			[
 				[ [
@@ -386,6 +385,7 @@ final class GCMI_Comune_Filter_BuilderTest extends WP_Ajax_UnitTestCase {
 	
 	/**
 	 * @dataProvider provideUndeletedFilters
+	 * @group private
 	 */
 	function test_get_cod_regioni_in_view( $input, $arrR, $arrP, $arrC ) {
 		$refMethod = self::getMethod('get_cod_regioni_in_view');
@@ -402,6 +402,7 @@ final class GCMI_Comune_Filter_BuilderTest extends WP_Ajax_UnitTestCase {
 	
 	/**
 	 * @dataProvider provideUndeletedFilters
+	 * @group private
 	 */
 	function test_get_cod_province_in_view( $input, $arrR, $arrP, $arrC ) {
 		$refMethod = self::getMethod('get_cod_province_in_view');
@@ -417,6 +418,7 @@ final class GCMI_Comune_Filter_BuilderTest extends WP_Ajax_UnitTestCase {
 	
 	/**
 	 * @dataProvider provideUndeletedFilters
+	 * @group private
 	 */
 	function test_get_cod_comuni_in_view( $input, $arrR, $arrP, $arrC ) {
 		$refMethod = self::getMethod('get_cod_comuni_in_view');
@@ -458,6 +460,7 @@ final class GCMI_Comune_Filter_BuilderTest extends WP_Ajax_UnitTestCase {
 
 	/**
 	 * @dataProvider provideListRegioni
+	 * @group private
 	 */
 	function test_get_list_regioni( $input, $expectedResult ) {
 		$refMethod = self::getMethod('get_list_regioni');
@@ -502,6 +505,7 @@ final class GCMI_Comune_Filter_BuilderTest extends WP_Ajax_UnitTestCase {
 
 	/**
 	 * @dataProvider provideListProvince
+	 * @group private
 	 */
 	function test_get_list_province( $input, $expectedResult ) {
 		$refMethod = self::getMethod('get_list_province');
@@ -549,6 +553,7 @@ final class GCMI_Comune_Filter_BuilderTest extends WP_Ajax_UnitTestCase {
 	
 	/**
 	 * @dataProvider provideListComuni
+	 * @group private
 	 */
 	function test_get_list_comuni( $input, $expectedResult ) {
 		$refMethod = self::getMethod('get_list_comuni');
@@ -601,6 +606,9 @@ final class GCMI_Comune_Filter_BuilderTest extends WP_Ajax_UnitTestCase {
 		];
 	}
 	
+	/**
+	 * @group private
+	 */
 	function test_get_list_filtri(): void {
 		$refMethod = self::getMethod('get_list_filtri');
 		$args = array();
