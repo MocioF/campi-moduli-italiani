@@ -18,14 +18,14 @@
  * @package    campi-moduli-italiani
  * @subpackage campi-moduli-italiani/admin
  */
-class GCMI_comune_filter_builder {
+class GCMI_Comune_Filter_Builder {
 	/**
 	 * Mostra la pagina del filter builder
 	 */
 	public static function show_comune_filter_builder_page(): void {
 		$html  = '<div class="wrap" style="display:flex;align-items:baseline;">';
 		$html .= '<span class="dashicons dashicons-filter"></span>';
-		$html .= '<h1>' . esc_html( __( 'A filter builder for municipalities selections.', 'campi-moduli-italiani' ) ) . '</h1></div>';
+		$html .= '<h1>' . esc_html__( 'A filter builder for municipalities selections.', 'campi-moduli-italiani' ) . '</h1></div>';
 
 		$html .= '<div id="gcmi-fb-dialog" title="Basic dialog">';
 		$html .= '</div>';
@@ -60,10 +60,10 @@ class GCMI_comune_filter_builder {
 		$html .= '<div id="gcmi-fb-tabs-5">';
 		$html .= '</div>';
 
-		$html .= '</div>'; // id="gcmi-fb-tabs
-		$html .= '</div>'; // gcmi-fb-main-container
+		$html .= '</div>';
+		$html .= '</div>';
 
-		echo $html;
+		echo $html; //phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	}
 
 	/**
@@ -79,22 +79,33 @@ class GCMI_comune_filter_builder {
 		check_ajax_referer( 'gcmi_fb_nonce' );
 
 		if ( array_key_exists( 'includi', $_POST ) ) {
-			$includi_cessati = wp_unslash( $_POST['includi'] );
+			$includi = sanitize_text_field( wp_unslash( $_POST['includi'] ) );
+			if ( 'true' === $includi || 'false' === $includi ) {
+				$includi_cessati = $includi;
+			} else {
+				$includi_cessati = 'false';
+			}
 		} else {
 			$includi_cessati = 'false';
 		}
 
+		$filtri_esistenti = self::get_list_filtri();
+
 		if ( array_key_exists( 'filtername', $_POST ) && is_string( $_POST['filtername'] ) ) {
-			$filter_name = self::sanitize_table_name( $_POST['filtername'] );
+			$filter = self::sanitize_table_name( sanitize_key( wp_unslash( $_POST['filtername'] ) ) );
+		} else {
+			$filter = false;
+		}
+		if ( is_string( $filter ) && in_array( $filter, $filtri_esistenti ) ) {
+			$filter_name = $filter;
 		} else {
 			$filter_name = false;
 		}
 
 		if ( false !== $filter_name ) {
-			$view_has_cessati = self::get_use_cessati_in_view( $filter_name );
-			$reg_selected     = self::get_cod_regioni_in_view( $filter_name, $view_has_cessati );
-			$pro_selected     = self::get_cod_province_in_view( $filter_name, $view_has_cessati );
-			$com_selected     = self::get_cod_comuni_in_view( $filter_name, $view_has_cessati );
+			$reg_selected = self::get_cod_regioni_in_view( $filter_name );
+			$pro_selected = self::get_cod_province_in_view( $filter_name );
+			$com_selected = self::get_cod_comuni_in_view( $filter_name );
 		} else {
 			$reg_selected = array();
 			$pro_selected = array();
@@ -178,24 +189,15 @@ class GCMI_comune_filter_builder {
 		$list_not_empty = array_filter(
 			$lista_view_names,
 			static function ( $element ) {
-				return $element !== '';
+				return '' !== $element;
 			}
 		);
-
-		// remove _unfiltered
-		$list = array_filter(
-			$list_not_empty,
-			static function ( $element ) {
-				return $element !== '_unfiltered';
-			}
-		);
-
-		// remove trailing _
+		// remove trailing _ .
 		$list = array_map(
 			function ( $item ) {
 				return trim( $item, '_' );
 			},
-			$list
+			$list_not_empty
 		);
 
 		return $list;
@@ -210,7 +212,7 @@ class GCMI_comune_filter_builder {
 		$response = array(
 			'filters_html' => $html,
 		);
-		wp_send_json( $response );
+		wp_send_json_success( $response );
 	}
 
 	/**
@@ -241,7 +243,7 @@ class GCMI_comune_filter_builder {
 		$html .= '<button value="add new" class="button button-primary gcmi-fb-button gcmi-fb-button-addnew-filter" id="gcmi-fb-addnew-filter">';
 		$html .= '<span class="dashicons dashicons-plus-alt"></span>' . esc_html__( 'Add New', 'campi-moduli-italiani' ) . '</button>';
 		$html .= '</div>';
-		$html .= '</tr></td></tfoot>';
+		$html .= '</td></tr></tfoot>';
 		$html .= '</table>';
 		return $html;
 	}
@@ -260,15 +262,17 @@ class GCMI_comune_filter_builder {
 		$list_regioni = wp_cache_get( $cache_key, GCMI_CACHE_GROUP );
 		if ( false === $list_regioni ) {
 			$list_regioni = $wpdb->get_results(
-				'SELECT DISTINCT CONCAT ("R", `i_cod_regione`) AS `i_cod_regione`, `i_den_regione`, true AS `selected` ' .
-				'FROM `' . GCMI_SVIEW_PREFIX . 'comuni_attuali_unfiltered` WHERE 1',
+				$wpdb->prepare(
+					'SELECT DISTINCT CONCAT ("R", `i_cod_regione`) AS `i_cod_regione`, `i_den_regione`, true AS `selected` ' .
+					'FROM `%1$s` WHERE 1',
+					GCMI_SVIEW_PREFIX . 'comuni_attuali'
+				),
 				OBJECT_K
 			);
 			wp_cache_set( $cache_key, $list_regioni, GCMI_CACHE_GROUP, GCMI_CACHE_EXPIRE_SECS );
 		}
-		/*
-		 * Quando viene passato true dalla chiamata AJAX, diventa una stringa.
-		 */
+
+		// Quando viene passato true dalla chiamata AJAX, diventa una stringa.
 		if ( 'true' === $use_cessati ) {
 			$list_regioni['R70'] = (object) array(
 				'i_cod_regione' => 'R70',
@@ -297,17 +301,17 @@ class GCMI_comune_filter_builder {
 	 */
 	private static function print_regioni( $list_regioni ) {
 
-		$html = '<br><div class="gcmi-fb-regione-container">';
+		$html = '<div class="gcmi-fb-regione-container">';
 
 		foreach ( $list_regioni as $key => $regione ) {
 			$html .= '<div class="gcmi-fb-regione-item">' .
-				'<input type="checkbox" id="fb-gcmi-reg-' . $regione->i_cod_regione . '"' .
-				'name="' . $regione->i_cod_regione . '"' .
+				'<input type="checkbox" id="fb-gcmi-reg-' . $regione->i_cod_regione . '" ' .
+				'name="' . $regione->i_cod_regione . '" ' .
 				'value="' . $regione->i_cod_regione . '"';
 			if ( '1' === $regione->selected ) {
 				$html .= ' checked';
 			}
-			$html .= '><label for="' . $regione->i_cod_regione . '">' . stripslashes( $regione->i_den_regione ) . ' </label>'
+			$html .= '><label for="' . $regione->i_cod_regione . '">' . stripslashes( $regione->i_den_regione ) . '</label>'
 				. '</div>';
 		}
 		$html .= '</div>';
@@ -319,9 +323,9 @@ class GCMI_comune_filter_builder {
 	 * Ottiene la lista delle province presenti nel database
 	 *
 	 * @param string        $use_cessati "true" per usare i cessati.
-	 * @param array<string> $selected
+	 * @param array<string> $selected elenco delle province selezionate.
 	 *
-	 * @return array{string: object{"i_cod_unita_territoriale": string, "i_cod_regione": string, "i_den_unita_territoriale": string, "i_den_regione": string, "selected": string}}
+	 * @return array{string: object{"i_cod_unita_territoriale": string, "i_cod_regione": string, "i_den_unita_territoriale": string, "i_den_regione": string, "selected": string}}|false
 	 */
 	private static function get_list_province( $use_cessati = 'true', $selected = array() ) {
 		global $wpdb;
@@ -329,8 +333,13 @@ class GCMI_comune_filter_builder {
 		$list_province_a = wp_cache_get( $cache_key, GCMI_CACHE_GROUP );
 		if ( false === $list_province_a ) {
 			$list_province_a = $wpdb->get_results(
-				'SELECT DISTINCT CONCAT("P", `i_cod_unita_territoriale`) AS `i_cod_unita_territoriale`, CONCAT("R", `i_cod_regione`) AS `i_cod_regione`, `i_den_unita_territoriale`, `i_den_regione`, true AS `selected` ' .
-				'FROM `' . GCMI_SVIEW_PREFIX . 'comuni_attuali_unfiltered` WHERE 1 ORDER BY `i_cod_unita_territoriale`',
+				$wpdb->prepare(
+					'SELECT DISTINCT CONCAT("P", `i_cod_unita_territoriale`) AS `i_cod_unita_territoriale`, ' .
+					'CONCAT("R", `i_cod_regione`) AS `i_cod_regione`, ' .
+					'`i_den_unita_territoriale`, `i_den_regione`, true AS `selected` ' .
+					'FROM `%1$s` WHERE 1 ORDER BY `i_cod_unita_territoriale`',
+					GCMI_SVIEW_PREFIX . 'comuni_attuali'
+				),
 				OBJECT_K
 			);
 			wp_cache_set( $cache_key, $list_province_a, GCMI_CACHE_GROUP, GCMI_CACHE_EXPIRE_SECS );
@@ -341,11 +350,21 @@ class GCMI_comune_filter_builder {
 			$list_province_s = wp_cache_get( $cache_key, GCMI_CACHE_GROUP );
 			if ( false === $list_province_s ) {
 				$list_province_s = $wpdb->get_results(
-					'SELECT DISTINCT CONCAT( "P", `' . GCMI_SVIEW_PREFIX . 'comuni_soppressi_unfiltered`.`i_cod_unita_territoriale`) AS `i_cod_unita_territoriale`, ' .
-					'CONCAT( "R", `' . GCMI_SVIEW_PREFIX . 'comuni_attuali_unfiltered`.`i_cod_regione`) AS `i_cod_regione`, `' . GCMI_SVIEW_PREFIX . 'comuni_attuali_unfiltered`.`i_den_unita_territoriale`, ' .
-					'`' . GCMI_SVIEW_PREFIX . 'comuni_attuali_unfiltered`.`i_den_regione`, true AS `selected` FROM ' .
-					'`' . GCMI_SVIEW_PREFIX . 'comuni_soppressi_unfiltered` LEFT JOIN `' . GCMI_SVIEW_PREFIX . 'comuni_attuali_unfiltered` ' .
-					'ON `' . GCMI_SVIEW_PREFIX . 'comuni_soppressi_unfiltered`.`i_sigla_automobilistica`=`' . GCMI_SVIEW_PREFIX . 'comuni_attuali_unfiltered`.`i_sigla_automobilistica`',
+					$wpdb->prepare(
+						'SELECT DISTINCT CONCAT( "P", `%1$s`.`i_cod_unita_territoriale`) AS `i_cod_unita_territoriale`, ' .
+						'CONCAT( "R", `%2$s`.`i_cod_regione`) AS `i_cod_regione`, `%3$s`.`i_den_unita_territoriale`, ' .
+						'`%4$s`.`i_den_regione`, true AS `selected` FROM ' .
+						'`%5$s` LEFT JOIN `%6$s` ' .
+						'ON `%7$s`.`i_sigla_automobilistica`=`%8$s`.`i_sigla_automobilistica`',
+						GCMI_SVIEW_PREFIX . 'comuni_soppressi',
+						GCMI_SVIEW_PREFIX . 'comuni_attuali',
+						GCMI_SVIEW_PREFIX . 'comuni_attuali',
+						GCMI_SVIEW_PREFIX . 'comuni_attuali',
+						GCMI_SVIEW_PREFIX . 'comuni_soppressi',
+						GCMI_SVIEW_PREFIX . 'comuni_attuali',
+						GCMI_SVIEW_PREFIX . 'comuni_soppressi',
+						GCMI_SVIEW_PREFIX . 'comuni_attuali'
+					),
 					OBJECT_K
 				);
 				wp_cache_set( $cache_key, $list_province_s, GCMI_CACHE_GROUP, GCMI_CACHE_EXPIRE_SECS );
@@ -381,21 +400,20 @@ class GCMI_comune_filter_builder {
 			$list_province = $list_province_a;
 		}
 
-		// Vengono ordinate per regione.
-		uasort( $list_province, ( array( __CLASS__, 'cmp_regione' ) ) );
 		/**
 		 * Ordino per regione e per ordine alfabetico nella regione.
 		 */
-		
+
+		// Vengono ordinate per regione.
+		uasort( $list_province, ( array( __CLASS__, 'cmp_regione' ) ) );
+
 		$array_temporaneo = array();
-		
 		$array_finale     = array();
 		$regione_corrente = '';
 
 		while ( ! empty( $list_province ) ) {
-			
 			$first_element = array_shift( $list_province );
-			
+
 			// inizializzazione.
 			if ( '' === $regione_corrente ) {
 				$regione_corrente = $first_element->i_den_regione;
@@ -407,16 +425,15 @@ class GCMI_comune_filter_builder {
 			} else {
 				uasort( $array_temporaneo, ( array( __CLASS__, 'cmp_provincia' ) ) );
 
-				$array_finale     = array_merge( $array_finale, $array_temporaneo );
-				
+				$array_finale = array_merge( $array_finale, $array_temporaneo );
+
 				$regione_corrente = $first_element->i_den_regione;
 				$array_temporaneo = array(
-					strval( $first_element->i_cod_unita_territoriale ) =>  $first_element
+					strval( $first_element->i_cod_unita_territoriale ) => $first_element,
 				);
-				//$array_temporaneo[ $index ] = $first_element;
 			}
 		}
-		
+
 		$array_finale = array_merge( $array_finale, $array_temporaneo );
 
 		if ( 0 < count( $selected ) ) {
@@ -428,19 +445,25 @@ class GCMI_comune_filter_builder {
 				}
 			}
 		}
-		return $array_finale;
+		if ( gcmi_is_list_pr_array( $array_finale ) ) {
+			return $array_finale;
+		} else {
+			return false;
+		}
 	}
 
 	/**
 	 * Stampa la lista delle province
 	 *
-	 * @param array{string: object{"i_cod_unita_territoriale": string, "i_cod_regione": string, "i_den_unita_territoriale": string, "i_den_regione": string, "selected": string}} $list_province Array di oggetti restituito da get_list_province (OBJECT_K).
+	 * @param false|array{string: object{"i_cod_unita_territoriale": string, "i_cod_regione": string, "i_den_unita_territoriale": string, "i_den_regione": string, "selected": string}} $list_province Array di oggetti restituito da get_list_province (OBJECT_K).
 	 * @return string
 	 */
 	private static function print_province( $list_province ) {
 		$regione_corrente = '';
-		$html             = '<br><div class="gcmi-fb-province-container">';
-
+		$html             = '<div class="gcmi-fb-province-container">';
+		if ( false === $list_province ) {
+			return '';
+		}
 		while ( ! empty( $list_province ) ) {
 			$first_element = array_shift( $list_province );
 			// inizializzazione.
@@ -460,9 +483,9 @@ class GCMI_comune_filter_builder {
 				$html            .= '</div>';
 			}
 
-			$html .= '<div class="gcmi-fb-provincia-item ' . 'cod-reg-' . $first_element->i_cod_regione . '" >' .
-				'<input type="checkbox" id="fb-gcmi-prov-' . $first_element->i_cod_unita_territoriale . '"' .
-				'name="' . $first_element->i_cod_unita_territoriale . '"' .
+			$html .= '<div class="gcmi-fb-provincia-item cod-reg-' . $first_element->i_cod_regione . '">' .
+				'<input type="checkbox" id="fb-gcmi-prov-' . $first_element->i_cod_unita_territoriale . '" ' .
+				'name="' . $first_element->i_cod_unita_territoriale . '" ' .
 				'value="' . $first_element->i_cod_unita_territoriale . '"';
 			if ( '1' === $first_element->selected ) {
 				$html .= ' checked';
@@ -482,7 +505,7 @@ class GCMI_comune_filter_builder {
 	 * Ottiene la lista dei comuni presenti nel database
 	 *
 	 * @param string        $use_cessati "true" per usare i cessati.
-	 * @param array<string> $selected An array of codici comune
+	 * @param array<string> $selected An array of codici comune.
 	 *
 	 * @return array{string: object{"i_cod_comune": string, "i_cod_unita_territoriale": string, "i_denominazione_full": string, "selected": string}}
 	 */
@@ -493,15 +516,19 @@ class GCMI_comune_filter_builder {
 			$list_comuni_s = wp_cache_get( $cache_key, GCMI_CACHE_GROUP );
 			if ( false === $list_comuni_s ) {
 				$list_comuni_s = $wpdb->get_results(
-					'SELECT `i_cod_comune`, `i_cod_unita_territoriale`, `i_denominazione_full`, true AS `selected` FROM (' .
-					'SELECT CONCAT("C", `i_cod_comune`) AS `i_cod_comune`, CONCAT("P", `i_cod_unita_territoriale`) AS `i_cod_unita_territoriale`, ' .
-					'`i_denominazione_full`, true AS `selected` ' .
-					'FROM `' . GCMI_SVIEW_PREFIX . 'comuni_attuali_unfiltered` ' .
-					'UNION ALL ' .
-					'SELECT CONCAT("C", `i_cod_comune`) AS `i_cod_comune`, CONCAT("P", `i_cod_unita_territoriale`) AS `i_cod_unita_territoriale`, ' .
-					'`i_denominazione_full`, true AS `selected` ' .
-					'FROM `' . GCMI_SVIEW_PREFIX . 'comuni_soppressi_unfiltered` ' .
-					') AS union_comuni ORDER BY `i_denominazione_full`;',
+					$wpdb->prepare(
+						'SELECT `i_cod_comune`, `i_cod_unita_territoriale`, `i_denominazione_full`, true AS `selected` FROM (' .
+						'SELECT CONCAT("C", `i_cod_comune`) AS `i_cod_comune`, CONCAT("P", `i_cod_unita_territoriale`) AS `i_cod_unita_territoriale`, ' .
+						'`i_denominazione_full`, true AS `selected` ' .
+						'FROM `%1$s` ' .
+						'UNION ALL ' .
+						'SELECT CONCAT("C", `i_cod_comune`) AS `i_cod_comune`, CONCAT("P", `i_cod_unita_territoriale`) AS `i_cod_unita_territoriale`, ' .
+						'`i_denominazione_full`, true AS `selected` ' .
+						'FROM `%2$s` ' .
+						') AS union_comuni ORDER BY `i_denominazione_full`;',
+						GCMI_SVIEW_PREFIX . 'comuni_attuali',
+						GCMI_SVIEW_PREFIX . 'comuni_soppressi'
+					),
 					OBJECT_K
 				);
 				wp_cache_set( $cache_key, $list_comuni_s, GCMI_CACHE_GROUP, GCMI_CACHE_EXPIRE_SECS );
@@ -512,9 +539,12 @@ class GCMI_comune_filter_builder {
 			$list_comuni_a = wp_cache_get( $cache_key, GCMI_CACHE_GROUP );
 			if ( false === $list_comuni_a ) {
 				$list_comuni_a = $wpdb->get_results(
-					'SELECT CONCAT("C", `i_cod_comune`) AS `i_cod_comune`, CONCAT("P", `i_cod_unita_territoriale`) AS `i_cod_unita_territoriale`, ' .
-					'`i_denominazione_full`, true AS `selected` ' .
-					'FROM `' . GCMI_SVIEW_PREFIX . 'comuni_attuali_unfiltered` WHERE 1 ORDER BY `i_denominazione_full`',
+					$wpdb->prepare(
+						'SELECT CONCAT("C", `i_cod_comune`) AS `i_cod_comune`, CONCAT("P", `i_cod_unita_territoriale`) AS `i_cod_unita_territoriale`, ' .
+						'`i_denominazione_full`, true AS `selected` ' .
+						'FROM `%1$s` WHERE 1 ORDER BY `i_denominazione_full`',
+						GCMI_SVIEW_PREFIX . 'comuni_attuali'
+					),
 					OBJECT_K
 				);
 				wp_cache_set( $cache_key, $list_comuni_a, GCMI_CACHE_GROUP, GCMI_CACHE_EXPIRE_SECS );
@@ -541,7 +571,7 @@ class GCMI_comune_filter_builder {
 	 */
 	private static function print_comuni( $list_comuni ) {
 		$lettera_corrente = '';
-		$html             = '<br><div class="gcmi-fb-comuni-container">';
+		$html             = '<div class="gcmi-fb-comuni-container">';
 
 		while ( ! empty( $list_comuni ) ) {
 			$first_element = array_shift( $list_comuni );
@@ -560,9 +590,9 @@ class GCMI_comune_filter_builder {
 				$html            .= '<input type="checkbox" id="fb-gcmi-chkallcom-' . stripslashes( $lettera_corrente ) . '" checked></div>';
 			}
 
-			$html .= '<div class="gcmi-fb-comune-item" name="gcmi-com-cod-pro-' . $first_element->i_cod_unita_territoriale . '" >' .
-				'<input type="checkbox" id="fb-gcmi-com-' . $first_element->i_cod_comune . '"' .
-				'name="' . $first_element->i_cod_comune . '"' .
+			$html .= '<div class="gcmi-fb-comune-item" name="gcmi-com-cod-pro-' . $first_element->i_cod_unita_territoriale . '">' .
+				'<input type="checkbox" id="fb-gcmi-com-' . $first_element->i_cod_comune . '" ' .
+				'name="' . $first_element->i_cod_comune . '" ' .
 				'value="' . $first_element->i_cod_comune . '"';
 			if ( '1' === $first_element->selected ) {
 				$html .= ' checked';
@@ -580,7 +610,7 @@ class GCMI_comune_filter_builder {
 	/**
 	 * Stampa la sezione con i pulsanti per salvare il nuovo filtro
 	 *
-	 * @param string $filter_name The name of the filter
+	 * @param string $filter_name The name of the filter.
 	 * @return string
 	 */
 	private static function print_commit_buttons( $filter_name = '' ) {
@@ -616,7 +646,7 @@ class GCMI_comune_filter_builder {
 	 *
 	 * @param array<string> $list_comuni La lista dei comuni selezionati.
 	 * @param bool          $cessati Se crea la WHERE clause per i comuni soppressi.
-	 * @return string|false
+	 * @return string
 	 */
 	private static function create_filter_sql( $list_comuni, $cessati = false ) {
 		global $wpdb;
@@ -637,14 +667,16 @@ class GCMI_comune_filter_builder {
 		$in_string = implode( ',', $cod_comuni );
 
 		$found_codes = $wpdb->get_col(
-			'SELECT `i_cod_comune` FROM ' . GCMI_SVIEW_PREFIX .
-			( $cessati ? 'comuni_soppressi_unfiltered' : 'comuni_attuali_unfiltered' ) . ' WHERE ' .
-			'`i_cod_comune` IN (' . $in_string . ')'
+			$wpdb->prepare(
+				// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+				'SELECT `i_cod_comune` FROM %1$s WHERE `i_cod_comune` IN ( ' . $in_string . ' )',
+				GCMI_SVIEW_PREFIX . ( $cessati ? 'comuni_soppressi' : 'comuni_attuali' )
+			)
 		);
 		if ( 0 < count( $found_codes ) ) {
 			return 'WHERE `i_cod_comune` IN (' . implode( ',', $found_codes ) . ')';
 		} else {
-			return false;
+			return 'WHERE FALSE'; // una view senza nessun record.
 		}
 	}
 
@@ -661,20 +693,19 @@ class GCMI_comune_filter_builder {
 			wp_send_json_error( $error, 422 );
 		}
 
-		$sanitized_name = self::sanitize_table_name( $_POST['filtername'] );
-		$use_cessati    = strval( $_POST['includi'] );
-		$codici         = $_POST['codici'];
-
+		$sanitized_name = self::sanitize_table_name( sanitize_key( wp_unslash( $_POST['filtername'] ) ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotValidated
+		$use_cessati    = strval( sanitize_text_field( wp_unslash( $_POST['includi'] ) ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotValidated
+		$codici         = $_POST['codici']; // phpcs:ignore
 		if ( false !== $sanitized_name ) {
 			$view_result = self::create_view( $sanitized_name, $use_cessati, $codici );
 
 			if ( false === $view_result ) {
 				$error_string = esc_html__( 'The creation of the filter, failed.', 'campi-moduli-italiani' );
-				$error->add( '-7', $error_string );
+				$error->add( '-8', $error_string );
 				wp_send_json_error( $error, 422 );
 			}
 
-			$input_t  = count( $_POST['codici'] );
+			$input_t  = count( $_POST['codici'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotValidated
 			$count_1  = self::count_view_entries( $sanitized_name, false );
 			$count_2  = self::count_view_entries( $sanitized_name, true );
 			$output_t = $count_1 + $count_2;
@@ -685,7 +716,7 @@ class GCMI_comune_filter_builder {
 				'cessati' => $count_2,
 				'num_out' => $output_t,
 			);
-			wp_send_json( $response, 200 );
+			wp_send_json_success( $response, 200 );
 		}
 	}
 
@@ -699,6 +730,7 @@ class GCMI_comune_filter_builder {
 		$error = new WP_Error();
 
 		if (
+			! is_array( $posted ) ||
 			! array_key_exists( 'filtername', $posted ) ||
 			! array_key_exists( 'includi', $posted ) ||
 			! array_key_exists( 'codici', $posted )
@@ -730,39 +762,25 @@ class GCMI_comune_filter_builder {
 			$error->add( '-5', $error_string );
 		}
 
+		if ( false === gcmi_is_one_dimensional_string_array( $codici ) ) {
+			$error_string = esc_html__( 'The array of the codes of the municipalities is invalid.', 'campi-moduli-italiani' );
+			$error->add( '-6', $error_string );
+		}
 		$check_codici = true;
 		foreach ( $codici as $val ) {
-			if ( strlen( $val ) !== 7 ) {
-				$check_codici = false;
-			}
-			if ( 'C' !== mb_substr( $val, 0, 1 ) ) {
-				$check_codici = false;
-			}
-			if ( false === ctype_digit( mb_substr( $val, 1 ) ) ) {
+			if ( ! is_string( $val ) ||
+				strlen( $val ) !== 7 ||
+				'C' !== mb_substr( $val, 0, 1 ) ||
+				false === ctype_digit( mb_substr( $val, 1 ) )
+			) {
 				$check_codici = false;
 			}
 		}
 		if ( false === $check_codici ) {
 			$error_string = esc_html__( 'The array with the codes of the municipalities contains incorrect values.', 'campi-moduli-italiani' );
-			$error->add( '-6', $error_string );
+			$error->add( '-7', $error_string );
 		}
-
 		return $error;
-	}
-
-	/**
-	 * Restituisce true se esiste la view per i comuni cessati
-	 *
-	 * @global type $wpdb
-	 * @param string $filter_name Il nome del filtro.
-	 * @return string
-	 */
-	private static function get_use_cessati_in_view( $filter_name ) {
-		$full_view_name = GCMI_SVIEW_PREFIX . 'comuni_soppressi_' . $filter_name;
-		if ( self::check_view_exists( $full_view_name ) ) {
-			return 'true';
-		}
-		return 'false';
 	}
 
 	/**
@@ -770,17 +788,18 @@ class GCMI_comune_filter_builder {
 	 *
 	 * @global type $wpdb
 	 * @param string $filter_name Il nome del filtro.
-	 * @param string $use_cessati "true" se il filtro utilizza anche i comuni soppressi.
 	 * @return array<string>
 	 */
-	private static function get_cod_regioni_in_view( $filter_name, $use_cessati ) {
+	private static function get_cod_regioni_in_view( $filter_name ) {
 		global $wpdb;
 
 		$lista_regioni_attuali = array_map(
 			'strval',
 			$wpdb->get_col(
-				'SELECT DISTINCT CONCAT ("R", `i_cod_regione`) AS `i_cod_regione` FROM `' .
-				GCMI_SVIEW_PREFIX . 'comuni_attuali_' . $filter_name . '`'
+				$wpdb->prepare(
+					'SELECT DISTINCT CONCAT ("R", `i_cod_regione`) AS `i_cod_regione` FROM `%1$s`',
+					GCMI_SVIEW_PREFIX . 'comuni_attuali_' . $filter_name
+				)
 			)
 		);
 
@@ -791,10 +810,14 @@ class GCMI_comune_filter_builder {
 				array_map(
 					'strval',
 					$wpdb->get_col(
-						'SELECT DISTINCT CONCAT ("R", `i_cod_regione`) AS `i_cod_regione` FROM `' . GCMI_SVIEW_PREFIX . 'comuni_soppressi_' . $filter_name . '` LEFT JOIN `' .
-						GCMI_SVIEW_PREFIX . 'comuni_attuali_unfiltered` ON `' .
-						GCMI_SVIEW_PREFIX . 'comuni_soppressi_' . $filter_name . '`.`i_cod_unita_territoriale` = `' .
-						GCMI_SVIEW_PREFIX . 'comuni_attuali_unfiltered`.`i_cod_unita_territoriale` WHERE 1'
+						$wpdb->prepare(
+							'SELECT DISTINCT CONCAT ("R", `i_cod_regione`) AS `i_cod_regione` FROM `%1$s` LEFT JOIN `%2$s` ON ' .
+							'`%3$s`.`i_cod_unita_territoriale` = `%4$s`.`i_cod_unita_territoriale` WHERE 1',
+							GCMI_SVIEW_PREFIX . 'comuni_soppressi_' . $filter_name,
+							GCMI_SVIEW_PREFIX . 'comuni_attuali',
+							GCMI_SVIEW_PREFIX . 'comuni_soppressi_' . $filter_name,
+							GCMI_SVIEW_PREFIX . 'comuni_attuali'
+						)
 					)
 				)
 			);
@@ -803,14 +826,17 @@ class GCMI_comune_filter_builder {
 				array_map(
 					'strval',
 					$wpdb->get_col(
-						'SELECT DISTINCT `i_cod_unita_territoriale` FROM `' . GCMI_SVIEW_PREFIX . 'comuni_soppressi_' . $filter_name . '`'
+						$wpdb->prepare(
+							'SELECT DISTINCT `i_cod_unita_territoriale` FROM `%1$s`',
+							GCMI_SVIEW_PREFIX . 'comuni_soppressi_' . $filter_name
+						)
 					)
 				)
 			);
 			$filtered         = array_filter(
 				$province_cessati,
 				function ( $pro ) {
-					return $pro[0] === '7';
+					return '7' === $pro[0];
 				}
 			);
 			if ( 0 < count( $filtered ) ) {
@@ -832,16 +858,17 @@ class GCMI_comune_filter_builder {
 	 *
 	 * @global type $wpdb
 	 * @param string $filter_name Il nome del filtro.
-	 * @param string $use_cessati "true" se il filtro utilizza anche i comuni soppressi.
 	 * @return array<string>
 	 */
-	private static function get_cod_province_in_view( $filter_name, $use_cessati ) {
+	private static function get_cod_province_in_view( $filter_name ) {
 		global $wpdb;
 		$lista_province_attuali = array_map(
 			'strval',
 			$wpdb->get_col(
-				'SELECT DISTINCT CONCAT ("P", `i_cod_unita_territoriale`) AS `i_cod_unita_territoriale` FROM `' .
-				GCMI_SVIEW_PREFIX . 'comuni_attuali_' . $filter_name . '`'
+				$wpdb->prepare(
+					'SELECT DISTINCT CONCAT ("P", `i_cod_unita_territoriale`) AS `i_cod_unita_territoriale` FROM `%1$s`',
+					GCMI_SVIEW_PREFIX . 'comuni_attuali_' . $filter_name
+				)
 			)
 		);
 		$lista_province_cessati = array();
@@ -850,8 +877,10 @@ class GCMI_comune_filter_builder {
 			$lista_province_cessati = array_map(
 				'strval',
 				$wpdb->get_col(
-					'SELECT DISTINCT CONCAT ("P", `i_cod_unita_territoriale`) AS `i_cod_unita_territoriale` FROM `' .
-					GCMI_SVIEW_PREFIX . 'comuni_soppressi_' . $filter_name . '`'
+					$wpdb->prepare(
+						'SELECT DISTINCT CONCAT ("P", `i_cod_unita_territoriale`) AS `i_cod_unita_territoriale` FROM `%1$s`',
+						GCMI_SVIEW_PREFIX . 'comuni_soppressi_' . $filter_name
+					)
 				)
 			);
 		}
@@ -870,10 +899,9 @@ class GCMI_comune_filter_builder {
 	 *
 	 * @global type $wpdb
 	 * @param string $filter_name Il nome del filtro.
-	 * @param string $use_cessati "true" se il filtro utilizza anche i comuni soppressi.
 	 * @return array<string>
 	 */
-	private static function get_cod_comuni_in_view( $filter_name, $use_cessati ) {
+	private static function get_cod_comuni_in_view( $filter_name ) {
 		global $wpdb;
 		$lista_comuni_attuali = array();
 		$full_view_name       = GCMI_SVIEW_PREFIX . 'comuni_attuali_' . $filter_name;
@@ -881,8 +909,10 @@ class GCMI_comune_filter_builder {
 			$lista_comuni_attuali = array_map(
 				'strval',
 				$wpdb->get_col(
-					'SELECT DISTINCT CONCAT ("C", `i_cod_comune`) AS `i_cod_comune` FROM `' .
-					GCMI_SVIEW_PREFIX . 'comuni_attuali_' . $filter_name . '`'
+					$wpdb->prepare(
+						'SELECT DISTINCT CONCAT ("C", `i_cod_comune`) AS `i_cod_comune` FROM `%1$s`',
+						GCMI_SVIEW_PREFIX . 'comuni_attuali_' . $filter_name
+					)
 				)
 			);
 		}
@@ -893,8 +923,10 @@ class GCMI_comune_filter_builder {
 			$lista_comuni_cessati = array_map(
 				'strval',
 				$wpdb->get_col(
-					'SELECT DISTINCT CONCAT ("C", `i_cod_comune`) AS `i_cod_comune` FROM `' .
-					GCMI_SVIEW_PREFIX . 'comuni_soppressi_' . $filter_name . '`'
+					$wpdb->prepare(
+						'SELECT DISTINCT CONCAT ("C", `i_cod_comune`) AS `i_cod_comune` FROM `%1$s`',
+						GCMI_SVIEW_PREFIX . 'comuni_soppressi_' . $filter_name
+					)
 				)
 			);
 		}
@@ -923,31 +955,22 @@ class GCMI_comune_filter_builder {
 		global $wpdb;
 
 		$where_clause_attuali = self::create_filter_sql( $codici, false );
-		if ( false === $where_clause_attuali ) { // non è settato nessun filtro per i comuni attuali-
-			$drop_attuali = $wpdb->query(
-				'DROP VIEW IF EXISTS '
-				. GCMI_SVIEW_PREFIX . 'comuni_attuali_' . $viewname
-			);
-			$view_attuali = false;
-		} else {
-			$view_attuali = $wpdb->query(
-				'CREATE OR REPLACE VIEW ' . GCMI_SVIEW_PREFIX . 'comuni_attuali_' . $viewname . ' AS ' .
-				'SELECT * FROM ' . GCMI_SVIEW_PREFIX . 'comuni_attuali_unfiltered ' . $where_clause_attuali
-			);
-		}
-
+		$view_attuali         = $wpdb->query(
+			$wpdb->prepare(
+				'CREATE OR REPLACE VIEW %1$s AS SELECT * FROM %2$s',
+				GCMI_SVIEW_PREFIX . 'comuni_attuali_' . $viewname,
+				GCMI_SVIEW_PREFIX . 'comuni_attuali ' . $where_clause_attuali
+			)
+		);
 		$where_clause_cessati = self::create_filter_sql( $codici, true );
-		if ( false === $where_clause_cessati ) {
-			$drop_cessati   = $wpdb->query(
-				'DROP VIEW IF EXISTS '
-				. GCMI_SVIEW_PREFIX . 'comuni_soppressi_' . $viewname
+		if ( 'true' === $use_cessati ) {
+			$view_soppressi = $wpdb->query(
+				$wpdb->prepare(
+					'CREATE OR REPLACE VIEW %1$s AS SELECT * FROM %2$s',
+					GCMI_SVIEW_PREFIX . 'comuni_soppressi_' . $viewname,
+					GCMI_SVIEW_PREFIX . 'comuni_soppressi ' . $where_clause_cessati
+				)
 			);
-			$view_soppressi = false;
-		} elseif ( 'true' === $use_cessati ) {
-				$view_soppressi = $wpdb->query(
-					'CREATE OR REPLACE VIEW ' . GCMI_SVIEW_PREFIX . 'comuni_soppressi_' . $viewname . ' AS ' .
-					'SELECT * FROM ' . GCMI_SVIEW_PREFIX . 'comuni_soppressi_unfiltered ' . $where_clause_cessati
-				);
 		} else {
 			$view_soppressi = false;
 		}
@@ -970,7 +993,12 @@ class GCMI_comune_filter_builder {
 		global $wpdb;
 		$full_view_name = GCMI_SVIEW_PREFIX . ( $cessati ? 'comuni_soppressi_' : 'comuni_attuali_' ) . $viewname;
 		if ( self::check_view_exists( $full_view_name ) ) {
-			$wpdb->get_col( 'SELECT `i_cod_comune` FROM ' . GCMI_SVIEW_PREFIX . ( $cessati ? 'comuni_soppressi_' : 'comuni_attuali_' ) . $viewname . ' WHERE 1' );
+			$wpdb->get_col(
+				$wpdb->prepare(
+					'SELECT `i_cod_comune` FROM %1$s WHERE 1',
+					GCMI_SVIEW_PREFIX . ( $cessati ? 'comuni_soppressi_' : 'comuni_attuali_' ) . $viewname
+				)
+			);
 			return $wpdb->num_rows;
 		} else {
 			return 0;
@@ -981,7 +1009,7 @@ class GCMI_comune_filter_builder {
 	 * Return true if a view exists in the database
 	 *
 	 * @global type $wpdb
-	 * @param string $full_view_name The full name of the view
+	 * @param string $full_view_name The full name of the view.
 	 * @return bool
 	 */
 	private static function check_view_exists( $full_view_name ) {
@@ -1013,13 +1041,12 @@ class GCMI_comune_filter_builder {
 		if ( $viewname !== $viewname_raw ) {
 			return false;
 		}
-		if ( $viewname === 'unfiltered' ) { // non eliminare le view non filtrate.
-			return false;
-		}
 		$dropped = $wpdb->query(
-			'DROP VIEW IF EXISTS '
-			. GCMI_SVIEW_PREFIX . 'comuni_attuali_' . $viewname . ', '
-			. GCMI_SVIEW_PREFIX . 'comuni_soppressi_' . $viewname
+			$wpdb->prepare(
+				'DROP VIEW IF EXISTS %1$s, %2$s',
+				GCMI_SVIEW_PREFIX . 'comuni_attuali_' . $viewname,
+				GCMI_SVIEW_PREFIX . 'comuni_soppressi_' . $viewname
+			)
 		);
 		return $dropped;
 	}
@@ -1029,14 +1056,26 @@ class GCMI_comune_filter_builder {
 	 */
 	public static function ajax_delete_filter(): void {
 		check_ajax_referer( 'gcmi_fb_nonce' );
-		$filter_name = $_POST['filtername'];
+
+		if ( ! isset( $_POST['filtername'] ) ) {
+			/* translators: %s: The name of the filter for which elimination failed */
+			$error_string = esc_html__( 'No filter name sent.', 'campi-moduli-italiani' );
+			$status_code  = 422;
+			$error        = new WP_Error( '-9', $error_string );
+			wp_send_json_error(
+				$error,
+				$status_code
+			);
+		}
+
+		$filter_name = sanitize_key( wp_unslash( $_POST['filtername'] ) );
 
 		$delete = self::delete_filter( $filter_name );
 		if ( true === $delete ) {
 			$response = array(
 				'deleted_view' => $filter_name,
 			);
-			wp_send_json(
+			wp_send_json_success(
 				$response,
 				200
 			);
@@ -1067,28 +1106,26 @@ class GCMI_comune_filter_builder {
 	 *
 	 * @credits https://plugins.trac.wordpress.org/browser/easy-digital-downloads/trunk/includes/database/engine/class-base.php
 	 *
-	 * @param string $name The name of the database table
+	 * @param string $name The name of the database table.
 	 *
 	 * @return string|false Sanitized database table name
 	 */
 	protected static function sanitize_table_name( $name = '' ) {
-		// Bail if empty or not a string
+		// Bail if empty or not a string.
 		if ( empty( $name ) || ! is_string( $name ) ) {
 			return false;
 		}
 		$unspace = trim( $name ); // Trim spaces off the ends.
 		$accents = remove_accents( $unspace ); // Only non-accented table names (avoid truncation).
-		$lower   = sanitize_key( $accents ); // Only lowercase characters, hyphens, and dashes (avoid index corruption)
-		$under   = str_replace( '-', '_', $lower ); // Replace hyphens with single underscores
-		$single  = str_replace( '__', '_', $under ); // Single underscores only
-		$clean   = trim( $single, '_' ); // Remove trailing underscores
+		$lower   = sanitize_key( $accents ); // Only lowercase characters, hyphens, and dashes (avoid index corruption).
+		$under   = str_replace( '-', '_', $lower ); // Replace hyphens with single underscores.
+		$single  = str_replace( '__', '_', $under ); // Single underscores only.
+		$clean   = trim( $single, '_' ); // Remove trailing underscores.
 		// Bail if table name was garbaged.
 		if ( empty( $clean ) ) {
 			return false;
 		}
-		if ( 'unfiltered' === $clean ) {
-			return false;
-		}
+
 		// Return the cleaned table name.
 		return $clean;
 	}
@@ -1096,8 +1133,8 @@ class GCMI_comune_filter_builder {
 	/**
 	 * Function to sort the array of objects regione
 	 *
-	 * @param object{"i_den_regione": string } $a Un oggetto di uno degli array dei tipi restituiti da get_list_regioni o get_list_province
-	 * @param object{"i_den_regione": string } $b Un oggetto di uno degli array dei tipi restituiti da get_list_regioni o get_list_province
+	 * @param object{"i_den_regione": string } $a Un oggetto di uno degli array dei tipi restituiti da get_list_regioni o get_list_province.
+	 * @param object{"i_den_regione": string } $b Un oggetto di uno degli array dei tipi restituiti da get_list_regioni o get_list_province.
 	 * @return integer
 	 */
 	private static function cmp_regione( $a, $b ) {

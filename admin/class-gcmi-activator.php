@@ -241,19 +241,79 @@ class GCMI_Activator {
 			die;
 		}
 
-		if ( true === $network_wide ) {
-			if ( false === self::gcmi_tables_exist() ) {
-				self::single_activate();
-			}
-		} elseif ( true === is_multisite() ) {
-			if ( false === self::gcmi_tables_exist() ) {
-				self::single_activate();
-			}
-		} else {
-			self::single_activate();
+		// se non esistono le tabelle, qualunque sia il tipo di attivazione le creo.
+		if ( false === self::gcmi_tables_exist() ) {
+			self::create_all_tables();
+			self::$activator_options['gcmi_last_update_check']['value'] = time();
+			self::set_gcmi_options();
 		}
+		if ( function_exists( 'is_multisite' ) && is_multisite() ) { // le unfiltered view servono solo in caso di multisite.
+			if ( true === $network_wide ) {
+				// se è un'attivazione network wide creo le unfiltered view su tutti i blog, tranne che sul primo.
+				$sites = self::get_sites_array();
+				if ( 0 === count( $sites ) ) {
+					// devo dare errore, perché nessuna attivazione è possibile network wide in una rete troppo grande.
+					$error_network_wide = new WP_Error();
+					$error_code         = 'gcmi_activation_network_wide_error';
+					$error_title        = __( 'Error on network wide activation', 'campi-moduli-italiani' );
+					$error_message      = '<h1>' . $error_title . '</h1>' . __( 'Unable to activate the plugin network wide: the network is too big.', 'campi-moduli-italiani' );
+					$error_network_wide->add( $error_code, $error_message );
+					gcmi_show_error( $error_network_wide );
+					die;
+				} else {
+					foreach ( $sites as $site ) {
+						switch_to_blog( intval( $site->blog_id ) );
+						if ( false === is_main_site() ) {
+							gcmi_create_unfiltered_views();
+						}
+						self::create_gcmi_cron_job();
+						restore_current_blog();
+					}
+				}
+			} else { // multi installazione, attivazione singola.
+				if ( false === is_main_site() ) {
+					// le creo solo su questo blog, se non è il primo.
+					gcmi_create_unfiltered_views();
+				}
+				self::create_gcmi_cron_job();
+			}
+		} else { // is a single activation.
+			self::create_gcmi_cron_job();
+		}
+	}
 
-		gcmi_create_unfiltered_views();
+	/**
+	 * Get an array of sites
+	 *
+	 * Returns an array of WP_Site objects or
+	 * an empty_array if the installation is considered "large"
+	 * via wp_is_large_network()
+	 *
+	 * @return array<WP_Site>
+	 */
+	public static function get_sites_array() {
+		if ( function_exists( 'get_sites' ) && class_exists( 'WP_Site_Query' ) ) {
+			$args  = array(
+				'orderby' => 'id',
+				'order'   => 'asc',
+			);
+			$sites = get_sites( $args );
+		} else {
+			// WP < 4.6; however it is unsupported.
+			$sites_arr = wp_get_sites(); // phpcs:ignore WordPress.WP.DeprecatedFunctions.wp_get_sitesFound
+			$sites     = array();
+			foreach ( $sites_arr as $site_vars ) {
+				$encoded = wp_json_encode( $site_vars );
+				if ( false !== $encoded ) {
+					$obj = json_decode( $encoded, false );
+					if ( is_object( $obj ) ) {
+						$site    = new \WP_Site( $obj );
+						$sites[] = $site;
+					}
+				}
+			}
+		}
+		return $sites;
 	}
 
 	/**
@@ -278,7 +338,14 @@ class GCMI_Activator {
 	 */
 	private static function gcmi_table_exists( $table_name ) {
 		global $wpdb;
-		if ( strval( $wpdb->get_var( "SHOW TABLES LIKE '$table_name'" ) ) !== $table_name ) {
+		if ( strval(
+			$wpdb->get_var(
+				$wpdb->prepare(
+					'SHOW TABLES LIKE %s',
+					$table_name
+				)
+			) !== $table_name
+		) ) {
 			return false;
 		} else {
 			return true;
@@ -294,7 +361,7 @@ class GCMI_Activator {
 	 * @since 1.0.0
 	 * @return void
 	 */
-	public static function single_activate(): void {
+	public static function create_all_tables(): void {
 		global $wpdb;
 		global $gcmi_error;
 
@@ -307,9 +374,9 @@ class GCMI_Activator {
 		 */
 		$download_temp_dir = self::make_tmp_dwld_dir();
 		if ( false === $download_temp_dir ) {
-			$error_code    = ( 'gcmi_make_tmp_dir_error' );
-			$error_title   = __( 'Error creating download directory', 'campi-moduli-italiani' );
-			$error_message = '<h1>' . $error_title . '</h1>' . __( 'Unable to create temporary download directory', 'campi-moduli-italiani' );
+			$error_code    = 'gcmi_make_tmp_dir_error';
+			$error_title   = esc_html__( 'Error creating download directory', 'campi-moduli-italiani' );
+			$error_message = '<h1>' . $error_title . '</h1>' . esc_html__( 'Unable to create temporary download directory', 'campi-moduli-italiani' );
 			$gcmi_error->add( $error_code, $error_message );
 			gcmi_show_error( $gcmi_error );
 			die;
@@ -330,7 +397,7 @@ class GCMI_Activator {
 					self::$database_file_info[ $i ]['downd_name']
 				);
 				if ( is_wp_error( $response ) ) {
-					$error_code = ( 'gcmi_download_error' );
+					$error_code = 'gcmi_download_error';
 					/* translators: %s: the remote URL of the file to be downloaded */
 					$error_message = esc_html( sprintf( __( 'Could not download %s', 'campi-moduli-italiani' ), self::$database_file_info[ $i ]['remote_URL'] ) );
 					$response->add( $error_code, $error_message );
@@ -345,7 +412,7 @@ class GCMI_Activator {
 					$lm_date_formatted = wp_remote_retrieve_header( $response, 'last-modified' );
 
 					// nel caso in cui $response sia un array contenente lo sterr di wget.
-					if ( '' === $lm_date_formatted && array_key_exists( 0, $response ) ) {
+					if ( '' === $lm_date_formatted && gcmi_is_one_dimensional_string_array( $response ) ) {
 						$headers_array = array_map( 'strtolower', $response );
 						foreach ( $headers_array as $line ) {
 							if ( strpos( $line, 'last-modified' ) !== false ) {
@@ -461,21 +528,8 @@ class GCMI_Activator {
 			}
 		}
 
-		/**
-		 * I remove temporary directory.
-		 */
+		// Remove temporary directory.
 		self::delete_dir( $download_temp_dir );
-
-		/**
-		 * I set the cron job.
-		 */
-		self::create_gcmi_cron_job();
-
-		/**
-		 * Set activation options.
-		 */
-		self::$activator_options['gcmi_last_update_check']['value'] = time();
-		self::set_gcmi_options();
 	}
 
 	/**
@@ -488,81 +542,100 @@ class GCMI_Activator {
 	 * @return void
 	 */
 	public static function deactivate( $network_wide ) {
-		if ( false === is_multisite() ) {
-			self::single_deactivate();
-		} elseif ( true === $network_wide ) {
-			if ( false === self::gcmi_check_if_single_activated() ) {
-				self::single_deactivate();
+		if ( function_exists( 'is_multisite' ) && is_multisite() ) { // le unfiltered view servono solo in caso di multisite.
+			$sites             = self::get_sites_array();
+			$plugin            = GCMI_PLUGIN_BASENAME;
+			$attivo_su_singolo = self::gcmi_check_if_single_activated( $sites );
+
+			if ( true === $network_wide ) {
+				// se è una disattivazione network wide elimino tutte le views e tutte le table.
+				if ( 0 === count( $sites ) ) {
+					// devo dare errore, perché nessuna attivazione è possibile network wide in una rete troppo grande.
+					$error_network_wide = new WP_Error();
+					$error_code         = 'gcmi_deactivation_network_wide_error';
+					$error_title        = __( 'Error on network wide deactivation', 'campi-moduli-italiani' );
+					$error_message      = '<h1>' . $error_title . '</h1>' . __( 'Unable to deactivate the plugin network wide: the network is too big.', 'campi-moduli-italiani' );
+					$error_network_wide->add( $error_code, $error_message );
+					gcmi_show_error( $error_network_wide );
+					return;
+				} else {
+					foreach ( $sites as $site ) {
+						switch_to_blog( intval( $site->blog_id ) );
+						if ( false === in_array( $plugin, (array) get_option( 'active_plugins', array() ), true ) ) {
+							// Se non è attivato localmente, elimino le views e il cron_job.
+							gcmi_delete_all_views();
+							self::destroy_gcmi_cron_job();
+						}
+						restore_current_blog();
+					}
+					// se non è attivato su nessun sito singolo, elimino le tabelle e le opzioni.
+					if ( false === $attivo_su_singolo ) {
+						self::unset_gcmi_options();
+					}
+				}
+			} else { // è una disattivazione singola, non devo distruggere le tabelle, nel caso in cui il plugin sia attivo su qualche sito.
+				gcmi_delete_all_views();
+				self::destroy_gcmi_cron_job();
+
+				// controllo se almeno su un sito il plugin è attivo.
+				if ( false === $attivo_su_singolo ) {
+					// se non lo è, elimino le tabelle.
+					self::unset_gcmi_options();
+				}
 			}
+		} else { // non è multisite.
+			gcmi_delete_all_views();
+			self::single_deactivate();
+		}
+	}
+
+	/**
+	 * Deletes all the tables from the database
+	 *
+	 * @return void
+	 */
+	public static function delete_all_tables(): void {
+		$num_tables = count( self::$database_file_info );
+		for ( $i = 0; $i < $num_tables; $i++ ) {
+			self::drop_table( self::$database_file_info[ $i ]['name'], self::$database_file_info[ $i ]['table_name'] );
 		}
 	}
 
 	/**
 	 * Checks if the plugin is activated on at least one blog.
 	 *
+	 * @param array<WP_Site> $sites I siti dell'istallazione.
 	 * @return boolean
 	 */
-	private static function gcmi_check_if_single_activated() {
+	private static function gcmi_check_if_single_activated( $sites ) {
 		if ( false === is_multisite() ) {
 			return false;
 		}
+		$plugin = GCMI_PLUGIN_BASENAME;
+		foreach ( $sites as $site ) {
+			switch_to_blog( intval( $site->blog_id ) );
 
-		if ( function_exists( 'get_sites' ) && class_exists( 'WP_Site_Query' ) ) {
-			$args  = array(
-				'orderby' => 'id',
-				'order'   => 'asc',
-			);
-			$sites = get_sites( $args );
-		} else {
-			// WP < 4.6; however it is unsupported.
-			$sites = wp_get_sites(); // phpcs:ignore WordPress.WP.DeprecatedFunctions.wp_get_sitesFound
-		}
-		if ( is_iterable( $sites ) && ! empty( $sites ) ) {
-			foreach ( $sites as $site ) {
-				if ( is_object( $site ) && ( isset( $site->blog_id ) ) ) {
-					switch_to_blog( $site->blog_id );
-				} else {
-					switch_to_blog( $site['blog_id'] );
-				}
-
-				$plugin = 'campi-moduli-italiani/campi-moduli-italiani.php';
-
-				/*
-				 * just check if the plugin is enabled in a single site
-				 * (it can happen, it was enabled before a network activation occurred)
-				 *
-				 */
-				if ( in_array( $plugin, (array) get_option( 'active_plugins', array() ), true ) ) {
-					return true;
-				}
-				restore_current_blog();
+			/*
+			 * just check if the plugin is enabled in a single site
+			 * (it can happen, it was enabled before a network activation occurred)
+			 *
+			 */
+			if ( in_array( $plugin, (array) get_option( 'active_plugins', array() ), true ) ) {
+				return true;
 			}
+			restore_current_blog();
 		}
 		return false;
 	}
 
 	/**
-	 * Disables the plugin.
-	 *
-	 * Deletes the tables from the database, removes all views and disables the cronjob.
+	 * Deletes options and cronjob
 	 *
 	 * @since 1.0.0
 	 * @return void
 	 */
 	public static function single_deactivate(): void {
-		
-		self::drop_views();
-		
-		$num_tables = count( self::$database_file_info );
-		for ( $i = 0; $i < $num_tables; $i++ ) {
-			self::drop_table( self::$database_file_info[ $i ]['name'], self::$database_file_info[ $i ]['table_name'] );
-		}
-
 		self::unset_gcmi_options();
-
-		/**
-		 * I remove the cronjob
-		 */
 		self::destroy_gcmi_cron_job();
 	}
 
@@ -579,7 +652,7 @@ class GCMI_Activator {
 		$upload_dir      = wp_upload_dir();
 		$permitted_chars = '0123456789abcdefghijklmnopqrstuvwxyz';
 		$tmp_dir         = $upload_dir['basedir'] . '/wp_gcmi_' . substr( str_shuffle( $permitted_chars ), 0, 10 ) . '/';
-		if ( ! mkdir( "$tmp_dir" ) ) {
+		if ( ! wp_mkdir_p( "$tmp_dir" ) ) {
 			return false;
 		} else {
 			return $tmp_dir;
@@ -596,11 +669,10 @@ class GCMI_Activator {
 	 * @param string $remoteurl    Remote URL of the data file.
 	 * @param string $tmp_dwld_dir URL of local created tmp directory.
 	 * @param string $filename     Local file name for downloaded file.
-	 * @return array|WP_Error
+	 * @return array<string>|array{headers: \WpOrg\Requests\Utility\CaseInsensitiveDictionary, body: string, response: array{code: int,message: string}, cookies: array<int, \WP_Http_Cookie>, filename: string|null, http_response: \WP_HTTP_Requests_Response}|\WP_Error
 	 */
 	public static function download_file( $remoteurl, $tmp_dwld_dir, $filename ) {
 		global $gcmi_error;
-		$gcmi_error = new WP_Error();
 
 		if ( ! function_exists( 'download_url' ) ) {
 			include_once ABSPATH . '/wp-admin/includes/file.php';
@@ -608,12 +680,13 @@ class GCMI_Activator {
 		$path = wp_parse_url( $remoteurl, PHP_URL_PATH );
 
 		if ( ! is_string( $path ) ) {
+			$gcmi_error = new WP_Error();
 			$error_code = 'gcmi_wrong_url';
 			// translators: %s is a path to a file.
 			$error_message = esc_html( sprintf( __( 'Invalid path: %s', 'campi-moduli-italiani' ), $remoteurl ) );
 			$gcmi_error->add( $error_code, $error_message );
 			gcmi_show_error( $gcmi_error );
-			die;
+			return $gcmi_error;
 		}
 
 		$url_filename = basename( $path );
@@ -629,37 +702,69 @@ class GCMI_Activator {
 		$response = wp_remote_get( $remoteurl, $args );
 
 		if ( is_wp_error( $response ) ) {
-			unlink( $tmpfname );
+			wp_delete_file( $tmpfname );
+			$wget_attempt = self::download_via_wget( $remoteurl, $tmp_dwld_dir, $filename );
+			return $wget_attempt; // o WP_Error o un array di stringhe.
 		} else {
 			$dest_file = $tmp_dwld_dir . '/' . $filename;
 			copy( $tmpfname, $dest_file );
-			unlink( $tmpfname );
+			wp_delete_file( $tmpfname );
+			return $response;
 		}
+	}
+
+	/**
+	 * Get wget command line
+	 *
+	 * @return string|\WP_Error
+	 */
+	private static function get_wget_command() {
+		$wget_command = exec( 'which wget' );
+		if ( false !== $wget_command && 'which:' !== substr( $wget_command, 0, 6 ) ) {
+			return $wget_command;
+		}
+		$error = new WP_Error();
+		$error->add( 'wget', esc_html( sprintf( __( 'Unable to find wget command', 'campi-moduli-italiani' ) ) ) );
+		return $error;
+	}
+
+	/**
+	 * Attemtps to download file using system wget
+	 *
+	 * @param string $remoteurl The remote url.
+	 * @param string $tmp_dwld_dir The temporary download dir.
+	 * @param string $filename The file name.
+	 * @return \WP_Error|array<string>
+	 */
+	private static function download_via_wget( $remoteurl, $tmp_dwld_dir, $filename ) {
 		// tentativo di scaricare i file tramite wget.
-		if ( is_wp_error( $response ) ) {
-			$wget_command = exec( 'which wget' );
-			if ( false !== $wget_command && 'which:' !== substr( $wget_command, 0, 6 ) ) {
-				$dwl_command = "$wget_command $remoteurl -O $tmp_dwld_dir" . "$filename";
-				$wget_res    = exec( $dwl_command );
-				$size        = filesize( "$tmp_dwld_dir" . "$filename" );
-				if ( 0 === $size ) {
-					// translators: %s is the remote url of a file.
-					$response->add( 'wget', esc_html( sprintf( __( 'Unable to download %s via wget', 'campi-moduli-italiani' ), $remoteurl ) ) );
-					unlink( "$tmp_dwld_dir" . "$filename" );
-				} else {
-					$dwl_command = "$wget_command --server-response -qO /dev/null $remote_file_url 2>&1";
-					exec( $dwl_command, $wget_res );
-					if ( false === $wget_res ) {
-						return false;
-					} else {
-						return $wget_res;
-					}
-				}
+		$wget_command = self::get_wget_command();
+		$dwd_file     = $tmp_dwld_dir . $filename;
+		if ( ! is_wp_error( $wget_command ) ) {
+			$dwl_command = "$wget_command $remoteurl -O $dwd_file";
+			$wget_res    = exec( $dwl_command );
+			$size        = filesize( $dwd_file );
+			if ( 0 === $size ) {
+				$error = new WP_Error();
+				// translators: %s is the remote url of a file.
+				$error->add( 'wget', esc_html( sprintf( __( 'Unable to download %s via wget', 'campi-moduli-italiani' ), $remoteurl ) ) );
+				wp_delete_file( $dwd_file );
+				return $error;
 			} else {
-				$response->add( 'wget', esc_html( sprintf( __( 'Unable to find wget command', 'campi-moduli-italiani' ) ) ) );
+				$dwl_command = "$wget_command --server-response -qO /dev/null $remoteurl 2>&1";
+				exec( $dwl_command, $wget_res );
+				$status = explode( ' ', $wget_res[0] )[1];
+				if ( '200' !== $status ) {
+					$error = new WP_Error();
+					$error->add( 'wget status:' . $status, esc_html( sprintf( __( 'Unable to download via wget', 'campi-moduli-italiani' ) ) ) );
+					return $error;
+				} else {
+					return $wget_res;
+				}
 			}
+		} else {
+			return $wget_command;
 		}
-		return $response;
 	}
 
 	/**
@@ -675,6 +780,7 @@ class GCMI_Activator {
 			if ( false === is_multisite() ) {
 				update_option( $key, $value['value'], $value['autoload'] );
 			} else {
+				// opzione settata per tutta la rete.
 				update_site_option( $key, $value['value'] );
 			}
 		}
@@ -753,133 +859,173 @@ class GCMI_Activator {
 			return false;
 		}
 
-		$structure = "DROP TABLE IF EXISTS $table";
-		$wpdb->query( $structure );
+		$wpdb->query(
+			$wpdb->prepare(
+				'DROP TABLE IF EXISTS %1$s',
+				$table
+			)
+		);
 
 		$charset_collate = $wpdb->get_charset_collate();
-
+		$res             = false;
 		switch ( $name ) {
 			case 'comuni_attuali':
-				$structure = "CREATE TABLE IF NOT EXISTS $table (
-				id INT(11) NOT NULL AUTO_INCREMENT,
-				i_cod_regione char(2) NOT NULL,
-				i_cod_unita_territoriale char(3) NOT NULL,
-				i_cod_provincia_storico char(3) NOT NULL,
-				i_prog_comune char(3) NOT NULL,
-				i_cod_comune char(6) NOT NULL,
-				i_denominazione_full varchar(255) NOT NULL,
-				i_denominazione_ita varchar(255) NOT NULL,
-				i_denominazione_altralingua varchar(255) NULL,
-				i_cod_ripartizione_geo TINYINT(1) NOT NULL,
-				i_ripartizione_geo varchar(20) NOT NULL,
-				i_den_regione varchar(50) NOT NULL,
-				i_den_unita_territoriale varchar(255) NOT NULL,
-				i_cod_tipo_unita_territoriale TINYINT(1) NOT NULL,
-				i_flag_capoluogo TINYINT(1) NOT NULL,
-				i_sigla_automobilistica varchar(10) NOT NULL,
-				i_cod_comune_num int(6) NOT NULL,
-				i_cod_comune_num_2010_2016 int(6) NOT NULL,
-				i_cod_comune_num_2006_2009 int(6) NOT NULL,
-				i_cod_comune_num_1995_2005 int(6) NOT NULL,
-				i_cod_catastale char(4) NOT NULL,
-				i_nuts1 char(3) NOT NULL,
-				i_nuts23 char(4) NOT NULL,
-				i_nuts3 char(5) NOT NULL,
-				PRIMARY KEY (id),
-				INDEX `i_cod_comune` (`i_cod_comune`)
-				) $charset_collate";
+				$res = $wpdb->query(
+					$wpdb->prepare(
+						'CREATE TABLE IF NOT EXISTS %1$s ( ' .
+						'id INT(11) NOT NULL AUTO_INCREMENT, ' .
+						'i_cod_regione char(2) NOT NULL, ' .
+						'i_cod_unita_territoriale char(3) NOT NULL, ' .
+						'i_cod_provincia_storico char(3) NOT NULL, ' .
+						'i_prog_comune char(3) NOT NULL, ' .
+						'i_cod_comune char(6) NOT NULL, ' .
+						'i_denominazione_full varchar(255) NOT NULL, ' .
+						'i_denominazione_ita varchar(255) NOT NULL, ' .
+						'i_denominazione_altralingua varchar(255) NULL, ' .
+						'i_cod_ripartizione_geo TINYINT(1) NOT NULL, ' .
+						'i_ripartizione_geo varchar(20) NOT NULL, ' .
+						'i_den_regione varchar(50) NOT NULL, ' .
+						'i_den_unita_territoriale varchar(255) NOT NULL, ' .
+						'i_cod_tipo_unita_territoriale TINYINT(1) NOT NULL, ' .
+						'i_flag_capoluogo TINYINT(1) NOT NULL, ' .
+						'i_sigla_automobilistica varchar(10) NOT NULL, ' .
+						'i_cod_comune_num int(6) NOT NULL, ' .
+						'i_cod_comune_num_2010_2016 int(6) NOT NULL, ' .
+						'i_cod_comune_num_2006_2009 int(6) NOT NULL, ' .
+						'i_cod_comune_num_1995_2005 int(6) NOT NULL, ' .
+						'i_cod_catastale char(4) NOT NULL, ' .
+						'i_nuts1 char(3) NOT NULL, ' .
+						'i_nuts23 char(4) NOT NULL, ' .
+						'i_nuts3 char(5) NOT NULL, ' .
+						'PRIMARY KEY (id), ' .
+						'INDEX `i_cod_comune` (`i_cod_comune`) ' .
+						') %2$s',
+						$table,
+						$charset_collate
+					)
+				);
 				break;
 
 			case 'comuni_soppressi':
-				$structure = "CREATE TABLE IF NOT EXISTS $table (
-				id INT(11) NOT NULL AUTO_INCREMENT,
-				i_anno_var YEAR(4) NOT NULL,
-				i_sigla_automobilistica varchar(10) NOT NULL,
-				i_cod_unita_territoriale char(3) NOT NULL,
-				i_cod_comune char(6) NOT NULL,
-				i_denominazione_full varchar(255) NOT NULL,
-				i_cod_scorporo char(1) NULL,
-				i_data_variazione DATE NULL,
-				i_cod_comune_nuovo char(6) NULL,
-				i_denominazione_nuovo varchar(255) NULL,
-				i_cod_unita_territoriale_nuovo char(3) NULL,
-				i_sigla_automobilistica_nuovo varchar(10) NULL,
-				PRIMARY KEY (id),
-				INDEX `i_cod_comune` (`i_cod_comune`)
-				) $charset_collate";
+				$res = $wpdb->query(
+					$wpdb->prepare(
+						'CREATE TABLE IF NOT EXISTS %1$s ( ' .
+						'id INT(11) NOT NULL AUTO_INCREMENT, ' .
+						'i_anno_var YEAR(4) NOT NULL, ' .
+						'i_sigla_automobilistica varchar(10) NOT NULL, ' .
+						'i_cod_unita_territoriale char(3) NOT NULL, ' .
+						'i_cod_comune char(6) NOT NULL, ' .
+						'i_denominazione_full varchar(255) NOT NULL, ' .
+						'i_cod_scorporo char(1) NULL, ' .
+						'i_data_variazione DATE NULL, ' .
+						'i_cod_comune_nuovo char(6) NULL, ' .
+						'i_denominazione_nuovo varchar(255) NULL, ' .
+						'i_cod_unita_territoriale_nuovo char(3) NULL, ' .
+						'i_sigla_automobilistica_nuovo varchar(10) NULL, ' .
+						'PRIMARY KEY (id), ' .
+						'INDEX `i_cod_comune` (`i_cod_comune`) ' .
+						') %2$s',
+						$table,
+						$charset_collate
+					)
+				);
 				break;
 
 			case 'comuni_variazioni':
-				$structure = "CREATE TABLE IF NOT EXISTS $table (
-				id INT(11) NOT NULL AUTO_INCREMENT,
-				i_anno_var YEAR(4) NOT NULL,
-				i_tipo_var varchar(4) NOT NULL,
-				i_cod_regione char(2) NOT NULL,
-				i_cod_unita_territoriale char(3) NOT NULL,
-				i_cod_comune char(6) NOT NULL,
-				i_denominazione_full varchar(255) NOT NULL,
-				i_cod_regione_nuovo char(2) NOT NULL,
-				i_cod_unita_territoriale_nuovo char(3) NOT NULL,
-				i_cod_comune_nuovo char(6) NOT NULL,
-				i_denominazione_nuovo varchar(255) NOT NULL,
-				i_documento TINYTEXT NULL,
-				i_contenuto TINYTEXT NULL,
-				i_data_decorrenza DATE NULL,
-				i_cod_flag_note char(1) NULL,
-				PRIMARY KEY (id)
-				) $charset_collate";
+				$res = $wpdb->query(
+					$wpdb->prepare(
+						'CREATE TABLE IF NOT EXISTS %1$s ( ' .
+						'id INT(11) NOT NULL AUTO_INCREMENT, ' .
+						'i_anno_var YEAR(4) NOT NULL, ' .
+						'i_tipo_var varchar(4) NOT NULL, ' .
+						'i_cod_regione char(2) NOT NULL, ' .
+						'i_cod_unita_territoriale char(3) NOT NULL, ' .
+						'i_cod_comune char(6) NOT NULL, ' .
+						'i_denominazione_full varchar(255) NOT NULL, ' .
+						'i_cod_regione_nuovo char(2) NOT NULL, ' .
+						'i_cod_unita_territoriale_nuovo char(3) NOT NULL, ' .
+						'i_cod_comune_nuovo char(6) NOT NULL, ' .
+						'i_denominazione_nuovo varchar(255) NOT NULL, ' .
+						'i_documento TINYTEXT NULL, ' .
+						'i_contenuto TINYTEXT NULL, ' .
+						'i_data_decorrenza DATE NULL, ' .
+						'i_cod_flag_note char(1) NULL, ' .
+						'PRIMARY KEY (id) ' .
+						') %2$s',
+						$table,
+						$charset_collate
+					)
+				);
 				break;
 
 			case 'codici_catastali':
-				$structure = "CREATE TABLE IF NOT EXISTS $table (
-				id INT(11) NOT NULL AUTO_INCREMENT,
-				i_cod_catastale char(4) NOT NULL,
-				i_denominazione_ita varchar(255) NOT NULL,
-				PRIMARY KEY (id)
-				) $charset_collate";
+				$res = $wpdb->query(
+					$wpdb->prepare(
+						'CREATE TABLE IF NOT EXISTS %1$s ( ' .
+						'id INT(11) NOT NULL AUTO_INCREMENT, ' .
+						'i_cod_catastale char(4) NOT NULL, ' .
+						'i_denominazione_ita varchar(255) NOT NULL, ' .
+						'PRIMARY KEY (id) ' .
+						') %2$s',
+						$table,
+						$charset_collate
+					)
+				);
 				break;
 
 			case 'stati':
-				$structure = "CREATE TABLE IF NOT EXISTS $table (
-				id INT(11) NOT NULL AUTO_INCREMENT,
-				i_ST char(1) NOT NULL,
-				i_cod_continente TINYINT(1) NOT NULL,
-				i_den_continente varchar(255) NOT NULL,
-				i_cod_area TINYINT(2) NOT NULL,
-				i_den_area varchar(255) NOT NULL,
-				i_cod_istat char(3) NOT NULL,
-				i_denominazione_ita varchar(255) NOT NULL,
-				i_denominazione_altralingua varchar(255) NOT NULL,
-				i_cod_minint_ANPR char(3) NULL,
-				i_cod_AT char(4) NULL,
-				i_cod_UNSD_M49 char(3) NULL,
-				i_cod_ISO3166_alpha2 char(2) NULL,
-				i_cod_ISO3166_alpha3 char(3) NULL,
-				i_cod_istat_StatoPadre char(3) NULL,
-				i_cod_ISO3166_alpha3_StatoPadre char(3) NULL,
-				PRIMARY KEY (id)
-				) $charset_collate";
+				$res = $wpdb->query(
+					$wpdb->prepare(
+						'CREATE TABLE IF NOT EXISTS %1$s ( ' .
+						'id INT(11) NOT NULL AUTO_INCREMENT, ' .
+						'i_ST char(1) NOT NULL, ' .
+						'i_cod_continente TINYINT(1) NOT NULL, ' .
+						'i_den_continente varchar(255) NOT NULL, ' .
+						'i_cod_area TINYINT(2) NOT NULL, ' .
+						'i_den_area varchar(255) NOT NULL, ' .
+						'i_cod_istat char(3) NOT NULL, ' .
+						'i_denominazione_ita varchar(255) NOT NULL, ' .
+						'i_denominazione_altralingua varchar(255) NOT NULL, ' .
+						'i_cod_minint_ANPR char(3) NULL, ' .
+						'i_cod_AT char(4) NULL, ' .
+						'i_cod_UNSD_M49 char(3) NULL, ' .
+						'i_cod_ISO3166_alpha2 char(2) NULL, ' .
+						'i_cod_ISO3166_alpha3 char(3) NULL, ' .
+						'i_cod_istat_StatoPadre char(3) NULL, ' .
+						'i_cod_ISO3166_alpha3_StatoPadre char(3) NULL, ' .
+						'PRIMARY KEY (id) ' .
+						') %2$s',
+						$table,
+						$charset_collate
+					)
+				);
 				break;
 
 			case 'stati_cessati':
-				$structure = "CREATE TABLE IF NOT EXISTS $table (
-				id INT(11) NOT NULL AUTO_INCREMENT,
-				i_anno_evento YEAR(4) NOT NULL,
-				i_ST char(1) NOT NULL,
-				i_cod_continente TINYINT(1) NOT NULL,
-				i_cod_istat char(3) NOT NULL,
-				i_cod_AT char(4) NULL,
-				i_cod_ISO3166_alpha2 char(2) NULL,
-				i_cod_ISO3166_alpha3 char(3) NULL,
-				i_denominazione_ita varchar(255) NOT NULL,
-				i_cod_istat_StatoFiglio char(3) NULL,
-				i_denominazione_ita_StatoFiglio varchar(255) NOT NULL,
-				PRIMARY KEY (id)
-				) $charset_collate";
+				$res = $wpdb->query(
+					$wpdb->prepare(
+						'CREATE TABLE IF NOT EXISTS %1$s ( ' .
+						'id INT(11) NOT NULL AUTO_INCREMENT, ' .
+						'i_anno_evento YEAR(4) NOT NULL, ' .
+						'i_ST char(1) NOT NULL, ' .
+						'i_cod_continente TINYINT(1) NOT NULL, ' .
+						'i_cod_istat char(3) NOT NULL, ' .
+						'i_cod_AT char(4) NULL, ' .
+						'i_cod_ISO3166_alpha2 char(2) NULL, ' .
+						'i_cod_ISO3166_alpha3 char(3) NULL, ' .
+						'i_denominazione_ita varchar(255) NOT NULL, ' .
+						'i_cod_istat_StatoFiglio char(3) NULL, ' .
+						'i_denominazione_ita_StatoFiglio varchar(255) NOT NULL, ' .
+						'PRIMARY KEY (id) ' .
+						') %2$s',
+						$table,
+						$charset_collate
+					)
+				);
 				break;
 		}
 
-		return $wpdb->query( $structure );
+		return $res;
 	}
 
 	/**
@@ -961,9 +1107,7 @@ class GCMI_Activator {
 		if ( false === $string ) {
 			return false;
 		}
-		if ( ! ( $encoded_string = mb_convert_encoding( $string, $new_charset, $orig_enc ) ) ) {
-			return false;
-		}
+		$encoded_string = mb_convert_encoding( $string, $new_charset, $orig_enc );
 		if ( ! ( file_put_contents( dirname( $filepath ) . '/tmp.csv', $encoded_string ) ) ) {
 			return false;
 		}
@@ -1025,6 +1169,9 @@ class GCMI_Activator {
 			// se la stringa non è costituita da soli ";".
 			if ( ! preg_match( '/^(.)\;*$/u', trim( $arr_dati[ $i ] ) ) ) {
 				$gcmi_dati_line = str_getcsv( $arr_dati[ $i ], ';', '"' ); // non usare explode, perche' ci sono dei ";" nelle stringhe di testo delimitate con "" .
+				if ( ! gcmi_is_one_dimensional_string_array( $gcmi_dati_line ) ) {
+					return false;
+				}
 				$gcmi_dati_line = array_map( 'trim', $gcmi_dati_line );
 				foreach ( $gcmi_dati_line as $index => $value ) {
 					if ( '' === $value ) {
@@ -1094,7 +1241,8 @@ class GCMI_Activator {
 						}
 						break;
 					case 'comuni_soppressi':
-						if ( null != $gcmi_dati_line[6] ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseNotEqual .
+						// phpcs:ignore Universal.Operators.StrictComparisons.LooseNotEqual
+						if ( null != $gcmi_dati_line[6] ) {
 							$date = DateTime::createFromFormat( 'd/m/Y', $gcmi_dati_line[6] );
 							if ( false === $date ) {
 								$formatted_date = null;
@@ -1138,7 +1286,8 @@ class GCMI_Activator {
 						}
 						break;
 					case 'comuni_variazioni':
-						if ( null != $gcmi_dati_line[12] ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseNotEqual .
+						// phpcs:ignore Universal.Operators.StrictComparisons.LooseNotEqual
+						if ( null != $gcmi_dati_line[12] ) {
 							$date = DateTime::createFromFormat( 'd/m/Y', $gcmi_dati_line[12] );
 							if ( false === $date ) {
 								$formatted_date = null;
@@ -1323,7 +1472,8 @@ class GCMI_Activator {
 	public static function delete_dir( $dir_path ): void {
 		// cancella una directory e tutto il suo contenuto.
 		if ( ! is_dir( $dir_path ) ) {
-			throw new InvalidArgumentException( "$dir_path must be a directory" );
+			// translators: %s is a non existent directory.
+			throw new InvalidArgumentException( sprintf( esc_html__( '%s must be a directory', 'campi-moduli-italiani' ), esc_html( $dir_path ) ) );
 		}
 		if ( substr( $dir_path, strlen( $dir_path ) - 1, 1 ) !== '/' ) {
 			$dir_path .= '/';
@@ -1334,7 +1484,7 @@ class GCMI_Activator {
 				if ( is_dir( $file ) ) {
 					self::delete_dir( $file );
 				} else {
-					unlink( $file );
+					wp_delete_file( $file );
 				}
 			}
 		}
@@ -1352,7 +1502,7 @@ class GCMI_Activator {
 	 * @param string $table $table_name from $database_file_info .
 	 * @return boolean
 	 */
-	public static function drop_table( $name, $table ) {
+	private static function drop_table( $name, $table ) {
 		global $wpdb;
 
 		$names     = array();
@@ -1364,34 +1514,13 @@ class GCMI_Activator {
 		if ( ! in_array( $name, $names, true ) ) {
 			return false;
 		}
-
-		$structure = "drop table if exists $table";
-		$wpdb->query( $structure );
+		$wpdb->query(
+			$wpdb->prepare(
+				'DROP TABLE IF EXISTS `%1$s`',
+				$table
+			)
+		);
 		return true;
-	}
-	
-	/**
-	 * Elimina tutti i filtri dal database (per singolo sito)
-	 * 
-	 * @since 2.2.0
-	 * @global type $wpdb
-	 * @return bool
-	 */
-	private static function drop_views(){
-		global $wpdb;
-		
-		$lista_views_attuali = array_map('strval', $wpdb->get_col(
-			$wpdb->prepare('SHOW TABLES like %s', GCMI_SVIEW_PREFIX . 'comuni_attuali%')
-		));
-		
-		$lista_views_soppressi = array_map('strval', $wpdb->get_col(
-			$wpdb->prepare('SHOW TABLES like %s', GCMI_SVIEW_PREFIX . 'comuni_soppressi%')
-		));
-		
-		$lista_views = array_merge( $lista_views_attuali,$lista_views_soppressi );
-		$views = implode(',', $lista_views );
-		
-		return $wpdb->query( 'DROP VIEW IF EXISTS ' . $views );
 	}
 
 	/**
@@ -1502,7 +1631,7 @@ class GCMI_Activator {
 		--$max_retry;
 
 		if ( $max_retry > 0 && false === empty( $failed_letters ) ) {
-			self:$alphas = $failed_letters;
+			self::$alphas = $failed_letters;
 			self::get_csvdata_codici_catastali( $tmp_dwld_dir, $max_retry );
 		}
 		if ( empty( $failed_letters ) ) {
@@ -1512,7 +1641,15 @@ class GCMI_Activator {
 		}
 	}
 
-
+	/**
+	 * Downloads html data for codici_catastali.
+	 *
+	 * Downloads to a csv files data for codici_catastali
+	 *
+	 * @param string $tmp_dwld_dir temporary download directory.
+	 * @param int    $max_retry Number of time, it will try to download data, on failure.
+	 * @return bool
+	 */
 	public static function get_csvdata_codici_catastali_new( $tmp_dwld_dir, $max_retry = 3 ) {
 		/**
 		 * L'Agenzia delle entrate mette a disposizione i dati relativi ai codici catastali dei comuni in una tabella HTML
@@ -1566,7 +1703,7 @@ class GCMI_Activator {
 		--$max_retry;
 
 		if ( $max_retry > 0 && false === empty( $failed_letters ) ) {
-			self:$alphas = $failed_letters;
+			self::$alphas = $failed_letters;
 			self::get_csvdata_codici_catastali_new( $tmp_dwld_dir, $max_retry );
 		}
 		if ( empty( $failed_letters ) ) {
@@ -1579,7 +1716,7 @@ class GCMI_Activator {
 	/**
 	 * Scarica i dati da una singola tabella / lettera del sito Agenzia entrate
 	 *
-	 * @param array $response Array returned by wp_remote_get if success.
+	 * @param array{headers: \WpOrg\Requests\Utility\CaseInsensitiveDictionary, body: string, response: array{code: int,message: string}, cookies: array<int, \WP_Http_Cookie>, filename: string|null, http_response: \WP_HTTP_Requests_Response}|\WP_Error $response Array returned by wp_remote_get if success.
 	 * @return string
 	 */
 	public static function get_data_from_response( $response ) {
@@ -1660,16 +1797,14 @@ class GCMI_Activator {
 	/**
 	 * Running setup whenever a new blog is created
 	 *
-	 * @since 1.0.0
+	 * @since 2.2.0
 	 * @param WP_Site $params New site object.
 	 * @return void
 	 */
 	public static function add_blog( $params ) {
-		if ( is_plugin_active_for_network( 'campi-moduli-italiani/campi-moduli-italiani.php' ) ) {
+		if ( is_plugin_active_for_network( GCMI_PLUGIN_BASENAME ) ) {
 			switch_to_blog( intval( $params->blog_id ) );
-
 			gcmi_create_unfiltered_views();
-
 			restore_current_blog();
 		}
 	}

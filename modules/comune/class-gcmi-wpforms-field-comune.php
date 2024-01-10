@@ -19,7 +19,7 @@
  * @subpackage campi-moduli-italiani/modules/comune
  * @since 2.0.0
  */
-class WPForms_Field_Comune extends WPForms_Field {
+class GCMI_WPForms_Field_Comune extends WPForms_Field {
 	/**
 	 * Choices JS version.
 	 *
@@ -237,7 +237,7 @@ class WPForms_Field_Comune extends WPForms_Field {
 			),
 			false
 		);
-		echo strval( $output ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		echo gcmi_safe_strval( $output ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 
 		// Default selected value.
 		$lbl = $this->field_element(
@@ -353,7 +353,7 @@ class WPForms_Field_Comune extends WPForms_Field {
 			),
 			false
 		);
-		echo strval( $output ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		echo gcmi_safe_strval( $output ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 
 		// Hide label.
 		$this->field_option( 'label_hide', $field );
@@ -650,9 +650,8 @@ class WPForms_Field_Comune extends WPForms_Field {
 	 * @param array $fields    List of fields.
 	 * @param array $entry     Submitted form entry.
 	 * @param array $form_data Form data and settings.
-	 * @return array
 	 */
-	public function gcmi_wpf_comune_modify_email_value( $fields, $entry, $form_data ) {
+	public function gcmi_wpf_comune_modify_email_value( $fields, $entry, $form_data ): void {
 		foreach ( $fields as $key => $field ) {
 			if ( $this->type === $field['type'] ) {
 				$id_campo = $field['id'];
@@ -662,7 +661,6 @@ class WPForms_Field_Comune extends WPForms_Field {
 				$fields[ $id_campo ]['value'] = $valore_formattato;
 			}
 		}
-		return $fields;
 	}
 
 	/**
@@ -701,7 +699,7 @@ class WPForms_Field_Comune extends WPForms_Field {
 			}
 		}
 
-		if ( $has_modern_select || wpforms()->frontend->assets_global() ) {
+		if ( $has_modern_select ) {
 			$min = \wpforms_get_min_suffix();
 
 			wp_enqueue_style(
@@ -732,7 +730,7 @@ class WPForms_Field_Comune extends WPForms_Field {
 			}
 		}
 
-		if ( $has_modern_select || wpforms()->frontend->assets_global() ) {
+		if ( $has_modern_select ) {
 			$this->enqueue_choicesjs_once( $forms );
 		}
 	}
@@ -801,4 +799,4 @@ class WPForms_Field_Comune extends WPForms_Field {
 		return $css;
 	}
 }
-new WPForms_Field_Comune();
+new GCMI_WPForms_Field_Comune();

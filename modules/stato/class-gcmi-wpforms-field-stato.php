@@ -19,7 +19,7 @@
  * @subpackage campi-moduli-italiani/modules/stato
  * @since 2.0.0
  */
-class WPForms_Field_Stato extends WPForms_Field {
+class GCMI_WPForms_Field_Stato extends WPForms_Field {
 	/**
 	 * Choices JS version.
 	 *
@@ -88,19 +88,19 @@ class WPForms_Field_Stato extends WPForms_Field {
 	 *
 	 * @since 2.0.0
 	 *
-	 * @param array $properties Field properties.
-	 * @param array $field      Field settings.
-	 * @param array $form_data  Form data and settings.
+	 * @param array<mixed> $properties Field properties.
+	 * @param array<mixed> $field      Field settings.
+	 * @param array<mixed> $form_data  Form data and settings.
 	 *
-	 * @return array
+	 * @return array<mixed>
 	 */
 	public function field_properties( $properties, $field, $form_data ) {
 		global $wpdb;
-
 		$choices = array();
-
 		// Remove primary input.
-		unset( $properties['inputs']['primary'] );
+		if ( is_array( $properties['inputs'] ) && array_key_exists( 'primary', $properties['inputs'] ) ) {
+			unset( $properties['inputs']['primary'] );
+		}
 
 		// Define data.
 		$form_id  = absint( $form_data['id'] );
@@ -260,9 +260,9 @@ class WPForms_Field_Stato extends WPForms_Field {
 	 *
 	 * @since 2.0.0
 	 *
-	 * @param array $field Field data and settings.
+	 * @param array<mixed> $field Field data and settings.
 	 */
-	public function field_options( $field ) {
+	public function field_options( $field ): void {
 		/*
 		 * Basic field options.
 		 */
@@ -307,7 +307,9 @@ class WPForms_Field_Stato extends WPForms_Field {
 			),
 			false
 		);
-		echo $output; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		if ( is_string( $output ) ) {
+			echo $output; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		}
 
 		$only_current = isset( $field['only_current'] ) ? $field['only_current'] : '0';
 		$tooltip      = esc_html__( 'Check this option to show only actual States (not ceased).', 'campi-moduli-italiani' );
@@ -331,7 +333,9 @@ class WPForms_Field_Stato extends WPForms_Field {
 			),
 			false
 		);
-		echo $output; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		if ( is_string( $output ) ) {
+			echo $output; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		}
 
 		// Default selected value.
 		$lbl = $this->field_element(
@@ -448,7 +452,7 @@ class WPForms_Field_Stato extends WPForms_Field {
 	 *
 	 * @since 2.0.0
 	 *
-	 * @param array $field Field settings.
+	 * @param array<mixed> $field Field settings.
 	 * @return void
 	 */
 	public function field_preview( $field ) {
@@ -511,13 +515,16 @@ class WPForms_Field_Stato extends WPForms_Field {
 	 *
 	 * @since 2.0.0
 	 *
-	 * @param array $field      Field data and settings.
-	 * @param array $deprecated Deprecated array of field attributes.
-	 * @param array $form_data  Form data and settings.
-	 * @return void
+	 * @param array<mixed> $field      Field data and settings.
+	 * @param array<mixed> $deprecated Deprecated array of field attributes.
+	 * @param array<mixed> $form_data  Form data and settings.
 	 */
-	public function field_display( $field, $deprecated, $form_data ) {
-		$container         = $field['properties']['input_container'];
+	public function field_display( $field, $deprecated, $form_data ): void {
+		if ( is_array( $field['properties'] ) && array_key_exists( 'input_container', $field['properties'] ) ) {
+			$container = $field['properties']['input_container'];
+		} else {
+			return;
+		}
 		$field_placeholder = ! empty( $field['placeholder'] ) ? $field['placeholder'] : '';
 		$is_multiple       = false;
 		$is_modern         = ! empty( $field['style'] ) && self::STYLE_MODERN === $field['style'];
@@ -529,12 +536,24 @@ class WPForms_Field_Stato extends WPForms_Field {
 		$choices = $field['properties']['inputs'];
 
 		if ( ! empty( $field['required'] ) ) {
-			$container['attr']['required'] = 'required';
+			if (
+				is_array( $container ) &&
+				array_key_exists( 'attr', $container ) &&
+				is_array( $container['attr'] ) &&
+				array_key_exists( 'required', $container['attr'] )
+			) {
+				$container['attr']['required'] = 'required';
+			}
 		}
 
 		// Add a class for Choices.js initialization.
 		if ( $is_modern ) {
-			$container['class'][] = 'choicesjs-select';
+			if (
+				is_array( $container ) &&
+				array_key_exists( 'class', $container )
+			) {
+				$container['class'][] = 'choicesjs-select';
+			}
 
 			// Add a size-class to data attribute - it is used when Choices.js is initialized.
 			if ( ! empty( $field['size'] ) ) {
@@ -570,17 +589,20 @@ class WPForms_Field_Stato extends WPForms_Field {
 		if ( ! empty( $field_placeholder ) ) {
 			printf(
 				'<option value="" class="placeholder" disabled %s>%s</option>',
-				selected( false, $has_default || $is_multiple, false ),
+				selected( false, $has_default, false ),
 				esc_html( $field_placeholder )
 			);
 		}
 
 		// Build the select options.
-		$primo_gruppo = 1;
+
+		$opt_tag_open = false;
+
 		foreach ( $choices as $key => $choice ) {
 			if ( '' === $choice['attr']['value'] ) {
-				if ( 1 === $primo_gruppo ) {
+				if ( false === $opt_tag_open ) {
 					printf( '<optgroup label="%s">', esc_html( $choice['label']['text'] ) );
+					$opt_tag_open = true;
 				} else {
 					printf( '</optgroup><optgroup label="%s">', esc_html( $choice['label']['text'] ) );
 					$primo_gruppo = 0;
@@ -594,8 +616,9 @@ class WPForms_Field_Stato extends WPForms_Field {
 				);
 			}
 		}
-		if ( $use_continent ) {
+		if ( true === $opt_tag_open ) {
 			echo '</optgroup>';
+			$opt_tag_open = false;
 		}
 		echo '</select>';
 	}
@@ -605,38 +628,44 @@ class WPForms_Field_Stato extends WPForms_Field {
 	 *
 	 * @since 2.0.0
 	 *
-	 * @param array $fields    List of fields.
-	 * @param array $entry     Submitted form entry.
-	 * @param array $form_data Form data and settings.
-	 * @return array
+	 * @param array<mixed> $fields    List of fields.
+	 * @param array<mixed> $entry     Submitted form entry.
+	 * @param array<mixed> $form_data Form data and settings.
 	 */
-	public function gcmi_wpf_stato_modify_email_value( $fields, $entry, $form_data ) {
+	public function gcmi_wpf_stato_modify_email_value( $fields, $entry, $form_data ): void {
 		global $wpdb;
 		foreach ( $fields as $key => $field ) {
-			if ( $this->type === $field['type'] ) {
-				if ( ( '' !== $field['value'] ) && ( is_numeric( $field['value'] ) ) ) {
+			if ( is_array( $field ) &&
+				array_key_exists( 'type', $field ) &&
+				$this->type === $field['type']
+			) {
+				if ( array_key_exists( 'value', $field ) &&
+					'' !== $field['value'] &&
+					is_numeric( $field['value'] )
+				) {
 					$cache_key = 'stato_ita_rowobj_' . strval( $field['value'] );
 					$stato     = wp_cache_get( $cache_key, GCMI_CACHE_GROUP );
 					if ( false === $stato ) {
-						$sql   = 'SELECT `i_denominazione_ita` FROM ';
-						$sql  .= '( ';
-						$sql  .= 'SELECT `i_cod_istat`, `i_denominazione_ita` FROM `' . GCMI_TABLE_PREFIX . 'stati` ';
-						$sql  .= 'UNION ';
-						$sql  .= 'SELECT `i_cod_istat`, `i_denominazione_ita` FROM `' . GCMI_TABLE_PREFIX . 'stati_cessati` ';
-						$sql  .= ') as subQuery ';
-						$sql  .= 'WHERE `i_cod_istat` = %s LIMIT 1';
 						$stato = $wpdb->get_row(
-							$wpdb->prepare( $sql, $field['value'] ),
+							$wpdb->prepare(
+								'SELECT `i_denominazione_ita` FROM ' .
+								'( ' .
+								'SELECT `i_cod_istat`, `i_denominazione_ita` FROM `%1$s` ' .
+								'SELECT `i_cod_istat`, `i_denominazione_ita` FROM `%2$s` ' .
+								') as subQuery ' .
+								'WHERE `i_cod_istat` = \'%3$s\' LIMIT 1',
+								GCMI_TABLE_PREFIX . 'stati',
+								GCMI_TABLE_PREFIX . 'stati_cessati',
+								$field['value']
+							),
 							OBJECT
 						);
 						wp_cache_set( $cache_key, $stato, GCMI_CACHE_GROUP, GCMI_CACHE_EXPIRE_SECS );
+						$field['value'] = $stato->i_denominazione_ita;
 					}
-
-					$fields[ $key ]['value'] = $stato->i_denominazione_ita;
 				}
 			}
 		}
-		return $fields;
 	}
 
 	/**
@@ -644,12 +673,14 @@ class WPForms_Field_Stato extends WPForms_Field {
 	 *
 	 * @since 2.0.0
 	 *
-	 * @param string $new_class  Nome nuova classe.
-	 * @param array  $field      Field data and settings.
+	 * @param string       $new_class  Nome nuova classe.
+	 * @param array<mixed> $field      Field data and settings.
 	 * @return string
 	 */
 	public function gcmi_wpf_country_add_class_select( $new_class, $field ) {
-		if ( 'country' === $field['type'] ) {
+		if ( array_key_exists( 'type', $field ) &&
+			'country' === $field['type']
+		) {
 			$new_class .= ' wpforms-field-select';
 		}
 		return $new_class;
@@ -660,12 +691,14 @@ class WPForms_Field_Stato extends WPForms_Field {
 	 *
 	 * @since 2.0.0
 	 *
-	 * @param string $css       lista classes separata da ' '.
-	 * @param array  $field      Field data and settings.
+	 * @param string       $css       lista classes separata da ' '.
+	 * @param array<mixed> $field     Field data and settings.
 	 * @return string
 	 */
 	public function gcmi_wpf_country_preview_class_select( $css, $field ) {
-		if ( 'country' === $field['type'] ) {
+		if ( array_key_exists( 'type', $field ) &&
+			'country' === $field['type']
+		) {
 			$css .= ' wpforms-field-select';
 		}
 		return $css;
@@ -676,11 +709,13 @@ class WPForms_Field_Stato extends WPForms_Field {
 	 *
 	 * @since 2.0.0
 	 *
-	 * @param array $field      Field data and settings.
-	 * @return array
+	 * @param array<mixed> $field      Field data and settings.
+	 * @return array<mixed>
 	 */
 	public function gcmi_wpf_country_apply_default( $field ) {
-		if ( 'country' === $field['type'] ) {
+		if ( array_key_exists( 'type', $field ) &&
+			'country' === $field['type']
+		) {
 			$field['use_continent'] = true;
 			$field['only_current']  = true;
 			$field['show_values']   = true;
@@ -694,7 +729,7 @@ class WPForms_Field_Stato extends WPForms_Field {
 	 *
 	 * @since 2.0.0
 	 *
-	 * @param array $forms Forms on the current page.
+	 * @param array{array<mixed>} $forms Forms on the current page.
 	 * @return void
 	 */
 	public function enqueue_frontend_css( $forms ) {
@@ -708,6 +743,11 @@ class WPForms_Field_Stato extends WPForms_Field {
 			}
 		}
 
+		/**
+		 * Proprietà deprecate di wpforms, compatibilità con versioni precedenti.
+		 *
+		 * @phpstan-ignore-next-line
+		 */
 		if ( $has_modern_select || wpforms()->frontend->assets_global() ) {
 			$min = \wpforms_get_min_suffix();
 
@@ -725,7 +765,7 @@ class WPForms_Field_Stato extends WPForms_Field {
 	 *
 	 * @since 2.0.0
 	 *
-	 * @param array $forms Forms on the current page.
+	 * @param array{array<mixed>} $forms Forms on the current page.
 	 * @return void
 	 */
 	public function enqueue_frontend_js( $forms ) {
@@ -739,6 +779,11 @@ class WPForms_Field_Stato extends WPForms_Field {
 			}
 		}
 
+		/**
+		 * Proprietà deprecate di wpforms, compatibilità con versioni precedenti.
+		 *
+		 * @phpstan-ignore-next-line
+		 */
 		if ( $has_modern_select || wpforms()->frontend->assets_global() ) {
 			$this->enqueue_choicesjs_once( $forms );
 		}
@@ -749,8 +794,8 @@ class WPForms_Field_Stato extends WPForms_Field {
 	 *
 	 * @since 2.0.0
 	 *
-	 * @param array  $form  Form data.
-	 * @param string $style Desired field style.
+	 * @param array<mixed> $form  Form data.
+	 * @param string       $style Desired field style.
 	 *
 	 * @return bool
 	 */
@@ -763,9 +808,10 @@ class WPForms_Field_Stato extends WPForms_Field {
 
 		foreach ( (array) $form['fields'] as $field ) {
 			if (
-				! empty( $field['type'] ) &&
-				$field['type'] === $this->type &&
-				! empty( $field['style'] ) &&
+				is_array( $field ) &&
+				array_key_exists( 'type', $field ) &&
+				$this->type === $field['type'] &&
+				array_key_exists( 'style', $field ) &&
 				sanitize_key( $style ) === $field['style']
 			) {
 				$is_field_style = true;
@@ -781,10 +827,10 @@ class WPForms_Field_Stato extends WPForms_Field {
 	 *
 	 * @since 2.0.0
 	 *
-	 * @param string $name  Field name for error triggered.
-	 * @param array  $field Field settings.
-	 * @param array  $props List of properties.
-	 * @param string $error Error message.
+	 * @param string       $name  Field name for error triggered.
+	 * @param array<mixed> $field Field settings.
+	 * @param array<mixed> $props List of properties.
+	 * @param string       $error Error message.
 	 *
 	 * @return string
 	 */
@@ -793,7 +839,7 @@ class WPForms_Field_Stato extends WPForms_Field {
 			return $name;
 		}
 		if ( ! empty( $field['multiple'] ) ) {
-			$input = isset( $props['inputs'] ) ? end( $props['inputs'] ) : array();
+			$input = ( isset( $props['inputs'] ) && is_array( $props['inputs'] ) ) ? end( $props['inputs'] ) : array();
 
 			return isset( $input['attr']['name'] ) ? $input['attr']['name'] . '[]' : '';
 		}
@@ -801,4 +847,4 @@ class WPForms_Field_Stato extends WPForms_Field {
 		return $name;
 	}
 }
-new WPForms_Field_Stato();
+new GCMI_WPForms_Field_Stato();

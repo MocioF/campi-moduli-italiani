@@ -91,16 +91,11 @@ class GCMI_COMUNE_WPCF7_FormTag extends GCMI_COMUNE {
 	/**
 	 * Class constructor
 	 *
-	 * @param string        $name HTML name attribute.
-	 * @param array<string> $atts form-tag attributes.
-	 * @param array{
-	 * 'wr_class'?: array<string>,
-	 * 'comu_details': boolean,
-	 * 'use_label_element': boolean,
-	 * 'kind': string|false
-	 * } $options form-tag options.
-	 * @param string        $validation_error The validation error showed.
-	 * @param string        $preset_value The ISTAT municipality code set as selected.
+	 * @param string                                                                                                         $name HTML name attribute.
+	 * @param array<string>                                                                                                  $atts form-tag attributes.
+	 * @param array{'wr_class'?: array<string>, 'comu_details': boolean, 'use_label_element': boolean, 'kind': string|false} $options form-tag options.
+	 * @param string                                                                                                         $validation_error The validation error showed.
+	 * @param string                                                                                                         $preset_value The ISTAT municipality code set as selected.
 	 */
 	public function __construct( $name, $atts, $options, $validation_error, $preset_value ) {
 		if ( ! parent::is_valid_kind( $options['kind'] ) ) {
@@ -115,7 +110,7 @@ class GCMI_COMUNE_WPCF7_FormTag extends GCMI_COMUNE {
 		$this->validation_error  = $validation_error;
 		$this->wr_class          = '';
 
-		if ( isset( $options['wr_class'] ) && is_array( $options['wr_class'] ) ) {
+		if ( array_key_exists( 'wr_class', $options ) && is_array( $options['wr_class'] ) ) {
 			$sanitized_classes = array_map( 'sanitize_html_class', $options['wr_class'] );
 			$this->wr_class    = ' ';
 			$this->wr_class   .= implode( ' ', $sanitized_classes );
@@ -205,8 +200,10 @@ class GCMI_COMUNE_WPCF7_FormTag extends GCMI_COMUNE {
 		}
 
 		/*
+		 * Read:
 		 * https://contactform7.com/2022/05/20/contact-form-7-56-beta/#markup-changes-in-form-controls
 		 */
+		/* @phpstan-ignore-next-line */
 		if ( version_compare( WPCF7_VERSION, '5.6', '>=' ) ) {
 			$html = '<span class="wpcf7-form-control-wrap" data-name="' . $this->name . '">';
 		} else {
@@ -231,8 +228,14 @@ class GCMI_COMUNE_WPCF7_FormTag extends GCMI_COMUNE {
 			add_filter( 'wpcf7_validate_comune', 'gcmi_wpcf7_select_validation_filter', 10, 2 );
 			add_filter( 'wpcf7_validate_comune*', 'gcmi_wpcf7_select_validation_filter', 10, 2 );
 		} else {
-			add_filter( 'wpcf7_validate_comune', 'wpcf7_select_validation_filter', 10, 2 );
-			add_filter( 'wpcf7_validate_comune*', 'wpcf7_select_validation_filter', 10, 2 );
+			/**
+			 * This is the wpcf7_select_validation_filter from CF7
+			 *
+			 * @var callable $callback
+			 */
+			$callback = 'wpcf7_select_validation_filter';
+			add_filter( 'wpcf7_validate_comune', $callback, 10, 2 );
+			add_filter( 'wpcf7_validate_comune*', $callback, 10, 2 );
 		}
 
 		// mail tag filter.
@@ -241,7 +244,9 @@ class GCMI_COMUNE_WPCF7_FormTag extends GCMI_COMUNE {
 			function ( $replaced, $submitted, $html, $mail_tag ) {
 				$my_name               = $mail_tag->field_name();
 				$nome_campo_formattato = $my_name . '_formatted';
+				// phpcs:ignore WordPress.Security.NonceVerification.Missing
 				if ( isset( $_POST[ $nome_campo_formattato ] ) ) {
+					// phpcs:ignore WordPress.Security.NonceVerification.Missing
 					$replaced = sanitize_text_field( wp_unslash( $_POST[ $nome_campo_formattato ] ) );
 				} else {
 					$replaced = '';
@@ -256,7 +261,9 @@ class GCMI_COMUNE_WPCF7_FormTag extends GCMI_COMUNE {
 			function ( $replaced, $submitted, $html, $mail_tag ) {
 				$my_name               = $mail_tag->field_name();
 				$nome_campo_formattato = $my_name . '_formatted';
+				// phpcs:ignore WordPress.Security.NonceVerification.Missing
 				if ( isset( $_POST[ $nome_campo_formattato ] ) ) {
+					// phpcs:ignore WordPress.Security.NonceVerification.Missing
 					$replaced = sanitize_text_field( wp_unslash( $_POST[ $nome_campo_formattato ] ) );
 				} else {
 					$replaced = '';

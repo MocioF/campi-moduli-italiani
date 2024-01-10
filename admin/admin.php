@@ -25,7 +25,7 @@ require_once GCMI_PLUGIN_DIR . '/admin/includes/class-gcmi-remote-files-list-tab
 if ( true === GCMI_USE_COMUNE ) {
 	require_once GCMI_PLUGIN_DIR . '/admin/includes/class-gcmi-comune-filter-builder.php';
 
-	$gcmi_fb = new GCMI_comune_filter_builder();
+	$gcmi_fb = new GCMI_Comune_Filter_Builder();
 	add_action( 'wp_ajax_gcmi_fb_requery_comuni', array( $gcmi_fb, 'ajax_get_tabs_html' ), 10, 0 );
 	add_action( 'wp_ajax_gcmi_fb_create_filter', array( $gcmi_fb, 'ajax_create_filter' ), 10, 0 );
 	add_action( 'wp_ajax_gcmi_fb_get_locale', array( $gcmi_fb, 'ajax_get_locale' ), 10, 0 );
@@ -99,7 +99,7 @@ function gcmi_admin_menu() {
 			__( 'comune\'s filter builder', 'campi-moduli-italiani' ), // menu title.
 			'update_plugins', // capability.
 			'gcmi-comune-filter-builder', // menu_slug.
-			'GCMI_comune_filter_builder::show_comune_filter_builder_page' // callable.
+			'GCMI_Comune_Filter_Builder::show_comune_filter_builder_page' // callable.
 		);
 		add_action( 'load-' . $builder, 'gcmi_load_comune_filter_builder', 10, 0 );
 	}
@@ -153,9 +153,9 @@ function gcmi_admin_update_db() {
 	echo '</div>';
 	echo '</form>';
 
-	$last_check  = intval( get_site_option( 'gcmi_last_update_check' ) );
-	$date_format = get_site_option( 'date_format' ) ? strval( get_site_option( 'date_format' ) ) : 'j F Y';
-	$time_format = get_site_option( 'time_format' ) ? strval( get_site_option( 'time_format' ) ) : 'H:i';
+	$last_check  = gcmi_safe_intval( get_site_option( 'gcmi_last_update_check' ) );
+	$date_format = get_site_option( 'date_format' ) ? gcmi_safe_strval( get_site_option( 'date_format' ) ) : 'j F Y';
+	$time_format = get_site_option( 'time_format' ) ? gcmi_safe_strval( get_site_option( 'time_format' ) ) : 'H:i';
 	if ( false !== $last_check && function_exists( 'wp_date' ) ) {
 		$last_check_string = sprintf(
 			// translators: %1$s is a date string; %2$s is a time string.
@@ -273,7 +273,7 @@ function gcmi_update_table( $fname ) {
 	}
 	$i                 = null;
 	$download_temp_dir = GCMI_Activator::make_tmp_dwld_dir();
-	if ( ! $download_temp_dir ) {
+	if ( false === $download_temp_dir ) {
 		$error_code    = ( 'gcmi_mkdir_fail' );
 		$error_title   = __( 'Error creating download directory', 'campi-moduli-italiani' );
 		$error_message = '<h1>' . $error_title . '</h1>' . __( 'Unable to create temporary download directory', 'campi-moduli-italiani' );
@@ -285,10 +285,12 @@ function gcmi_update_table( $fname ) {
 		'zip' === $database_file_info[ $id ]['file_type'] ||
 		'csv' === $database_file_info[ $id ]['file_type']
 		) {
-		if ( ! GCMI_Activator::download_file(
-			$database_file_info[ $id ]['remote_URL'],
-			$download_temp_dir,
-			$database_file_info[ $id ]['downd_name']
+		if ( is_wp_error(
+			GCMI_Activator::download_file(
+				$database_file_info[ $id ]['remote_URL'],
+				$download_temp_dir,
+				$database_file_info[ $id ]['downd_name']
+			)
 		)
 			) {
 			$error_code  = ( 'gcmi_download_error' );
@@ -359,18 +361,31 @@ function gcmi_update_table( $fname ) {
 		$error_message = '<h1>' . $error_title . '</h1>' . "[ $str ] <code>$query</code>";
 
 		// elimino la temporanea.
-		$sql = 'DROP TABLE IF EXISTS ' . $tmp_table_name;
-		$wpdb->query( $sql );
+		$wpdb->query(
+			$wpdb->prepare(
+				'DROP TABLE IF EXISTS `%1$s`',
+				$tmp_table_name
+			)
+		);
 		$gcmi_error->add( $error_code, $error_message );
 		gcmi_show_error( $gcmi_error );
 		die;
 	} else {
-		$sql = 'DROP TABLE IF EXISTS ' . $database_file_info[ $id ]['table_name'];
-		$wpdb->query( $sql );
+		$wpdb->query(
+			$wpdb->prepare(
+				'DROP TABLE IF EXISTS `%1$s`',
+				$database_file_info[ $id ]['table_name']
+			)
+		);
 
 		// rinomino la tabella temporanea.
-		$sql = 'RENAME TABLE ' . $tmp_table_name . ' to ' . $database_file_info[ $id ]['table_name'];
-		$wpdb->query( $sql );
+		$wpdb->query(
+			$wpdb->prepare(
+				'RENAME TABLE `%1$s` TO `%2$s`',
+				$tmp_table_name,
+				$database_file_info[ $id ]['table_name']
+			)
+		);
 
 		// aggiorno opzione sul database.
 		if ( false === is_multisite() ) {
@@ -400,12 +415,12 @@ function gcmi_convert_timestamp( $timestamp ) {
 /**
  * Converte una stringa data formattata, in timestamp
  *
- * @param string $string a date string in $format format to be converted to timestamp.
+ * @param string $val a date string in $format format to be converted to timestamp.
  * @return integer | false
  */
-function gcmi_convert_datestring( $string ) {
+function gcmi_convert_datestring( $val ) {
 	$format   = __( 'Y/m/d g:i:s a', 'campi-moduli-italiani' );
-	$datetime = DateTime::createFromFormat( $format, $string );
+	$datetime = DateTime::createFromFormat( $format, $val );
 	if ( false !== $datetime ) {
 		return $datetime->getTimestamp();
 	} else {

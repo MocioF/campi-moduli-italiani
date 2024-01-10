@@ -59,7 +59,11 @@ function gcmi_wpcf7_formsign_formtag_handler( $tag ) {
 	 *  Checks if ssl keys are set in the database for this form,  and if not, creates them
 	 */
 	$contact_form = WPCF7_ContactForm::get_current();
-	$the_id       = $contact_form->id();
+	if ( is_null( $contact_form ) ) {
+		return '';
+	}
+
+	$the_id = $contact_form->id();
 
 	if ( false === (
 			metadata_exists( 'post', $the_id, '_gcmi_wpcf7_enc_privKey' )
@@ -143,7 +147,10 @@ add_filter(
 	'wpcf7_mail_tag_replaced_formsign',
 	function ( $replaced, $submitted, $html, $mail_tag ) {
 		$contact_form = WPCF7_ContactForm::get_current();
-		$form_fields  = $contact_form->scan_form_tags();
+		if ( is_null( $contact_form ) ) {
+			return;
+		}
+		$form_fields = $contact_form->scan_form_tags();
 
 		$submission = WPCF7_Submission::get_instance();
 
@@ -175,11 +182,21 @@ add_filter(
 		$hash       = md5( $serialized );
 		$pkeyid     = get_post_meta( $contact_form->id(), '_gcmi_wpcf7_enc_privKey', true );
 
-		openssl_sign( $hash, $signature, $pkeyid, OPENSSL_ALGO_SHA256 );
-
+		if ( is_string( $pkeyid ) && '' !== $pkeyid ) {
+			$pkey = openssl_pkey_get_private( $pkeyid );
+		} else {
+			return;
+		}
 		unset( $pkeyid );
 
-		if ( true == $html ) {
+		if ( false !== $pkey ) {
+			openssl_sign( $hash, $signature, $pkey, OPENSSL_ALGO_SHA256 );
+		} else {
+			return;
+		}
+		unset( $pkey );
+
+		if ( true === $html ) {
 			$rpld  = '<table>';
 			$rpld .= '<tr>';
 			$rpld .= '<th>%1$s: </th><td>%2$s</td>';
@@ -213,7 +230,7 @@ if ( is_plugin_active( 'flamingo/flamingo.php' ) && extension_loaded( 'openssl' 
 	add_action( 'load-flamingo_page_flamingo_inbound', 'gcmi_flamingo_check_sign' );
 	add_action( 'admin_enqueue_scripts', 'gcmi_formsign_enqueue_flamingo_admin_script' );
 
-	add_action( 'wp_ajax_gcmi_flamingo_check_codes', 'gcmi_flamingo_meta_box_ajax_handler' );
+	add_action( 'wp_ajax_gcmi_flamingo_check_codes', 'gcmi_ajax_flamingo_meta_box_handler' );
 }
 
 /**
@@ -324,7 +341,7 @@ function gcmi_get_form_post_id( $post ) {
  * @since 1.0.0
  * @return void
  */
-function gcmi_flamingo_meta_box_ajax_handler() {
+function gcmi_ajax_flamingo_meta_box_handler(): void {
 	if ( isset( $_POST['checksignnonce'] ) ) {
 		if ( ! wp_verify_nonce( sanitize_key( $_POST['checksignnonce'] ), 'gcmi_flamingo_check_codes' ) ) {
 			die( 'Permission Denied.' );
@@ -335,35 +352,45 @@ function gcmi_flamingo_meta_box_ajax_handler() {
 	if ( isset( $_POST['hash_input'] ) && isset( $_POST['hash_calc'] ) && isset( $_POST['formID_input'] ) ) {
 		if ( sanitize_text_field( wp_unslash( $_POST['hash_input'] ) ) !== sanitize_text_field( wp_unslash( $_POST['hash_calc'] ) ) ) {
 			echo 'hash_mismatch';
-		} else { // hash match.
-			$public_key = get_post_meta( intval( sanitize_text_field( wp_unslash( $_POST['formID_input'] ) ) ), '_gcmi_wpcf7_enc_pubKey', true );
-			if ( '' === $public_key || false === $public_key ) {
-				echo 'no_pubkey_found';
-			} elseif ( isset( $_POST['sign_input'] ) ) {
-				if ( preg_match( '%^[a-zA-Z0-9/+]*={0,2}$%', sanitize_text_field( wp_unslash( $_POST['sign_input'] ) ) ) ) {
-					$r = openssl_verify(
-						sanitize_text_field( wp_unslash( $_POST['hash_input'] ) ),
-						base64_decode( sanitize_text_field( wp_unslash( $_POST['sign_input'] ) ) ),
-						$public_key,
-						OPENSSL_ALGO_SHA256
-					);
-					switch ( $r ) {
-						case 1:
-							echo 'signature_verified';
-							break;
-						case 0:
-							echo 'signature_invalid';
-							break;
-						case -1:
-							echo 'verification_error';
-							break;
-					}
-				} else {
-					echo 'signature_invalid';
+			die;
+		}
+		// hash match.
+		$public_key_string = get_post_meta( intval( sanitize_text_field( wp_unslash( $_POST['formID_input'] ) ) ), '_gcmi_wpcf7_enc_pubKey', true );
+		if ( is_string( $public_key_string ) && ( '' !== $public_key_string ) ) {
+			$public_key = openssl_pkey_get_public( $public_key_string );
+		} else {
+			echo 'no_pubkey_found';
+			die;
+		}
+		if ( false === $public_key ) {
+			echo 'no_pubkey_found';
+			die;
+		}
+
+		if ( isset( $_POST['sign_input'] ) ) {
+			if ( preg_match( '%^[a-zA-Z0-9/+]*={0,2}$%', sanitize_text_field( wp_unslash( $_POST['sign_input'] ) ) ) ) {
+				$r = openssl_verify(
+					sanitize_text_field( wp_unslash( $_POST['hash_input'] ) ),
+					base64_decode( sanitize_text_field( wp_unslash( $_POST['sign_input'] ) ) ),
+					$public_key,
+					OPENSSL_ALGO_SHA256
+				);
+				switch ( $r ) {
+					case 1:
+						echo 'signature_verified';
+						break;
+					case 0:
+						echo 'signature_invalid';
+						break;
+					case -1:
+						echo 'verification_error';
+						break;
 				}
 			} else {
 				echo 'signature_invalid';
 			}
+		} else {
+			echo 'signature_invalid';
 		}
 	}
 	die;

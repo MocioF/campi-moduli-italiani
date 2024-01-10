@@ -119,8 +119,8 @@ class Gcmi_Remote_Files_List extends WP_List_Table {
 				'gcmi-dataname'   => $database_file_info[ $i ]['name'],
 				'gcmi-icon'       => $icon,
 				'gcmi-rows'       => number_format( gcmi_count_table_rows( $database_file_info[ $i ]['table_name'] ), 0, ',', '.' ),
-				'gcmi-remotedate' => gcmi_convert_timestamp( intval( get_site_option( $database_file_info[ $i ]['optN_remoteUpd'] ) ) ),
-				'gcmi-localdate'  => gcmi_convert_timestamp( intval( get_site_option( $database_file_info[ $i ]['optN_dwdtime'] ) ) ),
+				'gcmi-remotedate' => gcmi_convert_timestamp( gcmi_safe_intval( get_site_option( $database_file_info[ $i ]['optN_remoteUpd'] ) ) ),
+				'gcmi-localdate'  => gcmi_convert_timestamp( gcmi_safe_intval( get_site_option( $database_file_info[ $i ]['optN_dwdtime'] ) ) ),
 				'gcmi-dataURL'    => $database_file_info[ $i ]['remote_URL'],
 			);
 		}
@@ -164,7 +164,7 @@ class Gcmi_Remote_Files_List extends WP_List_Table {
 		$columns               = $this->get_columns();
 		$hidden                = array();
 		$sortable              = $this->get_sortable_columns();
-		$this->_column_headers = array( $columns, $hidden, $sortable ); // , 'dataname');
+		$this->_column_headers = array( $columns, $hidden, $sortable );
 
 		/** Process bulk action */
 		$this->process_bulk_action();
@@ -186,12 +186,13 @@ class Gcmi_Remote_Files_List extends WP_List_Table {
 			case 'cb':
 			case 'gcmi-dataname':
 			case 'gcmi-icon':
-			case 'gcmi-rows';
+			case 'gcmi-rows':
 			case 'gcmi-remotedate':
 			case 'gcmi-localdate':
 			case 'gcmi-dataURL':
 				return $item[ $column_name ];
 			default:
+				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_print_r
 				return print_r( $item, true ); // Show the whole array for troubleshooting purposes.
 		}
 	}
@@ -219,8 +220,10 @@ class Gcmi_Remote_Files_List extends WP_List_Table {
 		$action = $this->current_action();
 		switch ( $action ) {
 			case 'update':
-				foreach ( $_POST[ $this->_args['singular'] ] as $fname ) {
-					gcmi_update_table( sanitize_text_field( wp_unslash( $fname ) ) );
+				if ( is_array( $_POST ) ) {
+					foreach ( $_POST[ $this->_args['singular'] ] as $fname ) {
+						gcmi_update_table( sanitize_text_field( wp_unslash( $fname ) ) );
+					}
 				}
 				break;
 			default:

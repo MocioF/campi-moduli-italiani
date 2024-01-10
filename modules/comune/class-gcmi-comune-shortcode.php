@@ -80,13 +80,7 @@ class GCMI_COMUNE_ShortCode extends GCMI_COMUNE {
 	/**
 	 * Class constructor
 	 *
-	 * @param array{
-	 * 'name': string,
-	 * 'kind': string,
-	 * 'id': string,
-	 * 'comu_details': boolean,
-	 * 'class': string,
-	 * 'use_label_element': boolean } $atts Attributes for the select's combo.
+	 * @param array{'name': string, 'kind': string, 'id': string, 'comu_details': boolean, 'class': string,'use_label_element': boolean } $atts Attributes for the select's combo.
 	 */
 	public function __construct( $atts ) {
 		if ( ! parent::is_valid_kind( $atts['kind'] ) ) {

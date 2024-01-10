@@ -81,9 +81,12 @@ function gcmi_wpcf7_cf_formtag_handler( $tag ) {
 		$value               = '';
 	}
 
-	$value = $tag->get_default_option( $value );
-
-	$value = wpcf7_get_hangover( $tag->name, $value );
+	$value = gcmi_safe_strval( $tag->get_default_option( $value ) );
+	if ( '' !== $value ) {
+		$value = wpcf7_get_hangover( $tag->name, $value );
+	} else {
+		$value = wpcf7_get_hangover( $tag->name, null );
+	}
 
 	$atts['value'] = $value;
 
@@ -94,8 +97,10 @@ function gcmi_wpcf7_cf_formtag_handler( $tag ) {
 	$atts = wpcf7_format_atts( $atts );
 
 	/*
+	 * Read:
 	 * https://contactform7.com/2022/05/20/contact-form-7-56-beta/#markup-changes-in-form-controls
 	 */
+	/* @phpstan-ignore-next-line */
 	if ( version_compare( WPCF7_VERSION, '5.6', '>=' ) ) {
 		$html = sprintf(
 			'<span class="wpcf7-form-control-wrap" data-name="%1$s"><input %2$s />%3$s</span>',
@@ -113,45 +118,45 @@ function gcmi_wpcf7_cf_formtag_handler( $tag ) {
 	}
 
 	if ( $tag->get_option( 'surname-field', 'id', true ) ) {
-		$html .= '<input type="hidden" name="' . $tag->name . '-surname-field" value="' . $tag->get_option( 'surname-field', 'id', true ) . '">';
+		$html .= '<input type="hidden" name="' . $tag->name . '-surname-field" value="' . gcmi_safe_strval( $tag->get_option( 'surname-field', 'id', true ) ) . '">';
 	}
 
 	if ( $tag->get_option( 'name-field', 'id', true ) ) {
-		$html .= '<input type="hidden" name="' . $tag->name . '-name-field" value="' . $tag->get_option( 'name-field', 'id', true ) . '">';
+		$html .= '<input type="hidden" name="' . $tag->name . '-name-field" value="' . gcmi_safe_strval( $tag->get_option( 'name-field', 'id', true ) ) . '">';
 	}
 
 	if ( $tag->get_option( 'gender-field', 'id', true ) ) {
-		$html .= '<input type="hidden" name="' . $tag->name . '-gender-field" value="' . $tag->get_option( 'gender-field', 'id', true ) . '">';
+		$html .= '<input type="hidden" name="' . $tag->name . '-gender-field" value="' . gcmi_safe_strval( $tag->get_option( 'gender-field', 'id', true ) ) . '">';
 	}
 
 	if ( $tag->get_option( 'birthdate-field', 'id', true ) ) {
-		$html .= '<input type="hidden" name="' . $tag->name . '-birthdate-field" value="' . $tag->get_option( 'birthdate-field', 'id', true ) . '">';
+		$html .= '<input type="hidden" name="' . $tag->name . '-birthdate-field" value="' . gcmi_safe_strval( $tag->get_option( 'birthdate-field', 'id', true ) ) . '">';
 	}
 
 	if ( $tag->get_option( 'birthyear-field', 'id', true ) ) {
-		$html .= '<input type="hidden" name="' . $tag->name . '-birthyear-field" value="' . $tag->get_option( 'birthyear-field', 'id', true ) . '">';
+		$html .= '<input type="hidden" name="' . $tag->name . '-birthyear-field" value="' . gcmi_safe_strval( $tag->get_option( 'birthyear-field', 'id', true ) ) . '">';
 	}
 
 	if ( $tag->get_option( 'birthmonth-field', 'id', true ) ) {
-		$html .= '<input type="hidden" name="' . $tag->name . '-birthmonth-field" value="' . $tag->get_option( 'birthmonth-field', 'id', true ) . '">';
+		$html .= '<input type="hidden" name="' . $tag->name . '-birthmonth-field" value="' . gcmi_safe_strval( $tag->get_option( 'birthmonth-field', 'id', true ) ) . '">';
 	}
 
 	if ( $tag->get_option( 'birthday-field', 'id', true ) ) {
-		$html .= '<input type="hidden" name="' . $tag->name . '-birthday-field" value="' . $tag->get_option( 'birthday-field', 'id', true ) . '">';
+		$html .= '<input type="hidden" name="' . $tag->name . '-birthday-field" value="' . gcmi_safe_strval( $tag->get_option( 'birthday-field', 'id', true ) ) . '">';
 	}
 
 	if ( $tag->get_option( 'birthmunicipality-field', 'id', true ) ) {
-		$html .= '<input type="hidden" name="' . $tag->name . '-birthmunicipality-field" value="' . $tag->get_option( 'birthmunicipality-field', 'id', true ) . '">';
+		$html .= '<input type="hidden" name="' . $tag->name . '-birthmunicipality-field" value="' . gcmi_safe_strval( $tag->get_option( 'birthmunicipality-field', 'id', true ) ) . '">';
 	}
 
 	if ( $tag->get_option( 'birthnation-field', 'id', true ) ) {
-		$html .= '<input type="hidden" name="' . $tag->name . '-birthnation-field" value="' . $tag->get_option( 'birthnation-field', 'id', true ) . '">';
+		$html .= '<input type="hidden" name="' . $tag->name . '-birthnation-field" value="' . gcmi_safe_strval( $tag->get_option( 'birthnation-field', 'id', true ) ) . '">';
 	}
 
 	return $html;
 }
 
-GCMI_CF_WPCF7_FormTag::gcmi_cf_WPCF7_addfilter();
+GCMI_CF_WPCF7_FormTag::gcmi_cf_wpcf7_addfilter();
 
 /* Tag generator */
 

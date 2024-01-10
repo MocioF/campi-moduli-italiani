@@ -104,7 +104,6 @@ jQuery(document).ready(
                 var searchIDs = $('#gcmi-fb-tabs-4').find('input[type=checkbox]:checked').not("[id^='fb-gcmi-chkallcom-']").map(function () {
                     return $(this).val();
                 }).get();
-
                 var myfiltername;
                 if(0 === searchIDs.length) {
                     let title = "Errore nel salvataggio";
@@ -122,16 +121,6 @@ jQuery(document).ready(
                     let title = "Errore nel salvataggio";
                     let message = '<span class="ui-icon ui-icon-notice" style="float:left; margin:12px 12px 20px 0;"></span>' +
                         'Non è stato indicato il nome del filtro.';
-                    $.when(customOkMessage(message, title)).then(
-                        function () {
-                            $('#fb_gcmi_filter_name').focus();
-                        });
-                    return;
-                }
-                 if(rawfiltername === "unfiltered") {
-                    let title = "Errore nel salvataggio";
-                    let message = '<span class="ui-icon ui-icon-notice" style="float:left; margin:12px 12px 20px 0;"></span>' +
-                        'Nome del filtro non ammesso.';
                     $.when(customOkMessage(message, title)).then(
                         function () {
                             $('#fb_gcmi_filter_name').focus();
@@ -170,41 +159,34 @@ jQuery(document).ready(
                         function () {
                             $('#fb_gcmi_filter_name').val(myfiltername);
 
-                        },
-                        function () {}
+                        } //,
+                        //function () {}
                     );
                     return;
                 }
-                $.ajax({
-                    type: 'post',
-                    dataType: 'json',
-                    url: gcmi_fb_obj.ajax_url,
-                    data: {
-                        action: 'gcmi_fb_create_filter',
-                        _ajax_nonce: gcmi_fb_obj.nonce,
-                        includi: includi,
-                        filtername: myfiltername,
-                        codici: searchIDs
-                    },
-                    success: function (res) {
-                        print_filters();
-                        $('#gcmi-fb-tabs').hide();
-                    },
-                    error: function (res) {
-                        let title = "Errore nella creazione del filtro";
-                        let message = '<span class="ui-icon ui-icon-notice" style="float:left; margin:12px 12px 0 0;"></span>';
-                        let arrData = res.responseJSON.data;
-                        for (let i = 0; i < arrData.length; i++) {
-                            message = message + '<p><b>Err: ' + arrData[i].code + '</b></p>' +
-                                    '<p><i>' + arrData[i].message + '</i></p><p></p>';
-                        }
-                        $.when(customOkMessage(message, title)).then(
-                            function () {
-                                $('#fb_gcmi_filter_name').focus();
-                            });
-                        return;
+                let filter_array = $('.gcmi-fb-filters-container').find('span.gcmi-fb-filters-name').map(function () {
+                    return $(this).text();
+                }).get();
+                let sovrascrivi = false;
+                filter_array.forEach( function(i) {
+                    if( myfiltername === i ) {
+                        sovrascrivi = true;
                     }
-                });
+                } );
+                if ( true === sovrascrivi ) {
+                    let title = "Sovrascrivi";
+                    let message = '<span class="ui-icon ui-icon-notice" style="float:left; margin:12px 12px 20px 0;"></span>' +
+                    'Stai sovrascrivendo il filtro:<b><i>' + myfiltername + '</i></b>.<br>' +
+                    'Vuoi continuare?';
+                    $.when(customConfirm(message, title)).then(
+                        function() {
+                            // saveFilter deve gestire le richieste troppo grandi in invio.
+                            saveFilter(includi, myfiltername, searchIDs);
+                        }
+                    );
+                    return;
+                }
+                saveFilter(includi, myfiltername, searchIDs);
             }
         );
 
@@ -416,7 +398,6 @@ jQuery(document).ready(
                     filtername: editfiltername
                 },
                 success: function (res) {
-                    //console.log(res);
                     cleaningTabs();
                     if ("true" === res.includi ) {
                         $("input[type='checkbox'][id='gcmi-fb-include-ceased']").prop('checked', true);
@@ -473,14 +454,13 @@ jQuery(document).ready(
                     //clean = clean.normalize("NFD").replace(/\p{Diacritic}/gu, "");
                     clean = remove_accents(clean);
                 }
-                clean = clean.toLowerCase();
-                clean = clean.replace('/[^a-z0-9_\-]/', '');
-                clean = clean.replace('-', '_');
-                clean = clean.replace('__', '_');
-                clean.replace(/^_+/, '').replace(/_+$/, '');
-                if ('unfiltered' === clean ) {
-                    return false;
-                }
+                clean = clean
+                    .toLowerCase()
+                    .replace(/[^a-z0-9_\-]/g, '')
+                    .replace(/-/g, '_')
+                    .replace(/(_)\1+/g, '_')
+                    .replace(/^_+/, '')
+                    .replace(/_+$/, '');
                 if(clean.length === 0) {
                     return false;
                 } else {
@@ -919,6 +899,38 @@ jQuery(document).ready(
                 }
             });
             return dfd.promise();
+        }
+        function saveFilter(includi, myfiltername, searchIDs) {
+            $.ajax({
+                type: 'post',
+                dataType: 'json',
+                url: gcmi_fb_obj.ajax_url,
+                data: {
+                    action: 'gcmi_fb_create_filter',
+                    _ajax_nonce: gcmi_fb_obj.nonce,
+                    includi: includi,
+                    filtername: myfiltername,
+                    codici: searchIDs
+                },
+                success: function (res) {
+                    print_filters();
+                    $('#gcmi-fb-tabs').hide();
+                },
+                error: function (res) {
+                    let title = "Errore nella creazione del filtro";
+                    let message = '<span class="ui-icon ui-icon-notice" style="float:left; margin:12px 12px 0 0;"></span>';
+                    let arrData = res.responseJSON.data;
+                    for (let i = 0; i < arrData.length; i++) {
+                        message = message + '<p><b>Err: ' + arrData[i].code + '</b></p>' +
+                                '<p><i>' + arrData[i].message + '</i></p><p></p>';
+                    }
+                    $.when(customOkMessage(message, title)).then(
+                        function () {
+                            $('#fb_gcmi_filter_name').focus();
+                        });
+                    return;
+                }
+            });
         }
     }
 );

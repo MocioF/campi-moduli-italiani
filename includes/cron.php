@@ -20,8 +20,8 @@ add_action( 'gcmi_check_for_remote_data_updates', 'gcmi_check_update', 10, 0 );
  * @return void
  */
 function gcmi_check_update(): void {
-		$database_file_info = GCMI_Activator::$database_file_info;
-	$num_items              = count( $database_file_info );
+	$database_file_info = GCMI_Activator::$database_file_info;
+	$num_items          = count( $database_file_info );
 	for ( $i = 0; $i < $num_items; $i++ ) {
 		$name      = $database_file_info[ $i ]['name'];
 		$file_opt  = $database_file_info[ $i ]['optN_remoteUpd'];
@@ -53,7 +53,7 @@ function gcmi_check_update(): void {
 /**
  * Wrapper funzioni per ottenere la data di aggiornamento file remoto - restituisce un timestamp
  *
- * @param array{'name': string, 'downd_name': string, 'featured_csv': string, 'remote_file': string, 'remote_URL': string, 'table_name': string, 'optN_dwdtime': string, 'optN_remoteUpd': string, 'remoteUpd_method': string, 'file_type': string, 'orig_encoding': string} $myfile_info Associative array of data in file
+ * @param array{'name': string, 'downd_name': string, 'featured_csv': string, 'remote_file': string, 'remote_URL': string, 'table_name': string, 'optN_dwdtime': string, 'optN_remoteUpd': string, 'remoteUpd_method'?: string, 'file_type': string, 'orig_encoding': string} $myfile_info Associative array of data in file.
  * @return int | false
  */
 function gcmi_get_remote_update_timestamp( $myfile_info ) {
@@ -156,21 +156,20 @@ function gcmi_get_remote_file_timestamp_by_wget( $remote_file_url ) {
 	if ( false !== $wget_command && 'which:' !== substr( $wget_command, 0, 6 ) ) {
 		$dwl_command = "$wget_command --server-response -qO /dev/null $remote_file_url 2>&1";
 		exec( $dwl_command, $wget_res );
-		if ( false === $wget_res ) {
+		$status = explode( ' ', $wget_res[0] )[1];
+		if ( '200' !== $status ) {
 			return false;
 		} else {
-			// $headers_array = explode("\n", str_replace(array("\r\n", "\r"), array("\n", "\n"), $wget_res ) );
 			$headers_array = array_map( 'strtolower', $wget_res );
 			foreach ( $headers_array as $line ) {
-				if ( strpos( $line, 'last-modified' ) !== false ) {
+				if ( false !== strpos( $line, 'last-modified' ) ) {
 					$exploded          = explode( ':', $line, 2 );
 					$lm_date_formatted = trim( $exploded[1] );
 					break;
 				}
 			}
 
-			if ( is_string( $lm_date_formatted ) && '' !== $lm_date_formatted ) {
-
+			if ( isset( $lm_date_formatted ) && '' !== $lm_date_formatted ) {
 				// Last-Modified: Wed, 19 Feb 2020 14:49:18 GMT .
 				$fmt      = 'D, d M Y H:i:s O+';
 				$datetime = DateTime::createFromFormat( $fmt, $lm_date_formatted );
@@ -182,4 +181,5 @@ function gcmi_get_remote_file_timestamp_by_wget( $remote_file_url ) {
 	} else {
 		return false;
 	}
+	return false;
 }

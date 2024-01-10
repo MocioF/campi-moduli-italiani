@@ -1,9 +1,9 @@
 <?php
 /**
- * Plugin activator
+ * Classe Comune
  *
  * Class used for [comune] shortcode and form-tag
- * Contains a static class to be used both by form-tag and by shortcode
+ * Contains a class used both by form-tag and by shortcode
  *
  * @package campi-moduli-italiani
  * @subpackage campi-moduli-italiani/modules/comune
@@ -14,10 +14,8 @@
 
 defined( 'ABSPATH' ) || die( 'you do not have access to this page!' );
 
-$stringa = __( ' - (abol.)', 'campi-moduli-italiani' );
-
 /**
- * GCMI_COMUNE is a static class to be used both by form-tag and by shortcode
+ * GCMI_COMUNE is a class used both by form-tag and by shortcode
  **/
 class GCMI_COMUNE {
 
@@ -275,7 +273,7 @@ class GCMI_COMUNE {
 				);
 			}
 		}
-		// qui posso aggiungere un alert perchè se la tabella è vuota questo restituisce empty e ne viene fuori un warning
+		// qui posso aggiungere un alert perchè se la tabella è vuota questo restituisce empty e ne viene fuori un warning.
 		return $regioni;
 	}
 
@@ -580,7 +578,7 @@ class GCMI_COMUNE {
 				$sql2  = 'SELECT `' . GCMI_TABLE_PREFIX . 'comuni_soppressi`.`i_denominazione_full`, `' . GCMI_TABLE_PREFIX . 'comuni_attuali`.`i_ripartizione_geo`, ';
 				$sql2 .= '`' . GCMI_TABLE_PREFIX . 'comuni_attuali`.`i_den_regione`, `' . GCMI_TABLE_PREFIX . 'comuni_attuali`.i_den_unita_territoriale, ';
 				$sql2 .= '`' . GCMI_TABLE_PREFIX . 'comuni_soppressi`.`i_sigla_automobilistica`, 1 as `i_cod_tipo_unita_territoriale`,  ';
-				$sql2 .= 'DATE_FORMAT(`' . GCMI_TABLE_PREFIX . "comuni_soppressi`.`i_data_variazione`,'" . esc_sql( $local_date_format_mysql ) . "') AS `i_data_variazione`, ";
+				$sql2 .= 'DATE_FORMAT(`' . GCMI_TABLE_PREFIX . "comuni_soppressi`.`i_data_variazione`,'" . gcmi_safe_strval( esc_sql( $local_date_format_mysql ) ) . "') AS `i_data_variazione`, ";
 				$sql2 .= '`' . GCMI_TABLE_PREFIX . 'comuni_soppressi`.`i_anno_var`, ';
 				$sql2 .= '`' . GCMI_TABLE_PREFIX . 'comuni_soppressi`.`i_cod_scorporo`, `' . GCMI_TABLE_PREFIX . 'comuni_soppressi`.`i_denominazione_nuovo` ';
 
@@ -710,7 +708,7 @@ class GCMI_COMUNE {
 		if ( false === $results ) {
 			$sql3    = 'SELECT `i_anno_var`, `i_tipo_var`, `i_cod_comune`,`i_denominazione_full`, ';
 			$sql3   .= '`i_cod_comune_nuovo`,  `i_denominazione_nuovo`, `i_documento`, `i_contenuto`, `i_cod_flag_note`, ';
-			$sql3   .= "DATE_FORMAT(`i_data_decorrenza`, '" . esc_sql( $local_date_format_mysql ) . "') AS `i_data_decorrenza` FROM `" . GCMI_TABLE_PREFIX . 'comuni_variazioni` ';
+			$sql3   .= "DATE_FORMAT(`i_data_decorrenza`, '" . gcmi_safe_strval( esc_sql( $local_date_format_mysql ) ) . "') AS `i_data_decorrenza` FROM `" . GCMI_TABLE_PREFIX . 'comuni_variazioni` ';
 			$sql3   .= "WHERE (`i_cod_comune` = '" . esc_sql( $i_cod_comune ) . "' OR `i_cod_comune_nuovo` = '" . esc_sql( $i_cod_comune ) . "')";
 			$results = $wpdb->get_results( $sql3 ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 			wp_cache_set( $cache_key, $results, GCMI_CACHE_GROUP, GCMI_CACHE_EXPIRE_SECS );
@@ -857,12 +855,14 @@ class GCMI_COMUNE {
 		if ( false === $result ) {
 			$result = $wpdb->get_var(
 				$wpdb->prepare(
-					'SELECT `i_cod_comune` FROM `' . GCMI_TABLE_PREFIX . 'comuni_attuali` ' .
-					'WHERE `i_denominazione_ita` = %s ' .
+					'SELECT `i_cod_comune` FROM `%1$s` ' .
+					'WHERE `i_denominazione_ita` = \'%2$s\' ' .
 					'UNION ' .
-					'SELECT `i_cod_comune` FROM `' . GCMI_TABLE_PREFIX . 'comuni_soppressi` ' .
-					'WHERE `i_denominazione_full` = %s',
+					'SELECT `i_cod_comune` FROM `%3$s` ' .
+					'WHERE `i_denominazione_full` = \'%4$s\'',
+					GCMI_TABLE_PREFIX . 'comuni_attuali',
 					addslashes( $i_denominazione_ita ),
+					GCMI_TABLE_PREFIX . 'comuni_soppressi',
 					addslashes( $i_denominazione_ita )
 				)
 			);
@@ -907,8 +907,8 @@ class GCMI_COMUNE {
 			$results = $wpdb->get_row(
 				$wpdb->prepare(
 					'SELECT `i_cod_regione`, `i_cod_unita_territoriale`, `i_sigla_automobilistica` ' .
-					'FROM `' . GCMI_TABLE_PREFIX . 'comuni_attuali` ' .
-					'WHERE `i_cod_comune` = %s LIMIT 1',
+					'FROM `%1$s` WHERE `i_cod_comune` = \'%2$s\' LIMIT 1',
+					GCMI_TABLE_PREFIX . 'comuni_attuali',
 					$i_cod_comune
 				),
 				ARRAY_A
@@ -924,8 +924,8 @@ class GCMI_COMUNE {
 				$results = $wpdb->get_row(
 					$wpdb->prepare(
 						'SELECT `i_cod_unita_territoriale`, `i_sigla_automobilistica` ' .
-						'FROM `' . GCMI_TABLE_PREFIX . 'comuni_soppressi` ' .
-						'WHERE `i_cod_comune` = %s LIMIT 1',
+						'FROM `%1$s` WHERE `i_cod_comune` = \'%2$s\' LIMIT 1',
+						GCMI_TABLE_PREFIX . 'comuni_soppressi',
 						$i_cod_comune
 					),
 					ARRAY_A
@@ -945,8 +945,8 @@ class GCMI_COMUNE {
 					$results = $wpdb->get_row(
 						$wpdb->prepare(
 							'SELECT `i_cod_regione`, `i_cod_unita_territoriale`, `i_sigla_automobilistica` ' .
-							'FROM `' . GCMI_TABLE_PREFIX . 'comuni_attuali` ' .
-							'WHERE `' . GCMI_TABLE_PREFIX . 'comuni_attuali`.`i_sigla_automobilistica` = %s LIMIT 1',
+							'FROM `%1$s` WHERE `%1$s`.`i_sigla_automobilistica` = \'%2$s\' LIMIT 1',
+							GCMI_TABLE_PREFIX . 'comuni_attuali',
 							$targa
 						),
 						ARRAY_A

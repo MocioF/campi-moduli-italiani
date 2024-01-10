@@ -23,14 +23,14 @@ class GCMI_CF_WPCF7_FormTag {
 	 *
 	 * @return void
 	 */
-	public static function gcmi_cf_WPCF7_addfilter() {
+	public static function gcmi_cf_wpcf7_addfilter() {
 		add_filter( 'wpcf7_validate_cf*', array( 'GCMI_CF_WPCF7_FormTag', 'cf_validation_filter' ), 10, 2 );
 		add_filter( 'wpcf7_validate_cf', array( 'GCMI_CF_WPCF7_FormTag', 'cf_validation_filter' ), 10, 2 );
 
 		// mail tag filter: converte in maiuscolo.
 		add_filter(
 			'wpcf7_mail_tag_replaced_cf*',
-			function ( $replaced, $submitted, $html, $mail_tag ) {
+			function ( $replaced, $submitted, $html, $mail_tag ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed
 				$replaced = strtoupper( $submitted );
 				return $replaced;
 			},
@@ -40,7 +40,7 @@ class GCMI_CF_WPCF7_FormTag {
 
 		add_filter(
 			'wpcf7_mail_tag_replaced_cf',
-			function ( $replaced, $submitted, $html, $mail_tag ) {
+			function ( $replaced, $submitted, $html, $mail_tag ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed
 				$replaced = strtoupper( $submitted );
 				return $replaced;
 			},
@@ -48,6 +48,8 @@ class GCMI_CF_WPCF7_FormTag {
 			4
 		);
 	}
+
+	// phpcs:disable WordPress.Security.NonceVerification.Missing
 
 	/**
 	 * Validates the CF
@@ -207,9 +209,10 @@ class GCMI_CF_WPCF7_FormTag {
 								$norm_gender = 'F';
 								break;
 							default:
-								$err_msg = esc_html( __( 'Unexpected value in gender field', 'campi-moduli-italiani' ) );
-								$err_tit = esc_html( __( 'Error in submitted gender value', 'campi-moduli-italiani' ) );
-								wp_die( $err_msg, $err_tit );
+								wp_die(
+									esc_html__( 'Unexpected value in gender field', 'campi-moduli-italiani' ),
+									esc_html__( 'Error in submitted gender value', 'campi-moduli-italiani' )
+								);
 						}
 
 						if ( $norm_gender !== $gender ) {
@@ -318,24 +321,31 @@ class GCMI_CF_WPCF7_FormTag {
 					}
 					if ( '' !== $codice_stato ) {
 						if ( ! preg_match( '/^[0-9]{3}$/', $codice_stato ) ) {
-							$err_msg = esc_html( __( 'Unexpected value in birth country field', 'campi-moduli-italiani' ) );
-							$err_tit = esc_html( __( 'Error in submitted birth country value', 'campi-moduli-italiani' ) );
-							wp_die( $err_msg, $err_tit );
+							wp_die(
+								esc_html__( 'Unexpected value in birth country field', 'campi-moduli-italiani' ),
+								esc_html__( 'Error in submitted birth country value', 'campi-moduli-italiani' )
+							);
 						} elseif ( '100' !== $codice_stato ) {
 							// 100 è il codice ISTAT per l'ITALIA
 								$cache_key = 'gcmi_codice_stato_cf_' . strval( $codice_stato );
 								$cod_at    = wp_cache_get( $cache_key, GCMI_CACHE_GROUP );
 							if ( false === $cod_at ) {
-								$sql  = 'SELECT `i_cod_AT` FROM  ';
-								$sql .= '( ';
-								$sql .= 'SELECT `i_cod_AT` FROM `' . GCMI_TABLE_PREFIX . 'stati` ';
-								$sql .= "WHERE `i_cod_istat` = '" . esc_sql( $codice_stato ) . "'";
-								$sql .= 'UNION ';
-								$sql .= 'SELECT `i_cod_AT` FROM `' . GCMI_TABLE_PREFIX . 'stati_cessati` ';
-								$sql .= "WHERE `i_cod_istat` = '" . esc_sql( $codice_stato ) . "'";
-								$sql .= ') as subQuery ';
-
-								$cod_at = $wpdb->get_var( $sql );
+								$cod_at = $wpdb->get_var(
+									$wpdb->prepare(
+										'SELECT `i_cod_AT` FROM  ' .
+										'( ' .
+										'SELECT `i_cod_AT` FROM `%1$s` ' .
+										'WHERE `i_cod_istat` = \'%2$s\'' .
+										'UNION ' .
+										'SELECT `i_cod_AT` FROM `%3$s` ' .
+										'WHERE `i_cod_istat` = \'%4$s\'' .
+										') as subQuery ',
+										GCMI_TABLE_PREFIX . 'stati',
+										esc_sql( $codice_stato ),
+										GCMI_TABLE_PREFIX . 'stati_cessati',
+										esc_sql( $codice_stato )
+									)
+								);
 								wp_cache_set( $cache_key, $cod_at, GCMI_CACHE_GROUP, GCMI_CACHE_EXPIRE_SECS );
 							}
 
@@ -361,56 +371,67 @@ class GCMI_CF_WPCF7_FormTag {
 					}
 					if ( '' !== $cod_comune ) {
 						if ( ! preg_match( '/^[0-9]{6}$/', $cod_comune ) ) {
-							$err_msg = esc_html( __( 'Unexpected value in birth municipality field', 'campi-moduli-italiani' ) );
-							$err_tit = esc_html( __( 'Error in submitted birth municipality value', 'campi-moduli-italiani' ) );
-							wp_die( $err_msg, $err_tit );
-						} else {
+							wp_die(
+								esc_html__( 'Unexpected value in birth municipality field', 'campi-moduli-italiani' ),
+								esc_html__( 'Error in submitted birth municipality value', 'campi-moduli-italiani' )
+							);
+						} elseif ( substr( $comune, 0, 1 ) !== 'Z' ) {
 							/*
 							 * Se il codice catastale "comune" conimcia con Z allora si tratta di uno stato estero
 							 */
-							if ( substr( $comune, 0, 1 ) !== 'Z' ) {
-								$cache_key = 'gcmi_comune_cf_' . strval( $cod_comune );
-								$a_results = wp_cache_get( $cache_key, GCMI_CACHE_GROUP );
-								if ( false === $a_results ) {
-									$sql  = 'SELECT (`i_denominazione_full`) FROM ( ';
-									$sql .= 'SELECT `i_cod_comune`, `i_denominazione_full` FROM `' . GCMI_TABLE_PREFIX . 'comuni_attuali` ';
-									$sql .= 'UNION ';
-									$sql .= 'SELECT `i_cod_comune`, `i_denominazione_full` FROM `' . GCMI_TABLE_PREFIX . 'comuni_soppressi` ';
-									$sql .= ") as subQuery WHERE `i_cod_comune` = '" . esc_sql( $cod_comune ) . "'";
+							$cache_key = 'gcmi_comune_cf_' . strval( $cod_comune );
+							$a_results = wp_cache_get( $cache_key, GCMI_CACHE_GROUP );
+							if ( false === $a_results ) {
+								$a_results = $wpdb->get_col(
+									$wpdb->prepare(
+										'SELECT (`i_denominazione_full`) FROM ( ' .
+										'SELECT `i_cod_comune`, `i_denominazione_full` FROM `%1$s` ' .
+										'UNION ' .
+										'SELECT `i_cod_comune`, `i_denominazione_full` FROM `%2$s` ' .
+										') as subQuery WHERE `i_cod_comune` = \'%2$s\'',
+										GCMI_TABLE_PREFIX . 'comuni_attuali',
+										GCMI_TABLE_PREFIX . 'comuni_soppressi',
+										esc_sql( $cod_comune )
+									),
+									0
+								);
+								wp_cache_set( $cache_key, $a_results, GCMI_CACHE_GROUP, GCMI_CACHE_EXPIRE_SECS );
+							}
+							$den_str_1 = $a_results[0];
 
-									$a_results = $wpdb->get_col( $sql, 0 );
-									wp_cache_set( $cache_key, $a_results, GCMI_CACHE_GROUP, GCMI_CACHE_EXPIRE_SECS );
-								}
-								$den_str_1 = $a_results[0];
+							// elimino la doppia nominazione usando solo quello che c'e' prima del carattere / .
+							$arr       = explode( '/', $den_str_1, 2 );
+							$den_str_2 = $arr[0];
 
-								// elimino la doppia nominazione usando solo quello che c'e' prima del carattere / .
-								$arr       = explode( '/', $den_str_1, 2 );
-								$den_str_2 = $arr[0];
+							// converto lettere accentate in lettera seguita da apostrofo.
+							$den_str_21 = str_replace( 'è', 'e\'', $den_str_2 );
+							$den_str_22 = str_replace( 'é', 'e\'', $den_str_21 );
+							$den_str_23 = str_replace( 'ò', 'o\'', $den_str_22 );
+							$den_str_24 = str_replace( 'à', 'a\'', $den_str_23 );
+							$den_str_25 = str_replace( 'ì', 'i\'', $den_str_24 );
+							$den_str_26 = str_replace( 'ù', 'u\'', $den_str_25 );
+							// trim e maiuscolo.
+							$den_str_3 = trim( strtoupper( $den_str_26 ) );
+							$escaped   = esc_sql( $den_str_3 );
 
-								// converto lettere accentate in lettera seguita da apostrofo.
-								$den_str_21 = str_replace( 'è', 'e\'', $den_str_2 );
-								$den_str_22 = str_replace( 'é', 'e\'', $den_str_21 );
-								$den_str_23 = str_replace( 'ò', 'o\'', $den_str_22 );
-								$den_str_24 = str_replace( 'à', 'a\'', $den_str_23 );
-								$den_str_25 = str_replace( 'ì', 'i\'', $den_str_24 );
-								$den_str_26 = str_replace( 'ù', 'u\'', $den_str_25 );
-								// trim e maiuscolo.
-								$den_str_3 = trim( strtoupper( $den_str_26 ) );
-								$escaped   = esc_sql( $den_str_3 );
-
-								$cache_key = 'gcmi_cod_catastale_cf_' . strval( $escaped );
-								$a_results = wp_cache_get( $cache_key, GCMI_CACHE_GROUP );
-								if ( false === $a_results ) {
-									$sql       = 'SELECT `i_cod_catastale` FROM `' . GCMI_TABLE_PREFIX . 'codici_catastali` ';
-									$sql      .= "WHERE `i_denominazione_ita` = '" . esc_sql( $escaped ) . "'";
-									$a_results = $wpdb->get_col( $sql, 0 );
-									wp_cache_set( $cache_key, $a_results, GCMI_CACHE_GROUP, GCMI_CACHE_EXPIRE_SECS );
-								}
-								if ( count( $a_results ) > 0 ) { // vecchi comuni cessati non hanno codice catastale o comunque non è stato usato per rilascio codici fiscali.
-									$cod_catastale = strval( $a_results[0] );
-									if ( $cod_catastale !== $comune ) {
-										$result->invalidate( $tag, esc_html( __( 'Tax code does not match the municipality of birth', 'campi-moduli-italiani' ) ) );
-									}
+							$cache_key = 'gcmi_cod_catastale_cf_' . strval( $escaped );
+							$a_results = wp_cache_get( $cache_key, GCMI_CACHE_GROUP );
+							if ( false === $a_results ) {
+								$a_results = $wpdb->get_col(
+									$wpdb->prepare(
+										'SELECT `i_cod_catastale` FROM `%1$s` ' .
+										'WHERE `i_denominazione_ita` = \'%2$s\'',
+										GCMI_TABLE_PREFIX . 'codici_catastali',
+										$escaped
+									),
+									0
+								);
+								wp_cache_set( $cache_key, $a_results, GCMI_CACHE_GROUP, GCMI_CACHE_EXPIRE_SECS );
+							}
+							if ( count( $a_results ) > 0 ) { // vecchi comuni cessati non hanno codice catastale o comunque non è stato usato per rilascio codici fiscali.
+								$cod_catastale = strval( $a_results[0] );
+								if ( $cod_catastale !== $comune ) {
+									$result->invalidate( $tag, esc_html( __( 'Tax code does not match the municipality of birth', 'campi-moduli-italiani' ) ) );
 								}
 							}
 						}

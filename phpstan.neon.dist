@@ -1,5 +1,6 @@
 parameters:
 	level: 9
+	usePathConstantsAsConstantString: true
 	paths:
 		- campi-moduli-italiani.php
 		- settings.php
@@ -19,9 +20,11 @@ parameters:
 	ignoreErrors:
 		- 
 		    message: '#Method [a-zA-Z0-9\\_]+::[a-zA-Z0-9\\_]+\(\) has parameter \$[a-zA-Z0-9\\_]+ with no value type specified in iterable type array.#'
-		    path: modules/comune/class-wpforms-field-comune.php
+		    path: modules/comune/class-gcmi-wpforms-field-comune.php
 		- 
 		    message: '#Method [a-zA-Z0-9\\_]+::[a-zA-Z0-9\\_]+\(\) return type has no value type specified in iterable type array.#'
-		    path: modules/comune/class-wpforms-field-comune.php
+		    path: modules/comune/class-gcmi-wpforms-field-comune.php
 		- '#Constant WPFORMS_PLUGIN_URL not found.#'
 		- '#Constant DB_CHARSET not found.#'
+	dynamicConstantNames:
+		- DB_CHARSET

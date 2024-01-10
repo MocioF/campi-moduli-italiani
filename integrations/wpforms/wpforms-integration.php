@@ -13,9 +13,8 @@
  * Adds a custom field group to wpforms.
  *
  * @since 2.0.0
- *
- * @param array $fields Fields in the wpforms builder.
- * @return array
+ * @param array{group_name: string, fields: array{string, string}} $fields Fields in the wpforms builder.
+ * @return array{group_name: string, fields: array{string, string}}
  */
 function gcmi_wpforms_builder_fields_buttons( $fields ) {
 	$fields += array(
@@ -35,7 +34,7 @@ if ( GCMI_USE_STATO === true ) {
 	add_action(
 		'init',
 		function () {
-			require_once plugin_dir_path( GCMI_PLUGIN ) . 'modules/stato/class-wpforms-field-stato.php';
+			require_once plugin_dir_path( GCMI_PLUGIN ) . 'modules/stato/class-gcmi-wpforms-field-stato.php';
 		},
 		99
 	);
@@ -46,7 +45,7 @@ if ( GCMI_USE_COMUNE === true ) {
 	add_action(
 		'init',
 		function () {
-			require_once plugin_dir_path( GCMI_PLUGIN ) . 'modules/comune/class-wpforms-field-comune.php';
+			require_once plugin_dir_path( GCMI_PLUGIN ) . 'modules/comune/class-gcmi-wpforms-field-comune.php';
 		},
 		99
 	);

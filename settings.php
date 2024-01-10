@@ -74,7 +74,6 @@ if ( GCMI_USE_COMUNE === true ) {
 	add_action( 'wp_ajax_nopriv_the_ajax_hook_info', 'GCMI_COMUNE::gcmi_showinfo' );
 
 	add_action( 'wp_enqueue_scripts', 'GCMI_COMUNE::gcmi_register_scripts' );
-	add_action( 'wp_initialize_site', 'gcmi_create_unfiltered_views' );
 }
 
 /**
@@ -104,7 +103,7 @@ add_action( 'plugins_loaded', 'gcmi_load_integrations' );
  * @return void
  */
 function gcmi_upgrade() {
-	$old_ver = get_site_option( 'gcmi_plugin_version', '0' );
+	$old_ver = gcmi_safe_strval( get_site_option( 'gcmi_plugin_version', '0' ) );
 	$new_ver = GCMI_VERSION;
 
 	if ( $old_ver === $new_ver ) {
@@ -113,7 +112,7 @@ function gcmi_upgrade() {
 
 	if ( version_compare( $old_ver, '2.2.0', '<' ) ) {
 		gcmi_add_index_on_tables();
-		gcmi_create_unfiltered_views();
+		gcmi_create_unfiltered_views_on_plugin_update();
 	}
 
 	// Calls the callback functions that have been added to the gcmi_upgrade action hook.
@@ -126,11 +125,26 @@ function gcmi_upgrade() {
 }
 add_action( 'admin_init', 'gcmi_upgrade', 10, 0 );
 
-
+/**
+ * Aggiunge gli indici alle tabelle
+ *
+ * @since 2.2.0
+ * @global type $wpdb
+ */
 function gcmi_add_index_on_tables(): void {
 	global $wpdb;
-	$wpdb->query( 'ALTER TABLE ` ' . GCMI_TABLE_PREFIX . 'comuni_attuali` ADD INDEX(`i_cod_comune`);' );
-	$wpdb->query( 'ALTER TABLE ` ' . GCMI_TABLE_PREFIX . 'comuni_soppressi` ADD INDEX(`i_cod_comune`);' );
+	$wpdb->query(
+		$wpdb->prepare(
+			'ALTER TABLE `%1$s` ADD INDEX(`i_cod_comune`);',
+			GCMI_TABLE_PREFIX . 'comuni_attuali'
+		)
+	);
+	$wpdb->query(
+		$wpdb->prepare(
+			'ALTER TABLE `%1$s` ADD INDEX(`i_cod_comune`);',
+			GCMI_TABLE_PREFIX . 'comuni_soppressi'
+		)
+	);
 }
 
 /**
@@ -139,28 +153,58 @@ function gcmi_add_index_on_tables(): void {
  * Funzione chiamata in gcmi_upgrade, hooked su admin_init.
  *
  * @since 2.2.0
- * @return void
  */
 function gcmi_create_unfiltered_views(): void {
-	if ( true !== GCMI_USE_COMUNE ) {
-		return;
-	}
-	if ( false === is_multisite() ) {
-		GCMI_comune_filter_builder::create_view( 'unfiltered', 'true', array() );
-	} else {
-		$args  = array(
-			'orderby' => 'id',
-			'order'   => 'asc',
+	global $wpdb;
+	foreach ( GCMI_Activator::$database_file_info as $resource ) {
+		$wpdb->query(
+			$wpdb->prepare(
+				'CREATE OR REPLACE VIEW %1$s AS ' .
+				'SELECT * FROM `%2$s` WHERE 1',
+				$wpdb->prefix . 'gcmi_' . $resource['name'],
+				GCMI_TABLE_PREFIX . $resource['name']
+			)
 		);
-		$sites = get_sites( $args );
+	}
+}
+
+/**
+ * Crea le unfiltered views quando il plugin viene aggiornato
+ */
+function gcmi_create_unfiltered_views_on_plugin_update(): void {
+	if ( function_exists( 'is_multisite' ) && is_multisite() ) {
+		$sites = GCMI_Activator::get_sites_array();
 		foreach ( $sites as $site ) {
-			if ( is_object( $site ) ) {
-				switch_to_blog( intval( $site->blog_id ) );
-				if ( ! is_plugin_active( 'campi-moduli-italiani/campi-moduli-italiani.php' ) ) {
-					GCMI_comune_filter_builder::create_view( 'unfiltered', 'true', array() );
-				}
+			switch_to_blog( intval( $site->blog_id ) );
+			if ( is_plugin_active( GCMI_PLUGIN_BASENAME ) && false === is_main_site() ) {
+				// solo se il plugin non è già attivato e questo non è il main site.
+				gcmi_create_unfiltered_views();
 			}
 			restore_current_blog();
+		}
+	}
+}
+
+/**
+ * Elimina tutte le view presenti per quel sito
+ *
+ * Cancella sia le unfiltered views sia i filtri.
+ *
+ * @global type $wpdb
+ */
+function gcmi_delete_all_views(): void {
+	global $wpdb;
+	foreach ( GCMI_Activator::$database_file_info as $resource ) {
+		$lista_views = $wpdb->get_col(
+			$wpdb->prepare( 'SHOW TABLES like %s', $wpdb->prefix . 'gcmi_' . $resource['name'] . '%' )
+		);
+		foreach ( $lista_views as $view ) {
+			$wpdb->query(
+				$wpdb->prepare(
+					'DROP VIEW IF EXISTS %1$s',
+					$view
+				)
+			);
 		}
 	}
 }
@@ -174,9 +218,8 @@ function gcmi_create_unfiltered_views(): void {
  */
 function gcmi_get_extra_meta_links( $meta, $file ) {
 	if ( GCMI_PLUGIN_BASENAME === $file ) {
-		$plugin_page = admin_url( 'admin.php?page=gcmi' );
-		$meta[]      = "<a href='https://wordpress.org/support/plugin/campi-moduli-italiani/' target='_blank' title'" . __( 'Support', 'campi-moduli-italiani' ) . "'>" . __( 'Support', 'campi-moduli-italiani' ) . '</a>';
-		$meta[]      = "<a href='https://wordpress.org/support/plugin/campi-moduli-italiani/reviews#new-post' target='_blank' title='" . __( 'Leave a review', 'campi-moduli-italiani' ) . "'><i class='gcmi-stars'><svg xmlns='http://www.w3.org/2000/svg' width='15' height='15' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' class='feather feather-star'><polygon points='12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2'/></svg><svg xmlns='http://www.w3.org/2000/svg' width='15' height='15' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' class='feather feather-star'><polygon points='12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2'/></svg><svg xmlns='http://www.w3.org/2000/svg' width='15' height='15' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' class='feather feather-star'><polygon points='12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2'/></svg><svg xmlns='http://www.w3.org/2000/svg' width='15' height='15' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' class='feather feather-star'><polygon points='12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2'/></svg><svg xmlns='http://www.w3.org/2000/svg' width='15' height='15' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' class='feather feather-star'><polygon points='12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2'/></svg></i></a>";
+		$meta[] = "<a href='https://wordpress.org/support/plugin/campi-moduli-italiani/' target='_blank' title'" . __( 'Support', 'campi-moduli-italiani' ) . "'>" . __( 'Support', 'campi-moduli-italiani' ) . '</a>';
+		$meta[] = "<a href='https://wordpress.org/support/plugin/campi-moduli-italiani/reviews#new-post' target='_blank' title='" . __( 'Leave a review', 'campi-moduli-italiani' ) . "'><i class='gcmi-stars'><svg xmlns='http://www.w3.org/2000/svg' width='15' height='15' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' class='feather feather-star'><polygon points='12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2'/></svg><svg xmlns='http://www.w3.org/2000/svg' width='15' height='15' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' class='feather feather-star'><polygon points='12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2'/></svg><svg xmlns='http://www.w3.org/2000/svg' width='15' height='15' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' class='feather feather-star'><polygon points='12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2'/></svg><svg xmlns='http://www.w3.org/2000/svg' width='15' height='15' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' class='feather feather-star'><polygon points='12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2'/></svg><svg xmlns='http://www.w3.org/2000/svg' width='15' height='15' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' class='feather feather-star'><polygon points='12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2'/></svg></i></a>";
 	}
 	return $meta;
 }
@@ -227,8 +270,22 @@ function gcmi_deactivate( $network_wide ) {
 	GCMI_Activator::deactivate( $network_wide );
 }
 
+/**
+ * The code that runs during plugin uninstallation.
+ * This action is documented in admin/class-gcmi-activator.php
+ *
+ * @since 2.2.0
+ * @return void
+ */
+function gcmi_uninstall() {
+	require_once plugin_dir_path( __FILE__ ) . 'admin/class-gcmi-activator.php';
+	GCMI_Activator::delete_all_tables();
+}
+
+
 register_activation_hook( GCMI_PLUGIN, 'gcmi_activate' );
 register_deactivation_hook( GCMI_PLUGIN, 'gcmi_deactivate' );
+register_uninstall_hook( GCMI_PLUGIN, 'gcmi_uninstall' );
 
 /**
  * Display plugin upgrade notice to users
@@ -245,7 +302,7 @@ function gcmi_plugin_update_message( $data, $response ) {
 		);
 	}
 }
-add_action( 'in_plugin_update_message-campi-moduli-italiani/campi-moduli-italiani.php', 'gcmi_plugin_update_message', 10, 2 );
+add_action( 'in_plugin_update_message-' . GCMI_PLUGIN_BASENAME, 'gcmi_plugin_update_message', 10, 2 );
 
 /**
  * Display plugin upgrade notice to users on multisite installations
@@ -267,7 +324,7 @@ function gcmi_ms_plugin_update_message( $file, $plugin ) {
 		}
 	}
 }
-add_action( 'after_plugin_row_wp-campi-moduli-italiani/campi-moduli-italiani.php', 'gcmi_ms_plugin_update_message', 10, 2 );
+add_action( 'after_plugin_row_wp-' . GCMI_PLUGIN_BASENAME, 'gcmi_ms_plugin_update_message', 10, 2 );
 
 /**
  * Show error in front end
@@ -292,4 +349,36 @@ function gcmi_show_error( $gcmi_error ) {
 		);
 		echo wp_kses( $output, $allowed_html );
 	}
+}
+
+// if we have a new blog on a multisite let's set it up.
+add_action( 'wp_initialize_site', 'gcmi_multisite_new_blog' );
+
+// if a blog is removed, let's remove the settings.
+add_action( 'wp_uninitialize_site', 'gcmi_multisite_delete_blog' );
+
+/**
+ * Crea le viste non filtrate alla creazione di un nuovo blog
+ *
+ * @param WP_Site $params New site object.
+ * @return void
+ */
+function gcmi_multisite_new_blog( $params ) {
+	if ( is_plugin_active_for_network( GCMI_PLUGIN_BASENAME ) ) {
+		switch_to_blog( intval( $params->blog_id ) );
+		gcmi_create_unfiltered_views();
+		restore_current_blog();
+	}
+}
+
+/**
+ * Elimina tutte le viste e i filtri alla eliminazione di un blog
+ *
+ * @param WP_Site $params The deleted site object.
+ * @return void
+ */
+function gcmi_multisite_delete_blog( $params ) {
+	switch_to_blog( intval( $params->blog_id ) );
+	gcmi_delete_all_views();
+	restore_current_blog();
 }

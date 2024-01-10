@@ -78,6 +78,8 @@ class GCMI_Help_Tabs {
 					)
 				);
 
+				$this->sidebar();
+
 				return;
 		}
 	}
@@ -108,10 +110,9 @@ class GCMI_Help_Tabs {
 		) . '</p>';
 		$content['update_tables_overview'] .= '<p>' . esc_html__( 'Check the update dates of your data and the update dates of the online files, pick tables to update, select the "Update tables" bulk action and click on "Apply".', 'campi-moduli-italiani' ) . '</p>';
 
-		$content['comune_filter_builder'] = '<p>' . sprintf(
-			esc_html__( 'la stringa di aiuto per il costruttore di filtri %1$s', 'campi-moduli-italiani' ),
-			'<b>RICORDATI DI SCRIVERLA</b>'
-		) . '</p>';
+		$content['comune_filter_builder']  = '<p>' . esc_html__( 'Here you can create a filter to be used in comune\'s fileds on CF7 and WP_Form.', 'campi-moduli-italiani' ) . '</p>';
+		$content['comune_filter_builder'] .= '<p>' . esc_html__( 'Select all the municipalities to be included in the filter, chose a filter name, and save.', 'campi-moduli-italiani' ) . '</p>';
+		$content['comune_filter_builder'] .= '<p>' . esc_html__( 'When a form field uses a filter, only municipalities included in the filter, will be selectable.', 'campi-moduli-italiani' ) . '</p>';
 
 		if ( ! empty( $content[ $name ] ) ) {
 			return $content[ $name ];

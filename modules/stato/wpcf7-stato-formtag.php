@@ -3,7 +3,7 @@
  * Select a Country
  *
  * This form-tag adds a select to chose a country.
- * It returns the Istat Country code (useful to check Italian fiscal code for people born outside Italy
+ * It returns the Istat Country code (useful to check Italian fiscal code for people born outside Italy)
  *
  * @link https://wordpress.org/plugins/campi-moduli-italiani/
  *
@@ -12,7 +12,7 @@
  * @since 1.0.0
  */
 
-add_action( 'wpcf7_init', 'gcmi_add_form_tag_statoestero' );
+add_action( 'wpcf7_init', 'gcmi_add_form_tag_stato' );
 
 /**
  * Adds stato form-tag.
@@ -22,7 +22,7 @@ add_action( 'wpcf7_init', 'gcmi_add_form_tag_statoestero' );
  * @since 1.0.0
  * @return void
  */
-function gcmi_add_form_tag_statoestero(): void {
+function gcmi_add_form_tag_stato(): void {
 	wpcf7_add_form_tag(
 		array( 'stato', 'stato*' ),
 		'gcmi_wpcf7_stato_formtag_handler',
@@ -77,10 +77,9 @@ function gcmi_wpcf7_stato_formtag_handler( $tag ) {
 	$solo_attuali   = $tag->has_option( 'only_current' );
 
 	// codice per gestire i valori di default.
-	$value    = (string) reset( $tag->values );
-	$value    = $tag->get_default_option( $value );
-	$value    = wpcf7_get_hangover( $tag->name, $value );
-	$pr_value = $value;
+	$default_value = gcmi_safe_strval( $tag->values[0] );
+	$value         = wpcf7_get_hangover( $tag->name, $default_value );
+	$pr_value      = $value;
 
 	// codice per gestire la cache della query stati.
 	$cache_key  = 'stati_';
@@ -160,8 +159,10 @@ function gcmi_wpcf7_stato_formtag_handler( $tag ) {
 	$atts = wpcf7_format_atts( $atts );
 
 	/*
+	 * Read:
 	 * https://contactform7.com/2022/05/20/contact-form-7-56-beta/#markup-changes-in-form-controls
 	 */
+	/* @phpstan-ignore-next-line */
 	if ( version_compare( WPCF7_VERSION, '5.6', '>=' ) ) {
 		$html = sprintf(
 			'<span class="wpcf7-form-control-wrap" data-name="%1$s"><select %2$s>%3$s</select>%4$s</span>',
@@ -190,7 +191,9 @@ if ( ! function_exists( 'wpcf7_select_validation_filter' ) ) {
 	add_filter( 'wpcf7_validate_stato', 'gcmi_wpcf7_select_validation_filter', 10, 2 );
 	add_filter( 'wpcf7_validate_stato*', 'gcmi_wpcf7_select_validation_filter', 10, 2 );
 } else {
+	/* @phpstan-ignore-next-line */
 	add_filter( 'wpcf7_validate_stato', 'wpcf7_select_validation_filter', 10, 2 );
+	/* @phpstan-ignore-next-line */
 	add_filter( 'wpcf7_validate_stato*', 'wpcf7_select_validation_filter', 10, 2 );
 }
 
@@ -211,6 +214,7 @@ add_filter(
 			$sql .= 'WHERE `i_cod_istat` = %s';
 			$sql .= ') as subQuery ';
 
+			// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 			$replaced = $wpdb->get_var( $wpdb->prepare( $sql, $submitted, $submitted ) );
 			wp_cache_set( $cache_key, $replaced, GCMI_CACHE_GROUP, GCMI_CACHE_EXPIRE_SECS );
 		}
@@ -236,6 +240,7 @@ add_filter(
 			$sql .= 'WHERE `i_cod_istat` = %s';
 			$sql .= ') as subQuery ';
 
+			// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 			$replaced = $wpdb->get_var( $wpdb->prepare( $sql, $submitted, $submitted ) );
 			wp_cache_set( $cache_key, $replaced, GCMI_CACHE_GROUP, GCMI_CACHE_EXPIRE_SECS );
 		}
@@ -260,7 +265,7 @@ add_action( 'wpcf7_admin_init', 'gcmi_wpcf7_add_tag_generator_stato', 37 );
 function gcmi_wpcf7_add_tag_generator_stato(): void {
 	if ( class_exists( 'WPCF7_TagGenerator' ) ) {
 		$tag_generator = WPCF7_TagGenerator::get_instance();
-		$tag_generator->add( 'gcmi-stato', __( 'Insert a select for Countries', 'campi-moduli-italiani' ), 'gcmi_wpcf7_tg_pane_stato' );
+		$tag_generator->add( 'gcmi-stato', __( 'countries selection', 'campi-moduli-italiani' ), 'gcmi_wpcf7_tg_pane_stato' );
 	} elseif ( function_exists( 'wpcf7_add_tag_generator' ) ) {
 		wpcf7_add_tag_generator( 'gcmi-stato', __( 'Insert a select for Countries', 'campi-moduli-italiani' ), 'gcmi_wpcf7_tg_pane_stato', 'gcmi_wpcf7_tg_pane_stato' );
 	}

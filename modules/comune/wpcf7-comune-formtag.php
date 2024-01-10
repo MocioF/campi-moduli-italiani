@@ -46,7 +46,8 @@ function gcmi_wpcf7_comune_formtag_handler( $tag ) {
 	$atts['class'] = $tag->get_class_option( $class );
 
 	$wr_class_array = $tag->get_option( 'wrapper_class', 'class', false );
-	if ( false !== ( $wr_class_array ) ) {
+
+	if ( is_array( $wr_class_array ) ) {
 		$options['wr_class'] = $wr_class_array;
 	}
 
@@ -57,11 +58,14 @@ function gcmi_wpcf7_comune_formtag_handler( $tag ) {
 
 	$atts['id'] = $tag->get_id_option();
 
-	$kind = strval( $tag->get_option( 'kind', '', true ) );
+	$kind = $tag->get_option( 'kind', '', true );
+	if ( false !== $kind ) {
+		$kind = gcmi_safe_strval( $kind );
+	}
 
 	$options['kind']              = $kind;
-	$options['comu_details']      = $tag->has_option( 'comu_details' );
-	$options['use_label_element'] = $tag->has_option( 'use_label_element' );
+	$options['comu_details']      = boolval( $tag->has_option( 'comu_details' ) );
+	$options['use_label_element'] = boolval( $tag->has_option( 'use_label_element' ) );
 
 	// codice per gestire i valori di default.
 	$value = (string) reset( $tag->values );
