@@ -28,6 +28,8 @@ if ( true === GCMI_USE_COMUNE ) {
 	$gcmi_fb = new GCMI_Comune_Filter_Builder();
 	add_action( 'wp_ajax_gcmi_fb_requery_comuni', array( $gcmi_fb, 'ajax_get_tabs_html' ), 10, 0 );
 	add_action( 'wp_ajax_gcmi_fb_create_filter', array( $gcmi_fb, 'ajax_create_filter' ), 10, 0 );
+	add_action( 'wp_ajax_gcmi_fb_create_filter_multi', array( $gcmi_fb, 'ajax_create_filters_multi' ), 10, 0 );
+	add_action( 'wp_ajax_gcmi_fb_save_filter_slice', array( $gcmi_fb, 'ajax_save_filters_slice' ), 10, 0 );
 	add_action( 'wp_ajax_gcmi_fb_get_locale', array( $gcmi_fb, 'ajax_get_locale' ), 10, 0 );
 	add_action( 'wp_ajax_gcmi_fb_get_filters', array( $gcmi_fb, 'ajax_get_filters_html' ), 10, 0 );
 	add_action( 'wp_ajax_gcmi_fb_delete_filter', array( $gcmi_fb, 'ajax_delete_filter' ), 10, 0 );

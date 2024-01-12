@@ -154,8 +154,8 @@ function gcmi_add_index_on_tables(): void {
 /**
  * Controlla se su un campo di una tabella è presente già un indice
  *
- * @param string $table_name
- * @param string $field_name
+ * @param string $table_name Nome tabella.
+ * @param string $field_name Nome del campo.
  * @since 2.2.0
  * @return bool
  */

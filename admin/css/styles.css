@@ -25,10 +25,22 @@
      width: 34%;
 }
  .gcmi-fb-main-container {
-     display: block;
      padding-right: 10px;
-    /*width: 90%;
-    */
+     display: flex;
+     flex-flow: column;
+     height: 100%;
+}
+ .gcmi-fb-main-container .gcmi-fb-filters-container{
+     flex: 0 1 auto;
+}
+ .gcmi-fb-box-container{
+     display: contents;
+}
+ .gcmi-fb-main-container .gcmi-fb-tabs-container{
+     flex: 1 1 100px;
+}
+ .gcmi-fb-main-container .dummy-footer {
+     flex: 0 1 40px;
 }
  .gcmi-fb-regione-container {
      display: grid;
@@ -44,18 +56,18 @@
      row-gap: 20px;
      column-gap: 15px;
 }
-.gcmi-fb-regione-blocco, .gcmi-fb-lettera-blocco {
-    display: flex;
-    flex-direction: column;
-    row-gap: 12px;
+ .gcmi-fb-regione-blocco, .gcmi-fb-lettera-blocco {
+     display: flex;
+     flex-direction: column;
+     row-gap: 12px;
 }
-.gcmi-fb-checkall-container{
-    display: flex;
-    flex-direction: row;
-    justify-content: flex-start;
-    gap: 20px;
-    align-items: end;
-    background-color: #f6f7f7;
+ .gcmi-fb-checkall-container{
+     display: flex;
+     flex-direction: row;
+     justify-content: flex-start;
+     gap: 20px;
+     align-items: end;
+     background-color: #f6f7f7;
 }
  .gcmi-fb-regione-name {
      font-weight: bold;

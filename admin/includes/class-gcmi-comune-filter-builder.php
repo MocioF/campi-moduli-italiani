@@ -31,9 +31,11 @@ class GCMI_Comune_Filter_Builder {
 		$html .= '</div>';
 
 		$html .= '<div class="gcmi-fb-main-container">';
+		$html .= '<div class="gcmi-fb-box-container">';
 		$html .= '<div class="gcmi-fb-filters-container" id="gcmi-fb-filters-container">';
 		$html .= self::print_filtri();
 		$html .= '</div>';
+		$html .= '<div class="gcmi-fb-tabs-container" id="gcmi-fb-tabs-container">';
 		$html .= '<div id="gcmi-fb-tabs">';
 		$html .= '<ul>';
 		$html .= '<li><a href="#gcmi-fb-tabs-1">' . esc_html__( 'Existent/Ceased', 'campi-moduli-italiani' ) . '</a></li>';
@@ -60,6 +62,12 @@ class GCMI_Comune_Filter_Builder {
 		$html .= '<div id="gcmi-fb-tabs-5">';
 		$html .= '</div>';
 
+		$html .= '</div>';
+		$html .= '</div>';
+		$html .= '<div class="gcmi-fb-footer"><p><i>' .
+			__( 'Italian forms fields', 'campi-moduli-italiani' ) . ' - ' .
+			__( 'Italian municipalities\' filter builder ', 'campi-moduli-italiani' ) .
+			'</i></p></div>';
 		$html .= '</div>';
 		$html .= '</div>';
 
@@ -103,6 +111,13 @@ class GCMI_Comune_Filter_Builder {
 		}
 
 		if ( false !== $filter_name ) {
+			if ( 0 !== strpos( $filter_name, 'tmp_', 0 ) ) {
+				if ( self::has_view_cessati( $filter_name ) ) {
+					$includi_cessati = 'true';
+				} else {
+					$includi_cessati = 'false';
+				}
+			}
 			$reg_selected = self::get_cod_regioni_in_view( $filter_name );
 			$pro_selected = self::get_cod_province_in_view( $filter_name );
 			$com_selected = self::get_cod_comuni_in_view( $filter_name );
@@ -683,7 +698,10 @@ class GCMI_Comune_Filter_Builder {
 	/**
 	 * Crea un filtro del database
 	 *
+	 * La funzione è utilizzata per la creazione di un filtro con singolo invio di codici
 	 * Funzione richiamata da una chiamata AJAX.
+	 *
+	 * @return void
 	 */
 	public static function ajax_create_filter(): void {
 		check_ajax_referer( 'gcmi_fb_nonce' );
@@ -692,80 +710,286 @@ class GCMI_Comune_Filter_Builder {
 		if ( $error->has_errors() ) {
 			wp_send_json_error( $error, 422 );
 		}
-
 		$sanitized_name = self::sanitize_table_name( sanitize_key( wp_unslash( $_POST['filtername'] ) ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotValidated
 		$use_cessati    = strval( sanitize_text_field( wp_unslash( $_POST['includi'] ) ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotValidated
 		$codici         = $_POST['codici']; // phpcs:ignore
 		if ( false !== $sanitized_name ) {
-			$view_result = self::create_view( $sanitized_name, $use_cessati, $codici );
-
-			if ( false === $view_result ) {
-				$error_string = esc_html__( 'The creation of the filter, failed.', 'campi-moduli-italiani' );
-				$error->add( '-8', $error_string );
-				wp_send_json_error( $error, 422 );
-			}
-
-			$input_t  = count( $_POST['codici'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotValidated
-			$count_1  = self::count_view_entries( $sanitized_name, false );
-			$count_2  = self::count_view_entries( $sanitized_name, true );
-			$output_t = $count_1 + $count_2;
-
-			$response = array(
-				'num_in'  => $input_t,
-				'attuali' => $count_1,
-				'cessati' => $count_2,
-				'num_out' => $output_t,
-			);
-			wp_send_json_success( $response, 200 );
+			self::save_filter( $sanitized_name, $use_cessati, $codici );
 		}
 	}
 
 	/**
-	 * Controlla che i valori passati per la crazione di un filtro siano corretti.
+	 * Crea un filtro del database
+	 *
+	 * La funzione è utilizzata per la creazione di un filtro con multipli invii di codici
+	 * Funzione richiamata da una chiamata AJAX.
+	 *
+	 * @return void
+	 */
+	public static function ajax_create_filters_multi(): void {
+		check_ajax_referer( 'gcmi_fb_nonce' );
+		$error = self::check_filter_creation_fields_multi( $_POST );
+		if ( $error->has_errors() ) {
+			wp_send_json_error( $error, 422 );
+		}
+		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotValidated
+		$total_slices = gcmi_safe_intval( sanitize_text_field( wp_unslash( $_POST['total'] ) ) );
+		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotValidated
+		$total_codici = gcmi_safe_intval( sanitize_text_field( wp_unslash( $_POST['count'] ) ) );
+		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotValidated
+		$sanitized_name = self::sanitize_table_name( sanitize_key( wp_unslash( $_POST['filtername'] ) ) );
+		$use_cessati    = '';
+		$codici         = array();
+
+		for ( $i = 0; $i < $total_slices; $i++ ) {
+			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotValidated
+			$option_name  = 'gcmi-fb-com-' . $sanitized_name . '-' . strval( $i + 1 ) . '_' . sanitize_text_field( wp_unslash( $_POST['total'] ) );
+			$option_value = get_option( $option_name, false );
+			if ( false === $option_value ) {
+				$error->add( '-12', esc_html__( 'Request to store the partial filter was refused', 'campi-moduli-italiani' ) );
+				wp_send_json_error( $error, 422 );
+			}
+			if ( ! is_array( $option_value ) ) {
+				$error->add( '-13', esc_html__( 'Request to store the partial filter was refused', 'campi-moduli-italiani' ) );
+				wp_send_json_error( $error, 422 );
+			}
+
+			if ( '' === $use_cessati && array_key_exists( 'includi', $option_value ) ) {
+				$use_cessati = $option_value['includi'];
+			} else {
+				$use_cessati = 'false';
+			}
+			if ( is_array( $option_value['codici'] ) ) {
+				$codici = array_merge( $codici, $option_value['codici'] );
+			}
+			$delete_array[] = $option_name;
+		}
+		if ( count( $codici ) !== $total_codici ) {
+			$error->add( '-14', esc_html__( 'Retrieved number of codes doesn\'t match expected', 'campi-moduli-italiani' ) );
+			wp_send_json_error( $error, 422 );
+		}
+
+		if ( ( false !== $sanitized_name ) && ( isset( $delete_array ) ) ) {
+			foreach ( $delete_array as $delete_option ) {
+				$delete = delete_option( $delete_option );
+				if ( false === $delete ) {
+					$error->add( '-15', esc_html__( 'Error in deleting option', 'campi-moduli-italiani' ) );
+					wp_send_json_error( $error, 422 );
+				}
+			}
+			self::save_filter( $sanitized_name, $use_cessati, $codici );
+		}
+	}
+
+	/**
+	 * Salva il filtro nel database
+	 *
+	 * Utilizzata dalle due funzioni: ajax_create_filters e ajax_create_filters_multi.
+	 *
+	 * @param string        $sanitized_name Nome del filtro.
+	 * @param string        $use_cessati 'true' se utilizza i cessati.
+	 * @param array<string> $codici array con i codici dei comuni.
+	 * @return void
+	 */
+	private static function save_filter( $sanitized_name, $use_cessati, $codici ) {
+		$view_result = self::create_view( $sanitized_name, $use_cessati, $codici );
+
+		if ( false === $view_result ) {
+			$error = new WP_Error();
+			$error->add( '-8', esc_html__( 'The creation of the filter, failed.', 'campi-moduli-italiani' ) );
+			wp_send_json_error( $error, 422 );
+		}
+
+		$input_t  = count( $codici ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotValidated
+		$count_1  = self::count_view_entries( $sanitized_name, false );
+		$count_2  = self::count_view_entries( $sanitized_name, true );
+		$output_t = $count_1 + $count_2;
+
+		$response = array(
+			'num_in'  => $input_t,
+			'attuali' => $count_1,
+			'cessati' => $count_2,
+			'num_out' => $output_t,
+		);
+		wp_send_json_success( $response, 200 );
+	}
+
+	/**
+	 * Controlla che i valori passati per la creazione di un filtro multi siano corretti.
 	 *
 	 * @param array<mixed> $posted The $_POST array.
-	 * @return \WP_Error
+	 * @return WP_Error
+	 */
+	private static function check_filter_creation_fields_multi( $posted ) {
+		$error        = self::check_filter_creation_common_fields( $posted );
+		$error_string = esc_html__( 'Received an incomplete request to create a filter.', 'campi-moduli-italiani' );
+		if (
+			! is_array( $posted ) ||
+			! array_key_exists( 'total', $posted ) ||
+			! array_key_exists( 'count', $posted )
+		) {
+			$error->add( '-1', $error_string );
+			return $error; // necessario perché in PHP7 l'assegnazione successiva, genera un error.
+		}
+
+		if ( ! is_numeric( $posted['total'] ) ||
+			0 > gcmi_safe_intval( $posted['total'] ) ||
+			! is_numeric( $posted['count'] ) ||
+			0 > gcmi_safe_intval( $posted['count'] )
+		) {
+			$error->add( '-1', $error_string );
+		}
+		return $error;
+	}
+
+	/**
+	 * Salva un'opzione nel database, contenente il pezzo dell'array dei codici
+	 *
+	 * @return void
+	 */
+	public static function ajax_save_filters_slice(): void {
+		check_ajax_referer( 'gcmi_fb_nonce' );
+		$error = self::check_save_filter_slices_fields( $_POST );
+
+		if ( $error->has_errors() ) {
+			$error->add( '-10', esc_html__( 'Request to store the partial filter, not processed', 'campi-moduli-italiani' ) );
+			wp_send_json_error( $error, 422 );
+		}
+		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotValidated
+		$response = sanitize_text_field( wp_unslash( $_POST['slice'] ) ) . '_' . sanitize_text_field( wp_unslash( $_POST['total'] ) );
+		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotValidated
+		$filtername  = self::sanitize_table_name( sanitize_key( wp_unslash( $_POST['filtername'] ) ) );
+		$option_name = 'gcmi-fb-com-' . $filtername . '-' . $response;
+
+		$option_value = array(
+			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotValidated
+			'includi'    => strval( sanitize_text_field( wp_unslash( $_POST['includi'] ) ) ),
+			'filtername' => $filtername,
+			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotValidated
+			'codici'     => array_map( 'sanitize_text_field', wp_unslash( $_POST['codici'] ) ),
+			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotValidated
+			'total'      => gcmi_safe_intval( sanitize_text_field( wp_unslash( $_POST['total'] ) ) ),
+			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotValidated
+			'slice'      => gcmi_safe_intval( sanitize_text_field( wp_unslash( $_POST['slice'] ) ) ),
+		);
+
+		$option  = update_option( $option_name, $option_value, false );
+		$ret_val = get_option( $option_name );
+		if ( true === $option && $option_value === $ret_val ) {
+			wp_send_json_success( $response, 200 );
+		} else {
+			$error->add(
+				'-11',
+				sprintf(
+					// translators: %s is the name of the temporary option.
+					esc_html__( 'Request to store the partial filter was refused. Option name: %s', 'campi-moduli-italiani' ),
+					$option_name
+				)
+			);
+			wp_send_json_error( $error, 422 );
+		}
+	}
+
+	/**
+	 * Controlla che i valori passati nelle richieste parziali
+	 * per la creazione di un filtro sliced siano corretti.
+	 *
+	 * @param array<mixed> $posted The $_POST array.
+	 * @return WP_Error
+	 */
+	private static function check_save_filter_slices_fields( $posted ) {
+		$error = self::check_filter_creation_fields( $posted );
+
+		if (
+			! array_key_exists( 'total', $posted ) ||
+			! array_key_exists( 'slice', $posted )
+		) {
+			$error->add( '-9', esc_html__( 'Received an incomplete request to create a filter.', 'campi-moduli-italiani' ) );
+			return $error; // necessario perché in PHP7 l'assegnazione successiva, genera un error.
+		}
+
+		if (
+			( ! is_numeric( $posted['total'] ) ) ||
+			( ! is_numeric( $posted['slice'] ) ) ||
+			( gcmi_safe_intval( $posted['slice'] ) > gcmi_safe_intval( $posted['total'] ) ) ||
+			( 0 === gcmi_safe_intval( $posted['total'] ) ) ||
+			( 0 === gcmi_safe_intval( $posted['slice'] ) )
+		) {
+			$error->add( '-10', esc_html__( 'Received an invalid slice of codes.', 'campi-moduli-italiani' ) );
+		}
+		return $error;
+	}
+
+	/**
+	 * Controlla che i valori passati per la creazione di un filtro siano corretti.
+	 *
+	 * @param array<mixed> $posted The $_POST array.
+	 * @return WP_Error
 	 */
 	private static function check_filter_creation_fields( $posted ) {
+		$error = self::check_filter_creation_common_fields( $posted );
+		$error->merge_from( self::check_filter_creation_codici( $posted ) );
+		return $error;
+	}
+
+	/**
+	 * Controlla che i valori comuni passati per la creazione di un filtro siano corretti.
+	 *
+	 * @param array<mixed> $posted The $_POST array.
+	 * @return WP_Error
+	 */
+	private static function check_filter_creation_common_fields( $posted ) {
 		$error = new WP_Error();
 
 		if (
 			! is_array( $posted ) ||
 			! array_key_exists( 'filtername', $posted ) ||
-			! array_key_exists( 'includi', $posted ) ||
-			! array_key_exists( 'codici', $posted )
+			! array_key_exists( 'includi', $posted )
 		) {
-			$error_string = esc_html__( 'Received an incomplete request to create a filter.', 'campi-moduli-italiani' );
-			$error->add( '-1', $error_string );
+			$error->add( '-1', esc_html__( 'Received an incomplete request to create a filter.', 'campi-moduli-italiani' ) );
 			return $error; // necessario perché in PHP7 l'assegnazione successiva, genera un error.
 		}
 
 		$filter_name = gcmi_safe_strval( $posted['filtername'] );
 		$use_cessati = gcmi_safe_strval( $posted['includi'] );
-		$codici      = $posted['codici'];
 
 		$sanitized_name = self::sanitize_table_name( $filter_name );
 		if ( false === $sanitized_name ) {
-			$error_string = esc_html__( 'The filter name is not valid. Please use only lowercase alphanumeric characters and single underscores.', 'campi-moduli-italiani' );
-			$error->add( '-2', $error_string );
+			$error->add( '-2', esc_html__( 'The filter name is not valid. Please use only lowercase alphanumeric characters and single underscores.', 'campi-moduli-italiani' ) );
 		} elseif ( 20 < strlen( $sanitized_name ) ) {
-			$error_string = esc_html__( 'No more than 20 characters are allowed for the filter\'s name.', 'campi-moduli-italiani' );
-			$error->add( '-3', $error_string );
+			$error->add( '-3', esc_html__( 'No more than 20 characters are allowed for the filter\'s name.', 'campi-moduli-italiani' ) );
 		}
 
 		if ( 'true' !== $use_cessati && 'false' !== $use_cessati ) {
-			$error_string = esc_html__( 'Unexpected value for parameter use_cessati.', 'campi-moduli-italiani' );
-			$error->add( '-4', $error_string );
+			$error->add( '-4', esc_html__( 'Unexpected value for parameter use_cessati.', 'campi-moduli-italiani' ) );
 		}
+		return $error;
+	}
 
+	/**
+	 * Controlla che i codici passati per la crazione di un filtro siano corretti.
+	 *
+	 * @param array<mixed> $posted The $_POST array.
+	 * @return WP_Error
+	 */
+	private static function check_filter_creation_codici( $posted ) {
+		$error = new WP_Error();
+
+		if (
+			! is_array( $posted ) ||
+			! array_key_exists( 'codici', $posted ) ||
+			! is_array( $posted['codici'] )
+		) {
+			$error->add( '-1', esc_html__( 'Received an incomplete request to create a filter.', 'campi-moduli-italiani' ) );
+			return $error; // necessario perché in PHP7 l'assegnazione successiva, genera un error.
+		}
+		$codici = $posted['codici'];
 		if ( count( $codici ) === 0 ) {
-			$error_string = esc_html__( 'The array of the codes of the municipalities is empty.', 'campi-moduli-italiani' );
-			$error->add( '-5', $error_string );
+			$error->add( '-5', esc_html__( 'The array of the codes of the municipalities is empty.', 'campi-moduli-italiani' ) );
 		}
 
 		if ( false === gcmi_is_one_dimensional_string_array( $codici ) ) {
-			$error_string = esc_html__( 'The array of the codes of the municipalities is invalid.', 'campi-moduli-italiani' );
-			$error->add( '-6', $error_string );
+			$error->add( '-6', esc_html__( 'The array of the codes of the municipalities is invalid.', 'campi-moduli-italiani' ) );
 		}
 		$check_codici = true;
 		foreach ( $codici as $val ) {
@@ -778,10 +1002,35 @@ class GCMI_Comune_Filter_Builder {
 			}
 		}
 		if ( false === $check_codici ) {
-			$error_string = esc_html__( 'The array with the codes of the municipalities contains incorrect values.', 'campi-moduli-italiani' );
-			$error->add( '-7', $error_string );
+			$error->add( '-7', esc_html__( 'The array with the codes of the municipalities contains incorrect values.', 'campi-moduli-italiani' ) );
 		}
 		return $error;
+	}
+
+	/**
+	 * Verifica se un filtro utilizza i comuni cessati
+	 *
+	 * @global type $wpdb
+	 * @param string $filter_name Il nome del filtro.
+	 * @return bool
+	 */
+	private static function has_view_cessati( $filter_name ) {
+		global $wpdb;
+		$full_view_name = GCMI_SVIEW_PREFIX . 'comuni_soppressi_' . $filter_name;
+		if ( false === self::check_view_exists( $full_view_name ) ) {
+			return false;
+		} else {
+			$count = $wpdb->get_var(
+				$wpdb->prepare(
+					'SELECT COUNT(`id`) AS \'NUM\' FROM `%1$s` WHERE 1',
+					$full_view_name
+				)
+			);
+			if ( gcmi_safe_intval( $count ) > 0 ) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	/**
@@ -952,7 +1201,7 @@ class GCMI_Comune_Filter_Builder {
 	 * @global type $wpdb
 	 * @return bool
 	 */
-	public static function create_view( $viewname, $use_cessati, $codici ) {
+	private static function create_view( $viewname, $use_cessati, $codici ) {
 		global $wpdb;
 
 		$where_clause_attuali = self::create_filter_sql( $codici, false );
