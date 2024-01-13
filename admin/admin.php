@@ -211,6 +211,14 @@ function gcmi_admin_enqueue_scripts( $hook_suffix ) {
 		'all'
 	);
 
+	wp_enqueue_style(
+		'gcmi-fb-spinner',
+		plugins_url( GCMI_PLUGIN_NAME . '/admin/css/gcmi-fb-spinner.min.css' ),
+		array(),
+		GCMI_VERSION,
+		'all'
+	);
+
 	$wp_scripts = wp_scripts();
 	wp_enqueue_style(
 		'jquery-ui-theme-smoothness',

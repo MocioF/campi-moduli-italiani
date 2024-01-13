@@ -76,6 +76,12 @@ jQuery(document).ready(function ($) {
           _ajax_nonce: gcmi_fb_obj.nonce,
           filtername: delfiltername,
         },
+        beforeSend: function () {
+					$('#gcmi-spinner-blocks').removeClass('hidden');
+				},
+        complete: function () {
+					$('#gcmi-spinner-blocks').addClass('hidden');
+				},
         success: function (res) {
           print_filters();
         },
@@ -185,8 +191,7 @@ jQuery(document).ready(function ($) {
       $.when(customConfirm(message, title)).then(
         function () {
           $("#fb_gcmi_filter_name").val(myfiltername);
-        } //,
-        //function () {}
+        }
       );
       return;
     }
@@ -388,6 +393,7 @@ jQuery(document).ready(function ($) {
 
   function waitingTabs() {
     var waiting_string = "<span>In attesa dei dati...</span>";
+    $('#gcmi-spinner-blocks').removeClass('hidden');
     $("#gcmi-fb-tabs-2").append(waiting_string);
     $("#gcmi-fb-tabs-3").append(waiting_string);
     $("#gcmi-fb-tabs-4").append(waiting_string);
@@ -405,6 +411,9 @@ jQuery(document).ready(function ($) {
         _ajax_nonce: gcmi_fb_obj.nonce,
         includi: includi
       },
+      complete: function () {
+        $('#gcmi-spinner-blocks').addClass('hidden');
+      },
       success: function (res) {
         cleaningTabs();
         $("#gcmi-fb-tabs-2").append(res.regioni_html);
@@ -421,12 +430,15 @@ jQuery(document).ready(function ($) {
       type: "post",
       dataType: "json",
       url: gcmi_fb_obj.ajax_url,
-//      async: false,
       data: {
         action: "gcmi_fb_edit_filter",
         _ajax_nonce: gcmi_fb_obj.nonce,
         includi: includi,
         filtername: editfiltername
+      },
+
+      complete: function () {
+        $('#gcmi-spinner-blocks').addClass('hidden');
       },
       success: function (res) {
         cleaningTabs();
@@ -462,9 +474,6 @@ jQuery(document).ready(function ($) {
             .first()
             .change();
         });
-        //                    $("#gcmi-fb-tabs-4 input[type=checkbox]:not(:checked)").not("[id^='fb-gcmi-chkallcom-']").each(function () {
-        //                        $(this).change();
-        //                    });
       },
       error: function (res) {
         showResErrorMessage(res, "RetrieveFilter");
@@ -918,7 +927,6 @@ jQuery(document).ready(function ($) {
   function customConfirm(customMessage, title) {
     var dfd = new jQuery.Deferred();
     $("#gcmi-fb-dialog").html(customMessage);
-    //$("#gcmi-fb-dialog").prop('title', title );
     $("#gcmi-fb-dialog").dialog({
       resizable: false,
       height: 240,
@@ -941,7 +949,6 @@ jQuery(document).ready(function ($) {
   function customOkMessage(customMessage, title) {
     var dfd = new jQuery.Deferred();
     $("#gcmi-fb-dialog").html(customMessage);
-    //$("#gcmi-fb-dialog").prop('title', title );
     $("#gcmi-fb-dialog").dialog({
       resizable: false,
       height: 240,
@@ -995,6 +1002,12 @@ jQuery(document).ready(function ($) {
         includi: includi,
         filtername: myfiltername,
         codici: searchIDs
+      },
+      beforeSend: function () {
+        $('#gcmi-spinner-blocks').removeClass('hidden');
+      },
+      complete: function () {
+        $('#gcmi-spinner-blocks').addClass('hidden');
       },
       success: function (res) {
         if ( false === tmp ) {
@@ -1059,6 +1072,11 @@ jQuery(document).ready(function ($) {
           total: TotalSlices,
           slice: sliceIndex + 1,
         },
+        beforeSend: function () {
+          if ( $('#gcmi-spinner-blocks').hasClass('hidden' ) ) {
+            $('#gcmi-spinner-blocks').removeClass('hidden');
+          }
+				},
         success: function (res) {
           TotalSuccess++;
         },
@@ -1069,14 +1087,14 @@ jQuery(document).ready(function ($) {
               $.ajax(this);
               return;
             } else {
-              // devo dirgli qualcosa
+              $('#gcmi-spinner-blocks').addClass('hidden');
               showResErrorMessage(res, "CreateFilter");
               return;
             }
             return;
           }
           if (res.status != 422) {
-            // devo dirgli qualcosa
+            $('#gcmi-spinner-blocks').addClass('hidden');
             showResErrorMessage(res);
             return;
           }
@@ -1119,13 +1137,14 @@ jQuery(document).ready(function ($) {
         total: TotalSlices,
         count: TotalSelected
       },
-      success: function (res) {
+        success: function (res) {
         // filtro creato
         if ( false === tmp ) {
             print_filters();
             $("#gcmi-fb-tabs").hide();
+            $('#gcmi-spinner-blocks').addClass('hidden');
         } else {
-             // stampo le nuove tabs
+          // stampo le nuove tabs
           printTabsEditFilter(myfiltername);
           // rimuovo il filtro temporaneo dal database
           waitForEl("#fb_gcmi_filter_name", function() {
@@ -1137,6 +1156,9 @@ jQuery(document).ready(function ($) {
                 action: "gcmi_fb_delete_filter",
                 _ajax_nonce: gcmi_fb_obj.nonce,
                 filtername: myfiltername
+              },
+              complete: function () {
+                $('#gcmi-spinner-blocks').addClass('hidden');
               },
               error: function (res) {
                 console.log(res);
@@ -1152,6 +1174,7 @@ jQuery(document).ready(function ($) {
             $.ajax(this);
             return;
           } else {
+            $('#gcmi-spinner-blocks').addClass('hidden');
             if ( false === tmp ) {
               showResErrorMessage(res, "CreateFilter");
             } else {
@@ -1162,6 +1185,7 @@ jQuery(document).ready(function ($) {
           return;
         }
         if (res.status != 422) {
+          $('#gcmi-spinner-blocks').addClass('hidden');
           if ( false === tmp ) {
             showResErrorMessage(res, "CreateFilter");
           } else {

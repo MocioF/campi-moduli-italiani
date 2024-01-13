@@ -462,7 +462,16 @@ final class GCMI_Comune_Filter_BuilderTest extends WP_Ajax_UnitTestCase {
 					'count' => '64',
 				],
 				false
-			]
+			],
+			[
+				[
+					'filtername' => 'test_bo_e_prov_sopp',
+					'includi' => 'true',
+					'total' => '4',
+					'count' => '64',
+				],
+				true
+			],
 		];
 	}
 	

@@ -35,6 +35,7 @@ class GCMI_Comune_Filter_Builder {
 		$html .= '<div class="gcmi-fb-filters-container" id="gcmi-fb-filters-container">';
 		$html .= self::print_filtri();
 		$html .= '</div>';
+		$html .= self::print_spinner();
 		$html .= '<div class="gcmi-fb-tabs-container" id="gcmi-fb-tabs-container">';
 		$html .= '<div id="gcmi-fb-tabs">';
 		$html .= '<ul>';
@@ -1412,5 +1413,13 @@ class GCMI_Comune_Filter_Builder {
 			'locale' => $locale,
 		);
 		wp_send_json( $response );
+	}
+
+	private static function print_spinner(): string {
+		return '<div id="gcmi-spinner-blocks" class="gcmi-spinner-blocks hidden"><div class="gcmi-spinner-tools">' .
+		'<div class="gcmi-spinner-box-1"></div><div class="gcmi-spinner-box-2"></div><div class="gcmi-spinner-box-3"></div>' .
+		'<div class="gcmi-spinner-box-4"></div><div class="gcmi-spinner-box-C"></div><div class="gcmi-spinner-box-5"></div>' .
+		'<div class="gcmi-spinner-box-6"></div><div class="gcmi-spinner-box-7"></div><div class="gcmi-spinner-box-8"></div>' .
+		'</div></div>';
 	}
 }
