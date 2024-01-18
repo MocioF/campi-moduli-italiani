@@ -111,7 +111,7 @@ function gcmi_upgrade() {
 	if ( $old_ver === $new_ver ) {
 		return;
 	}
-
+	gcmi_update_db_2024( $old_ver, $new_ver );
 	do_action( 'gcmi_upgrade', $new_ver, $old_ver );
 	if ( false === is_multisite() ) {
 		update_option( 'gcmi_plugin_version', $new_ver );
@@ -120,6 +120,21 @@ function gcmi_upgrade() {
 	}
 }
 
+function gcmi_update_db_2024( $old_ver, $new_ver ) {
+	global $wpdb;
+	require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+	if ( $old_ver < $new_ver && $old_ver <= '2.1.4' ) {
+		$queries = array(
+			'ALTER TABLE ' . GCMI_TABLE_PREFIX . 'comuni_attuali ' . 'RENAME COLUMN i_nuts1 to i_nuts1_2010',
+			'ALTER TABLE ' . GCMI_TABLE_PREFIX . 'comuni_attuali ' . 'RENAME COLUMN i_nuts23 to i_nuts2_2010',
+			'ALTER TABLE ' . GCMI_TABLE_PREFIX . 'comuni_attuali ' . 'RENAME COLUMN i_nuts3 to i_nuts3_2010',
+			'ALTER TABLE ' . GCMI_TABLE_PREFIX . 'comuni_attuali ' . 'ADD COLUMN i_nuts1_2021 char(3) NOT NULL, AFTER i_nuts3_2010',
+			'ALTER TABLE ' . GCMI_TABLE_PREFIX . 'comuni_attuali ' . 'ADD COLUMN i_nuts2_2021 char(4) NOT NULL, AFTER i_nuts1_2021',
+			'ALTER TABLE ' . GCMI_TABLE_PREFIX . 'comuni_attuali ' . 'ADD COLUMN i_nuts3_2021 char(5) NOT NULL, AFTER i_nuts2_2021',
+		);
+		dbDelta( $queries, true );
+	}
+}
 
 /**
  * Adds extra links to the plugin activation page

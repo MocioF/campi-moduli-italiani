@@ -30,7 +30,7 @@ class GCMI_CF_WPCF7_FormTag {
 		// mail tag filter: converte in maiuscolo.
 		add_filter(
 			'wpcf7_mail_tag_replaced_cf*',
-			function( $replaced, $submitted, $html, $mail_tag ) {
+			function ( $replaced, $submitted, $html, $mail_tag ) {
 				$replaced = strtoupper( $submitted );
 				return $replaced;
 			},
@@ -40,7 +40,7 @@ class GCMI_CF_WPCF7_FormTag {
 
 		add_filter(
 			'wpcf7_mail_tag_replaced_cf',
-			function( $replaced, $submitted, $html, $mail_tag ) {
+			function ( $replaced, $submitted, $html, $mail_tag ) {
 				$replaced = strtoupper( $submitted );
 				return $replaced;
 			},
@@ -116,13 +116,13 @@ class GCMI_CF_WPCF7_FormTag {
 							$parte_cognome = $matches2[0][0] . $matches2[0][1] . $matches2[0][2];
 						} else {
 							for ( $i = 0; $i < $nconsonanti; $i++ ) {
-								  $parte_cognome = $parte_cognome . $matches2[0][ $i ];
+									$parte_cognome = $parte_cognome . $matches2[0][ $i ];
 							}
-							  $n = 3 - strlen( $parte_cognome );
+								$n = 3 - strlen( $parte_cognome );
 							for ( $i = 0; $i < $n; $i++ ) {
-								  $parte_cognome = $parte_cognome . $matches1[0][ $i ];
+									$parte_cognome = $parte_cognome . $matches1[0][ $i ];
 							}
-							  $n = 3 - strlen( $parte_cognome );
+								$n = 3 - strlen( $parte_cognome );
 							for ( $i = 0; $i < $n;
 							$i++ ) {
 								$parte_cognome = $parte_cognome . 'X';
@@ -158,13 +158,13 @@ class GCMI_CF_WPCF7_FormTag {
 							$parte_nome = $matches2[0][0] . $matches2[0][1] . $matches2[0][2];
 						} else {
 							for ( $i = 0; $i < $nconsonanti; $i++ ) {
-								  $parte_nome = $parte_nome . $matches2[0][ $i ];
+									$parte_nome = $parte_nome . $matches2[0][ $i ];
 							}
-							  $n = 3 - strlen( $parte_nome );
+								$n = 3 - strlen( $parte_nome );
 							for ( $i = 0; $i < $n; $i++ ) {
-								  $parte_nome = $parte_nome . $matches1[0][ $i ];
+									$parte_nome = $parte_nome . $matches1[0][ $i ];
 							}
-							  $n = 3 - strlen( $parte_nome );
+								$n = 3 - strlen( $parte_nome );
 							for ( $i = 0; $i < $n;
 							$i++ ) {
 								$parte_nome = $parte_nome . 'X';
@@ -321,27 +321,26 @@ class GCMI_CF_WPCF7_FormTag {
 							$err_msg = esc_html( __( 'Unexpected value in birth country field', 'campi-moduli-italiani' ) );
 							$err_tit = esc_html( __( 'Error in submitted birth country value', 'campi-moduli-italiani' ) );
 							wp_die( $err_msg, $err_tit );
-						} else {
-							if ( '100' !== $codice_stato ) { // 100 è il codice ISTAT per l'ITALIA
+						} elseif ( '100' !== $codice_stato ) {
+							// 100 è il codice ISTAT per l'ITALIA
 								$cache_key = 'gcmi_codice_stato_cf_' . strval( $codice_stato );
 								$cod_at    = wp_cache_get( $cache_key, GCMI_CACHE_GROUP );
-								if ( false === $cod_at ) {
-									$sql  = 'SELECT `i_cod_AT` FROM  ';
-									$sql .= '( ';
-									$sql .= 'SELECT `i_cod_AT` FROM `' . GCMI_TABLE_PREFIX . 'stati` ';
-									$sql .= "WHERE `i_cod_istat` = '" . esc_sql( $codice_stato ) . "'";
-									$sql .= 'UNION ';
-									$sql .= 'SELECT `i_cod_AT` FROM `' . GCMI_TABLE_PREFIX . 'stati_cessati` ';
-									$sql .= "WHERE `i_cod_istat` = '" . esc_sql( $codice_stato ) . "'";
-									$sql .= ') as subQuery ';
+							if ( false === $cod_at ) {
+								$sql  = 'SELECT `i_cod_AT` FROM  ';
+								$sql .= '( ';
+								$sql .= 'SELECT `i_cod_AT` FROM `' . GCMI_TABLE_PREFIX . 'stati` ';
+								$sql .= "WHERE `i_cod_istat` = '" . esc_sql( $codice_stato ) . "'";
+								$sql .= 'UNION ';
+								$sql .= 'SELECT `i_cod_AT` FROM `' . GCMI_TABLE_PREFIX . 'stati_cessati` ';
+								$sql .= "WHERE `i_cod_istat` = '" . esc_sql( $codice_stato ) . "'";
+								$sql .= ') as subQuery ';
 
-									$cod_at = $wpdb->get_var( $sql );
-									wp_cache_set( $cache_key, $cod_at, GCMI_CACHE_GROUP, GCMI_CACHE_EXPIRE_SECS );
-								}
+								$cod_at = $wpdb->get_var( $sql );
+								wp_cache_set( $cache_key, $cod_at, GCMI_CACHE_GROUP, GCMI_CACHE_EXPIRE_SECS );
+							}
 
-								if ( $comune !== $cod_at ) {
-									$result->invalidate( $tag, esc_html( __( 'Tax code does not match the Country of birth', 'campi-moduli-italiani' ) ) );
-								}
+							if ( $comune !== $cod_at ) {
+								$result->invalidate( $tag, esc_html( __( 'Tax code does not match the Country of birth', 'campi-moduli-italiani' ) ) );
 							}
 						}
 					}

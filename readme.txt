@@ -5,7 +5,7 @@ Tags: Contact Form 7, WPForms, comuni italiani, codice fiscale, firma digitale, 
 Requires at least: 5.9
 Tested up to: 6.4
 Requires PHP: 7.2
-Stable tag: 2.1.4
+Stable tag: 2.1.5
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html
 
@@ -127,6 +127,10 @@ You can create an issue in our Github repo:
 5. Image of the admin screen, from which it is possible to update the data
 
 == Changelog ==
+= 2.1.5 =
+* Update comuni_attuali structure to new dataset
+* Added a check on data format before parsing
+
 = 2.1.4 =
 * Update URL for cadastrial codes
 * Updated istat.it pem chain

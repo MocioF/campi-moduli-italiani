@@ -5,7 +5,7 @@ Tags: Contact Form 7, WPForms, comuni italiani, codice fiscale, firma digitale, 
 Requires at least: 5.9
 Tested up to: 6.4
 Requires PHP: 7.2
-Stable tag: 2.1.4
+Stable tag: 2.1.5
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html
 
@@ -125,6 +125,10 @@ Puoi inviare una richiesta nel nostro repository Github:
 5. Immagine della schermata di admin, da cui è possibile effettuare l'aggiornamento dei dati
 
 == Changelog ==
+= 2.1.5 =
+* Aggiornata la struttura della tabella comuni_attuali al nuovo formato di dati
+* Aggiunto un controllo sui dati di importazione prima dell'elaborazione
+
 = 2.1.4 =
 * Aggiornato URL per archivio codici catastali
 * Aggiornato il certificato del sito istat.it

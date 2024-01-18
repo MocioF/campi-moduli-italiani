@@ -777,9 +777,12 @@ class GCMI_Activator {
 				i_cod_comune_num_2006_2009 int(6) NOT NULL,
 				i_cod_comune_num_1995_2005 int(6) NOT NULL,
 				i_cod_catastale char(4) NOT NULL,
-				i_nuts1 char(3) NOT NULL,
-				i_nuts23 char(4) NOT NULL,
-				i_nuts3 char(5) NOT NULL,
+				i_nuts1_2010 char(3) NOT NULL,
+				i_nuts2_2010 char(4) NOT NULL,
+				i_nuts3_2010 char(5) NOT NULL,
+				i_nuts1_2021 char(3) NOT NULL,
+				i_nuts2_2021 char(4) NOT NULL,
+				i_nuts3_2021 char(5) NOT NULL,
 				PRIMARY KEY (id)
 				) $charset_collate";
 				break;
@@ -968,6 +971,22 @@ class GCMI_Activator {
 	}
 
 	/**
+	 *
+	 * @param string $string Una stringa numerica
+	 * @param int    $len il numero di caratteri della stringa restituita
+	 * @return string
+	 */
+	private static function add_trailing_zeroes( $string, $len ) {
+		if ( ! is_numeric( $string ) ) {
+			return $string;
+		}
+		if ( $len === strlen( $string ) ) {
+			return $string;
+		}
+		return sprintf( '%0' . strval( $len ) . 's', $string );
+	}
+
+	/**
 	 * Populates a db table.
 	 *
 	 * Populates a db table, using data in csv file.
@@ -1033,29 +1052,32 @@ class GCMI_Activator {
 						if ( ! ( $wpdb->insert(
 							$table,
 							array(
-								'i_cod_regione'            => $gcmi_dati_line[0],
-								'i_cod_unita_territoriale' => $gcmi_dati_line[1],
-								'i_cod_provincia_storico'  => $gcmi_dati_line[2],
-								'i_prog_comune'            => $gcmi_dati_line[3],
-								'i_cod_comune'             => $gcmi_dati_line[4],
-								'i_denominazione_full'     => $gcmi_dati_line[5],
-								'i_denominazione_ita'      => $gcmi_dati_line[6],
+								'i_cod_regione'            => self::add_trailing_zeroes( trim( $gcmi_dati_line[0] ), 2 ),
+								'i_cod_unita_territoriale' => self::add_trailing_zeroes( trim( $gcmi_dati_line[1] ), 3 ),
+								'i_cod_provincia_storico'  => self::add_trailing_zeroes( trim( $gcmi_dati_line[2] ), 3 ),
+								'i_prog_comune'            => self::add_trailing_zeroes( trim( $gcmi_dati_line[3] ), 3 ),
+								'i_cod_comune'             => self::add_trailing_zeroes( trim( $gcmi_dati_line[4] ), 6 ),
+								'i_denominazione_full'     => trim( $gcmi_dati_line[5] ),
+								'i_denominazione_ita'      => trim( $gcmi_dati_line[6] ),
 								'i_denominazione_altralingua' => $gcmi_dati_line[7],
 								'i_cod_ripartizione_geo'   => $gcmi_dati_line[8],
-								'i_ripartizione_geo'       => $gcmi_dati_line[9],
-								'i_den_regione'            => $gcmi_dati_line[10],
-								'i_den_unita_territoriale' => $gcmi_dati_line[11],
+								'i_ripartizione_geo'       => trim( $gcmi_dati_line[9] ),
+								'i_den_regione'            => trim( $gcmi_dati_line[10] ),
+								'i_den_unita_territoriale' => trim( $gcmi_dati_line[11] ),
 								'i_cod_tipo_unita_territoriale' => $gcmi_dati_line[12],
 								'i_flag_capoluogo'         => $gcmi_dati_line[13],
-								'i_sigla_automobilistica'  => $gcmi_dati_line[14],
+								'i_sigla_automobilistica'  => trim( $gcmi_dati_line[14] ),
 								'i_cod_comune_num'         => $gcmi_dati_line[15],
 								'i_cod_comune_num_2010_2016' => $gcmi_dati_line[16],
 								'i_cod_comune_num_2006_2009' => $gcmi_dati_line[17],
 								'i_cod_comune_num_1995_2005' => $gcmi_dati_line[18],
 								'i_cod_catastale'          => $gcmi_dati_line[19],
-								'i_nuts1'                  => $gcmi_dati_line[20],
-								'i_nuts23'                 => $gcmi_dati_line[21],
-								'i_nuts3'                  => $gcmi_dati_line[22],
+								'i_nuts1_2010'             => $gcmi_dati_line[20],
+								'i_nuts2_2010'             => $gcmi_dati_line[21],
+								'i_nuts3_2010'             => $gcmi_dati_line[22],
+								'i_nuts1_2021'             => $gcmi_dati_line[23],
+								'i_nuts2_2021'             => $gcmi_dati_line[24],
+								'i_nuts3_2021'             => $gcmi_dati_line[25],
 							),
 							array(
 								'%s',
@@ -1077,6 +1099,9 @@ class GCMI_Activator {
 								'%d',
 								'%d',
 								'%d',
+								'%s',
+								'%s',
+								'%s',
 								'%s',
 								'%s',
 								'%s',

@@ -141,7 +141,7 @@ function gcmi_generate_keypair( $form_post_id ) {
 
 add_filter(
 	'wpcf7_mail_tag_replaced_formsign',
-	function( $replaced, $submitted, $html, $mail_tag ) {
+	function ( $replaced, $submitted, $html, $mail_tag ) {
 		$contact_form = WPCF7_ContactForm::get_current();
 		$form_fields  = $contact_form->scan_form_tags();
 
@@ -270,10 +270,10 @@ function gcmi_flamingo_formsig_meta_box( $post ) {
 	 * In 1.1.3 this has been removed because we don't need to add slashes in array of data
 	 *
 	 * array_walk_recursive(
-	 *	$post->fields,
-	 *	function( &$item, $key ) {
-	 *		$item = addslashes( $item );
-	 *	}
+	 *  $post->fields,
+	 *  function( &$item, $key ) {
+	 *      $item = addslashes( $item );
+	 *  }
 	 * );
 	 */
 	$postfields = $post->fields;
@@ -339,32 +339,30 @@ function gcmi_flamingo_meta_box_ajax_handler() {
 			$public_key = get_post_meta( intval( sanitize_text_field( wp_unslash( $_POST['formID_input'] ) ) ), '_gcmi_wpcf7_enc_pubKey', true );
 			if ( '' === $public_key || false === $public_key ) {
 				echo 'no_pubkey_found';
-			} else {
-				if ( isset( $_POST['sign_input'] ) ) {
-					if ( preg_match( '%^[a-zA-Z0-9/+]*={0,2}$%', sanitize_text_field( wp_unslash( $_POST['sign_input'] ) ) ) ) {
-						$r = openssl_verify(
-							sanitize_text_field( wp_unslash( $_POST['hash_input'] ) ),
-							base64_decode( sanitize_text_field( wp_unslash( $_POST['sign_input'] ) ) ),
-							$public_key,
-							OPENSSL_ALGO_SHA256
-						);
-						switch ( $r ) {
-							case 1:
-								echo 'signature_verified';
-								break;
-							case 0:
-								echo 'signature_invalid';
-								break;
-							case -1:
-								echo 'verification_error';
-								break;
-						}
-					} else {
-						echo 'signature_invalid';
+			} elseif ( isset( $_POST['sign_input'] ) ) {
+				if ( preg_match( '%^[a-zA-Z0-9/+]*={0,2}$%', sanitize_text_field( wp_unslash( $_POST['sign_input'] ) ) ) ) {
+					$r = openssl_verify(
+						sanitize_text_field( wp_unslash( $_POST['hash_input'] ) ),
+						base64_decode( sanitize_text_field( wp_unslash( $_POST['sign_input'] ) ) ),
+						$public_key,
+						OPENSSL_ALGO_SHA256
+					);
+					switch ( $r ) {
+						case 1:
+							echo 'signature_verified';
+							break;
+						case 0:
+							echo 'signature_invalid';
+							break;
+						case -1:
+							echo 'verification_error';
+							break;
 					}
 				} else {
 					echo 'signature_invalid';
 				}
+			} else {
+				echo 'signature_invalid';
 			}
 		}
 	}
