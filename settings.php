@@ -109,7 +109,9 @@ function gcmi_upgrade() {
 	if ( $old_ver === $new_ver ) {
 			return;
 	}
-
+	if ( version_compare( $old_ver, '2.1.5', '<' ) ) {
+		gcmi_update_db_2024();
+	}
 	if ( version_compare( $old_ver, '2.2.0', '<' ) ) {
 		gcmi_add_index_on_tables();
 		gcmi_create_unfiltered_views_on_plugin_update();
@@ -243,6 +245,20 @@ function gcmi_delete_all_views(): void {
 			);
 		}
 	}
+}
+
+function gcmi_update_db_2024() {
+	global $wpdb;
+	require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+	$queries = array(
+		'ALTER TABLE ' . GCMI_TABLE_PREFIX . 'comuni_attuali ' . 'RENAME COLUMN i_nuts1 to i_nuts1_2010',
+		'ALTER TABLE ' . GCMI_TABLE_PREFIX . 'comuni_attuali ' . 'RENAME COLUMN i_nuts23 to i_nuts2_2010',
+		'ALTER TABLE ' . GCMI_TABLE_PREFIX . 'comuni_attuali ' . 'RENAME COLUMN i_nuts3 to i_nuts3_2010',
+		'ALTER TABLE ' . GCMI_TABLE_PREFIX . 'comuni_attuali ' . 'ADD COLUMN i_nuts1_2021 char(3) NOT NULL, AFTER i_nuts3_2010',
+		'ALTER TABLE ' . GCMI_TABLE_PREFIX . 'comuni_attuali ' . 'ADD COLUMN i_nuts2_2021 char(4) NOT NULL, AFTER i_nuts1_2021',
+		'ALTER TABLE ' . GCMI_TABLE_PREFIX . 'comuni_attuali ' . 'ADD COLUMN i_nuts3_2021 char(5) NOT NULL, AFTER i_nuts2_2021',
+	);
+	dbDelta( $queries, true );
 }
 
 /**
