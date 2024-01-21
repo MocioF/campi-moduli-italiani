@@ -23,6 +23,7 @@ function gcmi_comune_shortcode( $atts ) {
 		array(
 			'name'              => 'comune',
 			'kind'              => 'tutti',
+			'filtername'        => '',
 			'id'                => '',
 			'comu_details'      => 'false',
 			'class'             => 'gcmi-comune',

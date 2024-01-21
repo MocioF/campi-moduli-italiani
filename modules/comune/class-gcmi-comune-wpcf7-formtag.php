@@ -21,15 +21,6 @@
 class GCMI_COMUNE_WPCF7_FormTag extends GCMI_COMUNE {
 
 	/**
-	 * One of 'tutti', 'attuali', 'evidenza_cessati'
-	 *
-	 * @since 1.0.0
-	 * @access private
-	 * @var string $kind Kind of selection needed.
-	 */
-	private $kind;
-
-	/**
 	 * Prefix for name used in HTML tags
 	 *
 	 * @since 1.0.0
@@ -91,18 +82,15 @@ class GCMI_COMUNE_WPCF7_FormTag extends GCMI_COMUNE {
 	/**
 	 * Class constructor
 	 *
-	 * @param string                                                                                                         $name HTML name attribute.
-	 * @param array<string>                                                                                                  $atts form-tag attributes.
-	 * @param array{'wr_class'?: array<string>, 'comu_details': boolean, 'use_label_element': boolean, 'kind': string|false} $options form-tag options.
-	 * @param string                                                                                                         $validation_error The validation error showed.
-	 * @param string                                                                                                         $preset_value The ISTAT municipality code set as selected.
+	 * @param string                                                                                                                                     $name HTML name attribute.
+	 * @param array<string>                                                                                                                              $atts form-tag attributes.
+	 * @param array{'wr_class'?: array<string>, 'comu_details': boolean, 'use_label_element': boolean, 'kind': string|false, 'filtername': string|false} $options form-tag options.
+	 * @param string                                                                                                                                     $validation_error The validation error showed.
+	 * @param string                                                                                                                                     $preset_value The ISTAT municipality code set as selected.
 	 */
 	public function __construct( $name, $atts, $options, $validation_error, $preset_value ) {
-		if ( ! parent::is_valid_kind( $options['kind'] ) ) {
-			$this->kind = 'tutti';
-		} else {
-			$this->kind = strval( $options['kind'] );
-		}
+		parent::__construct( gcmi_safe_strval( $options['kind'] ), gcmi_safe_strval( $options['filtername'] ) );
+
 		$this->name              = sanitize_html_class( $name );
 		$this->atts              = $atts;
 		$this->comu_details      = $options['comu_details'];
@@ -116,11 +104,11 @@ class GCMI_COMUNE_WPCF7_FormTag extends GCMI_COMUNE {
 			$this->wr_class   .= implode( ' ', $sanitized_classes );
 		}
 
-		if ( parent::is_valid_cod_comune( $preset_value ) ) {
+		if ( $this->is_valid_cod_comune( $preset_value ) ) {
 			$this->preset_value = $preset_value;
 		} else {
-			$got_cod_comune = parent::get_cod_comune_from_denominazione( $preset_value );
-			if ( parent::is_valid_cod_comune( strval( $got_cod_comune ) ) ) {
+			$got_cod_comune = $this->get_cod_comune_from_denominazione( $preset_value );
+			if ( $this->is_valid_cod_comune( strval( $got_cod_comune ) ) ) {
 				$this->preset_value = strval( $got_cod_comune );
 			} else {
 				$this->preset_value = '';
@@ -139,11 +127,11 @@ class GCMI_COMUNE_WPCF7_FormTag extends GCMI_COMUNE {
 		$atts         = $this->atts;
 		$wr_class     = $this->wr_class;
 		$comu_details = $this->comu_details;
-		$my_ids       = parent::get_ids( $atts['id'] );
+		$my_ids       = $this->get_ids( $atts['id'] );
 		unset( $atts['id'] );
 		$atts = wpcf7_format_atts( $atts );
 
-		$regioni = $this->gcmi_start( $this->kind );
+		$regioni = $this->get_regioni();
 
 		$uno = '';
 		if ( $this->use_label_element ) {
@@ -174,7 +162,7 @@ class GCMI_COMUNE_WPCF7_FormTag extends GCMI_COMUNE {
 		// gestione valore predefinito.
 		if ( '' !== $this->preset_value ) {
 			$tre .= ' data-prval="';
-			$tre .= parent::gcmi_get_data_from_comune( $this->preset_value, $this->kind ) . '"';
+			$tre .= parent::gcmi_get_data_from_comune( $this->preset_value ) . '"';
 		}
 
 		$tre .= '>';
@@ -186,6 +174,7 @@ class GCMI_COMUNE_WPCF7_FormTag extends GCMI_COMUNE {
 		}
 
 		$quattro  = '<input type="hidden" name="' . $this->name . '_kind" id="' . $my_ids['kin'] . '" value="' . $this->kind . '" />';
+		$quattro .= '<input type="hidden" name="' . $this->name . '_filtername" id="' . $my_ids['filter'] . '" value="' . $this->filtername . '" />';
 		$quattro .= '<input type="hidden" name="' . $this->name . '_targa" id="' . $my_ids['targa'] . '"/>';
 
 		// these fields are useful if you use key/value pairs sent by the form to generate a PDF - from 1.1.1 .

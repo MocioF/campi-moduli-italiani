@@ -327,6 +327,13 @@ class GCMI_Comune_Filter_Builder {
 					$list_province_s['P040']->selected                 = '1';
 				}
 
+				if ( array_key_exists( 'P041', $list_province_s ) ) {
+					$list_province_s['P041']->i_cod_regione            = 'R11';
+					$list_province_s['P041']->i_den_regione            = 'Marche';
+					$list_province_s['P041']->i_den_unita_territoriale = 'Pesaro e Urbino';
+					$list_province_s['P041']->selected                 = '1';
+				}
+
 				if ( array_key_exists( 'P701', $list_province_s ) ) {
 					$list_province_s['P701']->i_cod_regione            = 'R70';
 					$list_province_s['P701']->i_den_regione            = '_ Istria e Dalmazia';
@@ -474,10 +481,11 @@ class GCMI_Comune_Filter_Builder {
 						'FROM `%1$s` ' .
 						'UNION ALL ' .
 						'SELECT CONCAT("C", `i_cod_comune`) AS `i_cod_comune`, CONCAT("P", `i_cod_unita_territoriale`) AS `i_cod_unita_territoriale`, ' .
-						'`i_denominazione_full`, true AS `selected` ' .
-						'FROM `%2$s` ' .
+						'CONCAT(`i_denominazione_full`, \'%2$s\'), true AS `selected` ' .
+						'FROM `%3$s` ' .
 						') AS union_comuni ORDER BY `i_denominazione_full`;',
 						GCMI_SVIEW_PREFIX . 'comuni_attuali',
+						' - (' . esc_html__( 'sopp.', 'campi-moduli-italiani' ) . ')',
 						GCMI_SVIEW_PREFIX . 'comuni_soppressi'
 					),
 					OBJECT_K
@@ -647,10 +655,9 @@ class GCMI_Comune_Filter_Builder {
 			wp_send_json_error( $error, 422 );
 		}
 		$sanitized_name = self::sanitize_table_name( sanitize_key( wp_unslash( $_POST['filtername'] ) ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotValidated
-		$use_cessati    = strval( sanitize_text_field( wp_unslash( $_POST['includi'] ) ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotValidated
 		$codici         = $_POST['codici']; // phpcs:ignore
 		if ( false !== $sanitized_name ) {
-			self::save_filter( $sanitized_name, $use_cessati, $codici );
+			self::save_filter( $sanitized_name, $codici );
 		}
 	}
 
@@ -674,7 +681,6 @@ class GCMI_Comune_Filter_Builder {
 		$total_codici = gcmi_safe_intval( sanitize_text_field( wp_unslash( $_POST['count'] ) ) );
 		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotValidated
 		$sanitized_name = self::sanitize_table_name( sanitize_key( wp_unslash( $_POST['filtername'] ) ) );
-		$use_cessati    = '';
 		$codici         = array();
 
 		for ( $i = 0; $i < $total_slices; $i++ ) {
@@ -688,12 +694,6 @@ class GCMI_Comune_Filter_Builder {
 			if ( ! is_array( $option_value ) ) {
 				$error->add( '-13', esc_html__( 'Request to store the partial filter was refused', 'campi-moduli-italiani' ) );
 				wp_send_json_error( $error, 422 );
-			}
-
-			if ( '' === $use_cessati && array_key_exists( 'includi', $option_value ) ) {
-				$use_cessati = $option_value['includi'];
-			} else {
-				$use_cessati = 'false';
 			}
 			if ( is_array( $option_value['codici'] ) ) {
 				$codici = array_merge( $codici, $option_value['codici'] );
@@ -713,7 +713,7 @@ class GCMI_Comune_Filter_Builder {
 					wp_send_json_error( $error, 422 );
 				}
 			}
-			self::save_filter( $sanitized_name, $use_cessati, $codici );
+			self::save_filter( $sanitized_name, $codici );
 		}
 	}
 
@@ -723,12 +723,11 @@ class GCMI_Comune_Filter_Builder {
 	 * Utilizzata dalle due funzioni: ajax_create_filters e ajax_create_filters_multi.
 	 *
 	 * @param string        $sanitized_name Nome del filtro.
-	 * @param string        $use_cessati 'true' se utilizza i cessati.
 	 * @param array<string> $codici array con i codici dei comuni.
 	 * @return void
 	 */
-	private static function save_filter( $sanitized_name, $use_cessati, $codici ) {
-		$view_result = self::create_view( $sanitized_name, $use_cessati, $codici );
+	private static function save_filter( $sanitized_name, $codici ) {
+		$view_result = self::create_view( $sanitized_name, $codici );
 
 		if ( false === $view_result ) {
 			$error = new WP_Error();
@@ -910,7 +909,6 @@ class GCMI_Comune_Filter_Builder {
 	 */
 	private static function check_filter_creation_codici( $posted ) {
 		$error = new WP_Error();
-
 		if (
 			! is_array( $posted ) ||
 			! array_key_exists( 'codici', $posted ) ||
@@ -1131,13 +1129,12 @@ class GCMI_Comune_Filter_Builder {
 	 * Crea una view
 	 *
 	 * @param string        $viewname The name of the view.
-	 * @param string        $use_cessati "true" or "false".
 	 * @param array<string> $codici The array of codes.
 	 *
 	 * @global type $wpdb
 	 * @return bool
 	 */
-	private static function create_view( $viewname, $use_cessati, $codici ) {
+	private static function create_view( $viewname, $codici ) {
 		global $wpdb;
 
 		$where_clause_attuali = self::create_filter_sql( $codici, false );
@@ -1149,23 +1146,14 @@ class GCMI_Comune_Filter_Builder {
 			)
 		);
 		$where_clause_cessati = self::create_filter_sql( $codici, true );
-		if ( 'true' === $use_cessati ) {
-			$view_soppressi = $wpdb->query(
-				$wpdb->prepare(
-					'CREATE OR REPLACE VIEW %1$s AS SELECT * FROM %2$s',
-					GCMI_SVIEW_PREFIX . 'comuni_soppressi_' . $viewname,
-					GCMI_SVIEW_PREFIX . 'comuni_soppressi ' . $where_clause_cessati
-				)
-			);
-		} else {
-			$view_soppressi = false;
-		}
-
-		if ( 'true' === $use_cessati ) {
-			return ( $view_attuali || $view_soppressi );
-		} else {
-			return $view_attuali;
-		}
+		$view_soppressi       = $wpdb->query(
+			$wpdb->prepare(
+				'CREATE OR REPLACE VIEW %1$s AS SELECT * FROM %2$s',
+				GCMI_SVIEW_PREFIX . 'comuni_soppressi_' . $viewname,
+				GCMI_SVIEW_PREFIX . 'comuni_soppressi ' . $where_clause_cessati
+			)
+		);
+		return ( $view_attuali || $view_soppressi );
 	}
 
 	/**
@@ -1350,6 +1338,11 @@ class GCMI_Comune_Filter_Builder {
 		wp_send_json( $response );
 	}
 
+	/**
+	 * Stampa l'html per lo spinner
+	 *
+	 * @return string
+	 */
 	private static function print_spinner(): string {
 		return '<div id="gcmi-spinner-blocks" class="gcmi-spinner-blocks hidden"><div class="gcmi-spinner-tools">' .
 		'<div class="gcmi-spinner-box-1"></div><div class="gcmi-spinner-box-2"></div><div class="gcmi-spinner-box-3"></div>' .

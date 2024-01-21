@@ -64,16 +64,60 @@ if ( GCMI_USE_COMUNE === true ) {
 	require_once plugin_dir_path( GCMI_PLUGIN ) . 'modules/comune/class-gcmi-comune-shortcode.php';
 	require_once plugin_dir_path( GCMI_PLUGIN ) . 'modules/comune/comune-shortcode.php';
 
-	add_action( 'wp_ajax_the_ajax_hook_prov', 'GCMI_COMUNE::gcmi_province' );
-	add_action( 'wp_ajax_nopriv_the_ajax_hook_prov', 'GCMI_COMUNE::gcmi_province' );
-	add_action( 'wp_ajax_the_ajax_hook_comu', 'GCMI_COMUNE::gcmi_comuni' );
-	add_action( 'wp_ajax_nopriv_the_ajax_hook_comu', 'GCMI_COMUNE::gcmi_comuni' );
-	add_action( 'wp_ajax_the_ajax_hook_targa', 'GCMI_COMUNE::gcmi_targa' );
-	add_action( 'wp_ajax_nopriv_the_ajax_hook_targa', 'GCMI_COMUNE::gcmi_targa' );
-	add_action( 'wp_ajax_the_ajax_hook_info', 'GCMI_COMUNE::gcmi_showinfo' );
-	add_action( 'wp_ajax_nopriv_the_ajax_hook_info', 'GCMI_COMUNE::gcmi_showinfo' );
+	add_action( 'wp_ajax_the_ajax_hook_prov', 'gcmi_ajax_province' );
+	add_action( 'wp_ajax_nopriv_the_ajax_hook_prov', 'gcmi_ajax_province' );
+	add_action( 'wp_ajax_the_ajax_hook_comu', 'gcmi_ajax_comuni' );
+	add_action( 'wp_ajax_nopriv_the_ajax_hook_comu', 'gcmi_ajax_comuni' );
+	add_action( 'wp_ajax_the_ajax_hook_targa', 'gcmi_ajax_targa' );
+	add_action( 'wp_ajax_nopriv_the_ajax_hook_targa', 'gcmi_ajax_targa' );
+	add_action( 'wp_ajax_the_ajax_hook_info', 'gcmi_ajax_info' );
+	add_action( 'wp_ajax_nopriv_the_ajax_hook_info', 'gcmi_ajax_info' );
 
 	add_action( 'wp_enqueue_scripts', 'GCMI_COMUNE::gcmi_register_scripts' );
+}
+
+/**
+ * Controlla il nonce e stampa la lista province
+ */
+function gcmi_ajax_province() {
+	check_ajax_referer( 'gcmi-comune-nonce', 'nonce_ajax' );
+	$kind       = array_key_exists( 'gcmi_kind', $_POST ) ? sanitize_text_field( wp_unslash( $_POST['gcmi_kind'] ) ) : 'tutti';
+	$filtername = array_key_exists( 'gcmi_filtername', $_POST ) ? sanitize_text_field( wp_unslash( $_POST['gcmi_filtername'] ) ) : '';
+	$obj_comune = new GCMI_COMUNE( $kind, $filtername );
+	$obj_comune->print_gcmi_province();
+}
+
+/**
+ * Controlla il nonce e stampa la lista comuni
+ */
+function gcmi_ajax_comuni() {
+	check_ajax_referer( 'gcmi-comune-nonce', 'nonce_ajax' );
+	$kind       = array_key_exists( 'gcmi_kind', $_POST ) ? sanitize_text_field( wp_unslash( $_POST['gcmi_kind'] ) ) : 'tutti';
+	$filtername = array_key_exists( 'gcmi_filtername', $_POST ) ? sanitize_text_field( wp_unslash( $_POST['gcmi_filtername'] ) ) : '';
+	$obj_comune = new GCMI_COMUNE( $kind, $filtername );
+	$obj_comune->print_gcmi_comuni();
+}
+
+/**
+ * Controlla il nonce e stampa la targa automobilistica
+ */
+function gcmi_ajax_targa() {
+	check_ajax_referer( 'gcmi-comune-nonce', 'nonce_ajax' );
+	$kind       = array_key_exists( 'gcmi_kind', $_POST ) ? sanitize_text_field( wp_unslash( $_POST['gcmi_kind'] ) ) : 'tutti';
+	$filtername = array_key_exists( 'gcmi_filtername', $_POST ) ? sanitize_text_field( wp_unslash( $_POST['gcmi_filtername'] ) ) : '';
+	$obj_comune = new GCMI_COMUNE( $kind, $filtername );
+	$obj_comune->print_gcmi_targa();
+}
+
+/**
+ * Controlla il nonce e stampa la tabella con le info del comune
+ */
+function gcmi_ajax_info() {
+	check_ajax_referer( 'gcmi-comune-nonce', 'nonce_ajax' );
+	$kind       = array_key_exists( 'gcmi_kind', $_POST ) ? sanitize_text_field( wp_unslash( $_POST['gcmi_kind'] ) ) : 'tutti';
+	$filtername = array_key_exists( 'gcmi_filtername', $_POST ) ? sanitize_text_field( wp_unslash( $_POST['gcmi_filtername'] ) ) : '';
+	$obj_comune = new GCMI_COMUNE( $kind, $filtername );
+	$obj_comune->print_gcmi_comune_info();
 }
 
 /**
@@ -247,16 +291,21 @@ function gcmi_delete_all_views(): void {
 	}
 }
 
+/**
+ * Aggiorna la tabella comuni_attuali al formato dei dati distribuiti nel 2024
+ *
+ * @global type $wpdb
+ */
 function gcmi_update_db_2024() {
 	global $wpdb;
 	require_once ABSPATH . 'wp-admin/includes/upgrade.php';
 	$queries = array(
-		'ALTER TABLE ' . GCMI_TABLE_PREFIX . 'comuni_attuali ' . 'RENAME COLUMN i_nuts1 to i_nuts1_2010',
-		'ALTER TABLE ' . GCMI_TABLE_PREFIX . 'comuni_attuali ' . 'RENAME COLUMN i_nuts23 to i_nuts2_2010',
-		'ALTER TABLE ' . GCMI_TABLE_PREFIX . 'comuni_attuali ' . 'RENAME COLUMN i_nuts3 to i_nuts3_2010',
-		'ALTER TABLE ' . GCMI_TABLE_PREFIX . 'comuni_attuali ' . 'ADD COLUMN i_nuts1_2021 char(3) NOT NULL, AFTER i_nuts3_2010',
-		'ALTER TABLE ' . GCMI_TABLE_PREFIX . 'comuni_attuali ' . 'ADD COLUMN i_nuts2_2021 char(4) NOT NULL, AFTER i_nuts1_2021',
-		'ALTER TABLE ' . GCMI_TABLE_PREFIX . 'comuni_attuali ' . 'ADD COLUMN i_nuts3_2021 char(5) NOT NULL, AFTER i_nuts2_2021',
+		'ALTER TABLE ' . GCMI_TABLE_PREFIX . 'comuni_attuali RENAME COLUMN i_nuts1 to i_nuts1_2010',
+		'ALTER TABLE ' . GCMI_TABLE_PREFIX . 'comuni_attuali RENAME COLUMN i_nuts23 to i_nuts2_2010',
+		'ALTER TABLE ' . GCMI_TABLE_PREFIX . 'comuni_attuali RENAME COLUMN i_nuts3 to i_nuts3_2010',
+		'ALTER TABLE ' . GCMI_TABLE_PREFIX . 'comuni_attuali ADD COLUMN i_nuts1_2021 char(3) NOT NULL, AFTER i_nuts3_2010',
+		'ALTER TABLE ' . GCMI_TABLE_PREFIX . 'comuni_attuali ADD COLUMN i_nuts2_2021 char(4) NOT NULL, AFTER i_nuts1_2021',
+		'ALTER TABLE ' . GCMI_TABLE_PREFIX . 'comuni_attuali ADD COLUMN i_nuts3_2021 char(5) NOT NULL, AFTER i_nuts2_2021',
 	);
 	dbDelta( $queries, true );
 }

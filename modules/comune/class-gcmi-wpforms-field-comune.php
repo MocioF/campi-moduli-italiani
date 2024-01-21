@@ -507,13 +507,16 @@ class GCMI_WPForms_Field_Comune extends WPForms_Field {
 	 * @return void
 	 */
 	public function field_display( $field, $deprecated, $form_data ): void {
+
+		$obj_comune = new GCMI_COMUNE( $field['kind'], $field['filtername'] );
+
 		// Includo js e css di comune.
-		GCMI_COMUNE::gcmi_comune_enqueue_scripts();
+		$obj_comune->gcmi_comune_enqueue_scripts();
 
 		$container = $field['properties']['input_container'];
 
 		// Creo le scelte per la select delle regioni.
-		$regioni = GCMI_COMUNE::gcmi_start( $field['kind'] );
+		$regioni = $obj_comune->get_regioni();
 
 		$form_id     = $form_data['id'];
 		$field_id    = $field['id'];
@@ -523,8 +526,6 @@ class GCMI_WPForms_Field_Comune extends WPForms_Field {
 		$comu_details      = ! empty( $field['comu_details'] ) ? esc_attr( $field['comu_details'] ) : false;
 		$kind              = ! empty( $field['kind'] ) ? esc_attr( $field['kind'] ) : 'tutti';
 		$is_modern         = ! empty( $field['style'] ) && self::STYLE_MODERN === $field['style'];
-
-		$regioni = GCMI_COMUNE::gcmi_start( $kind );
 
 		// Add a class for Choices.js initialization.
 		if ( $is_modern ) {
@@ -545,7 +546,7 @@ class GCMI_WPForms_Field_Comune extends WPForms_Field {
 		$container_name = $container['attr']['name'];
 
 		// Creo l'array con i campi ID.
-		$my_ids = GCMI_COMUNE::get_ids( "wpforms-{$form_id}-field_{$field_id}" );
+		$my_ids = $obj_comune->get_ids( "wpforms-{$form_id}-field_{$field_id}" );
 
 		$uno = '';
 		if ( $use_label_element ) {
@@ -598,12 +599,12 @@ class GCMI_WPForms_Field_Comune extends WPForms_Field {
 		// è impostato il valore predefinito.
 		if ( isset( $field['default_value'] ) && '' !== strval( $field['default_value'] ) ) {
 			$default_value = strval( $field['default_value'] );
-			if ( GCMI_COMUNE::is_valid_cod_comune( $default_value ) ) {
-				$container['attr']['data-prval'] = GCMI_COMUNE::gcmi_get_data_from_comune( $default_value, $field['kind'] );
+			if ( $obj_comune->is_valid_cod_comune( $default_value ) ) {
+				$container['attr']['data-prval'] = $obj_comune->gcmi_get_data_from_comune( $default_value, $field['kind'] );
 			} else {
-				$got_cod_comune = GCMI_COMUNE::get_cod_comune_from_denominazione( $default_value );
-				if ( GCMI_COMUNE::is_valid_cod_comune( strval( $got_cod_comune ) ) ) {
-					$prval = GCMI_COMUNE::gcmi_get_data_from_comune( strval( $got_cod_comune ), $field['kind'] );
+				$got_cod_comune = $obj_comune->get_cod_comune_from_denominazione( $default_value );
+				if ( $obj_comune->is_valid_cod_comune( strval( $got_cod_comune ) ) ) {
+					$prval = $obj_comune->gcmi_get_data_from_comune( strval( $got_cod_comune ), $field['kind'] );
 					if ( false !== $prval ) {
 						$container['attr']['data-prval'] = $prval;
 					}

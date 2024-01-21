@@ -24,15 +24,6 @@
 class GCMI_COMUNE_ShortCode extends GCMI_COMUNE {
 
 	/**
-	 * One of 'tutti', 'attuali', 'evidenza_cessati'
-	 *
-	 * @since 1.0.0
-	 * @access private
-	 * @var string $kind Kind of selection needed.
-	 */
-	private $kind;
-
-	/**
 	 * Show municipality details in a modal window after selection
 	 *
 	 * @since 1.0.0
@@ -80,16 +71,15 @@ class GCMI_COMUNE_ShortCode extends GCMI_COMUNE {
 	/**
 	 * Class constructor
 	 *
-	 * @param array{'name': string, 'kind': string, 'id': string, 'comu_details': boolean, 'class': string,'use_label_element': boolean } $atts Attributes for the select's combo.
+	 * @param array{'name': string, 'kind': string, 'filtername': string, 'id': string, 'comu_details': boolean, 'class': string,'use_label_element': boolean } $atts Attributes for the select's combo.
 	 */
 	public function __construct( $atts ) {
-		if ( ! parent::is_valid_kind( $atts['kind'] ) ) {
-				$this->kind = 'tutti';
-		} else {
-				$this->kind = $atts['kind'];
-		}
-			$this->name  = sanitize_html_class( $atts['name'] );
-			$this->class = sanitize_html_class( $atts['class'] );
+		$kind       = sanitize_text_field( wp_unslash( $atts['kind'] ) );
+		$filtername = sanitize_text_field( wp_unslash( $atts['filtername'] ) );
+		parent::__construct( $kind, $filtername );
+
+		$this->name  = sanitize_html_class( $atts['name'] );
+		$this->class = sanitize_html_class( $atts['class'] );
 		if ( preg_match( '/^[a-zA-Z][\w:.-]*$/', $atts['id'] ) ) {
 				$this->id = $atts['id'];
 		}
@@ -103,10 +93,10 @@ class GCMI_COMUNE_ShortCode extends GCMI_COMUNE {
 	 * @return string
 	 */
 	public function get_html() {
-		parent::gcmi_comune_enqueue_scripts();
+		$this->gcmi_comune_enqueue_scripts();
 
-		$regioni = $this->gcmi_start( $this->kind );
-		$my_ids  = parent::get_ids( $this->id );
+		$regioni = $this->get_regioni();
+		$my_ids  = $this->get_ids( $this->id );
 
 		$uno = '';
 		if ( $this->use_label_element ) {
@@ -139,6 +129,7 @@ class GCMI_COMUNE_ShortCode extends GCMI_COMUNE {
 		}
 
 		$quattro  = '<input type="hidden" name="' . $this->name . '_kind" id="' . $my_ids['kin'] . '" value="' . $this->kind . '" />';
+		$quattro .= '<input type="hidden" name="' . $this->name . '_filtername" id="' . $my_ids['filter'] . '" value="' . $this->filtername . '" />';
 		$quattro .= '<input type="hidden" name="' . $this->name . '_targa" id="' . $my_ids['targa'] . '"/>';
 		$quattro .= '<input class="comu_mail" type="hidden" name="' . $this->name . '_formatted" id="' . $my_ids['form'] . '"/>';
 
