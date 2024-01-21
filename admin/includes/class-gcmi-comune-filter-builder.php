@@ -151,72 +151,7 @@ class GCMI_Comune_Filter_Builder {
 	 * @return array<string>
 	 */
 	private static function get_list_filtri() {
-		global $wpdb;
-
-		$cache_key           = 'lista_viste_attuali';
-		$lista_views_attuali = wp_cache_get( $cache_key, GCMI_CACHE_GROUP );
-		if ( false === $lista_views_attuali ) {
-			$lista_views_attuali = $wpdb->get_col(
-				$wpdb->prepare( 'SHOW TABLES like %s', GCMI_SVIEW_PREFIX . 'comuni_attuali%' )
-			);
-
-			wp_cache_set( $cache_key, $lista_views_attuali, GCMI_CACHE_GROUP, GCMI_CACHE_EXPIRE_SECS );
-		}
-
-		$cache_key           = 'lista_viste_soppressi';
-		$lista_views_cessati = wp_cache_get( $cache_key, GCMI_CACHE_GROUP );
-		if ( false === $lista_views_cessati ) {
-			$lista_views_cessati = $wpdb->get_col(
-				$wpdb->prepare( 'SHOW TABLES like %s', GCMI_SVIEW_PREFIX . 'comuni_soppressi%' )
-			);
-
-			wp_cache_set( $cache_key, $lista_views_cessati, GCMI_CACHE_GROUP, GCMI_CACHE_EXPIRE_SECS );
-		}
-
-		$lista_filtri_attuali = self::clean_lista( $lista_views_attuali, false );
-		$lista_filtri_cessati = self::clean_lista( $lista_views_cessati, true );
-
-		$lista_filtri = array_unique(
-			array_merge(
-				array_map( 'strval', $lista_filtri_attuali ),
-				array_map( 'strval', $lista_filtri_cessati )
-			)
-		);
-		return $lista_filtri;
-	}
-
-	/**
-	 * Dalla lista della view restituisce la lista del nome dei filtri
-	 *
-	 * @param array<string> $lista_view Elenco delle views.
-	 * @param bool          $cessati Se è riferito alle view di comuni_soppressi.
-	 * @return array<string>
-	 */
-	private static function clean_lista( $lista_view, $cessati = false ) {
-		$search = GCMI_SVIEW_PREFIX . 'comuni_attuali';
-		if ( true === $cessati ) {
-			$search = GCMI_SVIEW_PREFIX . 'comuni_soppressi';
-		}
-
-		// clean tables name.
-		$lista_view_names = str_replace( $search, '', $lista_view );
-
-		// remove empty.
-		$list_not_empty = array_filter(
-			$lista_view_names,
-			static function ( $element ) {
-				return '' !== $element;
-			}
-		);
-		// remove trailing _ .
-		$list = array_map(
-			function ( $item ) {
-				return trim( $item, '_' );
-			},
-			$list_not_empty
-		);
-
-		return $list;
+		return gcmi_get_list_filtri();
 	}
 
 	/**
