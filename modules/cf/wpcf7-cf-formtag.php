@@ -198,7 +198,7 @@ function gcmi_wpcf7_tg_pane_cf( $contact_form, $args = '' ): void {
 	?>
 	<div class="control-box">
 		<fieldset>
-			<legend><?php printf( esc_html( $description ), $desc_link ); ?></legend>
+			<legend><?php printf( esc_html( $description ), $desc_link ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></legend>
 
 			<table class="form-table">
 				<tbody>

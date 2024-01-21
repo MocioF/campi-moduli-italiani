@@ -366,7 +366,9 @@ function gcmi_update_table( $fname ) {
 	if ( '' !== $wpdb->last_error ) { // qualcosa e' andato storto.
 		$error_code    = ( 'gcmi_data_import_error' );
 		$error_title   = __( 'Error in inserting data into the database', 'campi-moduli-italiani' );
-		$str           = htmlspecialchars( print_r( $wpdb->last_result, true ), ENT_QUOTES );
+		$str           = htmlspecialchars( print_r( $wpdb->last_error, true ), ENT_QUOTES ) .
+						'<br>' .
+						htmlspecialchars( print_r( $wpdb->last_result, true ), ENT_QUOTES );
 		$query         = htmlspecialchars( $wpdb->last_query, ENT_QUOTES );
 		$error_message = '<h1>' . $error_title . '</h1>' . "[ $str ] <code>$query</code>";
 

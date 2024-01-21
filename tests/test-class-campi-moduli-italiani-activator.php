@@ -1,15 +1,15 @@
 <?php
 
 final class GCMI_ActivatorTest extends WP_UnitTestCase {
-	
+
 	private $gcmi_activator;
-	
+
 	public function set_up() {
 		global $gcmi_now;
 		$gcmi_now = time();
 		parent::set_up();
 		require_once 'admin/class-gcmi-activator.php';
-		$this->gcmi_activator = New GCMI_Activator();
+		$this->gcmi_activator = new GCMI_Activator();
 	}
 
 	public function tear_down() {
@@ -17,9 +17,9 @@ final class GCMI_ActivatorTest extends WP_UnitTestCase {
 	}
 
 	protected static function getMethod( $name ) {
-		$class = new ReflectionClass('GCMI_Activator');
-		$method = $class->getMethod($name);
-		$method->setAccessible(true);
+		$class  = new ReflectionClass( 'GCMI_Activator' );
+		$method = $class->getMethod( $name );
+		$method->setAccessible( true );
 		return $method;
 	}
 
@@ -29,88 +29,87 @@ final class GCMI_ActivatorTest extends WP_UnitTestCase {
 	function test_make_dir() {
 		$tmp_dir = $this->gcmi_activator::make_tmp_dwld_dir();
 		$message = 'Attempt to create dir failed';
-		$this->assertIsString( $tmp_dir, $message  );
-		//fwrite( STDERR, print_r( $tmp_dir, TRUE ) );
-		$this->assertIsString( $tmp_dir, $message  );
+		$this->assertIsString( $tmp_dir, $message );
+		// fwrite( STDERR, print_r( $tmp_dir, TRUE ) );
+		$this->assertIsString( $tmp_dir, $message );
 		$message = $tmp_dir . ' is unwritable';
 		$this->assertIsWritable( $tmp_dir, $message );
-		
+
 		$removed = rmdir( $tmp_dir );
 		$this->assertTrue( $removed );
-		
 	}
-	
+
 	/**
 	 * @group activator
 	 */
 	function test_gcmi_is_requirements_met() {
-		$gcmi_is_requirements_met = self::getMethod('gcmi_is_requirements_met');
-		$args = array();
-		$requirements_met = $gcmi_is_requirements_met->invokeArgs( $this->gcmi_activator, $args );
-		if ( is_wp_error($requirements_met)) {
+		$gcmi_is_requirements_met = self::getMethod( 'gcmi_is_requirements_met' );
+		$args                     = array();
+		$requirements_met         = $gcmi_is_requirements_met->invokeArgs( $this->gcmi_activator, $args );
+		if ( is_wp_error( $requirements_met ) ) {
 			$message = 'Requirements unmet; WP_Error is: ' . print_r( $requirements_met, true );
-			fwrite( STDERR, print_r( $message, TRUE ) );
+			fwrite( STDERR, print_r( $message, true ) );
 		}
 		$this->assertTrue( $requirements_met );
 	}
-	
+
 	/**
 	 * @group activator
 	 */
 	function test_plugin_version() {
-		$set_gcmi_options = self::getMethod('set_gcmi_options');
-		$args = array();
-		$options = $set_gcmi_options->invokeArgs( $this->gcmi_activator, $args );
-		$installed_version = get_option( 'gcmi_plugin_version' );
+		$set_gcmi_options        = self::getMethod( 'set_gcmi_options' );
+		$args                    = array();
+		$options                 = $set_gcmi_options->invokeArgs( $this->gcmi_activator, $args );
+		$installed_version       = get_option( 'gcmi_plugin_version' );
 		$plugin_version_expected = GCMI_VERSION;
 		$this->assertSame( $installed_version, $plugin_version_expected );
 	}
-	
+
 	/**
 	 * @dataProvider provideDownloadedTimes
 	 */
-//	function test_install( $expectedResult, $input ) {
-//		$this->assertEqualsWithDelta($expectedResult, $input, 300 );
-//		
-//		print( $expectedResult );
-//		print( $input);
-//	}
+	// function test_install( $expectedResult, $input ) {
+	// $this->assertEqualsWithDelta($expectedResult, $input, 300 );
+	//
+	// print( $expectedResult );
+	// print( $input);
+	// }
 
 	public function provideDownloadedTimes() {
 		global $gcmi_now;
-		return [
-			[
+		return array(
+			array(
 				get_option( 'gcmi_statiesteri_downloaded_time' ),
 				$gcmi_now,
-			],
-			[
+			),
+			array(
 				get_option( 'gcmi_comuni_attuali_downloaded_time' ),
 				$gcmi_now,
-			],
-			[
+			),
+			array(
 				get_option( 'gcmi_comuni_soppressi_downloaded_time' ),
 				$gcmi_now,
-			],
-			[
+			),
+			array(
 				get_option( 'gcmi_comuni_variazioni_downloaded_time' ),
 				$gcmi_now,
-			],
-			[
+			),
+			array(
 				get_option( 'gcmi_codici_catastali_downloaded_time' ),
 				$gcmi_now,
-			],
-			[
+			),
+			array(
 				get_option( 'gcmi_stati_downloaded_time' ),
 				$gcmi_now,
-			],
-			[
+			),
+			array(
 				get_option( 'gcmi_stati_cessati_downloaded_time' ),
 				$gcmi_now,
-			],
-			[
+			),
+			array(
 				get_option( 'gcmi_last_update_check' ),
 				$gcmi_now,
-			],
-		];
+			),
+		);
 	}
 }
