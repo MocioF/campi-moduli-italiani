@@ -125,6 +125,9 @@ Puoi inviare una richiesta nel nostro repository Github:
 5. Immagine della schermata di admin, da cui è possibile effettuare l'aggiornamento dei dati
 
 == Changelog ==
+= 2.2.0 =
+* Creato nuovo sistema di filtri per il campo comune
+
 = 2.1.5 =
 * Aggiornata la struttura della tabella comuni_attuali al nuovo formato di dati
 * Aggiunto un controllo sui dati di importazione prima dell'elaborazione

@@ -127,6 +127,9 @@ You can create an issue in our Github repo:
 5. Image of the admin screen, from which it is possible to update the data
 
 == Changelog ==
+= 2.2.0 =
+* Added new filter builder for module [comune]
+
 = 2.1.5 =
 * Update comuni_attuali structure to new dataset
 * Added a check on data format before parsing
