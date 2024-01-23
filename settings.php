@@ -73,7 +73,7 @@ if ( GCMI_USE_COMUNE === true ) {
 	add_action( 'wp_ajax_the_ajax_hook_info', 'gcmi_ajax_info' );
 	add_action( 'wp_ajax_nopriv_the_ajax_hook_info', 'gcmi_ajax_info' );
 
-	add_action( 'wp_enqueue_scripts', 'GCMI_COMUNE::gcmi_register_scripts' );
+	add_action( 'wp_enqueue_scripts', 'GCMI_COMUNE::gcmi_comune_register_scripts' );
 }
 
 /**
@@ -85,6 +85,7 @@ function gcmi_ajax_province() {
 	$filtername = array_key_exists( 'gcmi_filtername', $_POST ) ? sanitize_text_field( wp_unslash( $_POST['gcmi_filtername'] ) ) : '';
 	$obj_comune = new GCMI_COMUNE( $kind, $filtername );
 	$obj_comune->print_gcmi_province();
+	wp_die();
 }
 
 /**
@@ -96,6 +97,7 @@ function gcmi_ajax_comuni() {
 	$filtername = array_key_exists( 'gcmi_filtername', $_POST ) ? sanitize_text_field( wp_unslash( $_POST['gcmi_filtername'] ) ) : '';
 	$obj_comune = new GCMI_COMUNE( $kind, $filtername );
 	$obj_comune->print_gcmi_comuni();
+	wp_die();
 }
 
 /**
@@ -107,6 +109,7 @@ function gcmi_ajax_targa() {
 	$filtername = array_key_exists( 'gcmi_filtername', $_POST ) ? sanitize_text_field( wp_unslash( $_POST['gcmi_filtername'] ) ) : '';
 	$obj_comune = new GCMI_COMUNE( $kind, $filtername );
 	$obj_comune->print_gcmi_targa();
+	wp_die();
 }
 
 /**
@@ -118,6 +121,7 @@ function gcmi_ajax_info() {
 	$filtername = array_key_exists( 'gcmi_filtername', $_POST ) ? sanitize_text_field( wp_unslash( $_POST['gcmi_filtername'] ) ) : '';
 	$obj_comune = new GCMI_COMUNE( $kind, $filtername );
 	$obj_comune->print_gcmi_comune_info();
+	wp_die();
 }
 
 /**

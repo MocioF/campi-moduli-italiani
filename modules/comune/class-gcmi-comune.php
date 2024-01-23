@@ -429,7 +429,6 @@ class GCMI_COMUNE {
 	 * Stampa l'elenco delle <option> per le province della regione selezionata
 	 * oppure l'elenco delle <option> dei Comuni soppressi se viene selezionata la Regione 00
 	 *
-	 * @global wpdb $wpdb
 	 * @return void
 	 */
 	public function print_gcmi_province(): void {
@@ -475,7 +474,6 @@ class GCMI_COMUNE {
 				echo wp_kses( $comuni_options, $allowed_html );
 			}
 		}
-		wp_die();
 	}
 
 	/**
@@ -512,31 +510,42 @@ class GCMI_COMUNE {
 				 * cessati con i vecchi codici provincia mediante le targhe automobilistiche.
 				 * C'è da gestire il problema di Forlì che da FO è diventata FC e di Pesaro, ora PU.
 				 */
-				$results = $wpdb->get_results(
-					$wpdb->prepare(
-						'SELECT DISTINCT `i_cod_unita_territoriale`, `i_den_unita_territoriale` FROM `%1$s` ' .
-						'UNION SELECT ' .
-						'DISTINCT `i_cod_unita_territoriale`, `i_den_unita_territoriale` FROM' .
-						'`%2$s` ' .
-						'LEFT JOIN ( ' .
-						'SELECT DISTINCT `i_den_unita_territoriale`, `i_sigla_automobilistica`, `i_cod_regione` FROM `%3$s` ' .
-						'UNION SELECT \'Forlì\', \'FO\', \'08\' ' .
-						'UNION SELECT \'Pesaro\', \'PS\', \'11\' ' .
-						'UNION SELECT \'Fiume\', \'FU\', \'%4$s\' ' .
-						'UNION SELECT \'Pola\', \'PL\', \'%5$s\' ' .
-						'UNION SELECT \'Zara\', \'ZA\', \'%6$s\' ' .
-						') AS aview ON `%7$s`.`i_sigla_automobilistica` = aview.`i_sigla_automobilistica` ' .
-						'WHERE `i_cod_regione` = \'%8$s\' ORDER BY i_den_unita_territoriale',
-						GCMI_SVIEW_PREFIX . 'comuni_attuali' . $this->pfilter(),
-						GCMI_SVIEW_PREFIX . 'comuni_soppressi' . $this->pfilter(),
-						GCMI_SVIEW_PREFIX . 'comuni_attuali',
-						$this->def_strings['COD_REG_ISDA'],
-						$this->def_strings['COD_REG_ISDA'],
-						$this->def_strings['COD_REG_ISDA'],
-						GCMI_SVIEW_PREFIX . 'comuni_soppressi' . $this->pfilter(),
-						esc_sql( $i_cod_regione )
-					)
-				);
+				if ( 'attuali' === $this->kind ) {
+					$results = $wpdb->get_results(
+						$wpdb->prepare(
+							'SELECT DISTINCT `i_cod_unita_territoriale`, `i_den_unita_territoriale` FROM `%1$s` ' .
+							'WHERE `i_cod_regione` = \'%2$s\'',
+							GCMI_SVIEW_PREFIX . 'comuni_attuali' . $this->pfilter(),
+							esc_sql( $i_cod_regione )
+						)
+					);
+				} else {
+					$results = $wpdb->get_results(
+						$wpdb->prepare(
+							'SELECT DISTINCT `i_cod_unita_territoriale`, `i_den_unita_territoriale` FROM `%1$s` ' .
+							'UNION SELECT ' .
+							'DISTINCT `i_cod_unita_territoriale`, `i_den_unita_territoriale` FROM' .
+							'`%2$s` ' .
+							'LEFT JOIN ( ' .
+							'SELECT DISTINCT `i_den_unita_territoriale`, `i_sigla_automobilistica`, `i_cod_regione` FROM `%3$s` ' .
+							'UNION SELECT \'Forlì\', \'FO\', \'08\' ' .
+							'UNION SELECT \'Pesaro\', \'PS\', \'11\' ' .
+							'UNION SELECT \'Fiume\', \'FU\', \'%4$s\' ' .
+							'UNION SELECT \'Pola\', \'PL\', \'%5$s\' ' .
+							'UNION SELECT \'Zara\', \'ZA\', \'%6$s\' ' .
+							') AS aview ON `%7$s`.`i_sigla_automobilistica` = aview.`i_sigla_automobilistica` ' .
+							'WHERE `i_cod_regione` = \'%8$s\' ORDER BY i_den_unita_territoriale',
+							GCMI_SVIEW_PREFIX . 'comuni_attuali' . $this->pfilter(),
+							GCMI_SVIEW_PREFIX . 'comuni_soppressi' . $this->pfilter(),
+							GCMI_SVIEW_PREFIX . 'comuni_attuali',
+							$this->def_strings['COD_REG_ISDA'],
+							$this->def_strings['COD_REG_ISDA'],
+							$this->def_strings['COD_REG_ISDA'],
+							GCMI_SVIEW_PREFIX . 'comuni_soppressi' . $this->pfilter(),
+							esc_sql( $i_cod_regione )
+						)
+					);
+				}
 			}
 			wp_cache_set( $cache_key, $results, GCMI_CACHE_GROUP, GCMI_CACHE_EXPIRE_SECS );
 		}
@@ -546,7 +555,6 @@ class GCMI_COMUNE {
 	/**
 	 * Stampa l'elenco delle <option> per i comuni della provincia selezionata
 	 *
-	 * @global wpdb $wpdb
 	 * @return void
 	 */
 	public function print_gcmi_comuni() {
@@ -572,7 +580,6 @@ class GCMI_COMUNE {
 			);
 			echo wp_kses( $comuni_options, $allowed_html );
 		}
-		wp_die();
 	}
 
 	/**
@@ -723,7 +730,6 @@ class GCMI_COMUNE {
 		if ( count( $results ) > 0 ) {
 			echo esc_html( $results[0]->i_sigla_automobilistica );
 		}
-		wp_die();
 	}
 
 	/**
@@ -731,8 +737,9 @@ class GCMI_COMUNE {
 	 *
 	 * @return void
 	 */
-	public static function gcmi_register_scripts(): void {
+	public static function gcmi_comune_register_scripts(): void {
 		wp_register_style( 'gcmi_comune_css', plugins_url( 'modules/comune/css/comune.min.css', GCMI_PLUGIN ), array(), GCMI_VERSION );
+		wp_register_style( 'dashicons', includes_url( '/css/dashicons.min.css', 'relative' ) );
 
 		// Se html5_fallback è abilitato, non devo caricare il nuovo tema per evitare conflitti.
 		if ( ! has_filter( 'wpcf7_support_html5_fallback', '__return_true' ) ) {
@@ -758,6 +765,9 @@ class GCMI_COMUNE {
 		// Incorporo gli script registrati.
 		if ( ! wp_style_is( 'gcmi_comune_css', 'enqueued' ) ) {
 			wp_enqueue_style( 'gcmi_comune_css' );
+		}
+		if ( ! wp_style_is( 'dashicons', 'enqueued' ) ) {
+			wp_enqueue_style( 'dashicons' );
 		}
 		if ( ! has_filter( 'wpcf7_support_html5_fallback', '__return_true' ) ) {
 			if ( ! wp_style_is( 'gcmi_jquery-ui-dialog', 'enqueued' ) ) {
@@ -832,9 +842,6 @@ class GCMI_COMUNE {
 			}
 			wp_cache_set( $cache_key, $results, GCMI_CACHE_GROUP, GCMI_CACHE_EXPIRE_SECS );
 		}
-		if ( ! $results ) {
-			return false;
-		}
 		return $results;
 	}
 
@@ -873,12 +880,9 @@ class GCMI_COMUNE {
 	/**
 	 * Prints the table with municiplity details.
 	 *
-	 * @global wpdb $wpdb
 	 * @return void
 	 */
 	public function print_gcmi_comune_info() {
-		global $wpdb;
-
 		if ( ! empty( sanitize_text_field( wp_unslash( $_POST['codice_comune'] ) ) ) ) {
 			$i_cod_comune = sanitize_text_field( wp_unslash( $_POST['codice_comune'] ) );
 			if ( false === $this->is_valid_cod_comune( $i_cod_comune ) ) {
@@ -906,7 +910,7 @@ class GCMI_COMUNE {
 			if ( array_key_exists( 'i_anno_var', $results ) ) {
 				$table .= '<tr>';
 				$table .= '<td class="tg-5lax">' . esc_html( __( 'Year in which the municipality was abolished:', 'campi-moduli-italiani' ) ) . '</td>';
-				$table .= '<td class="tg-qw54">' . esc_html( stripslashes( gcmi_safe_strval( $results['i_anno_var'] ) ) );
+				$table .= '<td class="tg-qw54">' . esc_html( stripslashes( gcmi_safe_strval( $results['i_anno_var'] ) ) ) . '</td>';
 				$table .= '</tr>';
 			}
 			$table .= '<tr>';
@@ -934,11 +938,11 @@ class GCMI_COMUNE {
 		}
 		$table .= '<tr>';
 		$table .= '<td class="tg-cly1">' . esc_html( __( 'Geographical area:', 'campi-moduli-italiani' ) ) . '</td>';
-		$table .= '<td class="tg-yla0">' . esc_html( stripslashes( $results['i_ripartizione_geo'] ) ) . '</td>';
+		$table .= '<td class="tg-yla0">' . esc_html( stripslashes( gcmi_safe_strval( $results['i_ripartizione_geo'] ) ) ) . '</td>';
 		$table .= '</tr>';
 		$table .= '<tr>';
 		$table .= '<td class="tg-5lax">' . esc_html( __( 'Region name:', 'campi-moduli-italiani' ) ) . '</td>';
-		$table .= '<td class="tg-qw54">' . esc_html( stripslashes( $results['i_den_regione'] ) ) . '</td>';
+		$table .= '<td class="tg-qw54">' . esc_html( stripslashes( gcmi_safe_strval( $results['i_den_regione'] ) ) ) . '</td>';
 		$table .= '</tr>';
 
 		$table .= '<tr>';
@@ -978,7 +982,7 @@ class GCMI_COMUNE {
 				$table .= 'Zara';
 				break;
 			default:
-				$table .= esc_html( stripslashes( $results['i_den_unita_territoriale'] ) );
+				$table .= esc_html( stripslashes( gcmi_safe_strval( $results['i_den_unita_territoriale'] ) ) );
 		}
 		$table .= '</td>';
 		$table .= '</tr>';
@@ -999,10 +1003,9 @@ class GCMI_COMUNE {
 			$table .= '<tr>';
 			$table .= '<td class="tg-cly1">' . esc_html( __( 'Name of the municipality associated with the change or new name:', 'campi-moduli-italiani' ) ) . '</td>';
 			if ( array_key_exists( 'i_denominazione_nuovo', $results ) ) {
-				$table .= '<td class="tg-yla0">' . esc_html( stripslashes( $results['i_denominazione_nuovo'] ) ) . '</td>';
+				$table .= '<td class="tg-yla0">' . esc_html( stripslashes( gcmi_safe_strval( $results['i_denominazione_nuovo'] ) ) ) . '</td>';
 			}
 			$table .= '</tr>';
-			$table .= '<tr>';
 		}
 
 		if ( array_key_exists( 'i_flag_capoluogo', $results ) ) { // un comune attivo.
@@ -1023,7 +1026,7 @@ class GCMI_COMUNE {
 
 		$variazioni = $this->get_variazioni_comune( $i_cod_comune );
 		if ( count( $variazioni ) > 0 ) { // ci sono state delle variazioni.
-			$table .= '</br>';
+			$table .= '<br>';
 			$table .= '<table class="gcmiT2">';
 			$table .= '<tr>';
 			$table .= '<td class="tg-uzvj">' . esc_html( __( 'Year', 'campi-moduli-italiani' ) ) . '</td>';
@@ -1072,7 +1075,7 @@ class GCMI_COMUNE {
 				$table .= '<td class="tg-4ynh">' . esc_html( __( 'Official name of the municipality on the date of the event:', 'campi-moduli-italiani' ) ) . '</td>';
 				$table .= '</tr>';
 				$table .= '<tr>';
-				$table .= '<td class="tg-lboi">' . esc_html( stripslashes( $result->i_denominazione_full ) ) . '</td>';
+				$table .= '<td class="tg-lboi">' . esc_html( stripslashes( gcmi_safe_strval( $result->i_denominazione_full ) ) ) . '</td>';
 				$table .= '</tr>';
 				$table .= '<tr>';
 				$table .= '<td class="tg-4ynh">' . esc_html( __( 'Istat code of the municipality associated with the change or new Istat code of the municipality:', 'campi-moduli-italiani' ) ) . '</td>';
@@ -1084,19 +1087,19 @@ class GCMI_COMUNE {
 				$table .= '<td class="tg-4ynh">' . esc_html( __( 'Name of the municipality associated with the change or new name:', 'campi-moduli-italiani' ) ) . '</td>';
 				$table .= '</tr>';
 				$table .= '<tr>';
-				$table .= '<td class="tg-lboi">' . esc_html( stripslashes( $result->i_denominazione_nuovo ) ) . '</td>';
+				$table .= '<td class="tg-lboi">' . esc_html( stripslashes( gcmi_safe_strval( $result->i_denominazione_nuovo ) ) ) . '</td>';
 				$table .= '</tr>';
 				$table .= '<tr>';
 				$table .= '<td class="tg-4ynh">' . esc_html( __( 'Act and Document:', 'campi-moduli-italiani' ) ) . '</td>';
 				$table .= '</tr>';
 				$table .= '<tr>';
-				$table .= '<td class="tg-lboi">' . esc_html( stripslashes( $result->i_documento ) ) . '</td>';
+				$table .= '<td class="tg-lboi">' . esc_html( stripslashes( gcmi_safe_strval( $result->i_documento ) ) ) . '</td>';
 				$table .= '</tr>';
 				$table .= '<tr>';
 				$table .= '<td class="tg-4ynh">' . esc_html( __( 'Content of the act:', 'campi-moduli-italiani' ) ) . '</td>';
 				$table .= '</tr>';
 				$table .= '<tr>';
-				$table .= '<td class="tg-lboi">' . esc_html( stripslashes( $result->i_contenuto ) ) . '</td>';
+				$table .= '<td class="tg-lboi">' . esc_html( stripslashes( gcmi_safe_strval( $result->i_contenuto ) ) ) . '</td>';
 				$table .= '</tr>';
 				$table .= '<tr>';
 				$table .= '<td class="tg-4ynh">' . esc_html( __( 'Administrative validity effective date:', 'campi-moduli-italiani' ) ) . '</td>';
@@ -1147,7 +1150,6 @@ class GCMI_COMUNE {
 			'b'     => array(),
 		);
 		echo wp_kses( $table, $allowed_html );
-		wp_die();
 	}
 
 	/**
@@ -1203,15 +1205,14 @@ class GCMI_COMUNE {
 		global $wpdb;
 
 		if ( false === $this->is_valid_cod_comune( $i_cod_comune ) ) {
-			return '';
+			return '00000000000';
 		}
-
-		$output_string = '';
 
 		$cache_key = 'gcmi_data_from_comune_' . strval( $i_cod_comune );
 		$results   = wp_cache_get( $cache_key, GCMI_CACHE_GROUP );
 
 		if ( false === $results ) {
+			// per prima cosa cerco negli attuali.
 			$results = $wpdb->get_row(
 				$wpdb->prepare(
 					'SELECT `i_cod_regione`, `i_cod_unita_territoriale`, `i_sigla_automobilistica` ' .
@@ -1221,62 +1222,63 @@ class GCMI_COMUNE {
 				),
 				ARRAY_A
 			);
-		}
-		if ( $results ) {
-			wp_cache_set( $cache_key, $results, GCMI_CACHE_GROUP, GCMI_CACHE_EXPIRE_SECS );
-			$output_string = $results['i_cod_regione'] . $results['i_cod_unita_territoriale'] . $i_cod_comune;
-		} elseif ( 'attuali' !== $this->kind ) { // non ha trovato nulla nei comuni attuali.
-				$cache_key = 'gcmi_data_from_comune_cessato_' . sanitize_key( $i_cod_comune );
-				$results   = wp_cache_get( $cache_key, GCMI_CACHE_GROUP );
-			if ( false === $results ) {
-				$results = $wpdb->get_row(
-					$wpdb->prepare(
-						'SELECT `i_cod_unita_territoriale`, `i_sigla_automobilistica` ' .
-						'FROM `%1$s` WHERE `i_cod_comune` = \'%2$s\' LIMIT 1',
-						GCMI_SVIEW_PREFIX . 'comuni_soppressi' . $this->pfilter(),
-						$i_cod_comune
-					),
-					ARRAY_A
-				);
+			if ( $results ) {
 				wp_cache_set( $cache_key, $results, GCMI_CACHE_GROUP, GCMI_CACHE_EXPIRE_SECS );
+				return $results['i_cod_regione'] . $results['i_cod_unita_territoriale'] . $i_cod_comune;
 			}
+
+			// Non è nei comuni attuali, quindi i dati di partenza li rinviene nella tabella cessati.
+			$results = $wpdb->get_row(
+				$wpdb->prepare(
+					'SELECT `i_cod_unita_territoriale`, `i_sigla_automobilistica` ' .
+					'FROM `%1$s` WHERE `i_cod_comune` = \'%2$s\' LIMIT 1',
+					GCMI_SVIEW_PREFIX . 'comuni_soppressi',
+					$i_cod_comune
+				),
+				ARRAY_A
+			);
+			wp_cache_set( $cache_key, $results, GCMI_CACHE_GROUP, GCMI_CACHE_EXPIRE_SECS );
+			if ( ! is_null( $results ) ) {
 				$targa         = $results['i_sigla_automobilistica'];
 				$old_provincia = $results['i_cod_unita_territoriale'];
 
-			if ( '7' === substr( $old_provincia, 0, 1 ) ) { // Istria e Dalmazia.
-				$cod_provincia = $old_provincia;
-				$cod_regione   = $this->def_strings['COD_REG_ISDA'];
-			} else {
 				$cache_key = 'gcmi_data_from_targa_' . strval( $targa );
-				$results   = wp_cache_get( $cache_key, GCMI_CACHE_GROUP );
-				if ( false === $results ) {
-					$results = $wpdb->get_row(
+				$results_t = wp_cache_get( $cache_key, GCMI_CACHE_GROUP );
+				if ( false === $results_t ) {
+					$results_t = $wpdb->get_row(
 						$wpdb->prepare(
 							'SELECT `i_cod_regione`, `i_cod_unita_territoriale`, `i_sigla_automobilistica` ' .
 							'FROM `%1$s` WHERE `%2$s`.`i_sigla_automobilistica` = \'%3$s\' LIMIT 1',
-							GCMI_SVIEW_PREFIX . 'comuni_attuali' . $this->pfilter(),
-							GCMI_SVIEW_PREFIX . 'comuni_attuali' . $this->pfilter(),
+							GCMI_SVIEW_PREFIX . 'comuni_attuali',
+							GCMI_SVIEW_PREFIX . 'comuni_attuali',
 							$targa
 						),
 						ARRAY_A
 					);
-					wp_cache_set( $cache_key, $results, GCMI_CACHE_GROUP, GCMI_CACHE_EXPIRE_SECS );
+					wp_cache_set( $cache_key, $results_t, GCMI_CACHE_GROUP, GCMI_CACHE_EXPIRE_SECS );
+
+					switch ( $this->kind ) {
+						case 'evidenza_cessati':
+							if ( '7' === substr( $old_provincia, 0, 1 ) ) { // Istria e Dalmazia.
+								$cod_regione   = $this->def_strings['COD_REG_ISDA'];
+								$cod_provincia = $old_provincia;
+							} else {
+								$cod_regione   = $results_t['i_cod_regione'];
+								$cod_provincia = $results_t['i_cod_unita_territoriale'];
+							}
+							break;
+
+						case 'tutti':
+						case 'attuali':
+						default:
+							$cod_regione   = $this->def_strings['COD_REG_SOPP'];
+							$cod_provincia = $this->def_strings['COD_PRO_SOPP'];
+							break;
+					}
+					return $cod_regione . $cod_provincia . $i_cod_comune;
 				}
-
-				$cod_provincia = $results['i_cod_unita_territoriale'];
-				$cod_regione   = $results['i_cod_regione'];
 			}
-
-			if ( 'evidenza_cessati' === $this->kind ) {
-				$output_string = $cod_regione . $cod_provincia . $i_cod_comune;
-			}
-
-			if ( 'tutti' === $this->kind ) {
-				$output_string = $this->def_strings['COD_REG_SOPP'] . $cod_provincia . $i_cod_comune;
-			}
-		} else {
-			$output_string = '00000000000';
 		}
-		return $output_string;
+		return '00000000000';
 	}
 }
