@@ -168,8 +168,8 @@ function gcmi_wpcf7_tg_pane_comune( $contact_form, $args = '' ): void {
 					<tr>
 						<th scope="row"><label for="<?php echo esc_attr( $args['content'] . '-filtername' ); ?>"><?php echo esc_html__( 'Filter name (leave empty for unfiltered field)', 'campi-moduli-italiani' ); ?></label></th>
 						<td>
-							<input type="text" list="filtername" class="oneline option" name="filtername" id="<?php echo esc_attr( $args['content'] . '-filtername' ); ?>" />
-							<datalist id="filtername">
+							<input type="text" list="present_filternames" class="oneline option" name="filtername" id="<?php echo esc_attr( $args['content'] . '-filtername' ); ?>" />
+							<datalist id="present_filternames">
 								<?php
 								$filters = gcmi_get_list_filtri();
 								foreach ( $filters as $filter ) {

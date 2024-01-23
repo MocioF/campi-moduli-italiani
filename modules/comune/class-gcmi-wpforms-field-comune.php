@@ -107,6 +107,9 @@ class GCMI_WPForms_Field_Comune extends WPForms_Field {
 		// Setto il tipo preimpostato.
 		$field['kind'] = isset( $field['kind'] ) ? $field['kind'] : 'tutti';
 
+		// Setto il filtro preimpostato.
+		$field['filtername'] = isset( $field['filtername'] ) ? $field['filtername'] : '';
+
 		// Utilizzo delle label per ogni select.
 		$field['use_label_element'] = isset( $field['use_label_element'] ) ? $field['use_label_element'] : '0';
 
@@ -211,6 +214,60 @@ class GCMI_WPForms_Field_Comune extends WPForms_Field {
 			array(
 				'slug'    => 'filter_type',
 				'content' => $field_kind_label . $field_kind_field,
+			)
+		);
+
+		// Crea la scelta del filtro.
+		$filtername             = isset( $field['filtername'] ) ? $field['filtername'] : '';
+		$tooltip                = esc_html__( 'Leave empty for unfiltered field, or digit a filtername to limit selectable municipalities.', 'campi-moduli-italiani' );
+		$field_filtername_label = $this->field_element(
+			'label',
+			$field,
+			array(
+				'slug'    => 'filtername',
+				'value'   => esc_html__( 'Filter name (leave empty for unfiltered field)', 'campi-moduli-italiani' ),
+				'tooltip' => $tooltip,
+			),
+			false
+		);
+
+		$field_filtername_text = $this->field_element(
+			'text',
+			$field,
+			array(
+				'slug'  => 'filtername',
+				'value' => ! empty( $field['filtername'] ) ? esc_attr( $field['filtername'] ) : '',
+				'attrs' => array(
+					'list' => 'present_filternames',
+				),
+			),
+			false
+		);
+
+		$field_filtername_datalist_open = '<datalist id="present_filternames">';
+
+		$filter_list = gcmi_get_list_filtri();
+		$arr_options = array_combine( $filter_list, $filter_list );
+
+		$field_filtername_select         = $this->field_element(
+			'select',
+			$field,
+			array(
+				'slug'    => 'filtername',
+				'value'   => ! empty( $field['filtername'] ) ? esc_attr( $field['filtername'] ) : '',
+				'options' => $arr_options,
+			),
+			false
+		);
+		$field_filtername_datalist_close = '</datalist>';
+
+		$this->field_element(
+			'row',
+			$field,
+			array(
+				'slug'    => 'filter_type',
+				'content' => $field_filtername_label . $field_filtername_text .
+				$field_filtername_datalist_open . $field_filtername_select . $field_filtername_datalist_close,
 			)
 		);
 
@@ -525,6 +582,7 @@ class GCMI_WPForms_Field_Comune extends WPForms_Field {
 		$use_label_element = ! empty( $field['use_label_element'] ) ? esc_attr( $field['use_label_element'] ) : false;
 		$comu_details      = ! empty( $field['comu_details'] ) ? esc_attr( $field['comu_details'] ) : false;
 		$kind              = ! empty( $field['kind'] ) ? esc_attr( $field['kind'] ) : 'tutti';
+		$filtername        = ! empty( $field['filtername'] ) ? esc_attr( $field['filtername'] ) : '';
 		$is_modern         = ! empty( $field['style'] ) && self::STYLE_MODERN === $field['style'];
 
 		// Add a class for Choices.js initialization.
@@ -600,11 +658,11 @@ class GCMI_WPForms_Field_Comune extends WPForms_Field {
 		if ( isset( $field['default_value'] ) && '' !== strval( $field['default_value'] ) ) {
 			$default_value = strval( $field['default_value'] );
 			if ( $obj_comune->is_valid_cod_comune( $default_value ) ) {
-				$container['attr']['data-prval'] = $obj_comune->gcmi_get_data_from_comune( $default_value, $field['kind'] );
+				$container['attr']['data-prval'] = $obj_comune->gcmi_get_data_from_comune( $default_value );
 			} else {
 				$got_cod_comune = $obj_comune->get_cod_comune_from_denominazione( $default_value );
 				if ( $obj_comune->is_valid_cod_comune( strval( $got_cod_comune ) ) ) {
-					$prval = $obj_comune->gcmi_get_data_from_comune( strval( $got_cod_comune ), $field['kind'] );
+					$prval = $obj_comune->gcmi_get_data_from_comune( strval( $got_cod_comune ) );
 					if ( false !== $prval ) {
 						$container['attr']['data-prval'] = $prval;
 					}
@@ -623,6 +681,7 @@ class GCMI_WPForms_Field_Comune extends WPForms_Field {
 		}
 
 		$quattro  = '<input type="hidden" name="' . $prefix_name . '[kind]" id="' . $my_ids['kin'] . '" value="' . $kind . '" />';
+		$quattro .= '<input type="hidden" name="' . $prefix_name . '[filtername]" id="' . $my_ids['filter'] . '" value="' . $filtername . '" />';
 		$quattro .= '<input type="hidden" name="' . $prefix_name . '[targa]" id="' . $my_ids['targa'] . '"/>';
 		$quattro .= '<input type="hidden" name="' . $prefix_name . '[reg_desc]" id="' . $my_ids['reg_desc'] . '"/>';
 		$quattro .= '<input type="hidden" name="' . $prefix_name . '[prov_desc]" id="' . $my_ids['prov_desc'] . '"/>';
