@@ -203,69 +203,69 @@ function gcmi_wpcf7_tg_pane_cf( $contact_form, $args = '' ): void {
 			<table class="form-table">
 				<tbody>
 					<tr>
-						<th scope="row"><?php echo esc_html( __( 'Field type', 'contact-form-7' ) ); ?></th>
+						<th scope="row"><?php echo esc_html__( 'Field type', 'contact-form-7' ); ?></th>
 						<td>
 							<fieldset>
-								<legend class="screen-reader-text"><?php echo esc_html( __( 'Field type', 'contact-form-7' ) ); ?></legend>
-								<label><input type="checkbox" name="required" /> <?php echo esc_html( __( 'Required field', 'contact-form-7' ) ); ?></label>
+								<legend class="screen-reader-text"><?php echo esc_html__( 'Field type', 'contact-form-7' ); ?></legend>
+								<label><input type="checkbox" name="required" /> <?php echo esc_html__( 'Required field', 'contact-form-7' ); ?></label>
 							</fieldset>
 						</td>
 					</tr>
 					<tr>
-						<th scope="row"><label for="<?php echo esc_attr( $args['content'] . '-name' ); ?>"><?php echo esc_html( __( 'Name', 'contact-form-7' ) ); ?></label></th>
+						<th scope="row"><label for="<?php echo esc_attr( $args['content'] . '-name' ); ?>"><?php echo esc_html__( 'Name', 'contact-form-7' ); ?></label></th>
 						<td><input type="text" name="name" class="tg-name oneline" id="<?php echo esc_attr( $args['content'] . '-name' ); ?>" /></td>
 					</tr>
 					<tr>
-						<th scope="row"><label for="<?php echo esc_attr( $args['content'] . '-values' ); ?>"><?php echo esc_html( __( 'Default value', 'contact-form-7' ) ); ?></label></th>
+						<th scope="row"><label for="<?php echo esc_attr( $args['content'] . '-values' ); ?>"><?php echo esc_html__( 'Default value', 'contact-form-7' ); ?></label></th>
 						<td><input type="text" name="values" class="oneline" id="<?php echo esc_attr( $args['content'] . '-values' ); ?>" /><br />
-						<label><input type="checkbox" name="placeholder" class="option" /> <?php echo esc_html( __( 'Use this text as the placeholder of the field', 'contact-form-7' ) ); ?></label></td>
+						<label><input type="checkbox" name="placeholder" class="option" /> <?php echo esc_html__( 'Use this text as the placeholder of the field', 'contact-form-7' ); ?></label></td>
 					</tr>
 					<tr>
-						<th scope="row"><label for="<?php echo esc_attr( $args['content'] . '-id' ); ?>"><?php echo esc_html( __( 'Id attribute', 'contact-form-7' ) ); ?></label></th>
+						<th scope="row"><label for="<?php echo esc_attr( $args['content'] . '-id' ); ?>"><?php echo esc_html__( 'Id attribute', 'contact-form-7' ); ?></label></th>
 						<td><input type="text" name="id" class="idvalue oneline option" id="<?php echo esc_attr( $args['content'] . '-id' ); ?>" /></td>
 					</tr>
 					<tr>
-						<th scope="row"><label for="<?php echo esc_attr( $args['content'] . '-class' ); ?>"><?php echo esc_html( __( 'Class attribute', 'contact-form-7' ) ); ?></label></th>
+						<th scope="row"><label for="<?php echo esc_attr( $args['content'] . '-class' ); ?>"><?php echo esc_html__( 'Class attribute', 'contact-form-7' ); ?></label></th>
 						<td><input type="text" name="class" class="classvalue oneline option" id="<?php echo esc_attr( $args['content'] . '-class' ); ?>" /></td>
 					</tr>
 					<tr>
-						<th scope="column" colspan="2"><?php echo esc_html( __( 'If you want tax code to match  form\'s others fields, please indicate the names given to these fields in the form. Tax code will be matched only against named fields (if you have just one field for born date, it is not necessary to check tax code against different fileds for day month and year of birth).', 'campi-moduli-italiani' ) ); ?></th>
+						<th scope="column" colspan="2"><?php echo esc_html__( 'If you want tax code to match  form\'s others fields, please indicate the names given to these fields in the form. Tax code will be matched only against named fields (if you have just one field for born date, it is not necessary to check tax code against different fileds for day month and year of birth).', 'campi-moduli-italiani' ); ?></th>
 					</tr>
 					<tr>
-						<th scope="row"><label for="<?php echo esc_attr( $args['content'] . '-surname' ); ?>"><?php echo esc_html( __( '"name" attr of surname field', 'campi-moduli-italiani' ) ); ?></label></th>
+						<th scope="row"><label for="<?php echo esc_attr( $args['content'] . '-surname' ); ?>"><?php echo esc_html__( '"name" attr of surname field', 'campi-moduli-italiani' ); ?></label></th>
 						<td><input type="text" name="surname-field" class="oneline option" id="<?php echo esc_attr( $args['content'] . '-surname' ); ?>" /></td>
 					</tr>
 					<tr>
-						<th scope="row"><label for="<?php echo esc_attr( $args['content'] . '-name' ); ?>"><?php echo esc_html( __( '"name" attr of name field', 'campi-moduli-italiani' ) ); ?></label></th>
+						<th scope="row"><label for="<?php echo esc_attr( $args['content'] . '-name' ); ?>"><?php echo esc_html__( '"name" attr of name field', 'campi-moduli-italiani' ); ?></label></th>
 						<td><input type="text" name="name-field" class="oneline option" id="<?php echo esc_attr( $args['content'] . '-name' ); ?>" /></td>
 					</tr>
 
 					<tr>
-						<th scope="row"><label for="<?php echo esc_attr( $args['content'] . '-gender' ); ?>"><?php echo esc_html( __( '"name" attr of gender field', 'campi-moduli-italiani' ) ); ?></label></th>
+						<th scope="row"><label for="<?php echo esc_attr( $args['content'] . '-gender' ); ?>"><?php echo esc_html__( '"name" attr of gender field', 'campi-moduli-italiani' ); ?></label></th>
 						<td><input type="text" name="gender-field" class="oneline option" id="<?php echo esc_attr( $args['content'] . '-gender' ); ?>" /></td>
 					</tr>
 					<tr>
-						<th scope="row"><label for="<?php echo esc_attr( $args['content'] . '-birthdate' ); ?>"><?php echo esc_html( __( '"name" attr of date of birth field', 'campi-moduli-italiani' ) ); ?></label></th>
+						<th scope="row"><label for="<?php echo esc_attr( $args['content'] . '-birthdate' ); ?>"><?php echo esc_html__( '"name" attr of date of birth field', 'campi-moduli-italiani' ); ?></label></th>
 						<td><input type="text" name="birthdate-field" class="oneline option" id="<?php echo esc_attr( $args['content'] . '-birthdate' ); ?>" /></td>
 					</tr>
 					<tr>
-						<th scope="row"><label for="<?php echo esc_attr( $args['content'] . '-birthyear' ); ?>"><?php echo esc_html( __( '"name" attr of year of birth field', 'campi-moduli-italiani' ) ); ?></label></th>
+						<th scope="row"><label for="<?php echo esc_attr( $args['content'] . '-birthyear' ); ?>"><?php echo esc_html__( '"name" attr of year of birth field', 'campi-moduli-italiani' ); ?></label></th>
 						<td><input type="text" name="birthyear-field" class="oneline option" id="<?php echo esc_attr( $args['content'] . '-birthyear' ); ?>" /></td>
 					</tr>
 					<tr>
-						<th scope="row"><label for="<?php echo esc_attr( $args['content'] . '-birthmonth' ); ?>"><?php echo esc_html( __( '"name" attr of month of birth field', 'campi-moduli-italiani' ) ); ?></label></th>
+						<th scope="row"><label for="<?php echo esc_attr( $args['content'] . '-birthmonth' ); ?>"><?php echo esc_html__( '"name" attr of month of birth field', 'campi-moduli-italiani' ); ?></label></th>
 						<td><input type="text" name="birthmonth-field" class="oneline option" id="<?php echo esc_attr( $args['content'] . '-birthmonth' ); ?>" /></td>
 					</tr>
 					<tr>
-						<th scope="row"><label for="<?php echo esc_attr( $args['content'] . '-birthday' ); ?>"><?php echo esc_html( __( '"name" attr of day of birth field', 'campi-moduli-italiani' ) ); ?></label></th>
+						<th scope="row"><label for="<?php echo esc_attr( $args['content'] . '-birthday' ); ?>"><?php echo esc_html__( '"name" attr of day of birth field', 'campi-moduli-italiani' ); ?></label></th>
 						<td><input type="text" name="birthday-field" class="oneline option" id="<?php echo esc_attr( $args['content'] . '-birthday' ); ?>" /></td>
 					</tr>
 					<tr>
-						<th scope="row"><label for="<?php echo esc_attr( $args['content'] . '-birthmunicipality' ); ?>"><?php echo esc_html( __( '"name" attr of municipality of birth field', 'campi-moduli-italiani' ) ); ?></label></th>
+						<th scope="row"><label for="<?php echo esc_attr( $args['content'] . '-birthmunicipality' ); ?>"><?php echo esc_html__( '"name" attr of municipality of birth field', 'campi-moduli-italiani' ); ?></label></th>
 						<td><input type="text" name="birthmunicipality-field" class="oneline option" id="<?php echo esc_attr( $args['content'] . '-birthmunicipality' ); ?>" /></td>
 					</tr>
 					<tr>
-						<th scope="row"><label for="<?php echo esc_attr( $args['content'] . '-birthNation' ); ?>"><?php echo esc_html( __( '"name" attr of Country of birth field', 'campi-moduli-italiani' ) ); ?></label></th>
+						<th scope="row"><label for="<?php echo esc_attr( $args['content'] . '-birthNation' ); ?>"><?php echo esc_html__( '"name" attr of Country of birth field', 'campi-moduli-italiani' ); ?></label></th>
 						<td><input type="text" name="birthnation-field" class="oneline option" id="<?php echo esc_attr( $args['content'] . '-birthnation' ); ?>" /></td>
 					</tr>
 				</tbody>
@@ -284,7 +284,7 @@ function gcmi_wpcf7_tg_pane_cf( $contact_form, $args = '' ): void {
 		<p class="description mail-tag"><label for="<?php echo esc_attr( $args['content'] . '-mailtag' ); ?>">
 		<?php
 		// translators: %s is the name of the mail-tag.
-		printf( esc_html( __( 'To use the value input through this field in a mail field, you need to insert the corresponding mail-tag (%s) into the field on the Mail tab.', 'contact-form-7' ) ), '<strong><span class="mail-tag"></span></strong>' );
+		printf( esc_html__( 'To use the value input through this field in a mail field, you need to insert the corresponding mail-tag (%s) into the field on the Mail tab.', 'contact-form-7' ), '<strong><span class="mail-tag"></span></strong>' );
 		?>
 		<input type="text" class="mail-tag code hidden" readonly="readonly" id="<?php echo esc_attr( $args['content'] . '-mailtag' ); ?>" /></label></p>
 	</div>

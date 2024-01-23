@@ -305,11 +305,11 @@ class GCMI_CODICEFISCALE {
 
 		// Tabella messaggi di errore.
 		$this->TabErrori = array(
-			0 => esc_html( __( 'No Fiscal Code to be analyzed', 'campi-moduli-italiani' ) ),
-			1 => esc_html( __( 'Incorrect code length', 'campi-moduli-italiani' ) ),
-			2 => esc_html( __( 'The code to be analyzed contains incorrect characters', 'campi-moduli-italiani' ) ),
-			3 => esc_html( __( 'Invalid character in homocode decoding', 'campi-moduli-italiani' ) ),
-			4 => esc_html( __( 'Incorrect tax code', 'campi-moduli-italiani' ) ),
+			0 => esc_html__( 'No Fiscal Code to be analyzed', 'campi-moduli-italiani' ),
+			1 => esc_html__( 'Incorrect code length', 'campi-moduli-italiani' ),
+			2 => esc_html__( 'The code to be analyzed contains incorrect characters', 'campi-moduli-italiani' ),
+			3 => esc_html__( 'Invalid character in homocode decoding', 'campi-moduli-italiani' ),
+			4 => esc_html__( 'Incorrect tax code', 'campi-moduli-italiani' ),
 		);
 	}
 

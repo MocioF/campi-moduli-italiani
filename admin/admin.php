@@ -139,7 +139,7 @@ function gcmi_load_comune_filter_builder() {
  * @return void
  */
 function gcmi_admin_update_db() {
-	echo '<h1>' . esc_html( __( 'Management of Italian municipalities database.', 'campi-moduli-italiani' ) ) . '</h1>';
+	echo '<h1>' . esc_html__( 'Management of Italian municipalities database.', 'campi-moduli-italiani' ) . '</h1>';
 	echo '<form id="gcmi_update_db" method="post">';
 	echo '<div class="wrap" id="gcmi_data_update">';
 

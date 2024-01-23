@@ -213,9 +213,9 @@ add_filter(
 
 		$replaced = sprintf(
 			$rpld,
-			esc_html( __( 'Hash', 'campi-moduli-italiani' ) ),
+			esc_html__( 'Hash', 'campi-moduli-italiani' ),
 			$hash,
-			esc_html( __( 'Signature', 'campi-moduli-italiani' ) ),
+			esc_html__( 'Signature', 'campi-moduli-italiani' ),
 			base64_encode( $signature )
 		);
 		return $replaced;
@@ -300,16 +300,16 @@ function gcmi_flamingo_formsig_meta_box( $post ) {
 	if ( false !== $formid ) {
 		$formid = strval( $formid );
 		?>
-		<p><label for="mail_hash"><?php echo esc_html( __( 'Insert/Paste hash from mail', 'campi-moduli-italiani' ) ); ?></label><input type="text" name="mail_hash" id="gcmi_flamingo_input_hash" minlength="32" maxlength="32"/></p>
-		<p><label><?php echo esc_html( __( 'Insert/Paste signature from mail', 'campi-moduli-italiani' ) ); ?></label><input type="text" name="mail_signature" id="gcmi_flamingo_input_signature"/></p>
+		<p><label for="mail_hash"><?php echo esc_html__( 'Insert/Paste hash from mail', 'campi-moduli-italiani' ); ?></label><input type="text" name="mail_hash" id="gcmi_flamingo_input_hash" minlength="32" maxlength="32"/></p>
+		<p><label><?php echo esc_html__( 'Insert/Paste signature from mail', 'campi-moduli-italiani' ); ?></label><input type="text" name="mail_signature" id="gcmi_flamingo_input_signature"/></p>
 		<input type="hidden" id="gcmi_flamingo_input_form_ID" value="<?php echo ( esc_html( $formid ) ); ?>">
 		<input type="hidden" id="gcmi_flamingo_calc_hash" value="<?php echo ( esc_html( $hash ) ); ?>">
 		<div class="gcmi-flamingo-response" id="gcmi-flamingo-response"></div>
-		<p><input type="button" class="button input.submit button-secondary" value="<?php echo esc_html( __( 'Check Hash and signature', 'campi-moduli-italiani' ) ); ?>" id="gcmi_btn_check_sign"></p>	
+		<p><input type="button" class="button input.submit button-secondary" value="<?php echo esc_html__( 'Check Hash and signature', 'campi-moduli-italiani' ); ?>" id="gcmi_btn_check_sign"></p>	
 		<?php
 	} else {
 		?>
-		<p><?php echo esc_html( __( 'Impossible to retrieve form ID for this message', 'campi-moduli-italiani' ) ); ?></p>
+		<p><?php echo esc_html__( 'Impossible to retrieve form ID for this message', 'campi-moduli-italiani' ); ?></p>
 		<?php
 	}
 }

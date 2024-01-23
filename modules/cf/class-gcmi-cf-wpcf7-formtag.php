@@ -73,14 +73,14 @@ class GCMI_CF_WPCF7_FormTag {
 			$code_units = wpcf7_count_code_units( stripslashes( $value ) );
 			if ( false !== $code_units ) {
 				if ( 16 !== intval( $code_units ) ) {
-					$result->invalidate( $tag, esc_html( __( 'Italian Tax Code has to be 16 characters long.', 'campi-moduli-italiani' ) ) );
+					$result->invalidate( $tag, esc_html__( 'Italian Tax Code has to be 16 characters long.', 'campi-moduli-italiani' ) );
 				}
 			}
 
 			$cf = new GCMI_CODICEFISCALE();
 			$cf->SetCF( $value );
 			if ( false === $cf->GetCodiceValido() ) {
-				$result->invalidate( $tag, esc_html( __( 'Wrong Codice Fiscale. Reason: ', 'campi-moduli-italiani' ) ) . $cf->GetErrore() );
+				$result->invalidate( $tag, esc_html__( 'Wrong Codice Fiscale. Reason: ', 'campi-moduli-italiani' ) ) . $cf->GetErrore();
 			} else {
 				$gg     = $cf->GetGGNascita();
 				$mm     = $cf->GetMMNascita();
@@ -131,7 +131,7 @@ class GCMI_CF_WPCF7_FormTag {
 							}
 						}
 						if ( substr( strtoupper( $value ), 0, 3 ) !== $parte_cognome ) {
-								$result->invalidate( $tag, esc_html( __( 'Tax code does not match inserted surname', 'campi-moduli-italiani' ) ) );
+								$result->invalidate( $tag, esc_html__( 'Tax code does not match inserted surname', 'campi-moduli-italiani' ) );
 						}
 					}
 				}
@@ -173,7 +173,7 @@ class GCMI_CF_WPCF7_FormTag {
 							}
 						}
 						if ( substr( strtoupper( $value ), 3, 3 ) !== $parte_nome ) {
-								$result->invalidate( $tag, esc_html( __( 'Tax code does not match inserted name', 'campi-moduli-italiani' ) ) );
+								$result->invalidate( $tag, esc_html__( 'Tax code does not match inserted name', 'campi-moduli-italiani' ) );
 						}
 					}
 				}
@@ -216,7 +216,7 @@ class GCMI_CF_WPCF7_FormTag {
 						}
 
 						if ( $norm_gender !== $gender ) {
-							$result->invalidate( $tag, esc_html( __( 'Tax code does not match the gender', 'campi-moduli-italiani' ) ) );
+							$result->invalidate( $tag, esc_html__( 'Tax code does not match the gender', 'campi-moduli-italiani' ) );
 						}
 					}
 				}
@@ -241,7 +241,7 @@ class GCMI_CF_WPCF7_FormTag {
 					}
 					if ( '' !== $posted_date ) {
 						if ( substr( $posted_date, 2 ) !== $aa . '-' . $mm . '-' . $gg ) {
-							$result->invalidate( $tag, esc_html( __( 'Tax code does not match the date of birth', 'campi-moduli-italiani' ) ) );
+							$result->invalidate( $tag, esc_html__( 'Tax code does not match the date of birth', 'campi-moduli-italiani' ) );
 						}
 					}
 				}
@@ -261,7 +261,7 @@ class GCMI_CF_WPCF7_FormTag {
 					}
 					if ( '' !== $posted_year ) {
 						if ( substr( $posted_year, 2 ) !== $aa ) {
-							$result->invalidate( $tag, esc_html( __( 'Tax code does not match the year of birth', 'campi-moduli-italiani' ) ) );
+							$result->invalidate( $tag, esc_html__( 'Tax code does not match the year of birth', 'campi-moduli-italiani' ) );
 						}
 					}
 				}
@@ -281,7 +281,7 @@ class GCMI_CF_WPCF7_FormTag {
 					}
 					if ( '' !== $posted_month ) {
 						if ( str_pad( $posted_month, 2, '0', STR_PAD_LEFT ) !== $mm ) {
-							$result->invalidate( $tag, esc_html( __( 'Tax code does not match the month of birth', 'campi-moduli-italiani' ) ) );
+							$result->invalidate( $tag, esc_html__( 'Tax code does not match the month of birth', 'campi-moduli-italiani' ) );
 						}
 					}
 				}
@@ -301,7 +301,7 @@ class GCMI_CF_WPCF7_FormTag {
 					}
 					if ( '' !== $posted_day ) {
 						if ( str_pad( $posted_day, 2, '0', STR_PAD_LEFT ) !== $gg ) {
-							$result->invalidate( $tag, esc_html( __( 'Tax code does not match the day of birth', 'campi-moduli-italiani' ) ) );
+							$result->invalidate( $tag, esc_html__( 'Tax code does not match the day of birth', 'campi-moduli-italiani' ) );
 						}
 					}
 				}
@@ -350,7 +350,7 @@ class GCMI_CF_WPCF7_FormTag {
 							}
 
 							if ( $comune !== $cod_at ) {
-								$result->invalidate( $tag, esc_html( __( 'Tax code does not match the Country of birth', 'campi-moduli-italiani' ) ) );
+								$result->invalidate( $tag, esc_html__( 'Tax code does not match the Country of birth', 'campi-moduli-italiani' ) );
 							}
 						}
 					}
@@ -431,7 +431,7 @@ class GCMI_CF_WPCF7_FormTag {
 							if ( count( $a_results ) > 0 ) { // vecchi comuni cessati non hanno codice catastale o comunque non è stato usato per rilascio codici fiscali.
 								$cod_catastale = strval( $a_results[0] );
 								if ( $cod_catastale !== $comune ) {
-									$result->invalidate( $tag, esc_html( __( 'Tax code does not match the municipality of birth', 'campi-moduli-italiani' ) ) );
+									$result->invalidate( $tag, esc_html__( 'Tax code does not match the municipality of birth', 'campi-moduli-italiani' ) );
 								}
 							}
 						}

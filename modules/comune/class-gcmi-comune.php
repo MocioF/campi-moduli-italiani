@@ -792,7 +792,7 @@ class GCMI_COMUNE {
 		$results   = wp_cache_get( $cache_key, GCMI_CACHE_GROUP );
 		if ( false === $results ) {
 			/* translators: put a string matching the local date format to be used in SQL (https://dev.mysql.com/doc/refman/8.0/en/date-and-time-functions.html#function_date-format) */
-			$local_date_format_mysql = $wpdb->_real_escape( esc_html( __( '%m/%d/%Y', 'campi-moduli-italiani' ) ) );
+			$local_date_format_mysql = $wpdb->_real_escape( esc_html__( '%m/%d/%Y', 'campi-moduli-italiani' ) );
 
 			$results = $wpdb->get_row(
 				$wpdb->prepare(
@@ -901,7 +901,7 @@ class GCMI_COMUNE {
 		$table  = '<div>';
 		$table .= '<table class="gcmiT1">';
 		$table .= '<tr>';
-		$table .= '<td class="tg-cly1">' . esc_html( __( 'Municipality name:', 'campi-moduli-italiani' ) ) . '</td>';
+		$table .= '<td class="tg-cly1">' . esc_html__( 'Municipality name:', 'campi-moduli-italiani' ) . '</td>';
 		$table .= '<td class="tg-yla0">' . esc_html( stripslashes( gcmi_safe_strval( $results['i_denominazione_full'] ) ) );
 		$table .= array_key_exists( 'i_data_variazione', $results ) ? $this->def_strings['SFX_SOPPRESSI_CEDUTI'] : '';
 		$table .= '</td>';
@@ -909,66 +909,66 @@ class GCMI_COMUNE {
 		if ( array_key_exists( 'i_data_variazione', $results ) ) { // comune cessato.
 			if ( array_key_exists( 'i_anno_var', $results ) ) {
 				$table .= '<tr>';
-				$table .= '<td class="tg-5lax">' . esc_html( __( 'Year in which the municipality was abolished:', 'campi-moduli-italiani' ) ) . '</td>';
+				$table .= '<td class="tg-5lax">' . esc_html__( 'Year in which the municipality was abolished:', 'campi-moduli-italiani' ) . '</td>';
 				$table .= '<td class="tg-qw54">' . esc_html( stripslashes( gcmi_safe_strval( $results['i_anno_var'] ) ) ) . '</td>';
 				$table .= '</tr>';
 			}
 			$table .= '<tr>';
-			$table .= '<td class="tg-cly1">' . esc_html( __( 'Date of change:', 'campi-moduli-italiani' ) ) . '</td>';
+			$table .= '<td class="tg-cly1">' . esc_html__( 'Date of change:', 'campi-moduli-italiani' ) . '</td>';
 			$table .= '<td class="tg-yla0">' . esc_html( stripslashes( $results['i_data_variazione'] ) ) . '</td>';
 			$table .= '</tr>';
 		}
 		$table .= '<tr>';
-		$table .= '<td class="tg-5lax">' . esc_html( __( 'Istat code:', 'campi-moduli-italiani' ) ) . '</td>';
+		$table .= '<td class="tg-5lax">' . esc_html__( 'Istat code:', 'campi-moduli-italiani' ) . '</td>';
 		$table .= '<td class="tg-qw54">' . esc_html( $i_cod_comune ) . '</td>';
 		$table .= '</tr>';
 		if ( ! array_key_exists( 'i_data_variazione', $results ) ) { // un comune attivo.
 			if ( array_key_exists( 'i_denominazione_ita', $results ) ) {
 				$table .= '<tr>';
-				$table .= '<td class="tg-cly1">' . esc_html( __( 'Municipality Italian name:', 'campi-moduli-italiani' ) ) . '</td>';
+				$table .= '<td class="tg-cly1">' . esc_html__( 'Municipality Italian name:', 'campi-moduli-italiani' ) . '</td>';
 				$table .= '<td class="tg-yla0">' . esc_html( stripslashes( $results['i_denominazione_ita'] ) ) . '</td>';
 				$table .= '</tr>';
 			}
 			if ( array_key_exists( 'i_denominazione_altralingua', $results ) ) {
 				$table .= '<tr>';
-				$table .= '<td class="tg-5lax">' . esc_html( __( 'Other language Municipality name:', 'campi-moduli-italiani' ) ) . '</td>';
+				$table .= '<td class="tg-5lax">' . esc_html__( 'Other language Municipality name:', 'campi-moduli-italiani' ) . '</td>';
 				$table .= '<td class="tg-qw54">' . esc_html( stripslashes( $results['i_denominazione_altralingua'] ) ) . '</td>';
 				$table .= '</tr>';
 			}
 		}
 		$table .= '<tr>';
-		$table .= '<td class="tg-cly1">' . esc_html( __( 'Geographical area:', 'campi-moduli-italiani' ) ) . '</td>';
+		$table .= '<td class="tg-cly1">' . esc_html__( 'Geographical area:', 'campi-moduli-italiani' ) . '</td>';
 		$table .= '<td class="tg-yla0">' . esc_html( stripslashes( gcmi_safe_strval( $results['i_ripartizione_geo'] ) ) ) . '</td>';
 		$table .= '</tr>';
 		$table .= '<tr>';
-		$table .= '<td class="tg-5lax">' . esc_html( __( 'Region name:', 'campi-moduli-italiani' ) ) . '</td>';
+		$table .= '<td class="tg-5lax">' . esc_html__( 'Region name:', 'campi-moduli-italiani' ) . '</td>';
 		$table .= '<td class="tg-qw54">' . esc_html( stripslashes( gcmi_safe_strval( $results['i_den_regione'] ) ) ) . '</td>';
 		$table .= '</tr>';
 
 		$table .= '<tr>';
-		$table .= '<td class="tg-cly1">' . esc_html( __( 'Type of the supra-municipal territorial unit:', 'campi-moduli-italiani' ) ) . '</td>';
+		$table .= '<td class="tg-cly1">' . esc_html__( 'Type of the supra-municipal territorial unit:', 'campi-moduli-italiani' ) . '</td>';
 		$table .= '<td class="tg-yla0">';
 		switch ( $results['i_cod_tipo_unita_territoriale'] ) {
 			case 1:
-				$table .= esc_html( __( 'Province', 'campi-moduli-italiani' ) ) . '</td>';
+				$table .= esc_html__( 'Province', 'campi-moduli-italiani' ) . '</td>';
 				break;
 			case 2:
-				$table .= esc_html( __( 'Autonomous province', 'campi-moduli-italiani' ) ) . '</td>';
+				$table .= esc_html__( 'Autonomous province', 'campi-moduli-italiani' ) . '</td>';
 				break;
 			case 3:
-				$table .= esc_html( __( 'Metropolitan City', 'campi-moduli-italiani' ) ) . '</td>';
+				$table .= esc_html__( 'Metropolitan City', 'campi-moduli-italiani' ) . '</td>';
 				break;
 			case 4:
-				$table .= esc_html( __( 'Free consortium of municipalities', 'campi-moduli-italiani' ) ) . '</td>';
+				$table .= esc_html__( 'Free consortium of municipalities', 'campi-moduli-italiani' ) . '</td>';
 				break;
 			case 5:
-				$table .= esc_html( __( 'Non administrative unit', 'campi-moduli-italiani' ) ) . '</td>';
+				$table .= esc_html__( 'Non administrative unit', 'campi-moduli-italiani' ) . '</td>';
 				break;
 		}
 		$table .= '</tr>';
 
 		$table .= '<tr>';
-		$table .= '<td class="tg-5lax">' . esc_html( __( 'Name of the supra-municipal territorial unit (valid for statistical purposes):', 'campi-moduli-italiani' ) ) . '</td>';
+		$table .= '<td class="tg-5lax">' . esc_html__( 'Name of the supra-municipal territorial unit (valid for statistical purposes):', 'campi-moduli-italiani' ) . '</td>';
 		$table .= '<td class="tg-qw54">';
 		// Istra e Dalmazia: Fiume, Pola e Zara .
 		switch ( $results['i_sigla_automobilistica'] ) {
@@ -987,21 +987,21 @@ class GCMI_COMUNE {
 		$table .= '</td>';
 		$table .= '</tr>';
 		$table .= '<tr>';
-		$table .= '<td class="tg-cly1">' . esc_html( __( 'Automotive abbreviation:', 'campi-moduli-italiani' ) ) . '</td>';
+		$table .= '<td class="tg-cly1">' . esc_html__( 'Automotive abbreviation:', 'campi-moduli-italiani' ) . '</td>';
 		$table .= '<td class="tg-yla0">' . esc_html( $results['i_sigla_automobilistica'] ) . '</td>';
 		$table .= '</tr>';
 
 		if ( array_key_exists( 'i_data_variazione', $results ) ) { // comune cessato.
 			$table .= '<tr>';
-			$table .= '<td class="tg-5lax">' . esc_html( __( 'Municipality deleted for spin-off:', 'campi-moduli-italiani' ) ) . '</td>';
+			$table .= '<td class="tg-5lax">' . esc_html__( 'Municipality deleted for spin-off:', 'campi-moduli-italiani' ) . '</td>';
 			if ( array_key_exists( 'i_cod_scorporo', $results ) ) {
 				$table .= '<td class="tg-qw54">';
-				$table .= ( esc_html( stripslashes( gcmi_safe_strval( $results['i_cod_scorporo'] ) ) ) === '1' ) ? esc_html( __( 'Yes', 'campi-moduli-italiani' ) ) : esc_html( __( 'No', 'campi-moduli-italiani' ) );
+				$table .= ( esc_html( stripslashes( gcmi_safe_strval( $results['i_cod_scorporo'] ) ) ) === '1' ) ? esc_html__( 'Yes', 'campi-moduli-italiani' ) : esc_html__( 'No', 'campi-moduli-italiani' );
 				$table .= '</td>';
 			}
 			$table .= '</tr>';
 			$table .= '<tr>';
-			$table .= '<td class="tg-cly1">' . esc_html( __( 'Name of the municipality associated with the change or new name:', 'campi-moduli-italiani' ) ) . '</td>';
+			$table .= '<td class="tg-cly1">' . esc_html__( 'Name of the municipality associated with the change or new name:', 'campi-moduli-italiani' ) . '</td>';
 			if ( array_key_exists( 'i_denominazione_nuovo', $results ) ) {
 				$table .= '<td class="tg-yla0">' . esc_html( stripslashes( gcmi_safe_strval( $results['i_denominazione_nuovo'] ) ) ) . '</td>';
 			}
@@ -1010,14 +1010,14 @@ class GCMI_COMUNE {
 
 		if ( array_key_exists( 'i_flag_capoluogo', $results ) ) { // un comune attivo.
 			$table .= '<tr>';
-			$table .= '<td class="tg-5lax">' . esc_html( __( 'Is Capital City:', 'campi-moduli-italiani' ) ) . '</td>';
+			$table .= '<td class="tg-5lax">' . esc_html__( 'Is Capital City:', 'campi-moduli-italiani' ) . '</td>';
 			$table .= '<td class="tg-qw54">';
-			$table .= ( $results['i_flag_capoluogo'] ) ? esc_html( __( 'Capital City', 'campi-moduli-italiani' ) ) : esc_html( __( 'No', 'campi-moduli-italiani' ) );
+			$table .= ( $results['i_flag_capoluogo'] ) ? esc_html__( 'Capital City', 'campi-moduli-italiani' ) : esc_html__( 'No', 'campi-moduli-italiani' );
 			$table .= '</td>';
 			$table .= '</tr>';
 			if ( array_key_exists( 'i_cod_catastale', $results ) ) {
 				$table .= '<tr>';
-				$table .= '<td class="tg-cly1">' . esc_html( __( 'Cadastral code of the municipality:', 'campi-moduli-italiani' ) ) . '</td>';
+				$table .= '<td class="tg-cly1">' . esc_html__( 'Cadastral code of the municipality:', 'campi-moduli-italiani' ) . '</td>';
 				$table .= '<td class="tg-yla0">' . esc_html( $results['i_cod_catastale'] ) . '</td>';
 				$table .= '</tr>';
 			}
@@ -1029,35 +1029,35 @@ class GCMI_COMUNE {
 			$table .= '<br>';
 			$table .= '<table class="gcmiT2">';
 			$table .= '<tr>';
-			$table .= '<td class="tg-uzvj">' . esc_html( __( 'Year', 'campi-moduli-italiani' ) ) . '</td>';
-			$table .= '<td class="tg-uzvj">' . esc_html( __( 'Variation type', 'campi-moduli-italiani' ) ) . '</td>';
-			$table .= '<td class="tg-uzvj">' . esc_html( __( 'Territorial administrative variation from 1st January 1991', 'campi-moduli-italiani' ) ) . '</td>';
+			$table .= '<td class="tg-uzvj">' . esc_html__( 'Year', 'campi-moduli-italiani' ) . '</td>';
+			$table .= '<td class="tg-uzvj">' . esc_html__( 'Variation type', 'campi-moduli-italiani' ) . '</td>';
+			$table .= '<td class="tg-uzvj">' . esc_html__( 'Territorial administrative variation from 1st January 1991', 'campi-moduli-italiani' ) . '</td>';
 			$table .= '</tr>';
 			foreach ( $variazioni as $result ) {
 				switch ( $result->i_tipo_var ) {
 					case 'CS':
-						$tooltip = esc_html( __( 'CS: Establishment of a municipality', 'campi-moduli-italiani' ) );
+						$tooltip = esc_html__( 'CS: Establishment of a municipality', 'campi-moduli-italiani' );
 						break;
 					case 'ES':
-						$tooltip = esc_html( __( 'ES: Extinction of a municipality', 'campi-moduli-italiani' ) );
+						$tooltip = esc_html__( 'ES: Extinction of a municipality', 'campi-moduli-italiani' );
 						break;
 					case 'CD':
-						$tooltip = esc_html( __( 'CD: Change of name of the municipality', 'campi-moduli-italiani' ) );
+						$tooltip = esc_html__( 'CD: Change of name of the municipality', 'campi-moduli-italiani' );
 						break;
 					case 'AQES':
-						$tooltip = esc_html( __( 'AQES: Incorporation of the territory of one or more suppressed municipalities. The variation has no effect on the code of the municipality that incorporates', 'campi-moduli-italiani' ) );
+						$tooltip = esc_html__( 'AQES: Incorporation of the territory of one or more suppressed municipalities. The variation has no effect on the code of the municipality that incorporates', 'campi-moduli-italiani' );
 						break;
 					case 'AQ':
-						$tooltip = esc_html( __( 'AQ: Territory acquisition', 'campi-moduli-italiani' ) );
+						$tooltip = esc_html__( 'AQ: Territory acquisition', 'campi-moduli-italiani' );
 						break;
 					case 'CE':
-						$tooltip = esc_html( __( 'CE: Land transfer', 'campi-moduli-italiani' ) );
+						$tooltip = esc_html__( 'CE: Land transfer', 'campi-moduli-italiani' );
 						break;
 					case 'CECS':
-						$tooltip = esc_html( __( 'CECS: Transfer of one or more portions of territory against the establishment of a new unit. The change has no effect on the code of the municipality that gives territory', 'campi-moduli-italiani' ) );
+						$tooltip = esc_html__( 'CECS: Transfer of one or more portions of territory against the establishment of a new unit. The change has no effect on the code of the municipality that gives territory', 'campi-moduli-italiani' );
 						break;
 					case 'AP':
-						$tooltip = esc_html( __( 'AP: Change of belonging to the hierarchically superior administrative unit (typically, a change of province and or region).', 'campi-moduli-italiani' ) );
+						$tooltip = esc_html__( 'AP: Change of belonging to the hierarchically superior administrative unit (typically, a change of province and or region).', 'campi-moduli-italiani' );
 						break;
 					default:
 						$tooltip = '';
@@ -1066,62 +1066,62 @@ class GCMI_COMUNE {
 				$table .= '<tr>';
 				$table .= '<td class="tg-5cz4" rowspan="15">' . esc_html( $result->i_anno_var ) . '</td>';
 				$table .= '<td class="tg-5cz4" rowspan="15"><span id="' . esc_html( uniqid( 'TTVar', true ) ) . '" title="' . esc_html( $tooltip ) . '">' . esc_html( $result->i_tipo_var ) . '</span></td>';
-				$table .= '<td class="tg-4ynh">' . esc_html( __( 'Istat code of the municipality. For changes of province and / or region (AP) membership, the code is the one prior to the validity date of the provision:', 'campi-moduli-italiani' ) ) . '</td>';
+				$table .= '<td class="tg-4ynh">' . esc_html__( 'Istat code of the municipality. For changes of province and / or region (AP) membership, the code is the one prior to the validity date of the provision:', 'campi-moduli-italiani' ) . '</td>';
 				$table .= '</tr>';
 				$table .= '<tr>';
 				$table .= '<td class="tg-lboi">' . esc_html( $result->i_cod_comune ) . '</td>';
 				$table .= '</tr>';
 				$table .= '<tr>';
-				$table .= '<td class="tg-4ynh">' . esc_html( __( 'Official name of the municipality on the date of the event:', 'campi-moduli-italiani' ) ) . '</td>';
+				$table .= '<td class="tg-4ynh">' . esc_html__( 'Official name of the municipality on the date of the event:', 'campi-moduli-italiani' ) . '</td>';
 				$table .= '</tr>';
 				$table .= '<tr>';
 				$table .= '<td class="tg-lboi">' . esc_html( stripslashes( gcmi_safe_strval( $result->i_denominazione_full ) ) ) . '</td>';
 				$table .= '</tr>';
 				$table .= '<tr>';
-				$table .= '<td class="tg-4ynh">' . esc_html( __( 'Istat code of the municipality associated with the change or new Istat code of the municipality:', 'campi-moduli-italiani' ) ) . '</td>';
+				$table .= '<td class="tg-4ynh">' . esc_html__( 'Istat code of the municipality associated with the change or new Istat code of the municipality:', 'campi-moduli-italiani' ) . '</td>';
 				$table .= '</tr>';
 				$table .= '<tr>';
 				$table .= '<td class="tg-lboi">' . esc_html( $result->i_cod_comune_nuovo ) . '</td>';
 				$table .= '</tr>';
 				$table .= '<tr>';
-				$table .= '<td class="tg-4ynh">' . esc_html( __( 'Name of the municipality associated with the change or new name:', 'campi-moduli-italiani' ) ) . '</td>';
+				$table .= '<td class="tg-4ynh">' . esc_html__( 'Name of the municipality associated with the change or new name:', 'campi-moduli-italiani' ) . '</td>';
 				$table .= '</tr>';
 				$table .= '<tr>';
 				$table .= '<td class="tg-lboi">' . esc_html( stripslashes( gcmi_safe_strval( $result->i_denominazione_nuovo ) ) ) . '</td>';
 				$table .= '</tr>';
 				$table .= '<tr>';
-				$table .= '<td class="tg-4ynh">' . esc_html( __( 'Act and Document:', 'campi-moduli-italiani' ) ) . '</td>';
+				$table .= '<td class="tg-4ynh">' . esc_html__( 'Act and Document:', 'campi-moduli-italiani' ) . '</td>';
 				$table .= '</tr>';
 				$table .= '<tr>';
 				$table .= '<td class="tg-lboi">' . esc_html( stripslashes( gcmi_safe_strval( $result->i_documento ) ) ) . '</td>';
 				$table .= '</tr>';
 				$table .= '<tr>';
-				$table .= '<td class="tg-4ynh">' . esc_html( __( 'Content of the act:', 'campi-moduli-italiani' ) ) . '</td>';
+				$table .= '<td class="tg-4ynh">' . esc_html__( 'Content of the act:', 'campi-moduli-italiani' ) . '</td>';
 				$table .= '</tr>';
 				$table .= '<tr>';
 				$table .= '<td class="tg-lboi">' . esc_html( stripslashes( gcmi_safe_strval( $result->i_contenuto ) ) ) . '</td>';
 				$table .= '</tr>';
 				$table .= '<tr>';
-				$table .= '<td class="tg-4ynh">' . esc_html( __( 'Administrative validity effective date:', 'campi-moduli-italiani' ) ) . '</td>';
+				$table .= '<td class="tg-4ynh">' . esc_html__( 'Administrative validity effective date:', 'campi-moduli-italiani' ) . '</td>';
 				$table .= '</tr>';
 				$table .= '<tr>';
 				$table .= '<td class="tg-lboi">' . esc_html( $result->i_data_decorrenza ) . '</td>';
 				$table .= '</tr>';
 
 				$table .= '<tr>';
-				$table .= '<td class="tg-4ynh">' . esc_html( __( 'Note: ', 'campi-moduli-italiani' ) );
+				$table .= '<td class="tg-4ynh">' . esc_html__( 'Note: ', 'campi-moduli-italiani' );
 				switch ( $result->i_cod_flag_note ) {
 					case '1':
-						$table .= '<b>' . $result->i_cod_flag_note . ' - ' . esc_html( __( 'Territorial variations with population shift', 'campi-moduli-italiani' ) ) . '</b>';
+						$table .= '<b>' . $result->i_cod_flag_note . ' - ' . esc_html__( 'Territorial variations with population shift', 'campi-moduli-italiani' ) . '</b>';
 						break;
 					case '2':
-						$table .= '<b>' . $result->i_cod_flag_note . ' - ' . esc_html( __( 'Territorial variations with ascertainment of the number of transferred inhabitants (inhabitants surveyed as of 9 October 2011)', 'campi-moduli-italiani' ) ) . '</b>';
+						$table .= '<b>' . $result->i_cod_flag_note . ' - ' . esc_html__( 'Territorial variations with ascertainment of the number of transferred inhabitants (inhabitants surveyed as of 9 October 2011)', 'campi-moduli-italiani' ) . '</b>';
 						break;
 					case '3':
-						$table .= '<b>' . $result->i_cod_flag_note . ' - ' . esc_html( __( 'Variation suspended due to appeal', 'campi-moduli-italiani' ) ) . '</b>';
+						$table .= '<b>' . $result->i_cod_flag_note . ' - ' . esc_html__( 'Variation suspended due to appeal', 'campi-moduli-italiani' ) . '</b>';
 						break;
 					case '4':
-						$table .= '<b>' . $result->i_cod_flag_note . ' - ' . esc_html( __( 'Variation canceled by judgment of an appeal', 'campi-moduli-italiani' ) ) . '</b>';
+						$table .= '<b>' . $result->i_cod_flag_note . ' - ' . esc_html__( 'Variation canceled by judgment of an appeal', 'campi-moduli-italiani' ) . '</b>';
 						break;
 					default:
 				}

@@ -516,7 +516,7 @@ class GCMI_Activator {
 			)
 			) {
 				$error_code  = ( 'gcmi_data_import_error' );
-				$error_title = esc_html( __( 'Error importing data into database', 'campi-moduli-italiani' ) );
+				$error_title = esc_html__( 'Error importing data into database', 'campi-moduli-italiani' );
 				/* translators: %1$s: the data name; %2$s: the db table name. */
 				$error_message  = '<h1>' . $error_title . '</h1>' . esc_html( sprintf( __( 'Unable to import %1$s into %2$s', 'campi-moduli-italiani' ), $csv_file_path, self::$database_file_info[ $i ]['table_name'] ) );
 				$str            = htmlspecialchars( print_r( $wpdb->last_result, true ), ENT_QUOTES );
