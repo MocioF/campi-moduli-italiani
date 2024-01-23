@@ -21,6 +21,7 @@ final class GCMI_COMUNETest extends WP_Ajax_UnitTestCase {
 
 		add_action( 'wp_ajax_gcmi_fb_create_filter', array( $this->gcmi_fb, 'ajax_create_filter' ) );
 		add_action( 'wp_ajax_gcmi_fb_delete_filter', array( $this->gcmi_fb, 'ajax_delete_filter' ) );
+		add_action( 'wp_ajax_the_ajax_hook_prov', array( $this->gcmi_comune, 'gcmi_ajax_province' ) );
 
 		$filters = $this->create_filters();
 
@@ -36,6 +37,7 @@ final class GCMI_COMUNETest extends WP_Ajax_UnitTestCase {
 			} catch ( WPAjaxDieContinueException $e ) {
 			}
 		}
+		$this->logout();
 	}
 
 	public function tear_down() {
@@ -70,7 +72,77 @@ final class GCMI_COMUNETest extends WP_Ajax_UnitTestCase {
 			array(
 				'filtername' => 'tito_e_dintorni',
 				'includi'    => 'false',
-				'codici'     => array( 'C076001', 'C076013', 'C076059', 'C076062', 'C076063', 'C076079', 'C076082', 'C076083', 'C076084' ),
+				'codici'     => array( 'C076001', 'C076013', 'C076059', 'C076062', 'C076063', 'C076079', 'C076082', 'C076083', 'C076089', 'C076084' ),
+			),
+			array(
+				'filtername' => 'bologna_e_prov',
+				'includi'    => 'true',
+				'codici'     => array(
+					'037001',
+					'037002',
+					'037003',
+					'037005',
+					'037006',
+					'037007',
+					'037008',
+					'037009',
+					'037010',
+					'037011',
+					'037012',
+					'037013',
+					'037014',
+					'037015',
+					'037016',
+					'037017',
+					'037019',
+					'037020',
+					'037021',
+					'037022',
+					'037024',
+					'037025',
+					'037026',
+					'037027',
+					'037028',
+					'037030',
+					'037031',
+					'037032',
+					'037033',
+					'037034',
+					'037035',
+					'037036',
+					'037037',
+					'037038',
+					'037039',
+					'037040',
+					'037041',
+					'037042',
+					'037044',
+					'037045',
+					'037046',
+					'037047',
+					'037048',
+					'037050',
+					'037051',
+					'037052',
+					'037053',
+					'037054',
+					'037055',
+					'037056',
+					'037057',
+					'037059',
+					'037060',
+					'037061',
+					'037062',
+					'037004',
+					'037018',
+					'037023',
+					'037029',
+					'037043',
+					'037049',
+					'037058',
+					'037801',
+					'037802',
+				),
 			),
 		);
 	}
@@ -279,69 +351,699 @@ final class GCMI_COMUNETest extends WP_Ajax_UnitTestCase {
 			),
 		);
 	}
-	
+
 	/**
 	 * @dataProvider provideRegioni
 	 * @group comune
 	 */
 	function test_get_province_in_regione( $input, $expectedResult ) {
 		$get_province_in_regione = self::getMethod( 'get_province_in_regione' );
-		$obj_comune = new GCMI_COMUNE( $input['kind'], $input['filtername'] );
-		$results = $get_province_in_regione->invokeArgs( $obj_comune, array( $input['i_cod_regione'] ) );
-		
+		$obj_comune              = new GCMI_COMUNE( $input['kind'], $input['filtername'] );
+		$results                 = $get_province_in_regione->invokeArgs( $obj_comune, array( $input['i_cod_regione'] ) );
+
 		$this->assertCount( $expectedResult, $results );
 	}
-	
-	public static function provideRegioni(){
-		return [
-			[
-				[
-					'kind'       => 'tutti',
+
+	public static function provideRegioni() {
+		return array(
+			array(
+				array(
+					'kind'          => 'tutti',
+					'filtername'    => 'istriani',
+					'i_cod_regione' => '70',
+				),
+				3,
+			),
+			array(
+				array(
+					'kind'          => 'attuali',
+					'filtername'    => 'istriani',
+					'i_cod_regione' => '70',
+				),
+				3,
+			),
+			array(
+				array(
+					'kind'          => 'evidenza_cessati',
+					'filtername'    => 'istriani',
+					'i_cod_regione' => '70',
+				),
+				3,
+			),
+			array(
+				array(
+					'kind'          => 'evidenza_cessati',
+					'filtername'    => 'castel_san_vincenzo',
+					'i_cod_regione' => '70',
+				),
+				0,
+			),
+			array(
+				array(
+					'kind'          => 'tutti',
+					'filtername'    => 'castel_san_vincenzo',
+					'i_cod_regione' => '14',
+				),
+				2,
+			),
+			array(
+				array(
+					'kind'          => 'attuali',
+					'filtername'    => 'castel_san_vincenzo',
+					'i_cod_regione' => '14',
+				),
+				1,
+			),
+			array(
+				array(
+					'kind'          => 'evidenza_cessati',
+					'filtername'    => 'castel_san_vincenzo',
+					'i_cod_regione' => '14',
+				),
+				2,
+			),
+		);
+	}
+
+	/**
+	 * @dataProvider provideViews
+	 * @group comune
+	 */
+	function test_has_comuni_in_view( $input, $expectedResult ) {
+		$has_comuni_in_view = self::getMethod( 'has_comuni_in_view' );
+		$obj_comune         = new GCMI_COMUNE( 'tutti', $input['filtername'] );
+		$has_comuni         = $has_comuni_in_view->invokeArgs( $obj_comune, array( $input['cessati'] ) );
+		$this->assertEquals( $expectedResult, $has_comuni );
+	}
+
+	public static function provideViews() {
+		return array(
+			array(
+				array(
 					'filtername' => 'istriani',
-					'i_cod_regione' => '70'
-				],
-				3
-			],
-			[
-				[
-					'kind'       => 'attuali',
+					'cessati'    => false,
+				),
+				false,
+			),
+			array(
+				array(
 					'filtername' => 'istriani',
-					'i_cod_regione' => '70'
-				],
-				3
-			],
-			[
-				[
-					'kind'       => 'evidenza_cessati',
-					'filtername' => 'istriani',
-					'i_cod_regione' => '70'
-				],
-				3
-			],
-			[
-				[
-					'kind'       => 'evidenza_cessati',
+					'cessati'    => true,
+				),
+				true,
+			),
+			array(
+				array(
 					'filtername' => 'castel_san_vincenzo',
-					'i_cod_regione' => '70'
-				],
-				0
-			],
-			[
-				[
-					'kind'       => 'tutti',
+					'cessati'    => true,
+				),
+				true,
+			),
+			array(
+				array(
 					'filtername' => 'castel_san_vincenzo',
-					'i_cod_regione' => '14'
-				],
-				1
-			],
-			[
-				[
-					'kind'       => 'attuali',
-					'filtername' => 'castel_san_vincenzo',
-					'i_cod_regione' => '14'
-				],
-				1
-			],
-		];
+					'cessati'    => false,
+				),
+				true,
+			),
+			array(
+				array(
+					'filtername' => 'tito_e_dintorni',
+					'cessati'    => true,
+				),
+				false,
+			),
+			array(
+				array(
+					'filtername' => 'tito_e_dintorni',
+					'cessati'    => false,
+				),
+				true,
+			),
+		);
+	}
+
+
+	/**
+	 * @dataProvider provideSelectData
+	 * @group html
+	 * @group comune
+	 */
+	function test_print_gcmi_province( $input ) {
+		$header = '<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"></head><body><select>';
+		$footer = '</select></body></html>';
+		// unset( $_POST );
+		$_POST['codice_regione'] = $input['cod_regione'];
+
+		$obj_comune = new GCMI_COMUNE( $input['kind'], $input['filtername'] );
+		$obj_comune->print_gcmi_province();
+		// saveHTML decodifica sempre le html entities. Per evitarlo, prima le "elimino"
+		$echoed_output = str_replace(
+			'&',
+			'^amp^',
+			$this->getActualOutput()
+		);
+
+		ob_clean();
+
+		$in = $header . $echoed_output . $footer;
+
+		$doc                  = new DOMDocument();
+		$doc->validateOnParse = true;
+		$doc->loadHTML( $in, LIBXML_HTML_NODEFDTD );
+
+		$this->assertSame(
+			$in,
+			trim( $doc->saveHTML() ),
+			'Errore nel codice html della pagina base'
+		);
+	}
+
+	/**
+	 * @dataProvider provideSelectData
+	 * @group html
+	 * @group comune
+	 */
+	function test_print_gcmi_comuni( $input ) {
+		$header = '<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"></head><body><select>';
+		$footer = '</select></body></html>';
+		// unset( $_POST );
+		$_POST['codice_provincia'] = $input['cod_provincia'];
+
+		$obj_comune = new GCMI_COMUNE( $input['kind'], $input['filtername'] );
+		$obj_comune->print_gcmi_comuni();
+		// saveHTML decodifica sempre le html entities. Per evitarlo, prima le "elimino"
+		$echoed_output = str_replace(
+			'&',
+			'^amp^',
+			$this->getActualOutput()
+		);
+
+		ob_clean();
+
+		$in = $header . $echoed_output . $footer;
+
+		$doc                  = new DOMDocument();
+		$doc->validateOnParse = true;
+		$doc->loadHTML( $in, LIBXML_HTML_NODEFDTD );
+
+		$this->assertSame(
+			$in,
+			trim( $doc->saveHTML() ),
+			'Errore nel codice html della pagina base'
+		);
+	}
+
+	/**
+	 * @dataProvider provideSelectData
+	 * @group html
+	 * @group comune
+	 */
+	function test_print_gcmi_comune_info( $input ) {
+		$header = '<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"></head><body><select>';
+		$footer = '</select></body></html>';
+		// unset( $_POST );
+		$_POST['codice_comune'] = $input['cod_comune'];
+
+		$obj_comune = new GCMI_COMUNE( $input['kind'], $input['filtername'] );
+		$obj_comune->print_gcmi_comune_info();
+		// saveHTML decodifica sempre le html entities. Per evitarlo, prima le "elimino"
+		$echoed_output = str_replace(
+			'&',
+			'^amp^',
+			$this->getActualOutput()
+		);
+
+		ob_clean();
+
+		$in = $header . $echoed_output . $footer;
+
+		$doc                  = new DOMDocument();
+		$doc->validateOnParse = true;
+		$doc->loadHTML( $in, LIBXML_HTML_NODEFDTD );
+
+		$this->assertSame(
+			$in,
+			trim( $doc->saveHTML() ),
+			'Errore nel codice html della pagina base'
+		);
+	}
+
+	/**
+	 * @dataProvider provideSelectData
+	 * @group html
+	 * @group comune
+	 */
+	function test_print_gcmi_targa( $input ) {
+		// unset( $_POST );
+		$_POST['codice_comune'] = $input['cod_comune'];
+
+		$obj_comune = new GCMI_COMUNE( $input['kind'], $input['filtername'] );
+		$obj_comune->print_gcmi_targa();
+		// saveHTML decodifica sempre le html entities. Per evitarlo, prima le "elimino"
+		$got_targa = str_replace(
+			'&',
+			'^amp^',
+			$this->getActualOutput()
+		);
+
+		ob_clean();
+		$this->assertSame(
+			$got_targa,
+			$input['targa'],
+			'Targa non corretta'
+		);
+	}
+
+	public static function provideSelectData() {
+		return array(
+			array(
+				array(
+					'kind'          => 'tutti',
+					'filtername'    => 'istriani',
+					'cod_regione'   => '70',
+					'cod_provincia' => '701',
+					'cod_comune'    => '701706',
+					'targa'         => 'FU',
+				),
+			),
+			array(
+				array(
+					'kind'          => 'evidenza_cessati',
+					'filtername'    => 'istriani',
+					'cod_regione'   => '70',
+					'cod_provincia' => '703',
+					'cod_comune'    => '703702',
+					'targa'         => 'ZA',
+				),
+			),
+			array(
+				array(
+					'kind'          => 'tutti',
+					'filtername'    => 'istriani',
+					'cod_regione'   => '70',
+					'cod_provincia' => '701',
+					'cod_comune'    => '701706',
+					'targa'         => 'FU',
+				),
+			),
+			array(
+				array(
+					'kind'          => 'attuali',
+					'filtername'    => 'istriani',
+					'cod_regione'   => '70',
+					'cod_provincia' => '702',
+					'cod_comune'    => '702731',
+					'targa'         => 'PL',
+				),
+			),
+			array(
+				array(
+					'kind'          => 'tutti',
+					'filtername'    => 'istriani',
+					'cod_regione'   => '',
+					'cod_provincia' => '',
+					'cod_comune'    => '',
+					'targa'         => '',
+				),
+			),
+			array(
+				array(
+					'kind'          => 'tutti',
+					'filtername'    => 'tito_e_dintorni',
+					'cod_regione'   => '17',
+					'cod_provincia' => '076',
+					'cod_comune'    => '076089',
+					'targa'         => 'PZ',
+				),
+			),
+			array(
+				array(
+					'kind'          => 'tutti',
+					'filtername'    => 'castel_san_vincenzo',
+					'cod_regione'   => '14',
+					'cod_provincia' => '094',
+					'cod_comune'    => '094012',
+					'targa'         => 'IS',
+				),
+			),
+			array(
+				array(
+					'kind'          => 'evidenza_cessati',
+					'filtername'    => 'castel_san_vincenzo',
+					'cod_regione'   => '00',
+					'cod_provincia' => '070',
+					'cod_comune'    => '094802',
+					'targa'         => 'CB',
+				),
+			),
+			array(
+				array(
+					'kind'          => 'tutti',
+					'filtername'    => 'castel_san_vincenzo',
+					'cod_regione'   => '00',
+					'cod_provincia' => '070',
+					'cod_comune'    => '094801',
+					'targa'         => 'CB',
+				),
+			),
+			array(
+				array(
+					'kind'          => 'attuali',
+					'filtername'    => 'castel_san_vincenzo',
+					'cod_regione'   => '14',
+					'cod_provincia' => '094',
+					'cod_comune'    => '094802',
+					'targa'         => 'CB',
+				),
+			),
+			array(
+				array(
+					'kind'          => 'evidenza_cessati',
+					'filtername'    => 'castel_san_vincenzo',
+					'cod_regione'   => '14',
+					'cod_provincia' => '094',
+					'cod_comune'    => '094012',
+					'targa'         => 'IS',
+				),
+			),
+			array(
+				array(
+					'kind'          => 'attuali',
+					'filtername'    => 'bologna_e_prov',
+					'cod_regione'   => '08',
+					'cod_provincia' => '237',
+					'cod_comune'    => '037010',
+					'targa'         => 'BO',
+				),
+			),
+			array(
+				array(
+					'kind'          => 'tutti',
+					'filtername'    => 'bologna_e_prov',
+					'cod_regione'   => '08',
+					'cod_provincia' => '037',
+					'cod_comune'    => '037023',
+					'targa'         => 'BO',
+				),
+			),
+			array(
+				array(
+					'kind'          => 'evidenza_cessati',
+					'filtername'    => 'bologna_e_prov',
+					'cod_regione'   => '08',
+					'cod_provincia' => '237',
+					'cod_comune'    => '037029',
+					'targa'         => 'BO',
+				),
+			),
+			array(
+				array(
+					'kind'          => 'evidenza_cessati',
+					'filtername'    => '',
+					'cod_regione'   => '08',
+					'cod_provincia' => '035',
+					'cod_comune'    => '035018',
+					'targa'         => 'RE',
+				),
+			),
+			array(
+				array(
+					'kind'          => 'tutti',
+					'filtername'    => '',
+					'cod_regione'   => '12',
+					'cod_provincia' => '058',
+					'cod_comune'    => '058057',
+					'targa'         => 'RM',
+				),
+			),
+			array(
+				array(
+					'kind'          => 'tutti',
+					'filtername'    => '',
+					'cod_regione'   => '09',
+					'cod_provincia' => '047',
+					'cod_comune'    => '047021',
+					'targa'         => 'PT',
+				),
+			),
+			array(
+				array(
+					'kind'          => '',
+					'filtername'    => '',
+					'cod_regione'   => '08',
+					'cod_provincia' => '035',
+					'cod_comune'    => '035006',
+					'targa'         => 'RE',
+				),
+			),
+			array(
+				array(
+					'kind'          => '',
+					'filtername'    => '',
+					'cod_regione'   => '12',
+					'cod_provincia' => '058',
+					'cod_comune'    => '058091',
+					'targa'         => 'RM',
+				),
+			),
+			array(
+				array(
+					'kind'          => '',
+					'filtername'    => '',
+					'cod_regione'   => '01',
+					'cod_provincia' => '002',
+					'cod_comune'    => '002023',
+					'targa'         => '',
+				),
+			),
+			array(
+				array(
+					'kind'          => '',
+					'filtername'    => '',
+					'cod_regione'   => '20',
+					'cod_provincia' => '111',
+					'cod_comune'    => '111105',
+					'targa'         => 'SU',
+				),
+			),
+			array(
+				array(
+					'kind'          => '',
+					'filtername'    => '',
+					'cod_regione'   => '',
+					'cod_provincia' => '',
+					'cod_comune'    => 'AAAAAA',
+					'targa'         => '',
+				),
+			),
+			array(
+				array(
+					'kind'          => '',
+					'filtername'    => '',
+					'cod_regione'   => '',
+					'cod_provincia' => '',
+					'cod_comune'    => '021004',
+					'targa'         => 'BZ',
+				),
+			),
+			array(
+				array(
+					'kind'          => '',
+					'filtername'    => '',
+					'cod_regione'   => '',
+					'cod_provincia' => '',
+					'cod_comune'    => '081008',
+					'targa'         => 'TP',
+				),
+			),
+			array(
+				array(
+					'kind'          => '',
+					'filtername'    => '',
+					'cod_regione'   => '',
+					'cod_provincia' => '',
+					'cod_comune'    => '081008',
+					'targa'         => 'TP',
+				),
+			),
+			array(
+				array(
+					'kind'          => '',
+					'filtername'    => '',
+					'cod_regione'   => '',
+					'cod_provincia' => '',
+					'cod_comune'    => '030026',
+					'targa'         => 'UD',
+				),
+			),
+		);
+	}
+
+	/**
+	 * @dataProvider dataComuneStrings
+	 * @group text
+	 * @group comune
+	 */
+	public function test_gcmi_get_data_from_comune( $input, $expectedResult ) {
+		$obj_comune = new GCMI_COMUNE( $input['kind'] );
+		$this->assertSame(
+			$expectedResult,
+			$obj_comune->gcmi_get_data_from_comune( $input['cod_comune'] )
+		);
+	}
+
+	/**
+	 * @dataProvider dataComuneStrings
+	 * @group text
+	 */
+	public function test_get_cod_comune_from_denominazione( $input ) {
+		$obj_comune = new GCMI_COMUNE( $input['kind'] );
+		$this->assertSame(
+			$input['cod_comune'],
+			$obj_comune->get_cod_comune_from_denominazione( $input['denominazione'] )
+		);
+	}
+
+	public static function dataComuneStrings() {
+		return array(
+			array(
+				array(
+					'cod_comune'    => '076001',
+					'kind'          => 'tutti',
+					'denominazione' => 'Abriola',
+				),
+				'17076076001',
+			),
+			array(
+				array(
+					'cod_comune'    => '076001',
+					'kind'          => 'attuali',
+					'denominazione' => 'Abriola',
+				),
+				'17076076001',
+			),
+			array(
+				array(
+					'cod_comune'    => '701706',
+					'kind'          => 'tutti',
+					'denominazione' => 'Fiume',
+				),
+				'00000701706',
+			),
+			array(
+				array(
+					'cod_comune'    => '701706',
+					'kind'          => 'evidenza_cessati',
+					'denominazione' => 'Fiume',
+				),
+				'70701701706',
+			),
+			array(
+				array(
+					'cod_comune'    => '037029',
+					'kind'          => 'tutti',
+					'denominazione' => 'Granaglione',
+				),
+				'00000037029',
+			),
+			array(
+				array(
+					'cod_comune'    => '037029',
+					'kind'          => 'evidenza_cessati',
+					'denominazione' => 'Granaglione',
+				),
+				'08237037029',
+			),
+			array(
+				array(
+					'cod_comune'    => false,
+					'kind'          => 'evidenza_cessati',
+					'denominazione' => '',
+				),
+				'00000000000',
+			),
+
+		);
+	}
+
+	/**
+	 * @group enqueue
+	 * @group comune
+	 */
+	public function test_gcmi_comune_enqueue_scripts() {
+		global $wp_scripts;
+		global $wp_styles;
+		wp_dequeue_script( 'gcmi_comune_js' );
+		wp_deregister_script( 'gcmi_comune_js' );
+
+		wp_dequeue_style( 'gcmi_comune_css' );
+		wp_deregister_style( 'gcmi_comune_css' );
+
+		wp_dequeue_style( 'gcmi_jquery-ui-dialog' );
+		wp_deregister_style( 'gcmi_jquery-ui-dialog' );
+
+		wp_dequeue_style( 'dashicons' );
+		wp_deregister_style( 'dashicons' );
+
+		$this->gcmi_comune->gcmi_comune_register_scripts();
+		$this->gcmi_comune->gcmi_comune_enqueue_scripts();
+
+		$scripts_array = $wp_scripts->registered;
+		$styles_array  = $wp_styles->registered;
+		$this->assertArrayHasKey( 'gcmi_comune_js', $scripts_array );
+		$this->assertArrayHasKey( 'gcmi_comune_css', $styles_array );
+		$this->assertArrayHasKey( 'dashicons', $styles_array );
+		$this->assertArrayHasKey( 'gcmi_jquery-ui-dialog', $styles_array );
+	}
+
+	/**
+	 * @group text
+	 * @group comune
+	 */
+	public function test_get_ids() {
+		$idprefix = 'ctest';
+		$prefixes = $this->gcmi_comune->get_ids( $idprefix );
+
+		$this->assertArrayHasKey( 'reg', $prefixes );
+		$this->assertStringEndsWith( '_gcmi_regione', $prefixes['reg'] );
+
+		$randstring = substr( $prefixes['reg'], 0, strlen( $prefixes['reg'] ) - strlen( '_gcmi_regione' ) );
+
+		$this->assertArrayHasKey( 'pro', $prefixes );
+		$this->assertSame( $randstring . '_gcmi_province', $prefixes['pro'] );
+
+		$this->assertArrayHasKey( 'com', $prefixes );
+		$this->assertSame( $randstring . '_gcmi_comuni', $prefixes['com'] );
+
+		$this->assertArrayHasKey( 'kin', $prefixes );
+		$this->assertSame( $randstring . '_gcmi_kind', $prefixes['kin'] );
+
+		$this->assertArrayHasKey( 'filter', $prefixes );
+		$this->assertSame( $randstring . '_gcmi_filtername', $prefixes['filter'] );
+
+		$this->assertArrayHasKey( 'form', $prefixes );
+		$this->assertSame( $randstring . '_gcmi_formatted', $prefixes['form'] );
+
+		$this->assertArrayHasKey( 'targa', $prefixes );
+		$this->assertSame( $randstring . '_gcmi_targa', $prefixes['targa'] );
+
+		$this->assertArrayHasKey( 'ico', $prefixes );
+		$this->assertSame( $randstring . '_gcmi_icon', $prefixes['ico'] );
+
+		$this->assertArrayHasKey( 'info', $prefixes );
+		$this->assertSame( $randstring . '_gcmi_info', $prefixes['info'] );
+
+		$this->assertArrayHasKey( 'reg_desc', $prefixes );
+		$this->assertSame( $randstring . '_gcmi_reg_desc', $prefixes['reg_desc'] );
+
+		$this->assertArrayHasKey( 'prov_desc', $prefixes );
+		$this->assertSame( $randstring . '_gcmi_prov_desc', $prefixes['prov_desc'] );
+
+		$this->assertArrayHasKey( 'comu_desc', $prefixes );
+		$this->assertSame( $randstring . '_gcmi_comu_desc', $prefixes['comu_desc'] );
+
+		$this->assertArrayHasKey( 'pr_vals', $prefixes );
+		$this->assertSame( $randstring . '_gcmi_pr_vals', $prefixes['pr_vals'] );
 	}
 }
