@@ -502,7 +502,7 @@ class GCMI_COMUNE {
 						'7%'
 					)
 				);
-			} else {
+			} elseif ( 'attuali' === $this->kind ) {
 				/**
 				 * Solo nel caso in cui la regione = Istria/Dalmazia serve una query diversa.
 				 * Se anche non vengono selezionate le province "cessate" per cambio codice:
@@ -510,42 +510,55 @@ class GCMI_COMUNE {
 				 * cessati con i vecchi codici provincia mediante le targhe automobilistiche.
 				 * C'è da gestire il problema di Forlì che da FO è diventata FC e di Pesaro, ora PU.
 				 */
-				if ( 'attuali' === $this->kind ) {
-					$results = $wpdb->get_results(
-						$wpdb->prepare(
-							'SELECT DISTINCT `i_cod_unita_territoriale`, `i_den_unita_territoriale` FROM `%1$s` ' .
-							'WHERE `i_cod_regione` = \'%2$s\'',
-							GCMI_SVIEW_PREFIX . 'comuni_attuali' . $this->pfilter(),
-							esc_sql( $i_cod_regione )
-						)
-					);
-				} else {
-					$results = $wpdb->get_results(
-						$wpdb->prepare(
-							'SELECT DISTINCT `i_cod_unita_territoriale`, `i_den_unita_territoriale` FROM `%1$s` ' .
-							'UNION SELECT ' .
-							'DISTINCT `i_cod_unita_territoriale`, `i_den_unita_territoriale` FROM' .
-							'`%2$s` ' .
-							'LEFT JOIN ( ' .
-							'SELECT DISTINCT `i_den_unita_territoriale`, `i_sigla_automobilistica`, `i_cod_regione` FROM `%3$s` ' .
-							'UNION SELECT \'Forlì\', \'FO\', \'08\' ' .
-							'UNION SELECT \'Pesaro\', \'PS\', \'11\' ' .
-							'UNION SELECT \'Fiume\', \'FU\', \'%4$s\' ' .
-							'UNION SELECT \'Pola\', \'PL\', \'%5$s\' ' .
-							'UNION SELECT \'Zara\', \'ZA\', \'%6$s\' ' .
-							') AS aview ON `%7$s`.`i_sigla_automobilistica` = aview.`i_sigla_automobilistica` ' .
-							'WHERE `i_cod_regione` = \'%8$s\' ORDER BY i_den_unita_territoriale',
-							GCMI_SVIEW_PREFIX . 'comuni_attuali' . $this->pfilter(),
-							GCMI_SVIEW_PREFIX . 'comuni_soppressi' . $this->pfilter(),
-							GCMI_SVIEW_PREFIX . 'comuni_attuali',
-							$this->def_strings['COD_REG_ISDA'],
-							$this->def_strings['COD_REG_ISDA'],
-							$this->def_strings['COD_REG_ISDA'],
-							GCMI_SVIEW_PREFIX . 'comuni_soppressi' . $this->pfilter(),
-							esc_sql( $i_cod_regione )
-						)
-					);
-				}
+				$results = $wpdb->get_results(
+					$wpdb->prepare(
+						'SELECT DISTINCT `i_cod_unita_territoriale`, `i_den_unita_territoriale` FROM `%1$s` ' .
+						'WHERE `i_cod_regione` = \'%2$s\'',
+						GCMI_SVIEW_PREFIX . 'comuni_attuali' . $this->pfilter(),
+						esc_sql( $i_cod_regione )
+					)
+				);
+			} else {
+				$results = $wpdb->get_results(
+					$wpdb->prepare(
+						'SELECT `i_cod_unita_territoriale`, `i_den_unita_territoriale` FROM `%1$s` ' .
+						'WHERE `i_cod_regione` = \'%2$s\' ' .
+						'UNION ' .
+						'SELECT ' .
+						/**
+						 * Le quattro province hanno cambiato codice, ma sono attive.
+						 * Questa operazione serve ad evitare il valore duplicato nella select.
+						 * Nella select dei comuni che opera con evidenza_cessati, la ricerca
+						 * è fatta con la targa.
+						 * Quando kind è attuali o tutti il problema non si pone.
+						 */
+						'IF( \'037\' = `i_cod_unita_territoriale`, \'237\', ' . // Bologna.
+							'IF( \'048\' = `i_cod_unita_territoriale`, \'248\', ' . // Firenze.
+								'IF( \'015\' = `i_cod_unita_territoriale`, \'215\', ' . // Milano.
+									'IF( \'001\' = `i_cod_unita_territoriale`, \'201\', ' . // Torino.
+						'`i_cod_unita_territoriale` ) ) ) ), ' .
+						'`i_den_unita_territoriale` FROM ' .
+						'`%3$s` ' .
+						'LEFT JOIN ( ' .
+						'SELECT DISTINCT `i_den_unita_territoriale`, `i_sigla_automobilistica`, `i_cod_regione` FROM `%4$s` ' .
+						'UNION SELECT \'Forlì\', \'FO\', \'08\' ' .
+						'UNION SELECT \'Pesaro\', \'PS\', \'11\' ' .
+						'UNION SELECT \'Fiume\', \'FU\', \'%5$s\' ' .
+						'UNION SELECT \'Pola\', \'PL\', \'%6$s\' ' .
+						'UNION SELECT \'Zara\', \'ZA\', \'%7$s\' ' .
+						') AS aview ON `%8$s`.`i_sigla_automobilistica` = aview.`i_sigla_automobilistica` ' .
+						'WHERE `i_cod_regione` = \'%9$s\' ORDER BY i_den_unita_territoriale',
+						GCMI_SVIEW_PREFIX . 'comuni_attuali' . $this->pfilter(),
+						esc_sql( $i_cod_regione ),
+						GCMI_SVIEW_PREFIX . 'comuni_soppressi' . $this->pfilter(),
+						GCMI_SVIEW_PREFIX . 'comuni_attuali',
+						$this->def_strings['COD_REG_ISDA'],
+						$this->def_strings['COD_REG_ISDA'],
+						$this->def_strings['COD_REG_ISDA'],
+						GCMI_SVIEW_PREFIX . 'comuni_soppressi' . $this->pfilter(),
+						esc_sql( $i_cod_regione )
+					)
+				);
 			}
 			wp_cache_set( $cache_key, $results, GCMI_CACHE_GROUP, GCMI_CACHE_EXPIRE_SECS );
 		}
