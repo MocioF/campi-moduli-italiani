@@ -102,9 +102,9 @@ add_action( 'wpcf7_admin_init', 'gcmi_wpcf7_add_tag_generator_comune', 35 );
 function gcmi_wpcf7_add_tag_generator_comune(): void {
 	if ( class_exists( 'WPCF7_TagGenerator' ) ) {
 		$tag_generator = WPCF7_TagGenerator::get_instance();
-		$tag_generator->add( 'gcmi-comune', __( 'Select Italian municipality', 'campi-moduli-italiani' ), 'gcmi_wpcf7_tg_pane_comune' );
+		$tag_generator->add( 'gcmi-comune', __( 'Italian municipality', 'campi-moduli-italiani' ), 'gcmi_wpcf7_tg_pane_comune' );
 	} elseif ( function_exists( 'wpcf7_add_tag_generator' ) ) {
-		wpcf7_add_tag_generator( 'gcmi-comune', __( 'Select Italian municipality', 'campi-moduli-italiani' ), 'gcmi_wpcf7_tg_pane_comune', 'gcmi_wpcf7_tg_pane_comune' );
+		wpcf7_add_tag_generator( 'gcmi-comune', __( 'Italian municipality', 'campi-moduli-italiani' ), 'gcmi_wpcf7_tg_pane_comune', 'gcmi_wpcf7_tg_pane_comune' );
 	}
 }
 
@@ -131,6 +131,18 @@ function gcmi_wpcf7_tg_pane_comune( $contact_form, $args = '' ): void {
 			e.value = val;
 		}
 	</script>
+	<style>
+	.gcmi-combobox {
+		background:#fff url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2220%22%20height%3D%2220%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M5%206l5%205%205-5%202%201-7%207-7-7%202-1z%22%20fill%3D%22%23777%22%2F%3E%3C%2Fsvg%3E") no-repeat right 5px top 55%;
+			background-size:16px 16px;
+			cursor:pointer;
+			min-height:32px;
+			padding-right:24px;
+			vertical-align:middle;
+			appearance:none;
+			-webkit-appearance:none
+			}
+	</style>
 	<div class="control-box">
 		<fieldset>
 			<legend><?php printf( esc_html( $description ), $desc_link ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></legend>
@@ -168,7 +180,7 @@ function gcmi_wpcf7_tg_pane_comune( $contact_form, $args = '' ): void {
 					<tr>
 						<th scope="row"><label for="<?php echo esc_attr( $args['content'] . '-filtername' ); ?>"><?php echo esc_html__( 'Filter name (leave empty for unfiltered field)', 'campi-moduli-italiani' ); ?></label></th>
 						<td>
-							<input type="text" list="present_filternames" class="oneline option" name="filtername" id="<?php echo esc_attr( $args['content'] . '-filtername' ); ?>" />
+							<input type="text" list="present_filternames" class="oneline option gcmi-combobox" name="filtername" id="<?php echo esc_attr( $args['content'] . '-filtername' ); ?>" />
 							<datalist id="present_filternames">
 								<?php
 								$filters = gcmi_get_list_filtri();

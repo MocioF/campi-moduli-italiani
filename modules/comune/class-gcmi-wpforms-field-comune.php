@@ -231,12 +231,25 @@ class GCMI_WPForms_Field_Comune extends WPForms_Field {
 			false
 		);
 
+		$inline_css            = '<style>
+			.gcmi-combobox {
+				background:#fff url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2220%22%20height%3D%2220%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M5%206l5%205%205-5%202%201-7%207-7-7%202-1z%22%20fill%3D%22%23777%22%2F%3E%3C%2Fsvg%3E") no-repeat right 5px top 55%;
+					background-size:16px 16px;
+					cursor:pointer;
+					min-height:32px;
+					padding-right:24px;
+					vertical-align:middle;
+					appearance:none;
+					-webkit-appearance:none
+				   }
+			</style>';
 		$field_filtername_text = $this->field_element(
 			'text',
 			$field,
 			array(
 				'slug'  => 'filtername',
 				'value' => ! empty( $field['filtername'] ) ? esc_attr( $field['filtername'] ) : '',
+				'class' => 'gcmi-combobox',
 				'attrs' => array(
 					'list' => 'present_filternames',
 				),
@@ -266,7 +279,7 @@ class GCMI_WPForms_Field_Comune extends WPForms_Field {
 			$field,
 			array(
 				'slug'    => 'filter_type',
-				'content' => $field_filtername_label . $field_filtername_text .
+				'content' => $field_filtername_label . $inline_css . $field_filtername_text .
 				$field_filtername_datalist_open . $field_filtername_select . $field_filtername_datalist_close,
 			)
 		);
