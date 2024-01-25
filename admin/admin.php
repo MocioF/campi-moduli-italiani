@@ -238,10 +238,11 @@ function gcmi_admin_enqueue_scripts( $hook_suffix ) {
 	wp_enqueue_script(
 		'gcmi-admin',
 		plugins_url( GCMI_PLUGIN_NAME . '/admin/js/scripts.min.js' ),
-		array( 'jquery', 'jquery-ui-tabs', 'jquery-ui-dialog' ),
+		array( 'jquery', 'jquery-ui-tabs', 'jquery-ui-dialog', 'wp-i18n' ),
 		GCMI_VERSION,
 		true
 	);
+	wp_set_script_translations( 'gcmi-admin', 'campi-moduli-italiani', plugin_dir_path( GCMI_PLUGIN ) . 'languages' );
 
 	wp_localize_script(
 		'gcmi-admin',

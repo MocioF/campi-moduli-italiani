@@ -176,7 +176,7 @@ class GCMI_Comune_Filter_Builder {
 		$list = self::get_list_filtri();
 
 		$html  = '<table class="wp-list-table widefat fixed striped table-view-list">';
-		$html .= '<caption class="screen-reader-text">' . esc_html__( 'Tabella dei filtri con pulsanti', 'campi-moduli-italiani' ) . '</caption>';
+		$html .= '<caption class="screen-reader-text">' . esc_html__( 'Table of existent filters', 'campi-moduli-italiani' ) . '</caption>';
 		$html .= '<thead><tr><td colspan="3">' . esc_html__( 'Filter\'s list', 'campi-moduli-italiani' ) . '</td></tr></thead>';
 		$html .= '<tbody>';
 		foreach ( $list as $value ) {
@@ -579,7 +579,7 @@ class GCMI_Comune_Filter_Builder {
 		$html = '<div class="gcmi-fb-commit-buttons-wrapper">';
 
 		$html .= '<div class="gcmi-fb-table-name-wrapper">';
-		$html .= '<label for="fb_gcmi_filter_name">' . esc_html__( 'Nome del filtro:', 'campi-moduli-italiani' ) . '</label>';
+		$html .= '<label for="fb_gcmi_filter_name">' . esc_html__( 'Filter name:', 'campi-moduli-italiani' ) . '</label>';
 		$html .= '<input type="text" id="fb_gcmi_filter_name" maxlength="20" value="';
 		$html .= isset( $clean ) ? $clean . '">' : '">';
 		$html .= '</div>';
@@ -731,7 +731,7 @@ class GCMI_Comune_Filter_Builder {
 
 		if ( false === $view_result ) {
 			$error = new WP_Error();
-			$error->add( '-8', esc_html__( 'The creation of the filter, failed.', 'campi-moduli-italiani' ) );
+			$error->add( '-8', esc_html__( 'The creation of the filter failed.', 'campi-moduli-italiani' ) );
 			wp_send_json_error( $error, 422 );
 		}
 
@@ -787,7 +787,7 @@ class GCMI_Comune_Filter_Builder {
 		$error = self::check_save_filter_slices_fields( $_POST );
 
 		if ( $error->has_errors() ) {
-			$error->add( '-10', esc_html__( 'Request to store the partial filter, not processed', 'campi-moduli-italiani' ) );
+			$error->add( '-10', esc_html__( 'Request to store the partial filter not processed', 'campi-moduli-italiani' ) );
 			wp_send_json_error( $error, 422 );
 		}
 		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotValidated

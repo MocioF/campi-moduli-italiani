@@ -752,7 +752,7 @@ class GCMI_COMUNE {
 	 */
 	public static function gcmi_comune_register_scripts(): void {
 		wp_register_style( 'gcmi_comune_css', plugins_url( 'modules/comune/css/comune.min.css', GCMI_PLUGIN ), array(), GCMI_VERSION );
-		wp_register_style( 'dashicons', includes_url( '/css/dashicons.min.css', 'relative' ) );
+		wp_register_style( 'dashicons', includes_url( '/css/dashicons.min.css', 'relative' ), array(), GCMI_VERSION );
 
 		// Se html5_fallback è abilitato, non devo caricare il nuovo tema per evitare conflitti.
 		if ( ! has_filter( 'wpcf7_support_html5_fallback', '__return_true' ) ) {
@@ -804,7 +804,7 @@ class GCMI_COMUNE {
 		$cache_key = 'gcmi_info_comune_' . $i_cod_comune;
 		$results   = wp_cache_get( $cache_key, GCMI_CACHE_GROUP );
 		if ( false === $results ) {
-			/* translators: put a string matching the local date format to be used in SQL (https://dev.mysql.com/doc/refman/8.0/en/date-and-time-functions.html#function_date-format) */
+			// translators: A string definig a local date format for mysql; see: https://dev.mysql.com/doc/refman/8.0/en/date-and-time-functions.html#function_date-format .
 			$local_date_format_mysql = $wpdb->_real_escape( esc_html__( '%m/%d/%Y', 'campi-moduli-italiani' ) );
 
 			$results = $wpdb->get_row(

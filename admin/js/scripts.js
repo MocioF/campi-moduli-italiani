@@ -1,5 +1,12 @@
 'use strict';
 jQuery(document).ready(function ($) {
+  // i18n
+  const {
+    __,
+    _x,
+    _n,
+    _nx
+  } = wp.i18n;
   // imposto tutto a unchecked
   $("input[type=checkbox][id^='gcmi-']").prop("checked", false);
 
@@ -58,14 +65,14 @@ jQuery(document).ready(function ($) {
   //Click sul pulsante per eliminazione di un filtro esistente
   $(document).on("click", "button[id^='gcmi-fb-delete-filter-']", function () {
     let delfiltername = $(this).attr("id").split("-").pop();
-    let title = "Conferma eliminazione filtro";
+    let title = __( "Confirm filter deletion", "campi-moduli-italiani");
     let message =
-      '<span class="ui-icon ui-icon-alert" style="float:left; margin:12px 12px 20px 0;"></span>' +
-      "<p>Vuoi davvero cancellare il filtro: <b>" +
+      "<span class=\"ui-icon ui-icon-alert\" style=\"float:left; margin:12px 12px 20px 0;\"></span>" +
+      "<p>" + __("Do you really want to delete the filter: ", "campi-moduli-italiani") + "<b>" +
       delfiltername +
       "</b>?</p>" +
-      "ATTENZIONE: Questa operazione non può controllare se il filtro è " +
-      "attualmente in uso nei tuoi moduli.";
+      __( "WARNING: This procedure cannot check if the filter is used in one or more of your modules.",
+      "campi-moduli-italiani");
     $.when(customConfirm(message, title)).then(function () {
       $.ajax({
         type: "post",
@@ -86,14 +93,14 @@ jQuery(document).ready(function ($) {
           print_filters();
         },
         error: function (res) {
-          let title = "Errore nella eliminazione del filtro";
+          let title = __("Error when eliminating the filter", "campi-moduli-italiani");
           let message =
-            '<span class="ui-icon ui-icon-notice" style="float:left; margin:12px 12px 0 0;"></span>';
+            "<span class=\"ui-icon ui-icon-notice\" style=\"float:left; margin:12px 12px 0 0;\"></span>";
           let arrData = res.responseJSON.data;
           for (let i = 0; i < arrData.length; i++) {
             message =
               message +
-              "<p><b>Err: " +
+              "<p><b>" + __("Err: ", "campi-moduli-italiani") +
               arrData[i].code +
               "</b></p>" +
               "<p><i>" +
@@ -108,10 +115,10 @@ jQuery(document).ready(function ($) {
   });
   //Click sul pulsante per annullare aggiunta del filtro
   $(document).on("click", "#gcmi-fb-button-cancel", function () {
-    let title = "Conferma annullamento operazione";
+    let title = __("Confirm operation cancellation", "campi-moduli-italiani");
     let message =
-      '<span class="ui-icon ui-icon-alert" style="float:left; margin:12px 12px 20px 0;"></span>' +
-      "Vuoi annullare la creazione/modifica del filtro?";
+      "<span class=\"ui-icon ui-icon-alert\" style=\"float:left; margin:12px 12px 20px 0;\"></span>" +
+      __("Do you want to cancel the creation/modification of the filter?", "campi-moduli-italiani");
     $.when(customConfirm(message, title)).then(
       function () {
         $("#gcmi-fb-tabs").hide();
@@ -135,10 +142,10 @@ jQuery(document).ready(function ($) {
       .get();
     var myfiltername;
     if (0 === searchIDs.length) {
-      let title = "Errore nel salvataggio";
+      let title = __("Save error", "campi-moduli-italiani");
       let message =
-        '<span class="ui-icon ui-icon-notice" style="float:left; margin:12px 12px 20px 0;"></span>' +
-        "Non è stato selezionato nessun comune da includere nel filtro.";
+        "<span class=\"ui-icon ui-icon-notice\" style=\"float:left; margin:12px 12px 20px 0;\"></span>" +
+        __("No municipality has been selected to include in the filter.", "campi-moduli-italiani");
       $.when(customOkMessage(message, title)).then(function () {
         $("#ui-id-4").click();
       });
@@ -146,20 +153,20 @@ jQuery(document).ready(function ($) {
     }
     let rawfiltername = $("#fb_gcmi_filter_name").val();
     if (rawfiltername === "") {
-      let title = "Errore nel salvataggio";
+      let title = __("Save error", "campi-moduli-italiani");
       let message =
-        '<span class="ui-icon ui-icon-notice" style="float:left; margin:12px 12px 20px 0;"></span>' +
-        "Non è stato indicato il nome del filtro.";
+        "<span class=\"ui-icon ui-icon-notice\" style=\"float:left; margin:12px 12px 20px 0;\"></span>" +
+        __("The filter name has not been indicated.", "campi-moduli-italiani");
       $.when(customOkMessage(message, title)).then(function () {
         $("#fb_gcmi_filter_name").focus();
       });
       return;
     }
     if (rawfiltername.length > 20) {
-      let title = "Errore nel salvataggio";
+      let title = __("Save error", "campi-moduli-italiani");
       let message =
-        '<span class="ui-icon ui-icon-notice" style="float:left; margin:12px 12px 20px 0;"></span>' +
-        "Non più di 20 caratteri ammessi per il nome del filtro.";
+        "<span class=\"ui-icon ui-icon-notice\" style=\"float:left; margin:12px 12px 20px 0;\"></span>" +
+        __("No more than 20 characters admitted for the filter name.", "campi-moduli-italiani");
       $.when(customConfirm(message, title)).then(function () {
         $("#fb_gcmi_filter_name").val(rawfiltername.substring(0, 20));
         $("#fb_gcmi_filter_name").focus();
@@ -169,23 +176,23 @@ jQuery(document).ready(function ($) {
     let includi = $("#gcmi-fb-include-ceased").prop("checked");
     myfiltername = sanitize_table_name(rawfiltername).substring(0, 20);
     if (false === myfiltername) {
-      let title = "Errore nel salvataggio";
+      let title = __("Save error", "campi-moduli-italiani");
       let message =
-        '<span class="ui-icon ui-icon-notice" style="float:left; margin:12px 12px 20px 0;"></span>' +
-        "Non è stato indicato un nome valido per il filtro.";
+        "<span class=\"ui-icon ui-icon-notice\" style=\"float:left; margin:12px 12px 20px 0;\"></span>" +
+        __("An invalid name for the filter was indicated.", "campi-moduli-italiani");
       $.when(customOkMessage(message, title)).then(function () {
         $("#fb_gcmi_filter_name").focus();
       });
       return;
     }
     if (rawfiltername !== myfiltername) {
-      let title = "Errore nel salvataggio";
+      let title = __("Save error", "campi-moduli-italiani");
       let message =
-        '<span class="ui-icon ui-icon-notice" style="float:left; margin:12px 12px 20px 0;"></span>' +
-        "Il valore indicato per il nome del filtro:<b><i>" +
+        "<span class=\"ui-icon ui-icon-notice\" style=\"float:left; margin:12px 12px 20px 0;\"></span>" +
+        __("The value indicated for the filter name ", "campi-moduli-italiani") + "<b>(<i>" +
         rawfiltername +
-        "</i></b> non è utilizzabile.<br>" +
-        "Vuoi utilizzare: <b>" +
+        "</i>)</b>" + __("cannot be used.", "campi-moduli-italiani") + "<br>" +
+        __("Do you want to use: ", "campi-moduli-italiani") + "<b>" +
         myfiltername +
         "</b> ?";
       $.when(customConfirm(message, title)).then(
@@ -210,11 +217,11 @@ jQuery(document).ready(function ($) {
     if (true === sovrascrivi) {
       let title = "Sovrascrivi";
       let message =
-        '<span class="ui-icon ui-icon-notice" style="float:left; margin:12px 12px 20px 0;"></span>' +
-        "Stai sovrascrivendo il filtro:<b><i>" +
+        "<span class=\"ui-icon ui-icon-notice\" style=\"float:left; margin:12px 12px 20px 0;\"></span>" +
+        __("You are overwriting the filter:", "campi-moduli-italiani") + "<b><i>" +
         myfiltername +
         "</i></b>.<br>" +
-        "Vuoi continuare?";
+        __("Do you want to continue?", "campi-moduli-italiani");
       $.when(customConfirm(message, title)).then(function () {
         saveFilter(includi, myfiltername, searchIDs);
       });
@@ -241,20 +248,20 @@ jQuery(document).ready(function ($) {
     if (false === chk.prop("checked")) {
       // disabilito le province della regione
       $("#gcmi-fb-regione-blocco-" + codreg)
-        .find('input[type=checkbox][id^="fb-gcmi-prov-"]:checked')
+        .find("input[type='checkbox'][id^=\"fb-gcmi-prov-\"]:checked")
         .removeAttr("checked");
       $("#gcmi-fb-regione-blocco-" + codreg)
-        .find('input[type=checkbox][id^="fb-gcmi-prov-"]')
+        .find("input[type=checkbox][id^=\"fb-gcmi-prov-\"]")
         .trigger("change");
       // rendo invisibile il blocco
       $("#gcmi-fb-regione-blocco-" + codreg).hide();
     } else {
       // li abilito (difficile capire qui cosa gli utenti possono preferire)
       $("#gcmi-fb-regione-blocco-" + codreg)
-        .find('input[type=checkbox][id^="fb-gcmi-prov-"]:not(:checked)')
+        .find("input[type=checkbox][id^='fb-gcmi-prov-']:not(:checked)")
         .prop("checked", true);
       $("#gcmi-fb-regione-blocco-" + codreg)
-        .find('input[type=checkbox][id^="fb-gcmi-prov-"]')
+        .find("input[type=checkbox][id^='fb-gcmi-prov-']")
         .trigger("change");
       $("#gcmi-fb-regione-blocco-" + codreg).show();
     }
@@ -266,33 +273,33 @@ jQuery(document).ready(function ($) {
     var codreg = $(this).parent().attr("class").split("-").pop();
     if (false === chk.prop("checked")) {
       // Rimuovo il check da checkall
-      $("[id='fb-gcmi-chkallpr-" + codreg).removeAttr("checked");
+      $("[id='fb-gcmi-chkallpr-" + codreg + "'").removeAttr("checked");
       // disabilito tutti i comuni della provincia
-      $("[name^='gcmi-com-cod-pro-" + codprov)
+      $("[name^='gcmi-com-cod-pro-" + codprov + "'")
         .find("input[type=checkbox]:checked")
         .removeAttr("checked");
       // li nascondo
-      $("[name^='gcmi-com-cod-pro-" + codprov).hide();
+      $("[name^='gcmi-com-cod-pro-" + codprov  + "'").hide();
       hideemptyletters();
     } else {
       // li visualizzo
-      $("[name^='gcmi-com-cod-pro-" + codprov).show();
+      $("[name^='gcmi-com-cod-pro-" + codprov  + "'").show();
       // li abilito (difficile capire qui cosa gli utenti possono preferire)
-      $("[name^='gcmi-com-cod-pro-" + codprov)
+      $("[name^='gcmi-com-cod-pro-" + codprov  + "'")
         .find("input[type=checkbox]:not(:checked)")
         .prop("checked", true);
       hideemptyletters();
     }
     // metto il check a checkall se sono tutte checked
     if (
-      $("[id='gcmi-fb-regione-blocco-" + codreg).find(
+      $("[id='gcmi-fb-regione-blocco-" + codreg + "'").find(
         "input[type=checkbox][id^=fb-gcmi-prov-]:checked"
       ).length ===
-      $("[id='gcmi-fb-regione-blocco-" + codreg).find(
+      $("[id='gcmi-fb-regione-blocco-" + codreg + "'").find(
         "input[type=checkbox][id^=fb-gcmi-prov-]"
       ).length
     ) {
-      $("[id='fb-gcmi-chkallpr-" + codreg).prop("checked", true);
+      $("[id='fb-gcmi-chkallpr-" + codreg + "'").prop("checked", true);
     }
   });
   // click su un comune
@@ -301,17 +308,17 @@ jQuery(document).ready(function ($) {
       $("label[for='" + this.name + "']").text()
     )[0];
     // Rimuovo il check da checkall
-    $("[id='fb-gcmi-chkallcom-" + letteraIniziale).removeAttr("checked");
+    $("[id='fb-gcmi-chkallcom-" + letteraIniziale + "'").removeAttr("checked");
     // metto il check a checkall se sono tutte checked
     if (
-      $("[id='gcmi-fb-lettera-blocco-" + letteraIniziale).find(
+      $("[id='gcmi-fb-lettera-blocco-" + letteraIniziale + "'").find(
         "input[type=checkbox][id^=fb-gcmi-com-]:visible:checked"
       ).length ===
-      $("[id='gcmi-fb-lettera-blocco-" + letteraIniziale).find(
+      $("[id='gcmi-fb-lettera-blocco-" + letteraIniziale + "'").find(
         "input[type=checkbox][id^=fb-gcmi-com-]:visible"
       ).length
     ) {
-      $("[id='fb-gcmi-chkallcom-" + letteraIniziale).prop("checked", true);
+      $("[id='fb-gcmi-chkallcom-" + letteraIniziale + "'").prop("checked", true);
     }
   });
   // seleziona/deseleziona tutte le province della regione
@@ -1224,16 +1231,16 @@ jQuery(document).ready(function ($) {
     let arrData;
     switch (errCode) {
       case "CreateFilter":
-        errTitle = "Errore nella creazione del filtro";
+        errTitle = __("Error while creating the filter", "campi-moduli-italiani");
         break;
       case "RetrieveFilter":
-        errTitle = "Errore nel recupero dei dati";
+        errTitle = __("Data recovery error", "campi-moduli-italiani");
         break;
       case "TmpFilterFailed":
-        errTitle = "Errore nella creazione del filtro temporaneo";
+        errTitle = __("Error in creating the temporary filter", "campi-moduli-italiani");
         break;
       default:
-        errTitle = "Ricevuto errore dal server";
+        errTitle = __("Received a server error", "campi-moduli-italiani");
     }
     if ( res.responseJSON ) {
         arrData = res.responseJSON.data;
@@ -1248,7 +1255,7 @@ jQuery(document).ready(function ($) {
             "</i></p><p></p>";
         }
     } else {
-        errMessage = errMessageIcon + "<p><b>Err: Errore non definito</b></p>";
+        errMessage = errMessageIcon + "<p><b>" + __("Err: Error not defined", "campi-moduli-italiani") + "</b></p>";
     }
     switch (errCode) {
       case "CreateFilter":

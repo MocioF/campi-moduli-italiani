@@ -178,7 +178,7 @@ function gcmi_wpcf7_tg_pane_comune( $contact_form, $args = '' ): void {
 						</td>
 					</tr>
 					<tr>
-						<th scope="row"><label for="<?php echo esc_attr( $args['content'] . '-filtername' ); ?>"><?php echo esc_html__( 'Filter name (leave empty for unfiltered field)', 'campi-moduli-italiani' ); ?></label></th>
+						<th scope="row"><label for="<?php echo esc_attr( $args['content'] . '-filtername' ); ?>"><?php echo esc_html__( 'Filter name (leave empty for an unfiltered field)', 'campi-moduli-italiani' ); ?></label></th>
 						<td>
 							<input type="text" list="present_filternames" class="oneline option gcmi-combobox" name="filtername" id="<?php echo esc_attr( $args['content'] . '-filtername' ); ?>" />
 							<datalist id="present_filternames">

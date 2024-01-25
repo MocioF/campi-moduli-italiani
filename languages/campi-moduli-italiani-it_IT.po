@@ -1,180 +1,421 @@
-# Translation of Plugins - Campi Moduli Italiani - Development (trunk) in Italian
-# This file is distributed under the same license as the Plugins - Campi Moduli Italiani - Development (trunk) package.
 msgid ""
 msgstr ""
 "Project-Id-Version: Plugins - Campi Moduli Italiani - Development (trunk)\n"
-"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/campi-moduli-"
-"italiani\n"
-"POT-Creation-Date: 2022-09-01 22:39:08+00:00\n"
-"PO-Revision-Date: 2022-09-02 00:39+0200\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/campi-moduli-italiani\n"
 "Last-Translator: Giuseppe Foti <foti.giuseppe@gmail.com>\n"
 "Language-Team: \n"
-"Language: it\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2024-01-25T00:16:44+00:00\n"
+"PO-Revision-Date: 2024-01-25 01:17+0100\n"
+"Language: it\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
 "X-Generator: Poedit 2.3.1\n"
 
-#: admin/admin.php:59 admin/admin.php:60
+#. Plugin Name of the plugin
+#: integrations/wpforms/wpforms-integration.php:22
+msgid "Campi Moduli Italiani"
+msgstr "Campi Moduli Italiani"
+
+#. Plugin URI of the plugin
+msgid "https://wordpress.org/plugins/campi-moduli-italiani/"
+msgstr "https://it.wordpress.org/plugins/campi-moduli-italiani/"
+
+#. Description of the plugin
+msgid "(Generator of) Fields for Italian CF7 and wpforms modules. The plugin generates specific fields for Italian forms created with Contact Form 7 and wpforms. This version makes available 4 form-tags for CF7 and 2 fields for wpforms: a cascade selection for an Italian municipality (CF7 + wpforms), a select for a state (CF7 + wpforms), an Italian tax code field with validation (CF7 only), a hidden field that allows you to digitally sign e-mails to ensure that they have been sent via the form (CF7 only). The databases are taken from the Istat and Agenzia delle entrate websites. The digital signature on the form data uses the RSA algorithm with a 4096 bit private key. <strong> Activation can take a few minutes to download the updated data and to import them into the database </strong>."
+msgstr "(Generatore di) Campi per moduli CF7 italiani. Il plugin genera campi specifici per i moduli italiani creati con Contact Form 7 e WPForms. Questa versione mette a disposizione quattro formtag per CF7 e 2 campi per wpforms: una selezione a cascata per un comune italiano (CF7 + wpforms), una selezione per uno stato (CF7 + wpforms), un campo codice fiscale italiano con convalida (solo CF7), un campo nascosto che consente di firmare digitalmente le email per assicurarsi che siano state inviate tramite il modulo (solo CF7). I database sono prelevati dai siti web dell'Istat e dell'Agenzia delle entrate. La firma digitale sui dati del modulo utilizza l'algoritmo RSA con una chiave privata a 4096 bit. <strong> L'attivazione può richiedere alcuni minuti per scaricare i dati aggiornati e importarli nel database </strong>."
+
+#. Author of the plugin
+msgid "Giuseppe Foti"
+msgstr "Giuseppe Foti"
+
+#. Author URI of the plugin
+msgid "https://github.com/MocioF/"
+msgstr "https://github.com/MocioF/"
+
+#: admin/admin.php:76
+#: admin/admin.php:77
+#: admin/includes/class-gcmi-comune-filter-builder.php:69
 msgid "Italian forms fields"
 msgstr "Campi Moduli Italiani"
 
-#: admin/admin.php:71
+#: admin/admin.php:88
 msgid "Management of Italian form fields db tables"
 msgstr "Gestione database comuni italiani"
 
-#: admin/admin.php:72
+#: admin/admin.php:89
 msgid "Italian municipalities DB"
 msgstr "Database comuni italiani"
 
-#: admin/admin.php:103
+#: admin/admin.php:100
+#: admin/includes/class-gcmi-comune-filter-builder.php:70
+msgid "Italian municipalities' filter builder "
+msgstr "Costruttore di filtri per i comuni italiani "
+
+#: admin/admin.php:101
+msgid "comune's filter builder"
+msgstr "filtri per comune"
+
+#: admin/admin.php:142
 msgid "Management of Italian municipalities database."
 msgstr "Gestione database comuni italiani."
 
 #. translators: %1$s is a date string; %2$s is a time string.
-#: admin/admin.php:125
+#: admin/admin.php:164
 msgid "Last remote files update check on %1$s at %2$s."
-msgstr ""
-"Ultimo controllo della data di aggiornamento dei file remoti effettuato il "
-"%1$s alle %2$s."
+msgstr "Ultimo controllo della data di aggiornamento dei file remoti effettuato il %1$s alle %2$s."
 
-#: admin/admin.php:210
+#: admin/admin.php:278
 msgid "Wrong file name"
 msgstr "Nome file errato"
 
 #. translators: %s is the fname value for the updating table.
-#: admin/admin.php:212
+#: admin/admin.php:280
 msgid "This plugin cannot manage file %s"
 msgstr "Questo plugin non può gestire il file %s"
 
-#: admin/admin.php:220 admin/class-gcmi-activator.php:292
+#: admin/admin.php:289
+#: admin/class-gcmi-activator.php:378
 msgid "Error creating download directory"
 msgstr "Errore nella creazione della directory di download"
 
-#: admin/admin.php:221 admin/class-gcmi-activator.php:293
+#: admin/admin.php:290
+#: admin/class-gcmi-activator.php:379
 msgid "Unable to create temporary download directory"
 msgstr "Impossibile creare la directory temporanea di download"
 
-#: admin/admin.php:237
+#: admin/admin.php:308
 msgid "Remote file download error"
 msgstr "Errore nel download del file remoto"
 
 #. translators: %s is the URL of the file it attempted to download
-#: admin/admin.php:240
+#: admin/admin.php:311
 msgid "Unable to download %s"
 msgstr "Impossibile scaricare %s"
 
-#: admin/admin.php:262 admin/class-gcmi-activator.php:350
+#: admin/admin.php:333
+#: admin/class-gcmi-activator.php:449
 msgid "Zip archive extraction error"
 msgstr "Errore di estrazione dell'archivio zip"
 
 #. translators: %1$s: the local csv file name; %2$s: the zip archive file name
-#: admin/admin.php:265 admin/class-gcmi-activator.php:352
+#: admin/admin.php:336
+#: admin/class-gcmi-activator.php:451
 msgid "Unable to extract %1$s from %2$s"
 msgstr "Impossibile estrarre %1$s da %2$s"
 
-#: admin/admin.php:278
+#: admin/admin.php:349
 msgid "Grab html data error"
 msgstr "Recupera errore dati html"
 
 #. translators: remote URL of the table from where it grabs data
-#: admin/admin.php:280
+#: admin/admin.php:351
 msgid "Unable to grab data from %s"
 msgstr "Impossibile estrarre dati da %s"
 
-#: admin/admin.php:298
+#: admin/admin.php:369
 msgid "Error in inserting data into the database"
 msgstr "Errore nell'inserimento di dati nel database"
 
-#. translators: enter a format string valid for a date and time value according
-#. to the local standard using characters recognized by the php date ()
-#. function (https:www.php.net/manual/en/function.date.php)
-#: admin/admin.php:337 admin/admin.php:349
+#. translators: enter a format string valid for a date and time value according to the local standard using characters recognized by the php date () function (https://www.php.net/manual/en/function.date.php)
+#: admin/admin.php:423
+#: admin/admin.php:435
 msgid "Y/m/d g:i:s a"
 msgstr "d/m/Y H:i:s"
 
+#: admin/class-gcmi-activator.php:258
+msgid "Error on network wide activation"
+msgstr "Errore durante l'attivazione di rete"
+
+#: admin/class-gcmi-activator.php:259
+msgid "Unable to activate the plugin network wide: the network is too big."
+msgstr "Impossibile attivare il plugin sulla rete: la rete è troppo grande."
+
 #. translators: %s: the remote URL of the file to be downloaded
-#: admin/class-gcmi-activator.php:316
+#: admin/class-gcmi-activator.php:402
 msgid "Could not download %s"
 msgstr "Impossibile scaricare %s"
 
-#: admin/class-gcmi-activator.php:370
+#: admin/class-gcmi-activator.php:469
 msgid "Error retrieving html data"
 msgstr "Errore nel recupero dati HTML"
 
 #. translators: %s: The name of attempted downloaded data
-#: admin/class-gcmi-activator.php:372
+#: admin/class-gcmi-activator.php:471
 msgid "Unable to download html data: %s"
 msgstr "Impossibile scaricare i dati html: %s"
 
-#: admin/class-gcmi-activator.php:381
+#: admin/class-gcmi-activator.php:480
 msgid "Errore creating table"
 msgstr "Errore nella creazione della tabella"
 
-#. translators: %1$s: the local name of the table it attempted to create in the
-#. database
-#: admin/class-gcmi-activator.php:383
+#. translators: %1$s: the local name of the table it attempted to create in the database
+#: admin/class-gcmi-activator.php:482
 msgid "Unable to create table %1$s"
 msgstr "Impossibile creare la tabella %1$s"
 
-#: admin/class-gcmi-activator.php:393
+#: admin/class-gcmi-activator.php:492
 msgid "Error UTF-8 encoding csv file"
 msgstr "Errore nel codificare in UTF-8 il file csv"
 
-#. translators: %1$s: the full path of the csv file it tryed to prepare for
-#. import
-#: admin/class-gcmi-activator.php:395
+#. translators: %1$s: the full path of the csv file it tryed to prepare for import
+#: admin/class-gcmi-activator.php:494
 msgid "Unable to encode %1$s into UTF-8"
 msgstr "Impossibile codificare %1$s in UTF-8"
 
-#: admin/class-gcmi-activator.php:403
+#: admin/class-gcmi-activator.php:502
 msgid "Error preparing csv file"
 msgstr "Errore nella preparazione del file CSV"
 
-#. translators: %1$s: the full path of the csv file it tryed to prepare for
-#. import
-#: admin/class-gcmi-activator.php:405
+#. translators: %1$s: the full path of the csv file it tryed to prepare for import
+#: admin/class-gcmi-activator.php:504
 msgid "Unable to prepare %1$s for import"
 msgstr "Impossibile preparare il file %1$s per l'importazione"
 
-#: admin/class-gcmi-activator.php:420
+#: admin/class-gcmi-activator.php:519
 msgid "Error importing data into database"
 msgstr "Errore nell'importazione di dati nel database"
 
 #. translators: %1$s: the data name; %2$s: the db table name.
-#: admin/class-gcmi-activator.php:422
+#: admin/class-gcmi-activator.php:521
 msgid "Unable to import %1$s into %2$s"
 msgstr "Impossibile importare %1$s in %2$s"
 
+#: admin/class-gcmi-activator.php:556
+msgid "Error on network wide deactivation"
+msgstr "Errore durante la disattivazione di rete"
+
+#: admin/class-gcmi-activator.php:557
+msgid "Unable to deactivate the plugin network wide: the network is too big."
+msgstr "Impossibile disattivare il plugin sulla rete: la rete è troppo grande."
+
 #. translators: %s is a path to a file.
-#: admin/class-gcmi-activator.php:579
+#: admin/class-gcmi-activator.php:686
 msgid "Invalid path: %s"
 msgstr "Percorso non valido: %s"
 
+#: admin/class-gcmi-activator.php:727
+msgid "Unable to find wget command"
+msgstr "Impossibile trovare il comando wget"
+
+#. translators: %s is the remote url of a file.
+#: admin/class-gcmi-activator.php:750
+msgid "Unable to download %s via wget"
+msgstr "Impossibile scaricare %s tramite wget"
+
+#: admin/class-gcmi-activator.php:759
+msgid "Unable to download via wget"
+msgstr "Impossibile scaricare tramite wget"
+
 #. translators: %s is the file name.
-#: admin/class-gcmi-activator.php:951
+#: admin/class-gcmi-activator.php:1174
 msgid "Impossible to read the file: %s"
 msgstr "Impossibile leggere il file %s"
 
+#. translators: %s is a non existent directory.
+#: admin/class-gcmi-activator.php:1502
+msgid "%s must be a directory"
+msgstr "%s deve essere una directory"
+
 #. translators: %s is the minimum WordPress version required.
-#: admin/class-gcmi-activator.php:1485
+#: admin/class-gcmi-activator.php:1796
 msgid "Campi Moduli Italiani requires at least WordPress version %s"
 msgstr "Campi Moduli Italiani richiede almeno la versione %s di WordPress"
 
 #. translators: %s is the minimum PHP version required.
-#: admin/class-gcmi-activator.php:1494
+#: admin/class-gcmi-activator.php:1805
 msgid "Campi Moduli Italiani requires at least PHP version %s"
 msgstr "Campi Moduli Italiani richiede almeno la versione %s di PHP"
 
 #. translators: %s is the name of the needed PHP extension.
-#: admin/class-gcmi-activator.php:1504
-msgid ""
-"Campi Moduli Italiani requires PHP extension %s. Enable it on your server "
-"and then try plugin's acrivation again."
-msgstr ""
-"Campi Moduli Italiani richiede l'estensione %s di PHP. Abilitala sul tuo "
-"server e ritenta l'attivazione del plugin."
+#: admin/class-gcmi-activator.php:1815
+msgid "Campi Moduli Italiani requires PHP extension %s. Enable it on your server and then try plugin's acrivation again."
+msgstr "Campi Moduli Italiani richiede l'estensione %s di PHP. Abilitala sul tuo server e ritenta l'attivazione del plugin."
+
+#: admin/includes/class-gcmi-comune-filter-builder.php:28
+msgid "A filter builder for municipalities selections."
+msgstr "Un costruttore di filtri per la selezione dei comuni."
+
+#: admin/includes/class-gcmi-comune-filter-builder.php:42
+msgid "Existent/Ceased"
+msgstr "Esistenti/Cessati"
+
+#: admin/includes/class-gcmi-comune-filter-builder.php:43
+msgid "Select regions"
+msgstr "Seleziona le regioni"
+
+#: admin/includes/class-gcmi-comune-filter-builder.php:44
+msgid "Select provinces"
+msgstr "Seleziona le province"
+
+#: admin/includes/class-gcmi-comune-filter-builder.php:45
+msgid "Select municipalities"
+msgstr "Seleziona i comuni"
+
+#: admin/includes/class-gcmi-comune-filter-builder.php:46
+msgid "Save filter"
+msgstr "Salva il filtro"
+
+#: admin/includes/class-gcmi-comune-filter-builder.php:51
+msgid "Include ceased municipalities"
+msgstr "Includi i comuni cessati"
+
+#: admin/includes/class-gcmi-comune-filter-builder.php:179
+msgid "Table of existent filters"
+msgstr "Tabella dei filtri esistenti"
+
+#: admin/includes/class-gcmi-comune-filter-builder.php:180
+msgid "Filter's list"
+msgstr "Lista dei filtri"
+
+#: admin/includes/class-gcmi-comune-filter-builder.php:186
+msgid "Delete"
+msgstr "Elimina"
+
+#: admin/includes/class-gcmi-comune-filter-builder.php:188
+msgid "Edit"
+msgstr "Modifica"
+
+#: admin/includes/class-gcmi-comune-filter-builder.php:195
+msgid "Add New"
+msgstr "Aggiungi nuovo"
+
+#. translators: is the abbreviation for ceased or suppressed municipalities.
+#: admin/includes/class-gcmi-comune-filter-builder.php:488
+#: modules/comune/class-gcmi-comune.php:67
+msgid "sopp."
+msgstr "sopp."
+
+#: admin/includes/class-gcmi-comune-filter-builder.php:582
+msgid "Filter name:"
+msgstr "Nome filtro:"
+
+#: admin/includes/class-gcmi-comune-filter-builder.php:589
+msgid "Save"
+msgstr "Salva"
+
+#: admin/includes/class-gcmi-comune-filter-builder.php:594
+msgid "Cancel"
+msgstr "Annulla"
+
+#: admin/includes/class-gcmi-comune-filter-builder.php:598
+msgid "Please use only lowercase non accented letters, numbers, and single underscores in the middle. Limit to 20 characters."
+msgstr "Utilizza solo lettere minuscole non accentate, numeri e singoli caratteri \"_\" nel mezzo. Il limite è 20 caratteri."
+
+#: admin/includes/class-gcmi-comune-filter-builder.php:691
+#: admin/includes/class-gcmi-comune-filter-builder.php:695
+msgid "Request to store the partial filter was refused"
+msgstr "La richiesta di salvare il filtro parziale è stata rifiutata"
+
+#: admin/includes/class-gcmi-comune-filter-builder.php:704
+msgid "Retrieved number of codes doesn't match expected"
+msgstr "Il numero recuperato di codici non corrisponde"
+
+#: admin/includes/class-gcmi-comune-filter-builder.php:712
+msgid "Error in deleting option"
+msgstr "Errore nell'eliminazione dell'opzione"
+
+#: admin/includes/class-gcmi-comune-filter-builder.php:734
+msgid "The creation of the filter failed."
+msgstr "La creazione del filtro non è riuscita."
+
+#: admin/includes/class-gcmi-comune-filter-builder.php:760
+#: admin/includes/class-gcmi-comune-filter-builder.php:842
+#: admin/includes/class-gcmi-comune-filter-builder.php:884
+#: admin/includes/class-gcmi-comune-filter-builder.php:917
+msgid "Received an incomplete request to create a filter."
+msgstr "È stata ricevuta una richiesta di creazione del filtro incompleta."
+
+#: admin/includes/class-gcmi-comune-filter-builder.php:790
+msgid "Request to store the partial filter not processed"
+msgstr "Richiesta di archiviare il filtro parziale non processata"
+
+#. translators: %s is the name of the temporary option.
+#: admin/includes/class-gcmi-comune-filter-builder.php:820
+msgid "Request to store the partial filter was refused. Option name: %s"
+msgstr "La richiesta di salvare il filtro parziale è stata rifiutata. Nome opzione: %s"
+
+#: admin/includes/class-gcmi-comune-filter-builder.php:853
+msgid "Received an invalid slice of codes."
+msgstr "Ha ricevuto una frazione di codici non valida."
+
+#: admin/includes/class-gcmi-comune-filter-builder.php:893
+msgid "The filter name is not valid. Please use only lowercase alphanumeric characters and single underscores."
+msgstr "Il nome del filtro non è valido. Utilizzare solo caratteri alfanumerici minuscoli e singoli \"_\"."
+
+#: admin/includes/class-gcmi-comune-filter-builder.php:895
+msgid "No more than 20 characters are allowed for the filter's name."
+msgstr "Non sono consentiti più di 20 caratteri per il nome del filtro."
+
+#: admin/includes/class-gcmi-comune-filter-builder.php:899
+msgid "Unexpected value for parameter use_cessati."
+msgstr "Valore inatteso per il parametro use_cessati."
+
+#: admin/includes/class-gcmi-comune-filter-builder.php:922
+msgid "The array of the codes of the municipalities is empty."
+msgstr "L'array dei codici dei comuni è vuoto."
+
+#: admin/includes/class-gcmi-comune-filter-builder.php:926
+msgid "The array of the codes of the municipalities is invalid."
+msgstr "L'array dei codici dei comuni non è valido."
+
+#: admin/includes/class-gcmi-comune-filter-builder.php:939
+msgid "The array with the codes of the municipalities contains incorrect values."
+msgstr "L'array con i codici dei comuni contiene valori non validi."
+
+#. translators: %s: The name of the filter for which elimination failed
+#: admin/includes/class-gcmi-comune-filter-builder.php:1236
+msgid "No filter name sent."
+msgstr "Non inviato il nome del filtro."
+
+#. translators: %s: The name of the filter for which elimination failed
+#: admin/includes/class-gcmi-comune-filter-builder.php:1258
+msgid "Impossible to eliminate the filter %s."
+msgstr "Impossibile eliminare il filtro %s."
+
+#: admin/includes/class-gcmi-help-tabs.php:56
+#: admin/includes/class-gcmi-help-tabs.php:76
+msgid "Overview"
+msgstr "Panoramica"
+
+#: admin/includes/class-gcmi-help-tabs.php:64
+msgid "Update tables"
+msgstr "Aggiorna tabelle"
+
+#. translators: %1$s: Contact Form 7, plugin page link; %2$s: link to the page where ISTAT publishes used data; %3$s: link to the page where Agenzia delle entrate publishes used data
+#: admin/includes/class-gcmi-help-tabs.php:98
+msgid "\"Campi Moduli Italiani\" creates shortcodes and, if %1$s is activated, form-tags, useful into Italian forms. The first module written is used to select an Italian municipality. Optionally it can show details of selected municipality. The data used are retrivied from %2$s and from %3$s."
+msgstr "\"Campi Moduli Italiani\" crea degli shortcode e, se %1$s è attivato, dei formtag, utili per moduli italiani. Il primo modulo scritto è utile alla creazione di una selezione per scegliere un comune italiano. Opzionalmente può mostrare i dettagli del comune selezionato. I dati utilizzati sono prelevati da  %2$s e da %3$s."
+
+#. translators: %1$s: link to ISTAT website; %2$s: link to the page where ISTAT publishes used data
+#: admin/includes/class-gcmi-help-tabs.php:106
+msgid "On this screen, you can update tables by direct data download from %1$s and %2$s. For details about downloaded data, visit %3$s."
+msgstr "Da questa schermata è possibile aggiornare le tabelle scaricando i dati direttamente da %1$s e da %2$s. Per dettagli sui dati, visita %3$s."
+
+#: admin/includes/class-gcmi-help-tabs.php:111
+msgid "Check the update dates of your data and the update dates of the online files, pick tables to update, select the \"Update tables\" bulk action and click on \"Apply\"."
+msgstr "Controlla le date di aggiornamento dei tuoi dati e quelle dei file disponibili online, marca le tabelle da aggiornare, seleziona l'azione di massa \"Aggiorna tabelle selezionate\" e fai clic su \"Applica\"."
+
+#: admin/includes/class-gcmi-help-tabs.php:113
+msgid "Here you can create a filter to be used in comune's fields on CF7 and WP_Form."
+msgstr "Qui è possibile creare un filtro da utilizzare nei campi di comune su CF7 e WP_Form."
+
+#: admin/includes/class-gcmi-help-tabs.php:114
+msgid "Select all the municipalities to be included in the filter, choose a filter name, and save."
+msgstr "Selezionare tutti i comuni da includere nel filtro, scegliere un nome per il filtro e salvare."
+
+#: admin/includes/class-gcmi-help-tabs.php:115
+msgid "When a form field uses a filter, only municipalities included in the filter will be selectable."
+msgstr "Quando un campo modulo utilizza un filtro, sarà possibile selezionare solo i comuni inclusi nel filtro."
+
+#: admin/includes/class-gcmi-help-tabs.php:132
+msgid "For more information:"
+msgstr "Per maggiori informazioni:"
+
+#: admin/includes/class-gcmi-help-tabs.php:133
+msgid "Plugin page"
+msgstr "Pagina del plugin"
 
 #: admin/includes/class-gcmi-remote-files-list-table.php:46
 msgid "Data"
@@ -185,145 +426,92 @@ msgid "Status"
 msgstr "Stato"
 
 #: admin/includes/class-gcmi-remote-files-list-table.php:48
+msgid "Num."
+msgstr "Num."
+
+#: admin/includes/class-gcmi-remote-files-list-table.php:49
 msgid "Last modified date of remote file"
 msgstr "Data ultima modifica file remoto"
 
-#: admin/includes/class-gcmi-remote-files-list-table.php:49
+#: admin/includes/class-gcmi-remote-files-list-table.php:50
 msgid "Database update date"
 msgstr "Data aggiornamento database"
 
-#: admin/includes/class-gcmi-remote-files-list-table.php:50
+#: admin/includes/class-gcmi-remote-files-list-table.php:51
 msgid "URL"
 msgstr "URL"
 
-#: admin/includes/class-gcmi-remote-files-list-table.php:151
+#: admin/includes/class-gcmi-remote-files-list-table.php:153
 msgid "Update selected tables"
 msgstr "Aggiorna tabelle selezionate"
 
-#: admin/includes/help-tabs.php:56
-msgid "Overview"
-msgstr "Panoramica"
-
-#: admin/includes/help-tabs.php:64
-msgid "Update tables"
-msgstr "Aggiorna tabelle"
-
-#. translators: %1$s: Contact Form 7, plugin page link; %2$s: link to the page
-#. where ISTAT publishes used data; %3$s: link to the page where Agenzia delle
-#. entrate publishes used data
-#: admin/includes/help-tabs.php:86
-msgid ""
-"\"Campi Moduli Italiani\" creates shortcodes and, if %1$s is activated, form-"
-"tags, useful into Italian forms. The first module written is used to select "
-"an Italian municipality. Optionally it can show details of selected "
-"municipality. The data used are retrivied from %2$s and from %3$s."
-msgstr ""
-"\"Campi Moduli Italiani\" crea degli shortcode e, se %1$s è attivato, dei "
-"formtag, utili per moduli italiani. Il primo modulo scritto è utile alla "
-"creazione di una selezione per scegliere un comune italiano. Opzionalmente "
-"può mostrare i dettagli del comune selezionato. I dati utilizzati sono "
-"prelevati da  %2$s e da %3$s."
-
-#. translators: %1$s: link to ISTAT website; %2$s: link to the page where ISTAT
-#. publishes used data
-#: admin/includes/help-tabs.php:94
-msgid ""
-"On this screen, you can update tables by direct data download from %1$s and "
-"%2$s. For details about downloaded data, visit %3$s."
-msgstr ""
-"Da questa schermata è possibile aggiornare le tabelle scaricando i dati "
-"direttamente da %1$s e da %2$s. Per dettagli sui dati, visita %3$s."
-
-#: admin/includes/help-tabs.php:99
-msgid ""
-"Check the update dates of your data and the update dates of the online "
-"files, pick tables to update, select the \"Update tables\" bulk action and "
-"click on \"Apply\"."
-msgstr ""
-"Controlla le date di aggiornamento dei tuoi dati e quelle dei file "
-"disponibili online, marca le tabelle da aggiornare, seleziona l'azione di "
-"massa \"Aggiorna tabelle selezionate\" e fai clic su \"Applica\"."
-
-#: admin/includes/help-tabs.php:116
-msgid "For more information:"
-msgstr "Per maggiori informazioni:"
-
-#: admin/includes/help-tabs.php:117
-msgid "Plugin page"
-msgstr "Pagina del plugin"
-
-#. Plugin Name of the plugin/theme
-msgid "Campi Moduli Italiani"
-msgstr "Campi Moduli Italiani"
-
-#: modules/cf/class-gcmi-cf-wpcf7-formtag.php:74
+#: modules/cf/class-gcmi-cf-wpcf7-formtag.php:76
 msgid "Italian Tax Code has to be 16 characters long."
 msgstr "Il codice fiscale deve essere lungo 16 caratteri."
 
-#: modules/cf/class-gcmi-cf-wpcf7-formtag.php:81
+#: modules/cf/class-gcmi-cf-wpcf7-formtag.php:83
 msgid "Wrong Codice Fiscale. Reason: "
 msgstr "Codice fiscale errato. Motivo: "
 
-#: modules/cf/class-gcmi-cf-wpcf7-formtag.php:132
+#: modules/cf/class-gcmi-cf-wpcf7-formtag.php:134
 msgid "Tax code does not match inserted surname"
 msgstr "Il codice fiscale non corrisponde al cognome inserito"
 
-#: modules/cf/class-gcmi-cf-wpcf7-formtag.php:174
+#: modules/cf/class-gcmi-cf-wpcf7-formtag.php:176
 msgid "Tax code does not match inserted name"
 msgstr "Il codice fiscale non corrisponde al nome inserito"
 
-#: modules/cf/class-gcmi-cf-wpcf7-formtag.php:210
+#: modules/cf/class-gcmi-cf-wpcf7-formtag.php:213
 msgid "Unexpected value in gender field"
 msgstr "Valore inatteso nel campo \"genere\""
 
-#: modules/cf/class-gcmi-cf-wpcf7-formtag.php:211
+#: modules/cf/class-gcmi-cf-wpcf7-formtag.php:214
 msgid "Error in submitted gender value"
 msgstr "Errore nel valore immesso per il genere"
 
-#: modules/cf/class-gcmi-cf-wpcf7-formtag.php:216
+#: modules/cf/class-gcmi-cf-wpcf7-formtag.php:219
 msgid "Tax code does not match the gender"
 msgstr "Il codice fiscale non corrisponde al genere (sesso) inserito"
 
-#: modules/cf/class-gcmi-cf-wpcf7-formtag.php:241
+#: modules/cf/class-gcmi-cf-wpcf7-formtag.php:244
 msgid "Tax code does not match the date of birth"
 msgstr "Il codice fiscale non corrisponde alla data di nascita inserita"
 
-#: modules/cf/class-gcmi-cf-wpcf7-formtag.php:261
+#: modules/cf/class-gcmi-cf-wpcf7-formtag.php:264
 msgid "Tax code does not match the year of birth"
 msgstr "Il codice fiscale non corrisponde all'anno di nascita inserito"
 
-#: modules/cf/class-gcmi-cf-wpcf7-formtag.php:281
+#: modules/cf/class-gcmi-cf-wpcf7-formtag.php:284
 msgid "Tax code does not match the month of birth"
 msgstr "Il codice fiscale non corrisponde al mese di nascita inserito"
 
-#: modules/cf/class-gcmi-cf-wpcf7-formtag.php:301
+#: modules/cf/class-gcmi-cf-wpcf7-formtag.php:304
 msgid "Tax code does not match the day of birth"
 msgstr "Il codice fiscale non corrisponde al giorno di nascita inserito"
 
-#: modules/cf/class-gcmi-cf-wpcf7-formtag.php:321
+#: modules/cf/class-gcmi-cf-wpcf7-formtag.php:325
 msgid "Unexpected value in birth country field"
 msgstr "Valore inatteso per il paese di nascita"
 
-#: modules/cf/class-gcmi-cf-wpcf7-formtag.php:322
+#: modules/cf/class-gcmi-cf-wpcf7-formtag.php:326
 msgid "Error in submitted birth country value"
 msgstr "Errore nel valore immesso per il paese di nascita"
 
-#: modules/cf/class-gcmi-cf-wpcf7-formtag.php:343
+#: modules/cf/class-gcmi-cf-wpcf7-formtag.php:353
 msgid "Tax code does not match the Country of birth"
 msgstr "Il codice fiscale non corrisponde al paese di nascita inserito"
 
-#: modules/cf/class-gcmi-cf-wpcf7-formtag.php:365
+#: modules/cf/class-gcmi-cf-wpcf7-formtag.php:375
 msgid "Unexpected value in birth municipality field"
 msgstr "Valore inatteso nel campo comune di nascita"
 
-#: modules/cf/class-gcmi-cf-wpcf7-formtag.php:366
+#: modules/cf/class-gcmi-cf-wpcf7-formtag.php:376
 msgid "Error in submitted birth municipality value"
 msgstr "Errore nel valore immesso per il comune di nascita"
 
-#: modules/cf/class-gcmi-cf-wpcf7-formtag.php:413
+#: modules/cf/class-gcmi-cf-wpcf7-formtag.php:434
 msgid "Tax code does not match the municipality of birth"
-msgstr ""
-"Il codice fiscale non corrisponde al comune italiano di nascita inserito"
+msgstr "Il codice fiscale non corrisponde al comune italiano di nascita inserito"
 
 #: modules/cf/class-gcmi-codicefiscale.php:308
 msgid "No Fiscal Code to be analyzed"
@@ -345,705 +533,547 @@ msgstr "Carattere non valido nella decodifica dell'omocodia"
 msgid "Incorrect tax code"
 msgstr "Codice fiscale non corretto"
 
-#: modules/cf/wpcf7-cf-formtag.php:171 modules/cf/wpcf7-cf-formtag.php:173
+#: modules/cf/wpcf7-cf-formtag.php:176
+#: modules/cf/wpcf7-cf-formtag.php:178
 msgid "Insert Italian Tax Code"
 msgstr "Inserisci un codice fiscale italiano"
 
 #. translators: %s: link to plugin page URL
-#: modules/cf/wpcf7-cf-formtag.php:191
-msgid ""
-"Creates a form tag for natural person Italian tax code. To get more "
-"informations look at %s."
-msgstr ""
-"Genera un tag per il codice fiscale italiano per una persona fisica. Per "
-"maggiori informazioni guarda %s."
+#: modules/cf/wpcf7-cf-formtag.php:196
+msgid "Creates a form tag for natural person Italian tax code. To get more informations look at %s."
+msgstr "Genera un tag per il codice fiscale italiano per una persona fisica. Per maggiori informazioni guarda %s."
 
-#: modules/cf/wpcf7-cf-formtag.php:192
-#: modules/comune/wpcf7-comune-formtag.php:112
-#: modules/stato/wpcf7-stato-formtag.php:285
+#: modules/cf/wpcf7-cf-formtag.php:197
+#: modules/comune/wpcf7-comune-formtag.php:122
+#: modules/stato/wpcf7-stato-formtag.php:290
 msgid "the plugin page at WordPress.org"
 msgstr "la pagina del plugin su WordPress.org"
 
-#: modules/cf/wpcf7-cf-formtag.php:201 modules/cf/wpcf7-cf-formtag.php:204
-#: modules/comune/wpcf7-comune-formtag.php:130
-#: modules/comune/wpcf7-comune-formtag.php:133
-#: modules/stato/wpcf7-stato-formtag.php:293
-#: modules/stato/wpcf7-stato-formtag.php:296
-msgid "Field type"
-msgstr "Tipo di campo"
+#: modules/cf/wpcf7-cf-formtag.php:232
+msgid "If you want tax code to match  form's others fields, please indicate the names given to these fields in the form. Tax code will be matched only against named fields (if you have just one field for born date, it is not necessary to check tax code against different fileds for day month and year of birth)."
+msgstr "Se vuoi che il codice fiscale sia verificato verso altri campi del modulo, indica i nomi dati a questi campi. Il codice fiscale sarà controllato solo con i campi indicati (se hai solo un campo per la data di nascita, non è necessario verificare il codice fiscale verso giorno, mese e anno di nascita)."
 
-#: modules/cf/wpcf7-cf-formtag.php:205
-#: modules/comune/wpcf7-comune-formtag.php:134
-#: modules/stato/wpcf7-stato-formtag.php:297
-msgid "Required field"
-msgstr "Campo obbligatorio"
-
-#: modules/cf/wpcf7-cf-formtag.php:210
-#: modules/comune/wpcf7-comune-formtag.php:139
-#: modules/stato/wpcf7-stato-formtag.php:302
-msgid "Name"
-msgstr "Nome"
-
-#: modules/cf/wpcf7-cf-formtag.php:214
-#: modules/comune/class-wpforms-field-comune.php:248
-#: modules/comune/wpcf7-comune-formtag.php:143
-#: modules/stato/class-wpforms-field-stato.php:342
-#: modules/stato/wpcf7-stato-formtag.php:306
-msgid "Default value"
-msgstr "Valore predefinito"
-
-#: modules/cf/wpcf7-cf-formtag.php:216
-msgid "Use this text as the placeholder of the field"
-msgstr "Usa questo testo come segnaposto del campo"
-
-#: modules/cf/wpcf7-cf-formtag.php:219
-#: modules/comune/wpcf7-comune-formtag.php:169
-#: modules/stato/wpcf7-stato-formtag.php:327
-msgid "Id attribute"
-msgstr "Attributo Id"
-
-#: modules/cf/wpcf7-cf-formtag.php:223
-#: modules/stato/wpcf7-stato-formtag.php:331
-msgid "Class attribute"
-msgstr "Attributo class delle select"
-
-#: modules/cf/wpcf7-cf-formtag.php:227
-msgid ""
-"If you want tax code to match  form's others fields, please indicate the "
-"names given to these fields in the form. Tax code will be matched only "
-"against named fields (if you have just one field for born date, it is not "
-"necessary to check tax code against different fileds for day month and year "
-"of birth)."
-msgstr ""
-"Se vuoi che il codice fiscale sia verificato verso altri campi del modulo, "
-"indica i nomi dati a questi campi. Il codice fiscale sarà controllato solo "
-"con i campi indicati (se hai solo un campo per la data di nascita, non è "
-"necessario verificare il codice fiscale verso giorno, mese e anno di "
-"nascita)."
-
-#: modules/cf/wpcf7-cf-formtag.php:230
+#: modules/cf/wpcf7-cf-formtag.php:235
 msgid "\"name\" attr of surname field"
 msgstr "Attributo \"name\" del campo \"cognome\""
 
-#: modules/cf/wpcf7-cf-formtag.php:234
+#: modules/cf/wpcf7-cf-formtag.php:239
 msgid "\"name\" attr of name field"
 msgstr "Attributo \"name\" del campo \"nome\""
 
-#: modules/cf/wpcf7-cf-formtag.php:239
+#: modules/cf/wpcf7-cf-formtag.php:244
 msgid "\"name\" attr of gender field"
 msgstr "Attributo \"name\" del campo \"genere\""
 
-#: modules/cf/wpcf7-cf-formtag.php:243
+#: modules/cf/wpcf7-cf-formtag.php:248
 msgid "\"name\" attr of date of birth field"
 msgstr "Attributo \"name\" del campo \"data di nascita\""
 
-#: modules/cf/wpcf7-cf-formtag.php:247
+#: modules/cf/wpcf7-cf-formtag.php:252
 msgid "\"name\" attr of year of birth field"
 msgstr "Attributo \"name\" del campo \"anno di nascita\""
 
-#: modules/cf/wpcf7-cf-formtag.php:251
+#: modules/cf/wpcf7-cf-formtag.php:256
 msgid "\"name\" attr of month of birth field"
 msgstr "Attributo \"name\" del campo \"mese di nascita\""
 
-#: modules/cf/wpcf7-cf-formtag.php:255
+#: modules/cf/wpcf7-cf-formtag.php:260
 msgid "\"name\" attr of day of birth field"
 msgstr "Attributo \"name\" del campo \"giorno di nascita\""
 
-#: modules/cf/wpcf7-cf-formtag.php:259
+#: modules/cf/wpcf7-cf-formtag.php:264
 msgid "\"name\" attr of municipality of birth field"
 msgstr "Attributo \"name\" del campo \"comune di nascita\" (italiano)"
 
-#: modules/cf/wpcf7-cf-formtag.php:263
+#: modules/cf/wpcf7-cf-formtag.php:268
 msgid "\"name\" attr of Country of birth field"
 msgstr "Attributo \"name\" del campo paese di nascita"
 
-#: modules/cf/wpcf7-cf-formtag.php:274
-#: modules/comune/wpcf7-comune-formtag.php:188
-#: modules/stato/wpcf7-stato-formtag.php:342
-msgid "Insert Tag"
-msgstr "Inserisci tag"
-
-#. translators: %s is the name of the mail-tag.
-#: modules/cf/wpcf7-cf-formtag.php:282
-#: modules/comune/wpcf7-comune-formtag.php:192
-#: modules/stato/wpcf7-stato-formtag.php:350
-msgid ""
-"To use the value input through this field in a mail field, you need to "
-"insert the corresponding mail-tag (%s) into the field on the Mail tab."
-msgstr ""
-"Per usare il valore inserito per questo campo nell'email, devi inserire il "
-"corrispondente mail-tag (%s) nella scheda Mail."
-
-#: modules/comune/class-gcmi-comune-shortcode.php:119
-#: modules/comune/class-gcmi-comune-wpcf7-formtag.php:155
-#: modules/comune/class-wpforms-field-comune.php:467
-#: modules/comune/class-wpforms-field-comune.php:552
+#: modules/comune/class-gcmi-comune-shortcode.php:103
+#: modules/comune/class-gcmi-comune-wpcf7-formtag.php:138
+#: modules/comune/class-gcmi-wpforms-field-comune.php:537
+#: modules/comune/class-gcmi-wpforms-field-comune.php:624
 msgid "Select a region:"
 msgstr "Seleziona una regione:"
 
-#: modules/comune/class-gcmi-comune-shortcode.php:122
-#: modules/comune/class-gcmi-comune-wpcf7-formtag.php:158
-#: modules/comune/class-wpforms-field-comune.php:437
-#: modules/comune/class-wpforms-field-comune.php:564
+#: modules/comune/class-gcmi-comune-shortcode.php:106
+#: modules/comune/class-gcmi-comune-wpcf7-formtag.php:141
+#: modules/comune/class-gcmi-wpforms-field-comune.php:507
+#: modules/comune/class-gcmi-wpforms-field-comune.php:636
 msgid "Select a region"
 msgstr "Seleziona una regione"
 
-#: modules/comune/class-gcmi-comune-shortcode.php:130
-#: modules/comune/class-gcmi-comune-wpcf7-formtag.php:166
-#: modules/comune/class-wpforms-field-comune.php:476
-#: modules/comune/class-wpforms-field-comune.php:572
+#: modules/comune/class-gcmi-comune-shortcode.php:114
+#: modules/comune/class-gcmi-comune-wpcf7-formtag.php:149
+#: modules/comune/class-gcmi-wpforms-field-comune.php:546
+#: modules/comune/class-gcmi-wpforms-field-comune.php:644
 msgid "Select a province:"
 msgstr "Seleziona una provincia:"
 
-#: modules/comune/class-gcmi-comune-shortcode.php:133
-#: modules/comune/class-gcmi-comune-wpcf7-formtag.php:169
-#: modules/comune/class-gcmi-comune.php:352
-#: modules/comune/class-wpforms-field-comune.php:442
-#: modules/comune/class-wpforms-field-comune.php:584
+#: modules/comune/class-gcmi-comune-shortcode.php:117
+#: modules/comune/class-gcmi-comune-wpcf7-formtag.php:152
+#: modules/comune/class-gcmi-comune.php:448
+#: modules/comune/class-gcmi-wpforms-field-comune.php:512
+#: modules/comune/class-gcmi-wpforms-field-comune.php:656
 msgid "Select a province"
 msgstr "Seleziona una provincia"
 
-#: modules/comune/class-gcmi-comune-shortcode.php:138
-#: modules/comune/class-gcmi-comune-wpcf7-formtag.php:174
-#: modules/comune/class-wpforms-field-comune.php:485
-#: modules/comune/class-wpforms-field-comune.php:589
+#: modules/comune/class-gcmi-comune-shortcode.php:122
+#: modules/comune/class-gcmi-comune-wpcf7-formtag.php:157
+#: modules/comune/class-gcmi-wpforms-field-comune.php:555
+#: modules/comune/class-gcmi-wpforms-field-comune.php:661
 msgid "Select a municipality:"
 msgstr "Seleziona un comune:"
 
-#: modules/comune/class-gcmi-comune-shortcode.php:141
-#: modules/comune/class-gcmi-comune-wpcf7-formtag.php:186
-#: modules/comune/class-gcmi-comune.php:373
-#: modules/comune/class-gcmi-comune.php:447
-#: modules/comune/class-wpforms-field-comune.php:447
-#: modules/comune/class-wpforms-field-comune.php:618
+#: modules/comune/class-gcmi-comune-shortcode.php:125
+#: modules/comune/class-gcmi-comune-wpcf7-formtag.php:169
+#: modules/comune/class-gcmi-comune.php:464
+#: modules/comune/class-gcmi-comune.php:584
+#: modules/comune/class-gcmi-wpforms-field-comune.php:517
+#: modules/comune/class-gcmi-wpforms-field-comune.php:690
 msgid "Select a municipality"
 msgstr "Seleziona un comune"
 
-#: modules/comune/class-gcmi-comune-shortcode.php:157
-#: modules/comune/class-gcmi-comune-wpcf7-formtag.php:204
-#: modules/comune/class-wpforms-field-comune.php:634
+#: modules/comune/class-gcmi-comune-shortcode.php:142
+#: modules/comune/class-gcmi-comune-wpcf7-formtag.php:188
+#: modules/comune/class-gcmi-wpforms-field-comune.php:707
+#: modules/comune/js/ajax.js:340
 msgid "Municipality details"
 msgstr "Dettagli comune"
 
-#: modules/comune/class-gcmi-comune.php:17
-msgid " - (abol.)"
-msgstr " - (sopp.)"
+#: modules/comune/class-gcmi-comune.php:70
+msgid "_ Abolished municipalities"
+msgstr "_Comuni soppressi"
 
-#. translators: put a string matching the local date format to be used in SQL
-#. (https:dev.mysql.com/doc/refman/8.0/en/date-and-time-functions.html#function_date-format)
-#: modules/comune/class-gcmi-comune.php:565
+#: modules/comune/class-gcmi-comune.php:71
+msgid "_ Istria and Dalmatia"
+msgstr "_Istria e Dalmazia"
+
+#. translators: A string definig a local date format for mysql; see: https://dev.mysql.com/doc/refman/8.0/en/date-and-time-functions.html#function_date-format .
+#: modules/comune/class-gcmi-comune.php:808
+#: modules/comune/class-gcmi-comune.php:874
 msgid "%m/%d/%Y"
 msgstr "%d/%m/%Y"
 
-#: modules/comune/class-gcmi-comune.php:596
+#: modules/comune/class-gcmi-comune.php:917
 msgid "Municipality name:"
 msgstr "Denominazione comune:"
 
-#: modules/comune/class-gcmi-comune.php:603
+#: modules/comune/class-gcmi-comune.php:925
 msgid "Year in which the municipality was abolished:"
 msgstr "Anno in cui il Comune è stato abolito:"
 
-#: modules/comune/class-gcmi-comune.php:607
+#: modules/comune/class-gcmi-comune.php:930
 msgid "Date of change:"
 msgstr "Data della modifica:"
 
-#: modules/comune/class-gcmi-comune.php:612
+#: modules/comune/class-gcmi-comune.php:935
 msgid "Istat code:"
 msgstr "Codice Istat:"
 
-#: modules/comune/class-gcmi-comune.php:617
+#: modules/comune/class-gcmi-comune.php:941
 msgid "Municipality Italian name:"
 msgstr "Denominazione italiana del comune:"
 
-#: modules/comune/class-gcmi-comune.php:621
+#: modules/comune/class-gcmi-comune.php:947
 msgid "Other language Municipality name:"
 msgstr "Denominazione altra lingua:"
 
-#: modules/comune/class-gcmi-comune.php:626
+#: modules/comune/class-gcmi-comune.php:953
 msgid "Geographical area:"
 msgstr "Ripartizione geografica:"
 
-#: modules/comune/class-gcmi-comune.php:630
+#: modules/comune/class-gcmi-comune.php:957
 msgid "Region name:"
 msgstr "Denominazione regione:"
 
-#: modules/comune/class-gcmi-comune.php:635
+#: modules/comune/class-gcmi-comune.php:962
 msgid "Type of the supra-municipal territorial unit:"
 msgstr "Tipologia di unità territoriale sovracomunale:"
 
-#: modules/comune/class-gcmi-comune.php:639
+#: modules/comune/class-gcmi-comune.php:966
 msgid "Province"
 msgstr "Provincia"
 
-#: modules/comune/class-gcmi-comune.php:642
+#: modules/comune/class-gcmi-comune.php:969
 msgid "Autonomous province"
 msgstr "Provincia autonoma"
 
-#: modules/comune/class-gcmi-comune.php:645
+#: modules/comune/class-gcmi-comune.php:972
 msgid "Metropolitan City"
 msgstr "Città metropolitana"
 
-#: modules/comune/class-gcmi-comune.php:648
+#: modules/comune/class-gcmi-comune.php:975
 msgid "Free consortium of municipalities"
 msgstr "Libero consorzio di comuni"
 
-#: modules/comune/class-gcmi-comune.php:651
+#: modules/comune/class-gcmi-comune.php:978
 msgid "Non administrative unit"
 msgstr "Unità non amministrativa"
 
-#: modules/comune/class-gcmi-comune.php:657
-msgid ""
-"Name of the supra-municipal territorial unit (valid for statistical "
-"purposes):"
-msgstr ""
-"Denominazione dell'unità territoriale sovracomunale (valida a fini "
-"statistici):"
+#: modules/comune/class-gcmi-comune.php:984
+msgid "Name of the supra-municipal territorial unit (valid for statistical purposes):"
+msgstr "Denominazione dell'unità territoriale sovracomunale (valida a fini statistici):"
 
-#: modules/comune/class-gcmi-comune.php:676
+#: modules/comune/class-gcmi-comune.php:1003
 msgid "Automotive abbreviation:"
 msgstr "Sigla automobilistica:"
 
-#: modules/comune/class-gcmi-comune.php:682
+#: modules/comune/class-gcmi-comune.php:1009
 msgid "Municipality deleted for spin-off:"
 msgstr "Comune cancellato per scorporo:"
 
-#: modules/comune/class-gcmi-comune.php:684
+#: modules/comune/class-gcmi-comune.php:1012
 msgid "Yes"
 msgstr "Sì"
 
-#: modules/comune/class-gcmi-comune.php:684
-#: modules/comune/class-gcmi-comune.php:697
+#: modules/comune/class-gcmi-comune.php:1012
+#: modules/comune/class-gcmi-comune.php:1028
 msgid "No"
 msgstr "No"
 
-#: modules/comune/class-gcmi-comune.php:687
-#: modules/comune/class-gcmi-comune.php:776
+#: modules/comune/class-gcmi-comune.php:1017
+#: modules/comune/class-gcmi-comune.php:1100
 msgid "Name of the municipality associated with the change or new name:"
-msgstr ""
-"Denominazione del comune associato alla variazione o nuova denominazione:"
+msgstr "Denominazione del comune associato alla variazione o nuova denominazione:"
 
-#: modules/comune/class-gcmi-comune.php:695
+#: modules/comune/class-gcmi-comune.php:1026
 msgid "Is Capital City:"
 msgstr "È il capoluogo:"
 
-#: modules/comune/class-gcmi-comune.php:697
+#: modules/comune/class-gcmi-comune.php:1028
 msgid "Capital City"
 msgstr "Comune capoluogo"
 
-#: modules/comune/class-gcmi-comune.php:701
+#: modules/comune/class-gcmi-comune.php:1033
 msgid "Cadastral code of the municipality:"
 msgstr "Codice catastale del comune:"
 
-#: modules/comune/class-gcmi-comune.php:721
+#: modules/comune/class-gcmi-comune.php:1045
 msgid "Year"
 msgstr "Anno"
 
-#: modules/comune/class-gcmi-comune.php:722
+#: modules/comune/class-gcmi-comune.php:1046
 msgid "Variation type"
 msgstr "Tipo variazione"
 
-#: modules/comune/class-gcmi-comune.php:723
+#: modules/comune/class-gcmi-comune.php:1047
 msgid "Territorial administrative variation from 1st January 1991"
 msgstr "Variazione amministrative territoriali dal 1 gennaio 1991"
 
-#: modules/comune/class-gcmi-comune.php:728
+#: modules/comune/class-gcmi-comune.php:1052
 msgid "CS: Establishment of a municipality"
 msgstr "CS: Costituzione di un comune"
 
-#: modules/comune/class-gcmi-comune.php:731
+#: modules/comune/class-gcmi-comune.php:1055
 msgid "ES: Extinction of a municipality"
 msgstr "ES: Estinzione di un comune"
 
-#: modules/comune/class-gcmi-comune.php:734
+#: modules/comune/class-gcmi-comune.php:1058
 msgid "CD: Change of name of the municipality"
 msgstr "CD: Cambio denominazione del comune"
 
-#: modules/comune/class-gcmi-comune.php:737
-msgid ""
-"AQES: Incorporation of the territory of one or more suppressed "
-"municipalities. The variation has no effect on the code of the municipality "
-"that incorporates"
-msgstr ""
-"AQES: Incorporazione del territorio in uno o più comuni soppressi. La "
-"variazione non ha effetti sul codice del comune incorporante"
+#: modules/comune/class-gcmi-comune.php:1061
+msgid "AQES: Incorporation of the territory of one or more suppressed municipalities. The variation has no effect on the code of the municipality that incorporates"
+msgstr "AQES: Incorporazione del territorio in uno o più comuni soppressi. La variazione non ha effetti sul codice del comune incorporante"
 
-#: modules/comune/class-gcmi-comune.php:740
+#: modules/comune/class-gcmi-comune.php:1064
 msgid "AQ: Territory acquisition"
 msgstr "AQ: Acquisizione di territorio"
 
-#: modules/comune/class-gcmi-comune.php:743
+#: modules/comune/class-gcmi-comune.php:1067
 msgid "CE: Land transfer"
 msgstr "CE: Cessione di territorio"
 
-#: modules/comune/class-gcmi-comune.php:746
-msgid ""
-"CECS: Transfer of one or more portions of territory against the "
-"establishment of a new unit. The change has no effect on the code of the "
-"municipality that gives territory"
-msgstr ""
-"CECS: Trasferimento di una o più porzioni di territorio a fronte della "
-"creazione di una nuova unità. La variazione non ha effetti sul codice del "
-"comune che cede territorio"
+#: modules/comune/class-gcmi-comune.php:1070
+msgid "CECS: Transfer of one or more portions of territory against the establishment of a new unit. The change has no effect on the code of the municipality that gives territory"
+msgstr "CECS: Trasferimento di una o più porzioni di territorio a fronte della creazione di una nuova unità. La variazione non ha effetti sul codice del comune che cede territorio"
 
-#: modules/comune/class-gcmi-comune.php:749
-msgid ""
-"AP: Change of belonging to the hierarchically superior administrative unit "
-"(typically, a change of province and or region)."
-msgstr ""
-"AP: Cambio di appartenenza alla unit&agrave; amministrativa gerarchicamente "
-"superiore (tipicamente, un cambio di provincia e o regione)."
+#: modules/comune/class-gcmi-comune.php:1073
+msgid "AP: Change of belonging to the hierarchically superior administrative unit (typically, a change of province and or region)."
+msgstr "AP: Cambio di appartenenza alla unit&agrave; amministrativa gerarchicamente superiore (tipicamente, un cambio di provincia e o regione)."
 
-#: modules/comune/class-gcmi-comune.php:758
-msgid ""
-"Istat code of the municipality. For changes of province and / or region (AP) "
-"membership, the code is the one prior to the validity date of the provision:"
-msgstr ""
-"Codice Istat del comune. Per cambi di appartenenza provincia e/o regione "
-"(AP), il codice &egrave; quello antecendente alla data di validit&agrave; "
-"del provvedimento:"
+#: modules/comune/class-gcmi-comune.php:1082
+msgid "Istat code of the municipality. For changes of province and / or region (AP) membership, the code is the one prior to the validity date of the provision:"
+msgstr "Codice Istat del comune. Per cambi di appartenenza provincia e/o regione (AP), il codice &egrave; quello antecendente alla data di validit&agrave; del provvedimento:"
 
-#: modules/comune/class-gcmi-comune.php:764
+#: modules/comune/class-gcmi-comune.php:1088
 msgid "Official name of the municipality on the date of the event:"
 msgstr "Denominazione ufficiale del comune alla data dell'evento:"
 
-#: modules/comune/class-gcmi-comune.php:770
-msgid ""
-"Istat code of the municipality associated with the change or new Istat code "
-"of the municipality:"
-msgstr ""
-"Codice Istat del comune associato alla variazione o nuovo codice Istat del "
-"comune:"
+#: modules/comune/class-gcmi-comune.php:1094
+msgid "Istat code of the municipality associated with the change or new Istat code of the municipality:"
+msgstr "Codice Istat del comune associato alla variazione o nuovo codice Istat del comune:"
 
-#: modules/comune/class-gcmi-comune.php:782
+#: modules/comune/class-gcmi-comune.php:1106
 msgid "Act and Document:"
 msgstr "Provvedimento e documento:"
 
-#: modules/comune/class-gcmi-comune.php:788
+#: modules/comune/class-gcmi-comune.php:1112
 msgid "Content of the act:"
 msgstr "Contenuto del provvedimento:"
 
-#: modules/comune/class-gcmi-comune.php:794
+#: modules/comune/class-gcmi-comune.php:1118
 msgid "Administrative validity effective date:"
 msgstr "Data decorrenza validità amministrativa:"
 
-#: modules/comune/class-gcmi-comune.php:801
+#: modules/comune/class-gcmi-comune.php:1125
 msgid "Note: "
 msgstr "Nota: "
 
-#: modules/comune/class-gcmi-comune.php:804
+#: modules/comune/class-gcmi-comune.php:1128
 msgid "Territorial variations with population shift"
 msgstr "Variazioni territoriali con spostamento di popolazione"
 
-#: modules/comune/class-gcmi-comune.php:807
-msgid ""
-"Territorial variations with ascertainment of the number of transferred "
-"inhabitants (inhabitants surveyed as of 9 October 2011)"
-msgstr ""
-"Variazioni territoriali con accertamento del numero di abitanti trasferiti "
-"(abitanti rilevati al 9 ottobre 2011)"
+#: modules/comune/class-gcmi-comune.php:1131
+msgid "Territorial variations with ascertainment of the number of transferred inhabitants (inhabitants surveyed as of 9 October 2011)"
+msgstr "Variazioni territoriali con accertamento del numero di abitanti trasferiti (abitanti rilevati al 9 ottobre 2011)"
 
-#: modules/comune/class-gcmi-comune.php:810
+#: modules/comune/class-gcmi-comune.php:1134
 msgid "Variation suspended due to appeal"
 msgstr "Variazione sospesa a seguito di ricorso"
 
-#: modules/comune/class-gcmi-comune.php:813
+#: modules/comune/class-gcmi-comune.php:1137
 msgid "Variation canceled by judgment of an appeal"
 msgstr "Variazione annullata a seguito di un ricorso"
 
-#: modules/comune/class-wpforms-field-comune.php:57
+#: modules/comune/class-gcmi-wpforms-field-comune.php:57
 msgid "Municipality"
 msgstr "Comune"
 
-#: modules/comune/class-wpforms-field-comune.php:182
+#: modules/comune/class-gcmi-wpforms-field-comune.php:185
 msgid "Choose which municipalities to show."
 msgstr "Scegli quali comuni mostrare."
 
-#: modules/comune/class-wpforms-field-comune.php:189
-#: modules/comune/wpcf7-comune-formtag.php:148
-#: modules/comune/wpcf7-comune-formtag.php:151
+#: modules/comune/class-gcmi-wpforms-field-comune.php:192
+#: modules/comune/wpcf7-comune-formtag.php:170
+#: modules/comune/wpcf7-comune-formtag.php:173
 msgid "Type (default \"Every: current and deleted\")"
 msgstr "Tipo (predefinito \"Tutti: attuali e soppressi\")"
 
-#: modules/comune/class-wpforms-field-comune.php:201
-#: modules/comune/wpcf7-comune-formtag.php:152
+#: modules/comune/class-gcmi-wpforms-field-comune.php:204
+#: modules/comune/wpcf7-comune-formtag.php:174
 msgid "every"
 msgstr "tutti"
 
-#: modules/comune/class-wpforms-field-comune.php:202
-#: modules/comune/wpcf7-comune-formtag.php:153
+#: modules/comune/class-gcmi-wpforms-field-comune.php:205
+#: modules/comune/wpcf7-comune-formtag.php:175
 msgid "only current"
 msgstr "solo attuali"
 
-#: modules/comune/class-wpforms-field-comune.php:203
-#: modules/comune/wpcf7-comune-formtag.php:154
+#: modules/comune/class-gcmi-wpforms-field-comune.php:206
+#: modules/comune/wpcf7-comune-formtag.php:176
 msgid "highlights deleted"
 msgstr "in evidenza i soppressi"
 
-#: modules/comune/class-wpforms-field-comune.php:219
-msgid ""
-"Check this option to show an icon to render a table with municipality "
-"details."
-msgstr ""
-"Mostra un'icona per visualizzare una tabella con i dettagli del comune."
+#: modules/comune/class-gcmi-wpforms-field-comune.php:222
+msgid "Leave empty for an unfiltered field, or digit a filtername to limit selectable municipalities."
+msgstr "Lasciare vuoto per un campo non filtrato o digitare un nome di filtro per limitare i comuni selezionabili."
 
-#: modules/comune/class-wpforms-field-comune.php:226
-#: modules/comune/wpcf7-comune-formtag.php:159
-#: modules/comune/wpcf7-comune-formtag.php:162
-#: modules/comune/wpcf7-comune-formtag.php:163
+#: modules/comune/class-gcmi-wpforms-field-comune.php:228
+#: modules/comune/wpcf7-comune-formtag.php:181
+msgid "Filter name (leave empty for an unfiltered field)"
+msgstr "Nome del filtro (lasciare vuoto per un campo non filtrato)"
+
+#: modules/comune/class-gcmi-wpforms-field-comune.php:289
+msgid "Check this option to show an icon to render a table with municipality details."
+msgstr "Mostra un'icona per visualizzare una tabella con i dettagli del comune."
+
+#: modules/comune/class-gcmi-wpforms-field-comune.php:296
+#: modules/comune/wpcf7-comune-formtag.php:195
+#: modules/comune/wpcf7-comune-formtag.php:198
+#: modules/comune/wpcf7-comune-formtag.php:199
 msgid "Show details"
 msgstr "Mostra dettagli"
 
-#: modules/comune/class-wpforms-field-comune.php:249
-#: modules/comune/wpcf7-comune-formtag.php:145
-msgid ""
-"Municipality's ISTAT Code (6 digits) or Italian Municipality's full "
-"denomination (case sensitive)."
-msgstr ""
-"Il codice ISTAT del comune (6 cifre) o la denominazione completa del comune "
-"(case sensitive)."
+#: modules/comune/class-gcmi-wpforms-field-comune.php:318
+#: modules/stato/class-gcmi-wpforms-field-stato.php:346
+msgid "Default value"
+msgstr "Valore predefinito"
 
-#: modules/comune/class-wpforms-field-comune.php:301
-#: modules/stato/class-wpforms-field-stato.php:395
-msgid "Style"
-msgstr "Stile"
+#: modules/comune/class-gcmi-wpforms-field-comune.php:319
+#: modules/comune/wpcf7-comune-formtag.php:167
+msgid "Municipality's ISTAT Code (6 digits) or Italian Municipality's full denomination (case sensitive)."
+msgstr "Il codice ISTAT del comune (6 cifre) o la denominazione completa del comune (case sensitive)."
 
-#: modules/comune/class-wpforms-field-comune.php:302
-#: modules/stato/class-wpforms-field-stato.php:396
-msgid ""
-"Classic style is the default one generated by your browser. Modern has a "
-"fresh look and displays all selected options in a single row."
-msgstr ""
-"Lo stile classico è quello predefinito generato dal browser. Lo stile "
-"moderno ha un look più fresco e mostra tutte le opzioni selezionate in una "
-"singola riga."
-
-#: modules/comune/class-wpforms-field-comune.php:314
-#: modules/stato/class-wpforms-field-stato.php:408
-msgid "Classic"
-msgstr "Classico"
-
-#: modules/comune/class-wpforms-field-comune.php:315
-#: modules/stato/class-wpforms-field-stato.php:409
-msgid "Modern"
-msgstr "Moderno"
-
-#: modules/comune/class-wpforms-field-comune.php:335
-#: modules/comune/wpcf7-comune-formtag.php:164
+#: modules/comune/class-gcmi-wpforms-field-comune.php:405
 msgid "Wrap each item with label element"
 msgstr "Racchiudi ogni elemento in un'etichetta"
 
-#: modules/comune/class-wpforms-field-comune.php:342
+#: modules/comune/class-gcmi-wpforms-field-comune.php:412
 msgid "Show labels for each select"
 msgstr "Mostra le etichette per ciascuna select"
 
-#: modules/comune/class-wpforms-field-comune.php:370
-#: modules/comune/wpcf7-comune-formtag.php:173
+#: modules/comune/class-gcmi-wpforms-field-comune.php:440
+#: modules/comune/wpcf7-comune-formtag.php:217
 msgid "Wrapper class attribute"
 msgstr "Attributo class del wrapper"
 
-#: modules/comune/class-wpforms-field-comune.php:371
+#: modules/comune/class-gcmi-wpforms-field-comune.php:441
 msgid "Add a custom class to the <span> element wrapping the three selects."
-msgstr ""
-"Aggiungi una classe personalizzata all'elemento <span> che avvolge le tre "
-"selezioni."
+msgstr "Aggiungi una classe personalizzata all'elemento <span> che avvolge le tre selezioni."
 
-#: modules/comune/wpcf7-comune-formtag.php:95
-#: modules/comune/wpcf7-comune-formtag.php:97
-msgid "Select Italian municipality"
-msgstr "Seleziona un comune italiano"
+#: modules/comune/wpcf7-comune-formtag.php:105
+#: modules/comune/wpcf7-comune-formtag.php:107
+msgid "Italian municipality"
+msgstr "Comune Italiano"
 
-#. translators: %s: link to plugin page URL
-#: modules/comune/wpcf7-comune-formtag.php:111
-msgid ""
-"Creates a tag for a concatenated selection of an Italian municipality. To "
-"get more information look at %s."
-msgstr ""
-"Genera un tag per una selezione concatenata di un comune italiano. Per "
-"maggiori dettagli, guarda %s."
+#. translators: %s: link to plugin page URL.
+#: modules/comune/wpcf7-comune-formtag.php:121
+msgid "Creates a tag for a concatenated selection of an Italian municipality. To get more information look at %s."
+msgstr "Genera un tag per una selezione concatenata di un comune italiano. Per maggiori dettagli, guarda %s."
 
-#: modules/comune/wpcf7-comune-formtag.php:177
+#: modules/comune/wpcf7-comune-formtag.php:204
+#: modules/comune/wpcf7-comune-formtag.php:207
+msgid "Use labels"
+msgstr "Usa le etichette"
+
+#: modules/comune/wpcf7-comune-formtag.php:221
 msgid "Select class attribute"
 msgstr "Attributo class delle select"
 
-#: modules/formsign/wpcf7-formsign-formtag.php:115
+#: modules/formsign/wpcf7-formsign-formtag.php:119
 msgid "Impossible to generate a key pair for the form"
 msgstr "Impossibile generare una coppia di chiavi per il form"
 
-#: modules/formsign/wpcf7-formsign-formtag.php:129
+#: modules/formsign/wpcf7-formsign-formtag.php:133
 msgid "Impossible to get new generated public key"
 msgstr "Impossibile recuperare la chiave pubblica generata"
 
-#: modules/formsign/wpcf7-formsign-formtag.php:199
+#: modules/formsign/wpcf7-formsign-formtag.php:216
 msgid "Hash"
 msgstr "Hash"
 
-#: modules/formsign/wpcf7-formsign-formtag.php:201
+#: modules/formsign/wpcf7-formsign-formtag.php:218
 msgid "Signature"
 msgstr "Firma"
 
-#: modules/formsign/wpcf7-formsign-formtag.php:251
+#: modules/formsign/wpcf7-formsign-formtag.php:268
 msgid "Check signature and hash"
 msgstr "Controlla firma ed hash"
 
-#: modules/formsign/wpcf7-formsign-formtag.php:286
+#: modules/formsign/wpcf7-formsign-formtag.php:303
 msgid "Insert/Paste hash from mail"
 msgstr "Inserisci/Incolla l'hash dall'email"
 
-#: modules/formsign/wpcf7-formsign-formtag.php:287
+#: modules/formsign/wpcf7-formsign-formtag.php:304
 msgid "Insert/Paste signature from mail"
 msgstr "Inserisci/Incolla la firma digitale dall'email"
 
-#: modules/formsign/wpcf7-formsign-formtag.php:291
+#: modules/formsign/wpcf7-formsign-formtag.php:308
 msgid "Check Hash and signature"
 msgstr "Controlla l'hash e la firma digitale"
 
-#: modules/formsign/wpcf7-formsign-formtag.php:295
+#: modules/formsign/wpcf7-formsign-formtag.php:312
 msgid "Impossible to retrieve form ID for this message"
 msgstr "Impossibile recuperare l'ID del modulo per questo messaggio"
 
-#: modules/stato/class-wpforms-field-stato.php:56
+#: modules/stato/class-gcmi-wpforms-field-stato.php:56
 msgid "Country"
 msgstr "Paese"
 
-#: modules/stato/class-wpforms-field-stato.php:289
+#: modules/stato/class-gcmi-wpforms-field-stato.php:289
 msgid "Check this option to split States for continents."
 msgstr "Dividi gli stati per continenti."
 
-#: modules/stato/class-wpforms-field-stato.php:296
-#: modules/stato/wpcf7-stato-formtag.php:321
+#: modules/stato/class-gcmi-wpforms-field-stato.php:296
+#: modules/stato/wpcf7-stato-formtag.php:326
 msgid "Split States for continents"
 msgstr "Dividi gli stati per continenti"
 
-#: modules/stato/class-wpforms-field-stato.php:313
+#: modules/stato/class-gcmi-wpforms-field-stato.php:315
 msgid "Check this option to show only actual States (not ceased)."
 msgstr "Solo stati attualmente esistenti (non cessati)"
 
-#: modules/stato/class-wpforms-field-stato.php:320
-#: modules/stato/wpcf7-stato-formtag.php:322
+#: modules/stato/class-gcmi-wpforms-field-stato.php:322
+#: modules/stato/wpcf7-stato-formtag.php:327
 msgid "Only actual States (not ceased)"
 msgstr "Solo stati attualmente esistenti (non cessati)"
 
-#: modules/stato/class-wpforms-field-stato.php:343
-#: modules/stato/wpcf7-stato-formtag.php:308
-msgid ""
-"Country's ISTAT Code (3 digits) or Country's Italian denomination (case "
-"sensitive)."
-msgstr ""
-"Il codice ISTAT del paese (3 cifre) o la denominazione italiana del paese "
-"(Case Sensitive)."
+#: modules/stato/class-gcmi-wpforms-field-stato.php:347
+#: modules/stato/wpcf7-stato-formtag.php:313
+msgid "Country's ISTAT Code (3 digits) or Country's Italian denomination (case sensitive)."
+msgstr "Il codice ISTAT del paese (3 cifre) o la denominazione italiana del paese (Case Sensitive)."
 
-#: modules/stato/class-wpforms-field-stato.php:687
-#: modules/stato/wpcf7-stato-formtag.php:115
-#: modules/stato/wpcf7-stato-formtag.php:318
+#: modules/stato/class-gcmi-wpforms-field-stato.php:722
+#: modules/stato/wpcf7-stato-formtag.php:114
+#: modules/stato/wpcf7-stato-formtag.php:323
 msgid "Select a Country"
 msgstr "Seleziona un paese"
 
-#: modules/stato/wpcf7-stato-formtag.php:263
-#: modules/stato/wpcf7-stato-formtag.php:265
+#: modules/stato/wpcf7-stato-formtag.php:268
+msgid "countries selection"
+msgstr "selezione Stati"
+
+#: modules/stato/wpcf7-stato-formtag.php:270
 msgid "Insert a select for Countries"
 msgstr "Inserisce un menu a discesa per i paesi"
 
 #. translators: %s is the link to plugin page URL.
-#: modules/stato/wpcf7-stato-formtag.php:284
+#: modules/stato/wpcf7-stato-formtag.php:289
 msgid "Creates a select with countries %s."
 msgstr "Crea un menu a discesa con i paesi %s."
 
-#: modules/stato/wpcf7-stato-formtag.php:311
-#: modules/stato/wpcf7-stato-formtag.php:314
-msgid "Options"
-msgstr "Opzioni"
-
-#: modules/stato/wpcf7-stato-formtag.php:317
+#: modules/stato/wpcf7-stato-formtag.php:322
 msgid "Add a first element as label saying: "
 msgstr "Aggiungi un primo elemento come etichetta con la dicitura: "
 
-#: settings.php:134
+#: settings.php:326
 msgid "Support"
 msgstr "Assistenza"
 
-#: settings.php:135
+#: settings.php:327
 msgid "Leave a review"
 msgstr "Scrivi una recensione"
 
-#. Plugin URI of the plugin/theme
-msgid "https://wordpress.org/plugins/campi-moduli-italiani/"
-msgstr "https://it.wordpress.org/plugins/campi-moduli-italiani/"
+#~ msgid "Field type"
+#~ msgstr "Tipo di campo"
 
-#. Description of the plugin/theme
-msgid ""
-"(Generator of) Fields for Italian CF7 and wpforms modules. The plugin "
-"generates specific fields for Italian forms created with Contact Form 7 and "
-"wpforms. This version makes available 4 form-tags for CF7 and 2 fields for "
-"wpforms: a cascade selection for an Italian municipality (CF7 + wpforms), a "
-"select for a state (CF7 + wpforms), an Italian tax code field with "
-"validation (CF7 only), a hidden field that allows you to digitally sign e-"
-"mails to ensure that they have been sent via the form (CF7 only). The "
-"databases are taken from the Istat and Agenzia delle entrate websites. The "
-"digital signature on the form data uses the RSA algorithm with a 4096 bit "
-"private key. <strong> Activation can take a few minutes to download the "
-"updated data and to import them into the database </strong>."
-msgstr ""
-"(Generatore di) Campi per moduli CF7 italiani. Il plugin genera campi "
-"specifici per i moduli italiani creati con Contact Form 7 e WPForms. Questa "
-"versione mette a disposizione quattro formtag per CF7 e 2 campi per wpforms: "
-"una selezione a cascata per un comune italiano (CF7 + wpforms), una "
-"selezione per uno stato (CF7 + wpforms), un campo codice fiscale italiano "
-"con convalida (solo CF7), un campo nascosto che consente di firmare "
-"digitalmente le email per assicurarsi che siano state inviate tramite il "
-"modulo (solo CF7). I database sono prelevati dai siti web dell'Istat e "
-"dell'Agenzia delle entrate. La firma digitale sui dati del modulo utilizza "
-"l'algoritmo RSA con una chiave privata a 4096 bit. <strong> L'attivazione "
-"può richiedere alcuni minuti per scaricare i dati aggiornati e importarli "
-"nel database </strong>."
+#~ msgid "Required field"
+#~ msgstr "Campo obbligatorio"
 
-#. Author of the plugin/theme
-msgid "Giuseppe Foti"
-msgstr "Giuseppe Foti"
+#~ msgid "Name"
+#~ msgstr "Nome"
 
-#. Author URI of the plugin/theme
-msgid "https://bertocchi28.ddns.net/"
-msgstr "https://bertocchi28.ddns.net/"
+#~ msgid "Use this text as the placeholder of the field"
+#~ msgstr "Usa questo testo come segnaposto del campo"
+
+#~ msgid "Id attribute"
+#~ msgstr "Attributo Id"
+
+#~ msgid "Class attribute"
+#~ msgstr "Attributo class delle select"
+
+#~ msgid "Insert Tag"
+#~ msgstr "Inserisci tag"
+
+#, php-format
+#~ msgid "To use the value input through this field in a mail field, you need to insert the corresponding mail-tag (%s) into the field on the Mail tab."
+#~ msgstr "Per usare il valore inserito per questo campo nell'email, devi inserire il corrispondente mail-tag (%s) nella scheda Mail."
+
+#~ msgid "Style"
+#~ msgstr "Stile"
+
+#~ msgid "Classic style is the default one generated by your browser. Modern has a fresh look and displays all selected options in a single row."
+#~ msgstr "Lo stile classico è quello predefinito generato dal browser. Lo stile moderno ha un look più fresco e mostra tutte le opzioni selezionate in una singola riga."
+
+#~ msgid "Classic"
+#~ msgstr "Classico"
+
+#~ msgid "Modern"
+#~ msgstr "Moderno"
+
+#~ msgid "Options"
+#~ msgstr "Opzioni"
+
+#~ msgid " - (abol.)"
+#~ msgstr " - (sopp.)"
+
+#~ msgid "https://bertocchi28.ddns.net/"
+#~ msgstr "https://bertocchi28.ddns.net/"
 
 #~ msgid "Municipality's ISTAT Code (6 digits)"
 #~ msgstr "Codice ISTAT del comune (6 cifre)"
-
-#~ msgid ""
-#~ "Hash you pasted doesn't match calculated hash. This means that the hash "
-#~ "you pasted was not calculated on this form' submission."
-#~ msgstr ""
-#~ "L'hash che hai incollato non corrisponde a quello calcolato. Questo "
-#~ "significa che l'hash che hai incollato non è stato calcolato al momento "
-#~ "di invio del modulo."
-
-#~ msgid "No public key found for this form ID."
-#~ msgstr ""
-#~ "Non è stata trovata alcuna chiave pubblica per l'ID di questo modulo."
-
-#~ msgid ""
-#~ "Signature verified. The signature you pasted, matches form' certificate "
-#~ "and hash of posted values."
-#~ msgstr ""
-#~ "Firma verificata. La firma incollata corrisponde al certificato del "
-#~ "modulo e all'hash dei dati trasmessi."
-
-#~ msgid ""
-#~ "The signature is invalid. The signature you pasted doesn't match form "
-#~ "certificate and hash of posted values."
-#~ msgstr ""
-#~ "La firma non è valida. La firma che hai incollato non corrisponde al "
-#~ "certificato del modulo e all'hash dei valori inviati."
-
-#~ msgid "There is a problem in running openssl_verify function."
-#~ msgstr "C'è un problema nell'esecuzione della funzione openssl_verify."
-
-#~ msgid "Select..."
-#~ msgstr "Seleziona..."
-
-#~ msgid "Wait..."
-#~ msgstr "Attendi..."
-
-#~ msgid "Close"
-#~ msgstr "Chiudi"
 
 #~ msgid "Country's ISTAT Code (3 digits)"
 #~ msgstr "Codice ISTAT del paese (3 cifre)"

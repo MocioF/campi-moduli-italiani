@@ -51,7 +51,7 @@
 								$( '#gcmi_flamingo_input_signature' ).attr( 'aria-invalid', 'false' );
 								$( '#gcmi-flamingo-response' ).removeClass( 'error' );
 								$( '#gcmi-flamingo-response' ).addClass( 'updated' );
-								$( '#gcmi-flamingo-response' ).html( __( 'Signature verified. The signature you pasted, matches form\' certificate and hash of posted values.', 'campi-moduli-italiani' ) );
+								$( '#gcmi-flamingo-response' ).html( __( 'Signature verified. The signature you pasted, matches form\'s certificate and hash of posted values.', 'campi-moduli-italiani' ) );
 							} else if (data === 'signature_invalid') {
 								$( '#gcmi_flamingo_input_hash' ).attr( 'aria-invalid', 'false' );
 								$( '#gcmi_flamingo_input_signature' ).attr( 'aria-invalid', 'true' );

@@ -242,8 +242,8 @@ if ( is_plugin_active( 'flamingo/flamingo.php' ) && extension_loaded( 'openssl' 
 function gcmi_formsign_enqueue_flamingo_admin_script() {
 	$screen = get_current_screen();
 	if ( is_object( $screen ) ) {
-		wp_register_script( 'formsign_flamingo', plugins_url( GCMI_PLUGIN_NAME ) . '/admin/js/formsign.js', array( 'jquery', 'wp-i18n' ), GCMI_VERSION, true );
-		wp_set_script_translations( 'formsign_flamingo', 'campi-moduli-italiani', GCMI_PLUGIN_DIR . '/languages' );
+		wp_register_script( 'formsign_flamingo', plugins_url( GCMI_PLUGIN_NAME ) . '/admin/js/formsign.min.js', array( 'jquery', 'wp-i18n' ), GCMI_VERSION, true );
+		wp_set_script_translations( 'formsign_flamingo', 'campi-moduli-italiani', plugin_dir_path( GCMI_PLUGIN ) . 'languages' );
 		wp_enqueue_script( 'formsign_flamingo' );
 		wp_localize_script(
 			'formsign_flamingo',

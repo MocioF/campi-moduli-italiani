@@ -219,13 +219,13 @@ class GCMI_WPForms_Field_Comune extends WPForms_Field {
 
 		// Crea la scelta del filtro.
 		$filtername             = isset( $field['filtername'] ) ? $field['filtername'] : '';
-		$tooltip                = esc_html__( 'Leave empty for unfiltered field, or digit a filtername to limit selectable municipalities.', 'campi-moduli-italiani' );
+		$tooltip                = esc_html__( 'Leave empty for an unfiltered field, or digit a filtername to limit selectable municipalities.', 'campi-moduli-italiani' );
 		$field_filtername_label = $this->field_element(
 			'label',
 			$field,
 			array(
 				'slug'    => 'filtername',
-				'value'   => esc_html__( 'Filter name (leave empty for unfiltered field)', 'campi-moduli-italiani' ),
+				'value'   => esc_html__( 'Filter name (leave empty for an unfiltered field)', 'campi-moduli-italiani' ),
 				'tooltip' => $tooltip,
 			),
 			false

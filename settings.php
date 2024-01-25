@@ -487,3 +487,12 @@ function gcmi_multisite_delete_blog( $params ) {
 	gcmi_delete_all_views();
 	restore_current_blog();
 }
+
+/**
+ * Loads plugin textdomain.
+ */
+function gcmi_load_textdomain() {
+	load_plugin_textdomain( 'campi-moduli-italiani', false, dirname( plugin_basename( __FILE__ ) ) . '/languages' );
+}
+add_action( 'init', 'gcmi_load_textdomain' );
+add_action( 'admin_init', 'gcmi_load_textdomain' );
