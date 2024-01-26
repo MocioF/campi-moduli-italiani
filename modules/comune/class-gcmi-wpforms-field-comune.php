@@ -181,7 +181,6 @@ class GCMI_WPForms_Field_Comune extends WPForms_Field {
 		$this->field_option( 'required', $field );
 
 		// Crea la select per il tipo di campo da creare.
-		$kind    = isset( $field['kind'] ) ? $field['kind'] : 'tutti';
 		$tooltip = esc_html__( 'Choose which municipalities to show.', 'campi-moduli-italiani' );
 
 		$field_kind_label = $this->field_element(
@@ -218,7 +217,6 @@ class GCMI_WPForms_Field_Comune extends WPForms_Field {
 		);
 
 		// Crea la scelta del filtro.
-		$filtername             = isset( $field['filtername'] ) ? $field['filtername'] : '';
 		$tooltip                = esc_html__( 'Leave empty for an unfiltered field, or digit a filtername to limit selectable municipalities.', 'campi-moduli-italiani' );
 		$field_filtername_label = $this->field_element(
 			'label',
@@ -257,30 +255,22 @@ class GCMI_WPForms_Field_Comune extends WPForms_Field {
 			false
 		);
 
-		$field_filtername_datalist_open = '<datalist id="present_filternames">';
+		$field_filtername_datalist = '<datalist id="present_filternames">';
 
 		$filter_list = gcmi_get_list_filtri();
-		$arr_options = array_combine( $filter_list, $filter_list );
+		$options     = array_combine( $filter_list, $filter_list );
 
-		$field_filtername_select         = $this->field_element(
-			'select',
-			$field,
-			array(
-				'slug'    => 'filtername',
-				'value'   => ! empty( $field['filtername'] ) ? esc_attr( $field['filtername'] ) : '',
-				'options' => $arr_options,
-			),
-			false
-		);
-		$field_filtername_datalist_close = '</datalist>';
+		foreach ( $options as $arg_key => $arg_option ) {
+			$field_filtername_datalist .= sprintf( '<option value="%s">%s</option>', esc_attr( $arg_key ), $arg_option );
+		}
+		$field_filtername_datalist .= '</datalist>';
 
 		$this->field_element(
 			'row',
 			$field,
 			array(
 				'slug'    => 'filter_type',
-				'content' => $field_filtername_label . $inline_css . $field_filtername_text .
-				$field_filtername_datalist_open . $field_filtername_select . $field_filtername_datalist_close,
+				'content' => $field_filtername_label . $inline_css . $field_filtername_text . $field_filtername_datalist,
 			)
 		);
 
