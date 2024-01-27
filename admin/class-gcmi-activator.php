@@ -517,11 +517,13 @@ class GCMI_Activator {
 			) {
 				$error_code  = ( 'gcmi_data_import_error' );
 				$error_title = esc_html__( 'Error importing data into database', 'campi-moduli-italiani' );
+				$error_message  = '<h1>' . $error_title . '</h1><br>';
 				/* translators: %1$s: the data name; %2$s: the db table name. */
-				$error_message  = '<h1>' . $error_title . '</h1>' . esc_html( sprintf( __( 'Unable to import %1$s into %2$s', 'campi-moduli-italiani' ), $csv_file_path, self::$database_file_info[ $i ]['table_name'] ) );
-				$str            = htmlspecialchars( print_r( $wpdb->last_result, true ), ENT_QUOTES );
+				$error_message  .=	esc_html( sprintf( __( 'Unable to import %1$s into %2$s', 'campi-moduli-italiani' ), $csv_file_path, self::$database_file_info[ $i ]['table_name'] ) ) . '<br>';
+				$str            = htmlspecialchars( print_r( $wpdb->last_error, true ), ENT_QUOTES ) .
+									'<br>' . esc_html__( 'Last executed query:', 'campi-moduli-italiani' );
 				$query          = htmlspecialchars( $wpdb->last_query, ENT_QUOTES );
-				$error_message .= '[' . $str . '] <br/><code>' . $query . '</code>';
+				$error_message .= $str . '<br/><code>' . $query . '</code>';
 				$gcmi_error->add( $error_code, $error_message );
 				gcmi_show_error( $gcmi_error );
 				die;
@@ -651,7 +653,7 @@ class GCMI_Activator {
 	public static function make_tmp_dwld_dir() {
 		$upload_dir      = wp_upload_dir();
 		$permitted_chars = '0123456789abcdefghijklmnopqrstuvwxyz';
-		$tmp_dir         = $upload_dir['basedir'] . '/wp_gcmi_' . substr( str_shuffle( $permitted_chars ), 0, 10 ) . '/';
+		$tmp_dir         = $upload_dir['basedir'] . '/wp_gcmi_' . substr( str_shuffle( $permitted_chars ), 0, 10 );
 		if ( ! wp_mkdir_p( "$tmp_dir" ) ) {
 			return false;
 		} else {

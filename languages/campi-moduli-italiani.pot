@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2024-01-25T00:16:44+00:00\n"
+"POT-Creation-Date: 2024-01-27T17:30:41+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.8.1\n"
 "X-Domain: campi-moduli-italiani\n"
@@ -116,12 +116,24 @@ msgid "Unable to grab data from %s"
 msgstr ""
 
 #: admin/admin.php:369
-msgid "Error in inserting data into the database"
+#: admin/class-gcmi-activator.php:519
+msgid "Error importing data into database"
+msgstr ""
+
+#. translators: %1$s: the data name; %2$s: the db table name.
+#: admin/admin.php:372
+#: admin/class-gcmi-activator.php:522
+msgid "Unable to import %1$s into %2$s"
+msgstr ""
+
+#: admin/admin.php:374
+#: admin/class-gcmi-activator.php:525
+msgid "Last executed query:"
 msgstr ""
 
 #. translators: enter a format string valid for a date and time value according to the local standard using characters recognized by the php date () function (https://www.php.net/manual/en/function.date.php)
-#: admin/admin.php:423
-#: admin/admin.php:435
+#: admin/admin.php:425
+#: admin/admin.php:437
 msgid "Y/m/d g:i:s a"
 msgstr ""
 
@@ -174,63 +186,54 @@ msgstr ""
 msgid "Unable to prepare %1$s for import"
 msgstr ""
 
-#: admin/class-gcmi-activator.php:519
-msgid "Error importing data into database"
-msgstr ""
-
-#. translators: %1$s: the data name; %2$s: the db table name.
-#: admin/class-gcmi-activator.php:521
-msgid "Unable to import %1$s into %2$s"
-msgstr ""
-
-#: admin/class-gcmi-activator.php:556
+#: admin/class-gcmi-activator.php:559
 msgid "Error on network wide deactivation"
 msgstr ""
 
-#: admin/class-gcmi-activator.php:557
+#: admin/class-gcmi-activator.php:560
 msgid "Unable to deactivate the plugin network wide: the network is too big."
 msgstr ""
 
 #. translators: %s is a path to a file.
-#: admin/class-gcmi-activator.php:686
+#: admin/class-gcmi-activator.php:689
 msgid "Invalid path: %s"
 msgstr ""
 
-#: admin/class-gcmi-activator.php:727
+#: admin/class-gcmi-activator.php:730
 msgid "Unable to find wget command"
 msgstr ""
 
 #. translators: %s is the remote url of a file.
-#: admin/class-gcmi-activator.php:750
+#: admin/class-gcmi-activator.php:753
 msgid "Unable to download %s via wget"
 msgstr ""
 
-#: admin/class-gcmi-activator.php:759
+#: admin/class-gcmi-activator.php:762
 msgid "Unable to download via wget"
 msgstr ""
 
 #. translators: %s is the file name.
-#: admin/class-gcmi-activator.php:1174
+#: admin/class-gcmi-activator.php:1177
 msgid "Impossible to read the file: %s"
 msgstr ""
 
 #. translators: %s is a non existent directory.
-#: admin/class-gcmi-activator.php:1502
+#: admin/class-gcmi-activator.php:1505
 msgid "%s must be a directory"
 msgstr ""
 
 #. translators: %s is the minimum WordPress version required.
-#: admin/class-gcmi-activator.php:1796
+#: admin/class-gcmi-activator.php:1799
 msgid "Campi Moduli Italiani requires at least WordPress version %s"
 msgstr ""
 
 #. translators: %s is the minimum PHP version required.
-#: admin/class-gcmi-activator.php:1805
+#: admin/class-gcmi-activator.php:1808
 msgid "Campi Moduli Italiani requires at least PHP version %s"
 msgstr ""
 
 #. translators: %s is the name of the needed PHP extension.
-#: admin/class-gcmi-activator.php:1815
+#: admin/class-gcmi-activator.php:1818
 msgid "Campi Moduli Italiani requires PHP extension %s. Enable it on your server and then try plugin's acrivation again."
 msgstr ""
 
@@ -282,96 +285,100 @@ msgstr ""
 msgid "Add New"
 msgstr ""
 
+#: admin/includes/class-gcmi-comune-filter-builder.php:257
+msgid "Select all"
+msgstr ""
+
 #. translators: is the abbreviation for ceased or suppressed municipalities.
-#: admin/includes/class-gcmi-comune-filter-builder.php:488
+#: admin/includes/class-gcmi-comune-filter-builder.php:491
 #: modules/comune/class-gcmi-comune.php:67
 msgid "sopp."
 msgstr ""
 
-#: admin/includes/class-gcmi-comune-filter-builder.php:582
+#: admin/includes/class-gcmi-comune-filter-builder.php:585
 msgid "Filter name:"
 msgstr ""
 
-#: admin/includes/class-gcmi-comune-filter-builder.php:589
+#: admin/includes/class-gcmi-comune-filter-builder.php:592
 msgid "Save"
 msgstr ""
 
-#: admin/includes/class-gcmi-comune-filter-builder.php:594
+#: admin/includes/class-gcmi-comune-filter-builder.php:597
 msgid "Cancel"
 msgstr ""
 
-#: admin/includes/class-gcmi-comune-filter-builder.php:598
+#: admin/includes/class-gcmi-comune-filter-builder.php:601
 msgid "Please use only lowercase non accented letters, numbers, and single underscores in the middle. Limit to 20 characters."
 msgstr ""
 
-#: admin/includes/class-gcmi-comune-filter-builder.php:691
-#: admin/includes/class-gcmi-comune-filter-builder.php:695
+#: admin/includes/class-gcmi-comune-filter-builder.php:694
+#: admin/includes/class-gcmi-comune-filter-builder.php:698
 msgid "Request to store the partial filter was refused"
 msgstr ""
 
-#: admin/includes/class-gcmi-comune-filter-builder.php:704
+#: admin/includes/class-gcmi-comune-filter-builder.php:707
 msgid "Retrieved number of codes doesn't match expected"
 msgstr ""
 
-#: admin/includes/class-gcmi-comune-filter-builder.php:712
+#: admin/includes/class-gcmi-comune-filter-builder.php:715
 msgid "Error in deleting option"
 msgstr ""
 
-#: admin/includes/class-gcmi-comune-filter-builder.php:734
+#: admin/includes/class-gcmi-comune-filter-builder.php:737
 msgid "The creation of the filter failed."
 msgstr ""
 
-#: admin/includes/class-gcmi-comune-filter-builder.php:760
-#: admin/includes/class-gcmi-comune-filter-builder.php:842
-#: admin/includes/class-gcmi-comune-filter-builder.php:884
-#: admin/includes/class-gcmi-comune-filter-builder.php:917
+#: admin/includes/class-gcmi-comune-filter-builder.php:763
+#: admin/includes/class-gcmi-comune-filter-builder.php:845
+#: admin/includes/class-gcmi-comune-filter-builder.php:887
+#: admin/includes/class-gcmi-comune-filter-builder.php:920
 msgid "Received an incomplete request to create a filter."
 msgstr ""
 
-#: admin/includes/class-gcmi-comune-filter-builder.php:790
+#: admin/includes/class-gcmi-comune-filter-builder.php:793
 msgid "Request to store the partial filter not processed"
 msgstr ""
 
 #. translators: %s is the name of the temporary option.
-#: admin/includes/class-gcmi-comune-filter-builder.php:820
+#: admin/includes/class-gcmi-comune-filter-builder.php:823
 msgid "Request to store the partial filter was refused. Option name: %s"
 msgstr ""
 
-#: admin/includes/class-gcmi-comune-filter-builder.php:853
+#: admin/includes/class-gcmi-comune-filter-builder.php:856
 msgid "Received an invalid slice of codes."
 msgstr ""
 
-#: admin/includes/class-gcmi-comune-filter-builder.php:893
+#: admin/includes/class-gcmi-comune-filter-builder.php:896
 msgid "The filter name is not valid. Please use only lowercase alphanumeric characters and single underscores."
 msgstr ""
 
-#: admin/includes/class-gcmi-comune-filter-builder.php:895
+#: admin/includes/class-gcmi-comune-filter-builder.php:898
 msgid "No more than 20 characters are allowed for the filter's name."
 msgstr ""
 
-#: admin/includes/class-gcmi-comune-filter-builder.php:899
+#: admin/includes/class-gcmi-comune-filter-builder.php:902
 msgid "Unexpected value for parameter use_cessati."
 msgstr ""
 
-#: admin/includes/class-gcmi-comune-filter-builder.php:922
+#: admin/includes/class-gcmi-comune-filter-builder.php:925
 msgid "The array of the codes of the municipalities is empty."
 msgstr ""
 
-#: admin/includes/class-gcmi-comune-filter-builder.php:926
+#: admin/includes/class-gcmi-comune-filter-builder.php:929
 msgid "The array of the codes of the municipalities is invalid."
 msgstr ""
 
-#: admin/includes/class-gcmi-comune-filter-builder.php:939
+#: admin/includes/class-gcmi-comune-filter-builder.php:942
 msgid "The array with the codes of the municipalities contains incorrect values."
 msgstr ""
 
 #. translators: %s: The name of the filter for which elimination failed
-#: admin/includes/class-gcmi-comune-filter-builder.php:1236
+#: admin/includes/class-gcmi-comune-filter-builder.php:1239
 msgid "No filter name sent."
 msgstr ""
 
 #. translators: %s: The name of the filter for which elimination failed
-#: admin/includes/class-gcmi-comune-filter-builder.php:1258
+#: admin/includes/class-gcmi-comune-filter-builder.php:1261
 msgid "Impossible to eliminate the filter %s."
 msgstr ""
 
@@ -592,37 +599,37 @@ msgstr ""
 
 #: modules/comune/class-gcmi-comune-shortcode.php:103
 #: modules/comune/class-gcmi-comune-wpcf7-formtag.php:138
-#: modules/comune/class-gcmi-wpforms-field-comune.php:537
-#: modules/comune/class-gcmi-wpforms-field-comune.php:624
+#: modules/comune/class-gcmi-wpforms-field-comune.php:527
+#: modules/comune/class-gcmi-wpforms-field-comune.php:614
 msgid "Select a region:"
 msgstr ""
 
 #: modules/comune/class-gcmi-comune-shortcode.php:106
 #: modules/comune/class-gcmi-comune-wpcf7-formtag.php:141
-#: modules/comune/class-gcmi-wpforms-field-comune.php:507
-#: modules/comune/class-gcmi-wpforms-field-comune.php:636
+#: modules/comune/class-gcmi-wpforms-field-comune.php:497
+#: modules/comune/class-gcmi-wpforms-field-comune.php:626
 msgid "Select a region"
 msgstr ""
 
 #: modules/comune/class-gcmi-comune-shortcode.php:114
 #: modules/comune/class-gcmi-comune-wpcf7-formtag.php:149
-#: modules/comune/class-gcmi-wpforms-field-comune.php:546
-#: modules/comune/class-gcmi-wpforms-field-comune.php:644
+#: modules/comune/class-gcmi-wpforms-field-comune.php:536
+#: modules/comune/class-gcmi-wpforms-field-comune.php:634
 msgid "Select a province:"
 msgstr ""
 
 #: modules/comune/class-gcmi-comune-shortcode.php:117
 #: modules/comune/class-gcmi-comune-wpcf7-formtag.php:152
 #: modules/comune/class-gcmi-comune.php:448
-#: modules/comune/class-gcmi-wpforms-field-comune.php:512
-#: modules/comune/class-gcmi-wpforms-field-comune.php:656
+#: modules/comune/class-gcmi-wpforms-field-comune.php:502
+#: modules/comune/class-gcmi-wpforms-field-comune.php:646
 msgid "Select a province"
 msgstr ""
 
 #: modules/comune/class-gcmi-comune-shortcode.php:122
 #: modules/comune/class-gcmi-comune-wpcf7-formtag.php:157
-#: modules/comune/class-gcmi-wpforms-field-comune.php:555
-#: modules/comune/class-gcmi-wpforms-field-comune.php:661
+#: modules/comune/class-gcmi-wpforms-field-comune.php:545
+#: modules/comune/class-gcmi-wpforms-field-comune.php:651
 msgid "Select a municipality:"
 msgstr ""
 
@@ -630,14 +637,14 @@ msgstr ""
 #: modules/comune/class-gcmi-comune-wpcf7-formtag.php:169
 #: modules/comune/class-gcmi-comune.php:464
 #: modules/comune/class-gcmi-comune.php:584
-#: modules/comune/class-gcmi-wpforms-field-comune.php:517
-#: modules/comune/class-gcmi-wpforms-field-comune.php:690
+#: modules/comune/class-gcmi-wpforms-field-comune.php:507
+#: modules/comune/class-gcmi-wpforms-field-comune.php:680
 msgid "Select a municipality"
 msgstr ""
 
 #: modules/comune/class-gcmi-comune-shortcode.php:142
 #: modules/comune/class-gcmi-comune-wpcf7-formtag.php:188
-#: modules/comune/class-gcmi-wpforms-field-comune.php:707
+#: modules/comune/class-gcmi-wpforms-field-comune.php:697
 #: modules/comune/js/ajax.js:340
 msgid "Municipality details"
 msgstr ""
@@ -842,75 +849,75 @@ msgstr ""
 msgid "Municipality"
 msgstr ""
 
-#: modules/comune/class-gcmi-wpforms-field-comune.php:185
+#: modules/comune/class-gcmi-wpforms-field-comune.php:184
 msgid "Choose which municipalities to show."
 msgstr ""
 
-#: modules/comune/class-gcmi-wpforms-field-comune.php:192
+#: modules/comune/class-gcmi-wpforms-field-comune.php:191
 #: modules/comune/wpcf7-comune-formtag.php:170
 #: modules/comune/wpcf7-comune-formtag.php:173
 msgid "Type (default \"Every: current and deleted\")"
 msgstr ""
 
-#: modules/comune/class-gcmi-wpforms-field-comune.php:204
+#: modules/comune/class-gcmi-wpforms-field-comune.php:203
 #: modules/comune/wpcf7-comune-formtag.php:174
 msgid "every"
 msgstr ""
 
-#: modules/comune/class-gcmi-wpforms-field-comune.php:205
+#: modules/comune/class-gcmi-wpforms-field-comune.php:204
 #: modules/comune/wpcf7-comune-formtag.php:175
 msgid "only current"
 msgstr ""
 
-#: modules/comune/class-gcmi-wpforms-field-comune.php:206
+#: modules/comune/class-gcmi-wpforms-field-comune.php:205
 #: modules/comune/wpcf7-comune-formtag.php:176
 msgid "highlights deleted"
 msgstr ""
 
-#: modules/comune/class-gcmi-wpforms-field-comune.php:222
+#: modules/comune/class-gcmi-wpforms-field-comune.php:220
 msgid "Leave empty for an unfiltered field, or digit a filtername to limit selectable municipalities."
 msgstr ""
 
-#: modules/comune/class-gcmi-wpforms-field-comune.php:228
+#: modules/comune/class-gcmi-wpforms-field-comune.php:226
 #: modules/comune/wpcf7-comune-formtag.php:181
 msgid "Filter name (leave empty for an unfiltered field)"
 msgstr ""
 
-#: modules/comune/class-gcmi-wpforms-field-comune.php:289
+#: modules/comune/class-gcmi-wpforms-field-comune.php:279
 msgid "Check this option to show an icon to render a table with municipality details."
 msgstr ""
 
-#: modules/comune/class-gcmi-wpforms-field-comune.php:296
+#: modules/comune/class-gcmi-wpforms-field-comune.php:286
 #: modules/comune/wpcf7-comune-formtag.php:195
 #: modules/comune/wpcf7-comune-formtag.php:198
 #: modules/comune/wpcf7-comune-formtag.php:199
 msgid "Show details"
 msgstr ""
 
-#: modules/comune/class-gcmi-wpforms-field-comune.php:318
+#: modules/comune/class-gcmi-wpforms-field-comune.php:308
 #: modules/stato/class-gcmi-wpforms-field-stato.php:346
 msgid "Default value"
 msgstr ""
 
-#: modules/comune/class-gcmi-wpforms-field-comune.php:319
+#: modules/comune/class-gcmi-wpforms-field-comune.php:309
 #: modules/comune/wpcf7-comune-formtag.php:167
 msgid "Municipality's ISTAT Code (6 digits) or Italian Municipality's full denomination (case sensitive)."
 msgstr ""
 
-#: modules/comune/class-gcmi-wpforms-field-comune.php:405
+#: modules/comune/class-gcmi-wpforms-field-comune.php:395
 msgid "Wrap each item with label element"
 msgstr ""
 
-#: modules/comune/class-gcmi-wpforms-field-comune.php:412
+#: modules/comune/class-gcmi-wpforms-field-comune.php:402
 msgid "Show labels for each select"
 msgstr ""
 
-#: modules/comune/class-gcmi-wpforms-field-comune.php:440
+#: modules/comune/class-gcmi-wpforms-field-comune.php:430
 #: modules/comune/wpcf7-comune-formtag.php:217
 msgid "Wrapper class attribute"
 msgstr ""
 
-#: modules/comune/class-gcmi-wpforms-field-comune.php:441
+#: modules/comune/class-gcmi-wpforms-field-comune.php:431
 msgid "Add a custom class to the <span> element wrapping the three selects."
 msgstr ""
 
@@ -1119,23 +1126,23 @@ msgstr ""
 msgid "Do you want to continue?"
 msgstr ""
 
-#: admin/js/scripts.js:1234
+#: admin/js/scripts.js:1265
 msgid "Error while creating the filter"
 msgstr ""
 
-#: admin/js/scripts.js:1237
+#: admin/js/scripts.js:1268
 msgid "Data recovery error"
 msgstr ""
 
-#: admin/js/scripts.js:1240
+#: admin/js/scripts.js:1271
 msgid "Error in creating the temporary filter"
 msgstr ""
 
-#: admin/js/scripts.js:1243
+#: admin/js/scripts.js:1274
 msgid "Received a server error"
 msgstr ""
 
-#: admin/js/scripts.js:1258
+#: admin/js/scripts.js:1289
 msgid "Err: Error not defined"
 msgstr ""
 

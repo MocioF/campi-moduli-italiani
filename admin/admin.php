@@ -366,12 +366,14 @@ function gcmi_update_table( $fname ) {
 	);
 	if ( '' !== $wpdb->last_error ) { // qualcosa e' andato storto.
 		$error_code    = ( 'gcmi_data_import_error' );
-		$error_title   = __( 'Error in inserting data into the database', 'campi-moduli-italiani' );
-		$str           = htmlspecialchars( print_r( $wpdb->last_error, true ), ENT_QUOTES ) .
-						'<br>' .
-						htmlspecialchars( print_r( $wpdb->last_result, true ), ENT_QUOTES );
-		$query         = htmlspecialchars( $wpdb->last_query, ENT_QUOTES );
-		$error_message = '<h1>' . $error_title . '</h1>' . "[ $str ] <code>$query</code>";
+		$error_title   = esc_html__( 'Error importing data into database', 'campi-moduli-italiani' );
+		$error_message = '<h1>' . $error_title . '</h1><br>';
+		/* translators: %1$s: the data name; %2$s: the db table name. */
+		$error_message .= esc_html( sprintf( __( 'Unable to import %1$s into %2$s', 'campi-moduli-italiani' ), $csv_file_path, self::$database_file_info[ $i ]['table_name'] ) ) . '<br>';
+		$str            = htmlspecialchars( print_r( $wpdb->last_error, true ), ENT_QUOTES ) .
+						'<br>' . esc_html__( 'Last executed query:', 'campi-moduli-italiani' );
+		$query          = htmlspecialchars( $wpdb->last_query, ENT_QUOTES );
+		$error_message .= $str . '<br/><code>' . $query . '</code>';
 
 		// elimino la temporanea.
 		$wpdb->query(
