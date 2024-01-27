@@ -42,10 +42,15 @@
  .gcmi-fb-main-container .dummy-footer {
      flex: 0 1 40px;
 }
- .gcmi-fb-regione-container {
+ .gcmi-fb-regioni-container{
      display: grid;
      grid-template-columns: repeat( auto-fit, minmax(200px, 1fr) );
      row-gap: 12px;
+}
+.gcmi-fb-checkall-regioni-container{
+    grid-row: 1/1;
+    grid-column: 1/-1;
+    background-color: #f6f7f7;
 }
  .gcmi-fb-regione-item {
      white-space: nowrap;

@@ -246,6 +246,8 @@ jQuery(document).ready(function ($) {
     var chk = $(this);
     var codreg = $(this).attr("id").split("-").pop();
     if (false === chk.prop("checked")) {
+      // Rimuovo il check da checkall
+      $("[id='fb-gcmi-chkallreg'").removeAttr("checked");
       // disabilito le province della regione
       $("#gcmi-fb-regione-blocco-" + codreg)
         .find("input[type='checkbox'][id^=\"fb-gcmi-prov-\"]:checked")
@@ -264,6 +266,18 @@ jQuery(document).ready(function ($) {
         .find("input[type=checkbox][id^='fb-gcmi-prov-']")
         .trigger("change");
       $("#gcmi-fb-regione-blocco-" + codreg).show();
+       // metto il check a checkall se sono tutte checked
+      if (
+      $("[id='gcmi-fb-regioni-container").find(
+        "input[type=checkbox][id^=fb-gcmi-reg-]:checked"
+      ).length ===
+      $("[id='gcmi-fb-regioni-container'").find(
+        "input[type=checkbox][id^=fb-gcmi-reg-]"
+      ).length
+    ) {
+      $("[id='fb-gcmi-chkallreg").prop("checked", true);
+    }
+    
     }
   });
   // click su province
@@ -289,17 +303,17 @@ jQuery(document).ready(function ($) {
         .find("input[type=checkbox]:not(:checked)")
         .prop("checked", true);
       hideemptyletters();
-    }
-    // metto il check a checkall se sono tutte checked
-    if (
-      $("[id='gcmi-fb-regione-blocco-" + codreg + "'").find(
-        "input[type=checkbox][id^=fb-gcmi-prov-]:checked"
-      ).length ===
-      $("[id='gcmi-fb-regione-blocco-" + codreg + "'").find(
-        "input[type=checkbox][id^=fb-gcmi-prov-]"
-      ).length
-    ) {
-      $("[id='fb-gcmi-chkallpr-" + codreg + "'").prop("checked", true);
+      // metto il check a checkall se sono tutte checked
+      if (
+        $("[id='gcmi-fb-regione-blocco-" + codreg + "'").find(
+          "input[type=checkbox][id^=fb-gcmi-prov-]:checked"
+        ).length ===
+        $("[id='gcmi-fb-regione-blocco-" + codreg + "'").find(
+          "input[type=checkbox][id^=fb-gcmi-prov-]"
+        ).length
+      ) {
+        $("[id='fb-gcmi-chkallpr-" + codreg + "'").prop("checked", true);
+      }
     }
   });
   // click su un comune
@@ -319,6 +333,23 @@ jQuery(document).ready(function ($) {
       ).length
     ) {
       $("[id='fb-gcmi-chkallcom-" + letteraIniziale + "'").prop("checked", true);
+    }
+  });
+  // seleziona/deseleziona tutte le regioni
+  $(document).on("change", "input[type='checkbox'][id='fb-gcmi-chkallreg']", function () {
+    var chk = $(this);
+    if (false === chk.prop("checked")) {
+      $( "input[type='checkbox'][id^='fb-gcmi-reg-']" ).each(function () {
+        $(this)
+          .removeAttr("checked")
+          .trigger("change");
+      });
+    } else {
+      $( "input[type='checkbox'][id^='fb-gcmi-reg-']" ).each(function () {
+        $(this)
+          .prop("checked",true)
+          .trigger("change");
+      });
     }
   });
   // seleziona/deseleziona tutte le province della regione

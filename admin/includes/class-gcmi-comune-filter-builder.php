@@ -252,7 +252,10 @@ class GCMI_Comune_Filter_Builder {
 	 */
 	private static function print_regioni( $list_regioni ) {
 
-		$html = '<div class="gcmi-fb-regione-container">';
+		$html  = '<div class="gcmi-fb-regioni-container" id="gcmi-fb-regioni-container">';
+		$html .= '<div class="gcmi-fb-checkall-regioni-container"><input type="checkbox" id="fb-gcmi-chkallreg" checked>';
+		$html .= '<span class="gcmi-fb-regioni-all">' . esc_html__( 'Select all', 'campi-moduli-italiani' ) . '</span>';
+		$html .= '</div>';
 
 		foreach ( $list_regioni as $key => $regione ) {
 			$html .= '<div class="gcmi-fb-regione-item">' .
