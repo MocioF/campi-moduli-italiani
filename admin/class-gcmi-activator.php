@@ -657,7 +657,7 @@ class GCMI_Activator {
 		if ( ! wp_mkdir_p( "$tmp_dir" ) ) {
 			return false;
 		} else {
-			return $tmp_dir;
+			return $tmp_dir . '/';
 		}
 	}
 
@@ -890,18 +890,18 @@ class GCMI_Activator {
 						'i_den_unita_territoriale varchar(255) NOT NULL, ' .
 						'i_cod_tipo_unita_territoriale TINYINT(1) NOT NULL, ' .
 						'i_flag_capoluogo TINYINT(1) NOT NULL, ' .
-						'i_sigla_automobilistica varchar(10) NOT NULL, ' .
+						'i_sigla_automobilistica char(2) NOT NULL, ' .
 						'i_cod_comune_num int(6) NOT NULL, ' .
 						'i_cod_comune_num_2010_2016 int(6) NOT NULL, ' .
 						'i_cod_comune_num_2006_2009 int(6) NOT NULL, ' .
 						'i_cod_comune_num_1995_2005 int(6) NOT NULL, ' .
 						'i_cod_catastale char(4) NOT NULL, ' .
-						'i_nuts1_2010 char(3) NOT NULL, ' .
-						'i_nuts2_2010 char(4) NOT NULL, ' .
-						'i_nuts3_2010 char(5) NOT NULL, ' .
 						'i_nuts1_2021 char(3) NOT NULL, ' .
 						'i_nuts2_2021 char(4) NOT NULL, ' .
 						'i_nuts3_2021 char(5) NOT NULL, ' .
+						'i_nuts1_2024 char(3) NOT NULL, ' .
+						'i_nuts2_2024 char(4) NOT NULL, ' .
+						'i_nuts3_2024 char(5) NOT NULL, ' .
 						'PRIMARY KEY (id), ' .
 						'INDEX `i_cod_comune` (`i_cod_comune`) ' .
 						') %2$s',
@@ -917,7 +917,7 @@ class GCMI_Activator {
 						'CREATE TABLE IF NOT EXISTS %1$s ( ' .
 						'id INT(11) NOT NULL AUTO_INCREMENT, ' .
 						'i_anno_var YEAR(4) NOT NULL, ' .
-						'i_sigla_automobilistica varchar(10) NOT NULL, ' .
+						'i_sigla_automobilistica char(2) NOT NULL, ' .
 						'i_cod_unita_territoriale char(3) NOT NULL, ' .
 						'i_cod_comune char(6) NOT NULL, ' .
 						'i_denominazione_full varchar(255) NOT NULL, ' .
@@ -1138,6 +1138,20 @@ class GCMI_Activator {
 		}
 		return sprintf( '%0' . strval( $len ) . 's', $string );
 	}
+	
+	/**
+	 * Tronca le stringhe ad un numero massimo di caratteri
+	 * 
+	 * @param string $string La stringa
+	 * @param int $len Numero massimo di caratteri ammesso
+	 * @return string
+	 */
+	private static function truncate( $string, $len ) {
+		if ( $len < strlen( $string ) ) {
+			return substr( $string, 0, $len );
+		}
+		return $string;
+	}
 
 	/**
 	 * Populates a db table.
@@ -1222,18 +1236,18 @@ class GCMI_Activator {
 								'i_den_unita_territoriale' => trim( gcmi_safe_strval( $gcmi_dati_line[11] ) ),
 								'i_cod_tipo_unita_territoriale' => $gcmi_dati_line[12],
 								'i_flag_capoluogo'         => $gcmi_dati_line[13],
-								'i_sigla_automobilistica'  => trim( gcmi_safe_strval( $gcmi_dati_line[14] ) ),
+								'i_sigla_automobilistica'  => self::truncate( trim( gcmi_safe_strval( $gcmi_dati_line[14] ) ), 2),
 								'i_cod_comune_num'         => $gcmi_dati_line[15],
 								'i_cod_comune_num_2010_2016' => $gcmi_dati_line[16],
 								'i_cod_comune_num_2006_2009' => $gcmi_dati_line[17],
 								'i_cod_comune_num_1995_2005' => $gcmi_dati_line[18],
-								'i_cod_catastale'          => $gcmi_dati_line[19],
-								'i_nuts1_2010'             => $gcmi_dati_line[20],
-								'i_nuts2_2010'             => $gcmi_dati_line[21],
-								'i_nuts3_2010'             => $gcmi_dati_line[22],
-								'i_nuts1_2021'             => $gcmi_dati_line[23],
-								'i_nuts2_2021'             => $gcmi_dati_line[24],
-								'i_nuts3_2021'             => $gcmi_dati_line[25],
+								'i_cod_catastale'          => self::truncate( $gcmi_dati_line[19], 4 ),
+								'i_nuts1_2021'             => self::truncate( $gcmi_dati_line[20], 3 ),
+								'i_nuts2_2021'             => self::truncate( $gcmi_dati_line[21], 4 ),
+								'i_nuts3_2021'             => self::truncate( $gcmi_dati_line[22], 5 ),
+								'i_nuts1_2024'             => self::truncate( $gcmi_dati_line[23], 3 ),
+								'i_nuts2_2024'             => self::truncate( $gcmi_dati_line[24], 4 ),
+								'i_nuts3_2024'             => self::truncate( $gcmi_dati_line[25], 5 ),
 							),
 							array(
 								'%s',

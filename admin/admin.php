@@ -356,7 +356,7 @@ function gcmi_update_table( $fname ) {
 	}
 	$tmp_table_name = $database_file_info[ $id ]['table_name'] . '_tmp';
 	GCMI_Activator::create_db_table( $database_file_info[ $id ]['name'], $tmp_table_name );
-	$csv_file_path = $download_temp_dir . '/' . $database_file_info[ $id ]['featured_csv'];
+	$csv_file_path = $download_temp_dir . $database_file_info[ $id ]['featured_csv'];
 	GCMI_Activator::convert_file_charset( $csv_file_path, $database_file_info[ $id ]['orig_encoding'] );
 	GCMI_Activator::prepare_file( $csv_file_path );
 	GCMI_Activator::populate_db_table(
@@ -369,7 +369,7 @@ function gcmi_update_table( $fname ) {
 		$error_title   = esc_html__( 'Error importing data into database', 'campi-moduli-italiani' );
 		$error_message = '<h1>' . $error_title . '</h1><br>';
 		/* translators: %1$s: the data name; %2$s: the db table name. */
-		$error_message .= esc_html( sprintf( __( 'Unable to import %1$s into %2$s', 'campi-moduli-italiani' ), $csv_file_path, self::$database_file_info[ $i ]['table_name'] ) ) . '<br>';
+		$error_message .= esc_html( sprintf( __( 'Unable to import %1$s into %2$s', 'campi-moduli-italiani' ), $csv_file_path, GCMI_Activator::$database_file_info[ $id ]['table_name'] ) ) . '<br>';
 		$str            = htmlspecialchars( print_r( $wpdb->last_error, true ), ENT_QUOTES ) .
 						'<br>' . esc_html__( 'Last executed query:', 'campi-moduli-italiani' );
 		$query          = htmlspecialchars( $wpdb->last_query, ENT_QUOTES );

@@ -158,9 +158,10 @@ function gcmi_upgrade() {
 			return;
 	}
 	if ( version_compare( $old_ver, '2.1.5', '<' ) ) {
-		gcmi_update_db_2024();
+		gcmi_update_db_2024_1();
 	}
 	if ( version_compare( $old_ver, '2.2.0', '<' ) ) {
+		gcmi_update_db_2024_2();
 		gcmi_add_index_on_tables();
 		gcmi_create_unfiltered_views_on_plugin_update();
 	}
@@ -300,8 +301,7 @@ function gcmi_delete_all_views(): void {
  *
  * @global type $wpdb
  */
-function gcmi_update_db_2024() {
-	global $wpdb;
+function gcmi_update_db_2024_1() {
 	require_once ABSPATH . 'wp-admin/includes/upgrade.php';
 	$queries = array(
 		'ALTER TABLE ' . GCMI_TABLE_PREFIX . 'comuni_attuali RENAME COLUMN i_nuts1 to i_nuts1_2010',
@@ -314,6 +314,23 @@ function gcmi_update_db_2024() {
 	dbDelta( $queries, true );
 }
 
+/**
+ * Aggiorna la tabella comuni_attuali al formato dei dati distribuiti nel 2024
+ *
+ * @global type $wpdb
+ */
+function gcmi_update_db_2024_2() {
+	require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+	$queries = array(
+		'ALTER TABLE ' . GCMI_TABLE_PREFIX . 'comuni_attuali RENAME COLUMN i_nuts1_2021 to i_nuts1_2024',
+		'ALTER TABLE ' . GCMI_TABLE_PREFIX . 'comuni_attuali RENAME COLUMN i_nuts2_2021 to i_nuts2_2024',
+		'ALTER TABLE ' . GCMI_TABLE_PREFIX . 'comuni_attuali RENAME COLUMN i_nuts3_2021 to i_nuts3_2024',
+		'ALTER TABLE ' . GCMI_TABLE_PREFIX . 'comuni_attuali RENAME COLUMN i_nuts1_2010 to i_nuts1_2021',
+		'ALTER TABLE ' . GCMI_TABLE_PREFIX . 'comuni_attuali RENAME COLUMN i_nuts2_2010 to i_nuts2_2021',
+		'ALTER TABLE ' . GCMI_TABLE_PREFIX . 'comuni_attuali RENAME COLUMN i_nuts3_2010 to i_nuts3_2021',
+	);
+	dbDelta( $queries, true );
+}
 /**
  * Adds extra links to the plugin activation page
  *
