@@ -515,11 +515,11 @@ class GCMI_Activator {
 				self::$database_file_info[ $i ]['table_name']
 			)
 			) {
-				$error_code  = ( 'gcmi_data_import_error' );
-				$error_title = esc_html__( 'Error importing data into database', 'campi-moduli-italiani' );
-				$error_message  = '<h1>' . $error_title . '</h1><br>';
+				$error_code    = ( 'gcmi_data_import_error' );
+				$error_title   = esc_html__( 'Error importing data into database', 'campi-moduli-italiani' );
+				$error_message = '<h1>' . $error_title . '</h1><br>';
 				/* translators: %1$s: the data name; %2$s: the db table name. */
-				$error_message  .=	esc_html( sprintf( __( 'Unable to import %1$s into %2$s', 'campi-moduli-italiani' ), $csv_file_path, self::$database_file_info[ $i ]['table_name'] ) ) . '<br>';
+				$error_message .= esc_html( sprintf( __( 'Unable to import %1$s into %2$s', 'campi-moduli-italiani' ), $csv_file_path, self::$database_file_info[ $i ]['table_name'] ) ) . '<br>';
 				$str            = htmlspecialchars( print_r( $wpdb->last_error, true ), ENT_QUOTES ) .
 									'<br>' . esc_html__( 'Last executed query:', 'campi-moduli-italiani' );
 				$query          = htmlspecialchars( $wpdb->last_query, ENT_QUOTES );
@@ -1138,12 +1138,12 @@ class GCMI_Activator {
 		}
 		return sprintf( '%0' . strval( $len ) . 's', $string );
 	}
-	
+
 	/**
 	 * Tronca le stringhe ad un numero massimo di caratteri
-	 * 
-	 * @param string $string La stringa
-	 * @param int $len Numero massimo di caratteri ammesso
+	 *
+	 * @param string $string La stringa.
+	 * @param int    $len Numero massimo di caratteri ammesso.
 	 * @return string
 	 */
 	private static function truncate( $string, $len ) {
@@ -1236,18 +1236,18 @@ class GCMI_Activator {
 								'i_den_unita_territoriale' => trim( gcmi_safe_strval( $gcmi_dati_line[11] ) ),
 								'i_cod_tipo_unita_territoriale' => $gcmi_dati_line[12],
 								'i_flag_capoluogo'         => $gcmi_dati_line[13],
-								'i_sigla_automobilistica'  => self::truncate( trim( gcmi_safe_strval( $gcmi_dati_line[14] ) ), 2),
+								'i_sigla_automobilistica'  => self::truncate( trim( gcmi_safe_strval( $gcmi_dati_line[14] ) ), 2 ),
 								'i_cod_comune_num'         => $gcmi_dati_line[15],
 								'i_cod_comune_num_2010_2016' => $gcmi_dati_line[16],
 								'i_cod_comune_num_2006_2009' => $gcmi_dati_line[17],
 								'i_cod_comune_num_1995_2005' => $gcmi_dati_line[18],
-								'i_cod_catastale'          => self::truncate( $gcmi_dati_line[19], 4 ),
-								'i_nuts1_2021'             => self::truncate( $gcmi_dati_line[20], 3 ),
-								'i_nuts2_2021'             => self::truncate( $gcmi_dati_line[21], 4 ),
-								'i_nuts3_2021'             => self::truncate( $gcmi_dati_line[22], 5 ),
-								'i_nuts1_2024'             => self::truncate( $gcmi_dati_line[23], 3 ),
-								'i_nuts2_2024'             => self::truncate( $gcmi_dati_line[24], 4 ),
-								'i_nuts3_2024'             => self::truncate( $gcmi_dati_line[25], 5 ),
+								'i_cod_catastale'          => self::truncate( gcmi_safe_strval( $gcmi_dati_line[19] ), 4 ),
+								'i_nuts1_2021'             => self::truncate( gcmi_safe_strval( $gcmi_dati_line[20] ), 3 ),
+								'i_nuts2_2021'             => self::truncate( gcmi_safe_strval( $gcmi_dati_line[21] ), 4 ),
+								'i_nuts3_2021'             => self::truncate( gcmi_safe_strval( $gcmi_dati_line[22] ), 5 ),
+								'i_nuts1_2024'             => self::truncate( gcmi_safe_strval( $gcmi_dati_line[23] ), 3 ),
+								'i_nuts2_2024'             => self::truncate( gcmi_safe_strval( $gcmi_dati_line[24] ), 4 ),
+								'i_nuts3_2024'             => self::truncate( gcmi_safe_strval( $gcmi_dati_line[25] ), 5 ),
 							),
 							array(
 								'%s',
