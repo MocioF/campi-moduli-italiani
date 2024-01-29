@@ -160,7 +160,7 @@ GCMI_CF_WPCF7_FormTag::gcmi_cf_wpcf7_addfilter();
 
 /* Tag generator */
 
-add_action( 'wpcf7_admin_init', 'gcmi_wpcf7_add_tag_generator_cf', 36 );
+add_action( 'wpcf7_admin_init', 'gcmi_wpcf7_add_tag_generator_cf', 103, 0 );
 
 /**
  * Adds tag-generator for cf form-tag.

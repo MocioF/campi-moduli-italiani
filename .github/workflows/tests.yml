@@ -2,7 +2,7 @@ on:
   push:
     branches:
       - main
-      - filtro-comuni
+      - signature-formtag
   pull_request:
 
 name: Tests

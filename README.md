@@ -26,6 +26,7 @@ This plugin creates form tags for Contact Form 7 and form fields for WPForms.
 ### WPForms ###
 2 fields types are available:
 * Cascade selection of an Italian municipality (returning Istat's municipality code as value)
+  Since version 2.2.0 it is possible to create filters to limit to a list the municipalities shown by the field.
 * A field to select a state (returning Istat's country code as value)
 
 ## Data used ##
@@ -55,6 +56,7 @@ It is also possible to set the "comu_details" option, to show an icon after the 
 The value returned by the group is always the ISTAT code of the selected municipality. The corresponding mail-tag converts this value into the name of the municipality followed by the indication of the automotive code of the province.
 From version 1.1.1 hidden fields are also populated with the strings corresponding to the denomination of the region, province and municipality selected, useful for being used in plugins that directly capture the data transmitted by the form (such as "Send PDF for Contact Form 7" )
 The cascade of select can also be used outside of CF7, using the [comune] shortcode (options similar to those of the form tag for Contact Form 7).
+Since version 2.2.0 it is possible to create filters to limit to a list the municipalities shown by the field.
 
 [cf]
 `[cf]` has a manager in the CF7 form creation area that allows you to set the various options.
@@ -66,12 +68,13 @@ Specifically, it is possible to verify that the tax code corresponds with the fo
 In particular, it is possible to set the selection of only the currently existing states ("only_current" option) and it is possible to set the "use_continent" option to have the select values divided by continent. The field always returns the ISTAT code of the foreign state (code 100 for Italy). The ISTAT code is the type of data expected by [cf], for the verification of the tax code.
 
 [formsign]
-`[formsign]` DOES NOT have a manager in the CF7 form creation area.
+`[formsign]` now has a manager in the CF7 form creation area.
 To use it, simply insert the tag followed by the field name in your own form: for example [formsign firmadigitale]. This tag will create a hidden field in the form with attribute name = "firmadigitale" and no value.
-To use the code, it is also necessary to insert the [firmadigitale] field in the email or email that the form sends (it is recommended at the end of the email).
-In this way, at the end of the email will be written a two-line sequence containing:
+To use the code, it is also necessary to insert the [firmadigitale] mail-tag in the email or emails that the form sends (it is recommended at the end of the email).
+In this way, in the email body it will be written a two-lines sequence containing:
 an md5 hash of the data transmitted with the module (not of the content of any attached files)
 a digital signature of the hash.
+If you use html email, you can style the output using a wp option named: "gcmi-forsign-css" with a css as value.
 The signature is affixed by generating a pair of RSA keys, attributed to each form.
 By checking the hash and the signature, it will be possible to verify that the emails have actually been sent by the form and that the data transmitted by the user correspond to what has been registered.
 To facilitate data feedback, it is preferable to use "Flamingo" for archiving sent messages. In fact, in the Flamingo admin screen, a specific box is created that allows feedback of the hash and the digital signature entered in the email.

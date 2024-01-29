@@ -63,12 +63,13 @@ Nello specifico è possibile verificare che il codice fiscale corrisponda con lo
 In particolare, è possibile impostare la selezione dei soli stati attualmente esistenti (opzione "only_current") ed è possibile impostare l'opzione "use_continent" per avere i valori della select suddivisi per continente. Il campo restituisce sempre il codice ISTAT dello Stato estero (codice 100 per l'Italia). Il codice ISTAT è il tipo di dato atteso da [cf], per il riscontro del codice fiscale.
 
 [formsign]
-`[formsign]` _NON_ dispone di un gestore nell'area di creazione dei form CF7.
+`[formsign]` _ORA_ (v. 2.2.1) dispone di un gestore nell'area di creazione dei form CF7.
 Per utilizzarlo è sufficiente inserire nel proprio modulo il tag seguito dal nome del campo: ad esempio [formsign firmadigitale]. Questo tag, creerà nel modulo un campo hidden con attributo name="firmadigitale" e nessun valore.
-Per utilizzare il codice è anche necessario inserire nella mail o nelle mail che il form invia il campo [firmadigitale] (si consiglia al termine della mail).
-In questo modo in coda alla mail verrà inserita una sequenza di due righe contenenti:
+Per utilizzare il codice è anche necessario inserire nella mail o nelle mail che il form invia il mail-tag [firmadigitale] (si consiglia al termine della mail).
+In questo modo nella mail verrà inserita una sequenza di due righe contenenti:
 un hash md5 dei dati trasmessi con il modulo (non del contenuto dei files eventualmente allegati)
 una firma digitale dell'hash.
+Se utilizzi le mail html, puoi personalizzare lo stile delle rigne creando un'opzione di wp con il nome "gcmi-forsign-css" e il contenuto di un foglio di stile css.
 La firma viene apposta mediante la generazione di una coppia di chiavi RSA, attribuita a ciascun form.
 Mediante il riscontro dell'hash e della firma, sarà possibile verificare che le mail siano state effettivamente spedite dal form e che i dati trasmessi dall'utente corrispondano a quanto registato.
 Per agevolare il riscontro dei dati, è preferibile utilizzare "Flamingo" per l'archiviazione dei messaggi inviati. Infatti, nella schermata di admin di Flamingo viene creato uno specifico box che consente il riscontro dell'hash e della firma digitale inseriti nella mail.

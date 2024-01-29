@@ -19,7 +19,7 @@
  */
 
 if ( extension_loaded( 'openssl' ) ) {
-	add_action( 'wpcf7_init', 'gcmi_add_form_tag_formsign' );
+	add_action( 'wpcf7_init', 'gcmi_add_form_tag_formsign', 10, 0 );
 }
 
 /**
@@ -82,15 +82,83 @@ function gcmi_wpcf7_formsign_formtag_handler( $tag ) {
 	$atts['class'] = $tag->get_class_option( $class );
 	$atts['id']    = $tag->get_id_option();
 
-	$value = (string) reset( $tag->values );
-	$value = $tag->get_default_option( $value );
-
 	$atts['type'] = 'hidden';
 	$atts['name'] = $tag->name;
 	$atts         = wpcf7_format_atts( $atts );
 
 	$html = sprintf( '<input %s />', $atts );
 	return $html;
+}
+
+/**
+ * Adds the formsign tag generator in cf7 modules builder.
+ *
+ * @return void
+ */
+function gcmi_wpcf7_add_tag_generator_formsign(): void {
+	if ( class_exists( 'WPCF7_TagGenerator' ) ) {
+		$tag_generator = WPCF7_TagGenerator::get_instance();
+		$tag_generator->add( 'gcmi-formsign', __( 'form digital signature', 'campi-moduli-italiani' ), 'gcmi_wpcf7_tg_pane_formsign' );
+	} elseif ( function_exists( 'wpcf7_add_tag_generator' ) ) {
+		wpcf7_add_tag_generator( 'gcmi-comune', __( 'form digital signature', 'campi-moduli-italiani' ), 'gcmi_wpcf7_tg_pane_formsign', 'gcmi_wpcf7_tg_pane_comune' );
+	}
+}
+/* Tag generator */
+add_action( 'wpcf7_admin_init', 'gcmi_wpcf7_add_tag_generator_formsign', 104, 0 );
+
+
+/**
+ * Creates html for Contact form 7 panel
+ *
+ * @param WPCF7_ContactForm    $contact_form The form object.
+ * @param array<string>|string $args FormTag builder args.
+ * @return void
+ */
+function gcmi_wpcf7_tg_pane_formsign( $contact_form, $args = '' ): void {
+	$args = wp_parse_args( $args, array() );
+	?>
+	<div class="control-box">
+		<fieldset>
+			<legend>
+			<?php
+			// translators: %s: link to plugin page URL.
+			printf( esc_html__( 'Adds an hidden field to send a digital signature of the data sent with the form.', 'campi-moduli-italiani' ) );
+			?>
+			</legend>
+			<table class="form-table">
+				<tbody>
+					<tr><th scope="row"><label for="<?php echo esc_attr( $args['content'] . '-name' ); ?>"><?php echo esc_html__( 'Name', 'contact-form-7' ); ?></label></th>
+						<td><input type="text" name="name" class="tg-name oneline" id="<?php echo esc_attr( $args['content'] . '-name' ); ?>"></td>
+					</tr>
+					<tr>
+						<th scope="row"><label for="<?php echo esc_attr( $args['content'] . '-id' ); ?>"><?php echo esc_html__( 'Id attribute', 'contact-form-7' ); ?></label></th>
+						<td><input type="text" name="id" class="idvalue oneline option" id="<?php echo esc_attr( $args['content'] . '-id' ); ?>"></td>
+					</tr>
+					<tr>
+						<th scope="row"><label for="<?php echo esc_attr( $args['content'] . '-class' ); ?>"><?php echo esc_html__( 'Class attribute', 'contact-form-7' ); ?></label></th>
+						<td><input type="text" name="class" class="classvalue oneline option" id="<?php echo esc_attr( $args['content'] . '-class' ); ?>"></td>
+					</tr>
+				</tbody>
+			</table>
+		</fieldset>
+	</div>
+	<div class="insert-box">
+		<input type="text" name="formsign" class="tag code" readonly onfocus="this.select()">
+
+		<div class="submitbox">
+			<input type="button" class="button button-primary insert-tag" value="<?php echo esc_attr( __( 'Insert Tag', 'contact-form-7' ) ); ?>">
+		</div>
+
+		<br class="clear">
+
+		<p class="description mail-tag"><label for="<?php echo esc_attr( $args['content'] . '-mailtag' ); ?>">
+		<?php
+		// translators: %s is the name of the mail-tag.
+		printf( esc_html__( 'To use the value input through this field in a mail field, you need to insert the corresponding mail-tag (%s) into the field on the Mail tab.', 'contact-form-7' ), '<strong><span class="mail-tag"></span></strong>' );
+		?>
+		<input type="text" class="mail-tag code hidden" readonly id="<?php echo esc_attr( $args['content'] . '-mailtag' ); ?>"></label></p>
+	</div>
+	<?php
 }
 
 /**
@@ -161,7 +229,7 @@ add_filter(
 		}
 
 		$fields_senseless =
-			$contact_form->scan_form_tags( array( 'feature' => 'do-not-store' ) );
+		$contact_form->scan_form_tags( array( 'feature' => 'do-not-store' ) );
 
 		$exclude_names = array();
 
@@ -197,15 +265,76 @@ add_filter(
 		unset( $pkey );
 
 		if ( true === $html ) {
-			$rpld  = '<table>';
-			$rpld .= '<tr>';
-			$rpld .= '<th>%1$s: </th><td>%2$s</td>';
-			$rpld .= '</tr>';
-			$rpld .= '<tr>';
-			$rpld .= '<th>%3$s: </th><td>%4$s</td>';
-			$rpld .= '</tr>';
-			$rpld .= '</tr>';
-			$rpld .= '</table>';
+			$css = get_option(
+				'gcmi-formsign-css',
+				'.gcmi-formsign-container{
+				max-width: 750px;
+				overflow: scroll;
+				display: grid;
+				column-gap: 0px;
+				row-gap: 5px;
+				grid-template-columns: 1fr 4fr;
+				grid-template-rows: 1fr max-content;
+			}
+			.gcmi-formsign-hash-text{
+				background-color: #f2f2f2;
+				color: #000000;
+				grid-column-start: 1;
+				grid-column-end: 2;
+				grid-row-start: 1;
+				grid-row-end: 2;
+			}
+			.gcmi-formsign-hash-content{
+				background-color: #00819d;
+				color: #ffffff;
+				grid-column-start: 2;
+				grid-column-end: 3;
+				grid-row-start: 1;
+				grid-row-end: 2;
+			}
+			.gcmi-formsign-signature-text{
+				background-color: #f2f2f2;
+				color: #000000;
+				grid-column-start: 1;
+				grid-column-end: 2;
+				grid-row-start: 2;
+				grid-row-end: 3;
+			}
+			.gcmi-formsign-signature-content{
+				background-color: #00819d;
+				color: #ffffff;
+				grid-column-start: 2;
+				grid-column-end: 3;
+				grid-row-start: 2;
+				grid-row-end: 3;
+				overflow-wrap: break-word;
+			}
+			.gcmi-formsign-hash-text p,
+			.gcmi-formsign-hash-content p,
+			.gcmi-formsign-signature-text p,
+			.gcmi-formsign-signature-content p{
+				margin: 0px;
+				padding: 5px 5px;
+			}'
+			);
+			if ( is_string( $css ) ) {
+				// simple minification.
+				$css = preg_replace( '/\/\*((?!\*\/).)*\*\//', '', $css ); // negative look ahead.
+				$css = is_null( $css ) ? '' : preg_replace( '/\s{2,}/', ' ', $css );
+				$css = is_null( $css ) ? '' : preg_replace( '/\s*([:;{}])\s*/', '$1', $css );
+				$css = is_null( $css ) ? '' : preg_replace( '/;}/', '}', $css );
+
+				$rpld = '<style>' . esc_html( gcmi_safe_strval( $css ) ) . '</style>';
+			} else {
+				$rpld = '';
+			}
+			$rpld .= '<!-- override styles using a site option: gcmi-formsign-css -->';
+			$rpld .= '<div class="gcmi-formsign-container">';
+			$rpld .= '<div class="gcmi-formsign-hash-text">%1$s:</div>';
+			$rpld .= '<div class="gcmi-formsign-hash-content">%2$s</div>';
+			$rpld .= '<div class="gcmi-formsign-signature-text">%3$s:</div>';
+			$rpld .= '<div class="gcmi-formsign-signature-content">%4$s</div>';
+			$rpld .= '</div>';
 		} else {
 			$rpld  = '%1$s: %2$s' . "\n";
 			$rpld .= '%3$s: %4$s' . "\n";

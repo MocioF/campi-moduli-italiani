@@ -252,7 +252,7 @@ add_filter(
 
 
 /* Tag generator */
-add_action( 'wpcf7_admin_init', 'gcmi_wpcf7_add_tag_generator_stato', 37 );
+add_action( 'wpcf7_admin_init', 'gcmi_wpcf7_add_tag_generator_stato', 102, 0 );
 
 /**
  * Adds tag-generator for stato form-tag.

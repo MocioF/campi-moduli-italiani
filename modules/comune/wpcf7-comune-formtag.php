@@ -92,7 +92,7 @@ GCMI_COMUNE_WPCF7_FormTag::gcmi_comune_WPCF7_addfilter();
 
 
 /* Tag generator */
-add_action( 'wpcf7_admin_init', 'gcmi_wpcf7_add_tag_generator_comune', 35 );
+add_action( 'wpcf7_admin_init', 'gcmi_wpcf7_add_tag_generator_comune', 101, 0 );
 
 /**
  * Adds the comune form tag generator in cf7 modules builder.

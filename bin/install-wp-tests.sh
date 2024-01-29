@@ -16,6 +16,9 @@ TMPDIR=${TMPDIR-/tmp}
 TMPDIR=$(echo $TMPDIR | sed -e "s/\/$//")
 WP_TESTS_DIR=${WP_TESTS_DIR-$TMPDIR/wordpress-tests-lib}
 WP_CORE_DIR=${WP_CORE_DIR-$TMPDIR/wordpress/}
+WP_PLUGINS_DIR=${WP_PLUGINS_DIR-$WP_CORE_DIR/wp-content/plugins/}
+WP_PLUGINS_DIR=$(echo $WP_PLUGINS_DIR | sed -e "s/\/$//")
+WP_CF7_DIR=${WP_CF7_DIR-$WP_PLUGINS_DIR/contact-form-7/}
 
 download() {
     #if [ `which curl` ]; then
@@ -150,6 +153,19 @@ install_db() {
 	mysqladmin create $DB_NAME --user="$DB_USER" --password="$DB_PASS"$EXTRA
 }
 
+install_cf7() {
+        if [ -d $WP_CF7_DIR ]; then
+		return;
+	fi
+
+	mkdir -p $WP_CF7_DIR
+        mkdir -p $TMPDIR/contact-form-7-trunk
+        download https://downloads.wordpress.org/plugin/contact-form-7.zip $TMPDIR/contact-form-7-trunk/contact-form-7.zip
+        unzip -q $TMPDIR/contact-form-7-trunk/contact-form-7.zip -d $TMPDIR/contact-form-7-trunk/
+        mv $TMPDIR/contact-form-7-trunk/contact-form-7 $WP_PLUGINS_DIR
+}
+
 install_wp
 install_test_suite
+install_cf7
 install_db
