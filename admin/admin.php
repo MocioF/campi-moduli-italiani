@@ -74,8 +74,7 @@ function gcmi_admin_menu() {
 
 	add_menu_page(
 		__( 'Italian forms fields', 'campi-moduli-italiani' ),
-		__( 'Italian forms fields', 'campi-moduli-italiani' )
-		. gcmi_admin_menu_change_notice( 'gcmi' ),
+		__( 'Italian forms fields', 'campi-moduli-italiani' ) . gcmi_admin_menu_change_notice( 'gcmi' ),
 		'update_plugins',
 		'gcmi',
 		'gcmi_admin_update_db',
@@ -203,6 +202,9 @@ function gcmi_admin_menu_change_notice( $menu_slug = '' ) {
  * @return void
  */
 function gcmi_admin_enqueue_scripts( $hook_suffix ) {
+	if ( false === strpos( $hook_suffix, 'gcmi' ) ) {
+		return;
+	}
 	wp_enqueue_style(
 		'gcmi-admin',
 		plugins_url( GCMI_PLUGIN_NAME . '/admin/css/styles.min.css' ),
@@ -232,9 +234,6 @@ function gcmi_admin_enqueue_scripts( $hook_suffix ) {
 		'all'
 	);
 
-	if ( false === strpos( $hook_suffix, 'campi-moduli-italiani' ) ) {
-		return;
-	}
 	wp_enqueue_script(
 		'gcmi-admin',
 		plugins_url( GCMI_PLUGIN_NAME . '/admin/js/scripts.min.js' ),
