@@ -1,10 +1,3 @@
-#toplevel_page_gcmi div.wp-menu-image {
-     background: transparent url('../img/icon.png') no-repeat scroll center 0;
-     height: 32px;
-}
- #toplevel_page_gcmi:hover div.wp-menu-image, #toplevel_page_gcmi.current div.wp-menu-image, #toplevel_page_gcmi.wp-has-current-submenu div.wp-menu-image {
-     background: transparent url('../img/icon.png') no-repeat scroll center -28px;
-}
  .wp-list-table .column-gcmi-icon {
      width: 5%;
 }

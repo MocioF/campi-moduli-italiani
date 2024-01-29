@@ -37,6 +37,7 @@ if ( true === GCMI_USE_COMUNE ) {
 }
 
 add_action( 'admin_init', 'gcmi_admin_init', 10, 0 );
+add_action( 'wp_ajax_gcmi_show_data_need_update_notice', 'gcmi_ajax_admin_menu_change_notice', 10, 0 );
 
 /**
  * Creo il mio nuovo hook
@@ -74,7 +75,7 @@ function gcmi_admin_menu() {
 
 	add_menu_page(
 		__( 'Italian forms fields', 'campi-moduli-italiani' ),
-		__( 'Italian forms fields', 'campi-moduli-italiani' ) . gcmi_admin_menu_change_notice( 'gcmi' ),
+		__( 'Italian forms fields', 'campi-moduli-italiani' ),
 		'update_plugins',
 		'gcmi',
 		'gcmi_admin_update_db',
@@ -85,7 +86,7 @@ function gcmi_admin_menu() {
 	$edit = add_submenu_page(
 		'gcmi',
 		__( 'Management of Italian form fields db tables', 'campi-moduli-italiani' ),
-		__( 'Italian municipalities DB', 'campi-moduli-italiani' ) . gcmi_admin_menu_change_notice( 'gcmi' ),
+		__( 'Italian municipalities DB', 'campi-moduli-italiani' ),
 		'update_plugins',
 		'gcmi',
 		'gcmi_admin_update_db'
@@ -171,28 +172,52 @@ function gcmi_admin_update_db() {
 /**
  * Crea l'html per indicare quante tabelle sono aggiornabili
  *
- * @param string $menu_slug lo slug del menu in cui visualizzare la notifica.
- * @return string
+ * @return void
  */
-function gcmi_admin_menu_change_notice( $menu_slug = '' ) {
-	if ( 'gcmi' === $menu_slug ) {
-		$database_file_info = GCMI_Activator::$database_file_info;
-		$counts             = 0;
-		$num_items          = count( $database_file_info );
-		for ( $i = 0; $i < $num_items; $i++ ) {
-			if ( get_site_option( $database_file_info[ $i ]['optN_remoteUpd'] ) > get_site_option( $database_file_info[ $i ]['optN_dwdtime'] ) ) {
-				++$counts;
-			}
-		}
-		if ( $counts > 0 ) {
-			return sprintf(
-				' <span class="update-plugins %1$d"><span class="plugin-count">%2$s</span></span>',
-				$counts,
-				esc_html( number_format_i18n( $counts ) )
-			);
+function gcmi_ajax_admin_menu_change_notice(): void {
+	check_ajax_referer( 'gcmi_upd_nonce' );
+	$mini_database_file_info = array(
+		array(
+			'optN_dwdtime'   => 'gcmi_comuni_attuali_downloaded_time',
+			'optN_remoteUpd' => 'gcmi_comuni_attuali_remote_file_time',
+		),
+		array(
+			'optN_dwdtime'   => 'gcmi_comuni_soppressi_downloaded_time',
+			'optN_remoteUpd' => 'gcmi_comuni_soppressi_remote_file_time',
+		),
+		array(
+			'optN_dwdtime'   => 'gcmi_comuni_variazioni_downloaded_time',
+			'optN_remoteUpd' => 'gcmi_comuni_variazioni_remote_file_time',
+		),
+		array(
+			'optN_dwdtime'   => 'gcmi_codici_catastali_downloaded_time',
+			'optN_remoteUpd' => 'gcmi_codici_catastali_remote_file_time',
+		),
+		array(
+			'optN_dwdtime'   => 'gcmi_stati_downloaded_time',
+			'optN_remoteUpd' => 'gcmi_stati_remote_file_time',
+		),
+		array(
+			'optN_dwdtime'   => 'gcmi_stati_cessati_downloaded_time',
+			'optN_remoteUpd' => 'gcmi_stati_cessati_remote_file_time',
+		),
+	);
+
+	$counts    = 0;
+	$num_items = count( $mini_database_file_info );
+	for ( $i = 0; $i < $num_items; $i++ ) {
+		if ( get_site_option( $mini_database_file_info[ $i ]['optN_remoteUpd'] ) > get_site_option( $mini_database_file_info[ $i ]['optN_dwdtime'] ) ) {
+			++$counts;
 		}
 	}
-	return '';
+	if ( $counts > 0 ) {
+		$res = array(
+			'num'       => $counts,
+			'formatted' => esc_html( number_format_i18n( $counts ) ),
+		);
+		wp_send_json_success( $res );
+	}
+	wp_die();
 }
 
 /**
@@ -202,6 +227,32 @@ function gcmi_admin_menu_change_notice( $menu_slug = '' ) {
  * @return void
  */
 function gcmi_admin_enqueue_scripts( $hook_suffix ) {
+	// questi vengono inclusi in tutte le pagine di admin.
+	wp_enqueue_script(
+		'gcmi-alertupd',
+		plugins_url( GCMI_PLUGIN_NAME . '/admin/js/alertupd.min.js' ),
+		array( 'jquery' ),
+		GCMI_VERSION,
+		true
+	);
+	wp_localize_script(
+		'gcmi-alertupd',
+		'gcmi_menu_admin',
+		array(
+			'ajax_url' => admin_url( 'admin-ajax.php' ),
+			'nonce'    => wp_create_nonce( 'gcmi_upd_nonce' ),
+		)
+	);
+
+	wp_enqueue_style(
+		'gcmi-menu',
+		plugins_url( GCMI_PLUGIN_NAME . '/admin/css/gcmi-menu.min.css' ),
+		array(),
+		GCMI_VERSION,
+		'all'
+	);
+
+	// gli altri, vengono inclusi solo nelle pagine del plugin.
 	if ( false === strpos( $hook_suffix, 'gcmi' ) ) {
 		return;
 	}

@@ -89,6 +89,7 @@ module.exports = function (grunt) {
       dist: {
         files: {
           'modules/comune/css/comune.min.css': 'modules/comune/css/comune.css',
+          'admin/css/gcmi-menu.min.css': 'admin/css/gcmi-menu.css',
           'admin/css/styles.min.css': 'admin/css/styles.css',
           'admin/css/gcmi-fb-spinner.min.css': 'admin/css/gcmi-fb-spinner.css'
         }
