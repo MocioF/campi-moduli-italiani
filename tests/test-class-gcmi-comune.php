@@ -1046,4 +1046,162 @@ final class GCMI_COMUNETest extends WP_Ajax_UnitTestCase {
 		$this->assertArrayHasKey( 'pr_vals', $prefixes );
 		$this->assertSame( $randstring . '_gcmi_pr_vals', $prefixes['pr_vals'] );
 	}
+
+	/**
+	 * @group comune
+	 * @group dbquery
+	 */
+	public function test_total_return_evidenza_cessati() {
+		$this->gcmi_comune = new GCMI_COMUNE( $kind = 'evidenza_cessati', $filtername = '' );
+
+		$reflect = new ReflectionObject( $this->gcmi_comune );
+		$prop    = $reflect->getProperty( 'def_strings' );
+		$prop->setAccessible( true );
+		$def_strings = $prop->getValue( $this->gcmi_comune );
+
+		$SFX_SOPPRESSI_CEDUTI = $def_strings['SFX_SOPPRESSI_CEDUTI'];
+
+		$gcmi_get_province_in_regione = self::getMethod( 'get_province_in_regione' );
+		$gcmi_get_comuni_in_provincia = self::getMethod( 'get_comuni_in_provincia' );
+
+		$this->assertEquals( $expectedResult, $valid_code );
+
+		$righe_totali_attuali    = $this->gcmi_comune->get_total_rows( false );
+		$righe_totali_soppressi  = $this->gcmi_comune->get_total_rows( true );
+		$comuni_totali_attuali   = $this->gcmi_comune->get_total_comuni( false );
+		$comuni_totali_soppressi = $this->gcmi_comune->get_total_comuni( true );
+		$comuni_totali           = $comuni_totali_attuali + $comuni_totali_soppressi;
+
+		$this->assertSame( $righe_totali_attuali, $comuni_totali_attuali );
+		$this->assertGreaterThan( $comuni_totali_soppressi, $righe_totali_soppressi );
+
+		$comuni_totali_restituiti     = 0;
+		$elenco_comuni_restituiti_raw = array();
+		$lista_regioni                = $this->gcmi_comune->get_regioni();
+		foreach ( $lista_regioni as $regione ) {
+			$args1          = array( $regione['i_cod_regione'] );
+			$lista_province = $gcmi_get_province_in_regione->invokeArgs( $this->gcmi_comune, $args1 );
+
+			foreach ( $lista_province as $provincia ) {
+				$args2 = array( $provincia->i_cod_unita_territoriale );
+
+				$lista_comuni = $gcmi_get_comuni_in_provincia->invokeArgs( $this->gcmi_comune, $args2 );
+
+				$comuni_totali_restituiti = $comuni_totali_restituiti + count( $lista_comuni );
+
+				$elenco_comuni_restituiti_raw = array_merge( $elenco_comuni_restituiti_raw, $lista_comuni );
+
+				$this->assertSame(
+					$comuni_totali_restituiti,
+					count( $elenco_comuni_restituiti_raw ),
+					"Errore su provincia $provincia->i_cod_unita_territoriale"
+				);
+			}
+		}
+
+		$elenco_comuni_cessati = $this->gcmi_comune->get_list_comuni( true );
+		$elenco_comuni_attuali = $this->gcmi_comune->get_list_comuni( false );
+
+		$elenco_comuni_restituiti = array_map(
+			function ( $obj ) use( $SFX_SOPPRESSI_CEDUTI ) {
+				$current_den               = $obj->i_denominazione_full;
+				$real_den                  = str_replace( $SFX_SOPPRESSI_CEDUTI, '', $current_den );
+				$obj->i_denominazione_full = $real_den;
+				return $obj;
+			},
+			$elenco_comuni_restituiti_raw
+		);
+		$this->assertSame( count( $elenco_comuni_restituiti ), count( $elenco_comuni_restituiti_raw ) );
+		// fwrite( STDOUT, print_r( "NE HA RESTITUITI: " . count( $elenco_comuni_restituiti ), TRUE ) . PHP_EOL );
+		// fwrite( STDOUT, print_r( "ATTUALI: " . count( $elenco_comuni_attuali ), TRUE ) . PHP_EOL );
+		// fwrite( STDOUT, print_r( "CESSATI: " . count( $elenco_comuni_cessati ), TRUE ) . PHP_EOL );
+
+		$diff_cessati = array_udiff(
+			$elenco_comuni_cessati,
+			$elenco_comuni_restituiti,
+			function ( $obj_a, $obj_b ) {
+				return ( intval( $obj_a->i_cod_comune ) - intval( $obj_b->i_cod_comune ) );
+			}
+		);
+		$this->assertCount( 0, $diff_cessati, 'Presenti comuni cessati non restituiti: ' . print_r( $diff_cessati, true ) . PHP_EOL );
+
+		$diff_attuali = array_udiff(
+			$elenco_comuni_attuali,
+			$elenco_comuni_restituiti,
+			function ( $obj_a, $obj_b ) {
+				return ( intval( $obj_a->i_cod_comune ) - intval( $obj_b->i_cod_comune ) );
+			}
+		);
+		$this->assertCount( 0, $diff_attuali, 'Presenti comuni attuali non restituiti: ' . print_r( $diff_attuali, true ) . PHP_EOL );
+
+		$sovrapposti = array_uintersect(
+			$elenco_comuni_attuali,
+			$elenco_comuni_cessati,
+			function ( $obj_a, $obj_b ) {
+				return ( intval( $obj_a->i_cod_comune ) - intval( $obj_b->i_cod_comune ) );
+			}
+		);
+		$this->assertCount( 0, $sovrapposti, 'Presenti comuni sia in elenco cessati, sia in elenco attuali: ' . print_r( $sovrapposti, true ) . PHP_EOL );
+
+		$known_a                          = array();
+		$elenco_comuni_restituiti_duplica = array_filter(
+			$elenco_comuni_restituiti,
+			function ( $val ) use ( &$known_a ) {
+				$not_unique = in_array( $val->i_cod_comune, $known_a );
+				$known_a[]  = $val->i_cod_comune;
+				return $not_unique;
+			}
+		);
+		$this->assertCount( 0, $elenco_comuni_restituiti_duplica, "Presenti comuni duplicati nell'elenco restituito: " . print_r( $elenco_comuni_restituiti_duplica, true ) . PHP_EOL );
+
+		$known_b                           = array();
+		$elenco_comuni_restituiti_filtered = array_filter(
+			$elenco_comuni_restituiti,
+			function ( $val ) use ( &$known_b ) {
+				$unique    = ! in_array( $val->i_cod_comune, $known_b );
+				$known_b[] = $val->i_cod_comune;
+				return $unique;
+			}
+		);
+		$this->assertEqualsCanonicalizing( $elenco_comuni_restituiti, $elenco_comuni_restituiti_filtered, "Presenti comuni duplicati nell'elenco restituito" );
+
+		$doubled = array();
+		usort(
+			$elenco_comuni_restituiti,
+			function ( $obj_a, $obj_b ) use ( &$doubled ) {
+				if ( $obj_a->i_cod_comune == $obj_b->i_cod_comune &&
+				$obj_a->i_denominazione_full == $obj_b->i_denominazione_full ) {
+					fwrite( STDOUT, print_r( $obj_a, true ) );
+					fwrite( STDOUT, print_r( $obj_b, true ) );
+					$doubled[] = $obj_a;
+				}
+			}
+		);
+		$this->assertCount( 0, $doubled, "Presenti comuni duplicati nell'elenco restituito: " . print_r( $doubled, true ) . PHP_EOL );
+
+		$uniti    = array_merge( $elenco_comuni_cessati, $elenco_comuni_attuali );
+		$doubled2 = array();
+		usort(
+			$uniti,
+			function ( $obj_a, $obj_b ) use ( &$doubled2 ) {
+				if ( $obj_a->i_cod_comune == $obj_b->i_cod_comune &&
+				$obj_a->i_denominazione_full == $obj_b->i_denominazione_full ) {
+					$doubled2[] = $obj_a;
+				}
+			}
+		);
+		$this->assertCount( 0, $doubled2, 'Presenti comuni duplicati nel merge di cessati e attuali: ' . print_r( $doubled2, true ) . PHP_EOL );
+
+		$diff_sel = array_udiff(
+			$uniti,
+			$elenco_comuni_restituiti,
+			function ( $obj_a, $obj_b ) {
+				return ( intval( $obj_a->i_cod_comune ) - intval( $obj_b->i_cod_comune ) );
+			}
+		);
+		$this->assertCount( 0, $diff_sel, "Differenza tra il merge dei comuni e l'elenco restituiti: " . print_r( $diff_sel, true ) . PHP_EOL );
+
+		$this->assertSame( $comuni_totali_restituiti, count( $elenco_comuni_restituiti ), "Restituiti: $comuni_totali_restituiti - Totali: " . count( $elenco_comuni_restituiti ) );
+		$this->assertSame( $comuni_totali_restituiti, $comuni_totali, "Restituiti: $comuni_totali_restituiti - Totali: $comuni_totali" );
+	}
 }

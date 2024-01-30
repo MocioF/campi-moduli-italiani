@@ -477,6 +477,43 @@ class GCMI_COMUNE {
 	}
 
 	/**
+	 * Crea la IF statement utilizzata nella query di get_province_in_regione
+	 *
+	 * @return string
+	 */
+	private function get_if_statement_evidenza_cessati() {
+		/**
+		 * Key, vecchio codice.
+		 * Value, nuovo codice.
+		 */
+		$vecchi_codici_provincia = array(
+			'080' => '280', // Reggio Calabria.
+			'063' => '263', // Napoli.
+			'037' => '237', // Bologna.
+			'058' => '258', // Roma.
+			'010' => '210', // Genova.
+			'015' => '215', // Milano.
+			'001' => '201', // Torino.
+			'072' => '272', // Bari.
+			'092' => '292', // Cagliari.
+			'087' => '287', // Catania.
+			'083' => '283', // Messina.
+			'048' => '248', // Firenze.
+			'027' => '227', // Venezia.
+		);
+		$if_statement            = '';
+		$if_statement_close      = '';
+		foreach ( $vecchi_codici_provincia as $old => $new ) {
+			$if_statement       .= 'IF( \'' . $old . '\' = `i_cod_unita_territoriale`, \'' . $new . '\', ';
+			$if_statement_close .= ') ';
+		}
+		$if_statement_close  = trim( $if_statement_close );
+		$if_statement_close .= ', ';
+		$if_statement       .= '`i_cod_unita_territoriale` ' . $if_statement_close;
+		return $if_statement;
+	}
+
+	/**
 	 * Restituisce un array di oggetti con codici e denominazioni delle province
 	 *
 	 * @global wpdb $wpdb
@@ -519,30 +556,26 @@ class GCMI_COMUNE {
 					)
 				);
 			} else {
-				$results = $wpdb->get_results(
+				$if_statement = $this->get_if_statement_evidenza_cessati();
+				$results      = $wpdb->get_results(
 					$wpdb->prepare(
 						'SELECT `i_cod_unita_territoriale`, `i_den_unita_territoriale` FROM `%1$s` ' .
 						'WHERE `i_cod_regione` = \'%2$s\' ' .
 						'UNION ' .
 						'SELECT ' .
 						/**
-						 * Le quattro province hanno cambiato codice, ma sono attive.
+						 * Queste province hanno cambiato codice, ma sono attive.
 						 * Questa operazione serve ad evitare il valore duplicato nella select.
 						 * Nella select dei comuni che opera con evidenza_cessati, la ricerca
 						 * è fatta con la targa.
 						 * Quando kind è attuali o tutti il problema non si pone.
 						 */
-						'IF( \'037\' = `i_cod_unita_territoriale`, \'237\', ' . // Bologna.
-							'IF( \'048\' = `i_cod_unita_territoriale`, \'248\', ' . // Firenze.
-								'IF( \'015\' = `i_cod_unita_territoriale`, \'215\', ' . // Milano.
-									'IF( \'001\' = `i_cod_unita_territoriale`, \'201\', ' . // Torino.
-						'`i_cod_unita_territoriale` ) ) ) ), ' .
+						// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+						$if_statement .
 						'`i_den_unita_territoriale` FROM ' .
 						'`%3$s` ' .
 						'LEFT JOIN ( ' .
 						'SELECT DISTINCT `i_den_unita_territoriale`, `i_sigla_automobilistica`, `i_cod_regione` FROM `%4$s` ' .
-						'UNION SELECT \'Forlì\', \'FO\', \'08\' ' .
-						'UNION SELECT \'Pesaro\', \'PS\', \'11\' ' .
 						'UNION SELECT \'Fiume\', \'FU\', \'%5$s\' ' .
 						'UNION SELECT \'Pola\', \'PL\', \'%6$s\' ' .
 						'UNION SELECT \'Zara\', \'ZA\', \'%7$s\' ' .
@@ -642,7 +675,7 @@ class GCMI_COMUNE {
 						$results = $wpdb->get_results(
 							$wpdb->prepare(
 							// Con 7 cominciano le province di Istria e Dalmazia.
-								'SELECT `i_cod_comune`, `i_denominazione_full` FROM `%1$s` WHERE `%2$s`.`i_cod_unita_territoriale` = \'%3$s\' ' .
+								'SELECT DISTINCT `i_cod_comune`, `i_denominazione_full` FROM `%1$s` WHERE `%2$s`.`i_cod_unita_territoriale` = \'%3$s\' ' .
 								'UNION ' .
 								'SELECT DISTINCT `i_cod_comune`, CONCAT(`i_denominazione_full`, \'%4$s\') AS \'i_denominazione_full\' FROM `%5$s` ' .
 								'WHERE ' .
@@ -1293,5 +1326,73 @@ class GCMI_COMUNE {
 			}
 		}
 		return '00000000000';
+	}
+
+	/**
+	 * Query utilizzate solo per i test - Servono a verificare che le altre query
+	 * diano risultati coerenti con i comuni cessati
+	 */
+
+	/**
+	 * Restituisce il numero totale di righe nelle tabelle dei comuni
+	 *
+	 * @global wpdb $wpdb
+	 * @param bool $cessati True per comuni soppressi, false per attuali.
+	 * @return int
+	 */
+	public static function get_total_rows( $cessati = false ) {
+		global $wpdb;
+		$table  = GCMI_TABLE_PREFIX;
+		$table .= $cessati ? 'comuni_soppressi' : 'comuni_attuali';
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.NoCaching
+		$retrieved = $wpdb->get_var(
+			$wpdb->prepare(
+				'SELECT `id` FROM `%1$s` WHERE 1',
+				$table
+			)
+		);
+		return $wpdb->num_rows;
+	}
+
+	/**
+	 * Restituisce il numero totale di comuni nelle tabelle dei comuni
+	 *
+	 * @global wpdb $wpdb
+	 * @param bool $cessati True per comuni soppressi, false per attuali.
+	 * @return int
+	 */
+	public static function get_total_comuni( $cessati = false ) {
+		global $wpdb;
+		$table  = GCMI_TABLE_PREFIX;
+		$table .= $cessati ? 'comuni_soppressi' : 'comuni_attuali';
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.NoCaching
+		$res = $wpdb->get_var(
+			$wpdb->prepare(
+				'SELECT DISTINCT `i_cod_comune` FROM `%1$s` WHERE 1',
+				$table
+			)
+		);
+		return $wpdb->num_rows;
+	}
+
+	/**
+	 * Restituisce il numero totale di comuni nelle tabelle dei comuni
+	 *
+	 * @global wpdb $wpdb
+	 * @param bool $cessati True per comuni soppressi, false per attuali.
+	 * @return int
+	 */
+	public static function get_list_comuni( $cessati = false ) {
+		global $wpdb;
+		$table  = GCMI_TABLE_PREFIX;
+		$table .= $cessati ? 'comuni_soppressi' : 'comuni_attuali';
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.NoCaching
+		$res = $wpdb->get_results(
+			$wpdb->prepare(
+				'SELECT DISTINCT `i_cod_comune`, `i_denominazione_full` FROM `%1$s` WHERE 1',
+				$table
+			)
+		);
+		return $res;
 	}
 }
