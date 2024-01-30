@@ -210,14 +210,11 @@ function gcmi_ajax_admin_menu_change_notice(): void {
 			++$counts;
 		}
 	}
-	if ( $counts > 0 ) {
-		$res = array(
-			'num'       => $counts,
-			'formatted' => esc_html( number_format_i18n( $counts ) ),
-		);
-		wp_send_json_success( $res );
-	}
-	wp_die();
+	$res = array(
+		'num'       => $counts,
+		'formatted' => esc_html( number_format_i18n( $counts ) ),
+	);
+	wp_send_json_success( $res );
 }
 
 /**
