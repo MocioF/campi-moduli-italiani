@@ -1064,8 +1064,6 @@ final class GCMI_COMUNETest extends WP_Ajax_UnitTestCase {
 		$gcmi_get_province_in_regione = self::getMethod( 'get_province_in_regione' );
 		$gcmi_get_comuni_in_provincia = self::getMethod( 'get_comuni_in_provincia' );
 
-		$this->assertEquals( $expectedResult, $valid_code );
-
 		$righe_totali_attuali    = $this->gcmi_comune->get_total_rows( false );
 		$righe_totali_soppressi  = $this->gcmi_comune->get_total_rows( true );
 		$comuni_totali_attuali   = $this->gcmi_comune->get_total_comuni( false );

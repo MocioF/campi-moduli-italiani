@@ -187,17 +187,17 @@ function gcmi_clean_lista_view( $lista_view, $cessati = false ) {
  * @param bool  $var_export true to print the var_export output.
  */
 function gcmi_error_log( $object = null, $var_export = false ): void {
-	$contents  = "\n------------------\n";
-	$contents .= "var_dump:\n";
-	ob_start();
-	var_dump( $object );
-	$contents .= ob_get_contents();
-	ob_end_clean();
-
+	$contents = "\n------------------\n";
 	if ( true === $var_export ) {
 		$contents .= "\n";
 		$contents .= "var_export:\n";
 		$contents .= var_export( $object, true );
+	} else {
+		$contents .= "var_dump:\n";
+		ob_start();
+		var_dump( $object );
+		$contents .= ob_get_contents();
+		ob_end_clean();
 	}
 	$contents .= "\n------------------\n";
 	error_log( $contents );
