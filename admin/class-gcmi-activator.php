@@ -902,8 +902,10 @@ class GCMI_Activator {
 						'i_nuts1_2024 char(3) NOT NULL, ' .
 						'i_nuts2_2024 char(4) NOT NULL, ' .
 						'i_nuts3_2024 char(5) NOT NULL, ' .
-						'PRIMARY KEY (id), ' .
-						'INDEX `i_cod_comune` (`i_cod_comune`) ' .
+						'PRIMARY KEY (`id`), ' .
+						'INDEX `i_cod_comune` (`i_cod_comune`), ' .
+						'INDEX `i_cod_unita_territoriale` (`i_cod_unita_territoriale`), ' .
+						'INDEX `i_sigla_automobilistica` (`i_sigla_automobilistica`) ' .
 						') %2$s',
 						$table,
 						$charset_collate
@@ -927,8 +929,10 @@ class GCMI_Activator {
 						'i_denominazione_nuovo varchar(255) NULL, ' .
 						'i_cod_unita_territoriale_nuovo char(3) NULL, ' .
 						'i_sigla_automobilistica_nuovo varchar(10) NULL, ' .
-						'PRIMARY KEY (id), ' .
-						'INDEX `i_cod_comune` (`i_cod_comune`) ' .
+						'PRIMARY KEY (`id`), ' .
+						'INDEX `i_cod_comune` (`i_cod_comune`), ' .
+						'INDEX `i_cod_unita_territoriale` (`i_cod_unita_territoriale`), ' .
+						'INDEX `i_sigla_automobilistica` (`i_sigla_automobilistica`) ' .
 						') %2$s',
 						$table,
 						$charset_collate

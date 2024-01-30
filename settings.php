@@ -192,10 +192,42 @@ function gcmi_add_index_on_tables(): void {
 			)
 		);
 	}
+	if ( false === gcmi_index_exist( GCMI_TABLE_PREFIX . 'comuni_attuali', 'i_cod_unita_territoriale' ) ) {
+		$wpdb->query(
+			$wpdb->prepare(
+				'ALTER TABLE `%1$s` ADD INDEX(`i_cod_unita_territoriale`);',
+				GCMI_TABLE_PREFIX . 'comuni_attuali'
+			)
+		);
+	}
+	if ( false === gcmi_index_exist( GCMI_TABLE_PREFIX . 'comuni_attuali', 'i_sigla_automobilistica' ) ) {
+		$wpdb->query(
+			$wpdb->prepare(
+				'ALTER TABLE `%1$s` ADD INDEX(`i_sigla_automobilistica`);',
+				GCMI_TABLE_PREFIX . 'comuni_attuali'
+			)
+		);
+	}
 	if ( false === gcmi_index_exist( GCMI_TABLE_PREFIX . 'comuni_soppressi', 'i_cod_comune' ) ) {
 		$wpdb->query(
 			$wpdb->prepare(
 				'ALTER TABLE `%1$s` ADD INDEX(`i_cod_comune`);',
+				GCMI_TABLE_PREFIX . 'comuni_soppressi'
+			)
+		);
+	}
+	if ( false === gcmi_index_exist( GCMI_TABLE_PREFIX . 'comuni_soppressi', 'i_cod_unita_territoriale' ) ) {
+		$wpdb->query(
+			$wpdb->prepare(
+				'ALTER TABLE `%1$s` ADD INDEX(`i_cod_unita_territoriale`);',
+				GCMI_TABLE_PREFIX . 'comuni_soppressi'
+			)
+		);
+	}
+	if ( false === gcmi_index_exist( GCMI_TABLE_PREFIX . 'comuni_soppressi', 'i_sigla_automobilistica' ) ) {
+		$wpdb->query(
+			$wpdb->prepare(
+				'ALTER TABLE `%1$s` ADD INDEX(`i_sigla_automobilistica`);',
 				GCMI_TABLE_PREFIX . 'comuni_soppressi'
 			)
 		);
