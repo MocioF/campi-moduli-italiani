@@ -32,7 +32,8 @@ jQuery(document).ready(function ($) {
    * @type Number
    */
   const chunkSize = 300;
-
+  var localeFromServer;
+  getLocaleFromServer();
   var realFilterName = "";
   // Nascondo il frame con il generatore di filtri
   $("#gcmi-fb-tabs").hide();
@@ -896,24 +897,7 @@ jQuery(document).ready(function ($) {
       Ǜ: "U",
       ǜ: "u"
     };
-    var locale_from_server;
-    $.ajax({
-      type: "post",
-      dataType: "json",
-      url: gcmi_fb_obj.ajax_url,
-      async: false,
-      data: {
-        action: "gcmi_fb_get_locale",
-        _ajax_nonce: gcmi_fb_obj.nonce,
-      },
-      success: function (res) {
-        locale_from_server = res.locale;
-      },
-      error: function (res) {
-        locale_from_server = "unknown";
-      }
-    });
-    if (locale_from_server.startsWith("de")) {
+    if (localeFromServer.startsWith("de")) {
       chars["Ä"] = "Ae";
       chars["ä"] = "ae";
       chars["Ö"] = "Oe";
@@ -921,18 +905,18 @@ jQuery(document).ready(function ($) {
       chars["Ü"] = "Ue";
       chars["ü"] = "ue";
       chars["ß"] = "ss";
-    } else if ("da_DK" === locale_from_server) {
+    } else if ("da_DK" === localeFromServer) {
       chars["Æ"] = "Ae";
       chars["æ"] = "ae";
       chars["Ø"] = "Oe";
       chars["ø"] = "oe";
       chars["Å"] = "Aa";
       chars["å"] = "aa";
-    } else if ("ca" === locale_from_server) {
+    } else if ("ca" === localeFromServer) {
       chars["l·l"] = "ll";
     } else if (
-      "sr_RS" === locale_from_server ||
-      "bs_BA" === locale_from_server
+      "sr_RS" === localeFromServer ||
+      "bs_BA" === localeFromServer
     ) {
       chars["Đ"] = "DJ";
       chars["đ"] = "dj";
@@ -1299,5 +1283,23 @@ jQuery(document).ready(function ($) {
       default:
         return;
     }
+  }
+  
+  function getLocaleFromServer() {
+    $.ajax({
+      data: {
+        action: "gcmi_fb_get_locale",
+        _ajax_nonce: gcmi_fb_obj.nonce
+      },
+      dataType: "json",
+      error: function (res) {
+        localeFromServer = "unknown";
+      },
+      success: function (res) {
+        localeFromServer = res.locale;
+      },
+      type: "post",
+      url: gcmi_fb_obj.ajax_url
+    });
   }
 });
