@@ -1,10 +1,13 @@
-"use strict";
+/*global
+ console, gcmi_menu_admin, jQuery
+ */
 jQuery(document).ready(function ($) {
+  "use strict";
   var toplevelmenu = $("#toplevel_page_gcmi .wp-menu-name");
   $.ajax({
     data: {
-      action: "gcmi_show_data_need_update_notice",
-      _ajax_nonce: gcmi_menu_admin.nonce
+      _ajax_nonce: gcmi_menu_admin.nonce,
+      action: "gcmi_show_data_need_update_notice"
     },
     dataType: "json",
     error: function (res) {
@@ -20,7 +23,8 @@ jQuery(document).ready(function ($) {
   function setNotice(res, jqobj) {
     if (res.data.num !== 0) {
       jqobj.append(" <span class=\"update-plugins " + res.data.num + "\">" +
-        "<span class=\"plugin-count\">" + res.data.formatted + "</span></span>");
+        "<span class=\"plugin-count\">" + res.data.formatted +
+        "</span></span>");
     }
   }
 });

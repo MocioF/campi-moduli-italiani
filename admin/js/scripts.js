@@ -1,5 +1,8 @@
-'use strict';
+/*global
+ alert, console, event, gcmi_fb_obj, jQuery, wp
+ */
 jQuery(document).ready(function ($) {
+  "use strict";
   // i18n
   const {
     __,
@@ -12,17 +15,18 @@ jQuery(document).ready(function ($) {
 
   // imposto a checked solo quelle da aggiornare
   $("input[type=hidden][id^='gcmi-updated-']").each(function (index) {
-    if ("false" == $(this).val()) {
+    const updString = "gcmi-updated-";
+    if ("false" === $(this).val()) {
       window.MySuffix = $(this)
         .attr("id")
-        .substring("gcmi-updated-".length, $(this).attr("id").length);
+        .substring(updString.length, $(this).attr("id").length);
       $("input[type=checkbox][id='gcmi-" + window.MySuffix + "']").prop(
         "checked",
         true
       );
     }
   });
- 
+
   /*
    * Funzioni per il filter builder
    */
@@ -33,8 +37,10 @@ jQuery(document).ready(function ($) {
    */
   const chunkSize = 300;
   var localeFromServer;
-  getLocaleFromServer();
   var realFilterName = "";
+
+  getLocaleFromServer();
+
   // Nascondo il frame con il generatore di filtri
   $("#gcmi-fb-tabs").hide();
   //Click sul pulsante per aggiunta di un nuovo filtro
@@ -51,54 +57,56 @@ jQuery(document).ready(function ($) {
   });
   // Click sul pulsante per modifica di un filtro esistente
   $(document).on("click", "button[id^='gcmi-fb-edit-filter-']", function () {
-    let editfiltername = $(this).attr("id").split("-").pop();
+    var editfiltername = $(this).attr("id").split("-").pop();
     realFilterName = editfiltername;
     $("#gcmi-fb-tabs").show();
     disableFilters();
     cleaningTabs();
     waitingTabs();
     printTabsEditFilter(editfiltername);
-    waitForEl("#fb_gcmi_filter_name", function() {
+    waitForEl("#fb_gcmi_filter_name", function () {
       $("#fb_gcmi_filter_name").val(realFilterName);
     });
-    
+
   });
   //Click sul pulsante per eliminazione di un filtro esistente
   $(document).on("click", "button[id^='gcmi-fb-delete-filter-']", function () {
-    let delfiltername = $(this).attr("id").split("-").pop();
-    let title = __( "Confirm filter deletion", "campi-moduli-italiani");
-    let message =
-      "<span class=\"ui-icon ui-icon-alert\" style=\"float:left; margin:12px 12px 20px 0;\"></span>" +
-      "<p>" + __("Do you really want to delete the filter: ", "campi-moduli-italiani") + "<b>" +
+    var delfiltername = $(this).attr("id").split("-").pop();
+    var title = __("Confirm filter deletion", "campi-moduli-italiani");
+    var arrData = [];
+    var i = 0;
+    var message =
+      "<span class=\"ui-icon ui-icon-alert\" style=\"float:left; " +
+      "margin:12px 12px 20px 0;\"></span>" +
+      "<p>" + __("Do you really want to delete the filter: ",
+        "campi-moduli-italiani") + "<b>" +
       delfiltername +
       "</b>?</p>" +
-      __( "WARNING: This procedure cannot check if the filter is used in one or more of your modules.",
-      "campi-moduli-italiani");
+      __("WARNING: This procedure cannot check if the filter is used" +
+        " in one or more of your modules.",
+        "campi-moduli-italiani");
     $.when(customConfirm(message, title)).then(function () {
       $.ajax({
-        type: "post",
-        dataType: "json",
-        url: gcmi_fb_obj.ajax_url,
+        beforeSend: function () {
+          $("#gcmi-spinner-blocks").removeClass("hidden");
+        },
+        complete: function () {
+          $("#gcmi-spinner-blocks").addClass("hidden");
+        },
         data: {
           action: "gcmi_fb_delete_filter",
           _ajax_nonce: gcmi_fb_obj.nonce,
-          filtername: delfiltername,
+          filtername: delfiltername
         },
-        beforeSend: function () {
-					$('#gcmi-spinner-blocks').removeClass('hidden');
-				},
-        complete: function () {
-					$('#gcmi-spinner-blocks').addClass('hidden');
-				},
-        success: function (res) {
-          print_filters();
-        },
+        dataType: "json",
         error: function (res) {
-          let title = __("Error when eliminating the filter", "campi-moduli-italiani");
-          let message =
-            "<span class=\"ui-icon ui-icon-notice\" style=\"float:left; margin:12px 12px 0 0;\"></span>";
-          let arrData = res.responseJSON.data;
-          for (let i = 0; i < arrData.length; i++) {
+          title = __("Error when eliminating the filter",
+            "campi-moduli-italiani");
+          message =
+            "<span class=\"ui-icon ui-icon-notice\" style=\"float:left; " +
+            "margin:12px 12px 0 0;\"></span>";
+          arrData = res.responseJSON.data;
+          for (i = 0; i < arrData.length; i += 1) {
             message =
               message +
               "<p><b>" + __("Err: ", "campi-moduli-italiani") +
@@ -108,314 +116,354 @@ jQuery(document).ready(function ($) {
               arrData[i].message +
               "</i></p><p></p>";
           }
-          $.when(customOkMessage(message, title)).then(function () {});
+          $.when(customOkMessage(message, title)).then(function () {
+            return;
+          });
           return;
         },
+        success: function (res) {
+          print_filters();
+        },
+        type: "post",
+        url: gcmi_fb_obj.ajax_url
       });
     });
   });
   //Click sul pulsante per annullare aggiunta del filtro
   $(document).on("click", "#gcmi-fb-button-cancel", function () {
-    let title = __("Confirm operation cancellation", "campi-moduli-italiani");
-    let message =
-      "<span class=\"ui-icon ui-icon-alert\" style=\"float:left; margin:12px 12px 20px 0;\"></span>" +
-      __("Do you want to cancel the creation/modification of the filter?", "campi-moduli-italiani");
+    var title = __("Confirm operation cancellation", "campi-moduli-italiani");
+    var message =
+      "<span class=\"ui-icon ui-icon-alert\" style=\"float:left; " +
+      "margin:12px 12px 20px 0;\"></span>" +
+      __("Do you want to cancel the creation/modification of the filter?",
+        "campi-moduli-italiani");
     $.when(customConfirm(message, title)).then(
       function () {
         $("#gcmi-fb-tabs").hide();
-        $("button[id^='gcmi-fb-delete-filter-']").removeAttr("disabled");
-        $("button[id^='gcmi-fb-edit-filter-']").removeAttr("disabled");
-        $("#gcmi-fb-addnew-filter").attr("disabled", false);
+        $("button[id^='gcmi-fb-delete-filter-']").prop("disabled", false);
+        $("button[id^='gcmi-fb-edit-filter-']").prop("disabled", false);
+        $("#gcmi-fb-addnew-filter").prop("disabled", false);
       },
-      function () {}
+      function () {
+        return;
+      }
     );
   });
   //Click sul pulsante per salvare il nuovo filtro
   $(document).on("click", "#gcmi-fb-button-save", function () {
+    var title = "";
+    var message = "";
+    var myFilterName = "";
+    var searchIDs = [];
+    var rawFilterName = "";
+    var include = true;
+    var filter_array = [];
+    var sovrascrivi = false;
     // controllo quanti sono i comuni selezionati
     event.preventDefault();
-    var searchIDs = $("#gcmi-fb-tabs-4")
+    searchIDs = $("#gcmi-fb-tabs-4")
       .find("input[type=checkbox]:checked")
       .not("[id^='fb-gcmi-chkallcom-']")
       .map(function () {
         return $(this).val();
       })
       .get();
-    var myfiltername;
     if (0 === searchIDs.length) {
-      let title = __("Save error", "campi-moduli-italiani");
-      let message =
-        "<span class=\"ui-icon ui-icon-notice\" style=\"float:left; margin:12px 12px 20px 0;\"></span>" +
-        __("No municipality has been selected to include in the filter.", "campi-moduli-italiani");
+      title = __("Save error", "campi-moduli-italiani");
+      message =
+        "<span class=\"ui-icon ui-icon-notice\" style=\"float:left; " +
+        "margin:12px 12px 20px 0;\"></span>" +
+        __("No municipality has been selected to include in the filter.",
+          "campi-moduli-italiani");
       $.when(customOkMessage(message, title)).then(function () {
-        $("#ui-id-4").click();
+        $("#ui-id-4").trigger("click");
       });
       return;
     }
-    let rawfiltername = $("#fb_gcmi_filter_name").val();
-    if (rawfiltername === "") {
-      let title = __("Save error", "campi-moduli-italiani");
-      let message =
-        "<span class=\"ui-icon ui-icon-notice\" style=\"float:left; margin:12px 12px 20px 0;\"></span>" +
+    rawFilterName = $("#fb_gcmi_filter_name").val();
+    if (rawFilterName === "") {
+      title = __("Save error", "campi-moduli-italiani");
+      message =
+        "<span class=\"ui-icon ui-icon-notice\" style=\"float:left; " +
+        "margin:12px 12px 20px 0;\"></span>" +
         __("The filter name has not been indicated.", "campi-moduli-italiani");
       $.when(customOkMessage(message, title)).then(function () {
-        $("#fb_gcmi_filter_name").focus();
+        $("#fb_gcmi_filter_name").trigger("focus");
       });
       return;
     }
-    if (rawfiltername.length > 20) {
-      let title = __("Save error", "campi-moduli-italiani");
-      let message =
-        "<span class=\"ui-icon ui-icon-notice\" style=\"float:left; margin:12px 12px 20px 0;\"></span>" +
-        __("No more than 20 characters admitted for the filter name.", "campi-moduli-italiani");
+    if (rawFilterName.length > 20) {
+      title = __("Save error", "campi-moduli-italiani");
+      message =
+        "<span class=\"ui-icon ui-icon-notice\" style=\"float:left; " +
+        "margin:12px 12px 20px 0;\"></span>" +
+        __("No more than 20 characters admitted for the filter name.",
+          "campi-moduli-italiani");
       $.when(customConfirm(message, title)).then(function () {
-        $("#fb_gcmi_filter_name").val(rawfiltername.substring(0, 20));
-        $("#fb_gcmi_filter_name").focus();
+        $("#fb_gcmi_filter_name").val(rawFilterName.substring(0, 20));
+        $("#fb_gcmi_filter_name").trigger("focus");
       });
       return;
     }
-    let includi = $("#gcmi-fb-include-ceased").prop("checked");
-    myfiltername = sanitize_table_name(rawfiltername).substring(0, 20);
-    if (false === myfiltername) {
-      let title = __("Save error", "campi-moduli-italiani");
-      let message =
-        "<span class=\"ui-icon ui-icon-notice\" style=\"float:left; margin:12px 12px 20px 0;\"></span>" +
-        __("An invalid name for the filter was indicated.", "campi-moduli-italiani");
+    include = $("#gcmi-fb-include-ceased").prop("checked");
+    myFilterName = sanitize_table_name(rawFilterName).substring(0, 20);
+    if (false === myFilterName) {
+      title = __("Save error", "campi-moduli-italiani");
+      message =
+        "<span class=\"ui-icon ui-icon-notice\" style=\"float:left; " +
+        "margin:12px 12px 20px 0;\"></span>" +
+        __("An invalid name for the filter was indicated.",
+          "campi-moduli-italiani");
       $.when(customOkMessage(message, title)).then(function () {
-        $("#fb_gcmi_filter_name").focus();
+        $("#fb_gcmi_filter_name").trigger("focus");
       });
       return;
     }
-    if (rawfiltername !== myfiltername) {
-      let title = __("Save error", "campi-moduli-italiani");
-      let message =
-        "<span class=\"ui-icon ui-icon-notice\" style=\"float:left; margin:12px 12px 20px 0;\"></span>" +
-        __("The value indicated for the filter name ", "campi-moduli-italiani") + "<b>(<i>" +
-        rawfiltername +
+    if (rawFilterName !== myFilterName) {
+      title = __("Save error", "campi-moduli-italiani");
+      message =
+        "<span class=\"ui-icon ui-icon-notice\" style=\"float:left; " +
+        "margin:12px 12px 20px 0;\"></span>" +
+        __("The value indicated for the filter name ",
+          "campi-moduli-italiani") +
+        "<b>(<i>" +
+        rawFilterName +
         "</i>)</b>" + __("cannot be used.", "campi-moduli-italiani") + "<br>" +
         __("Do you want to use: ", "campi-moduli-italiani") + "<b>" +
-        myfiltername +
+        myFilterName +
         "</b> ?";
       $.when(customConfirm(message, title)).then(
         function () {
-          $("#fb_gcmi_filter_name").val(myfiltername);
+          $("#fb_gcmi_filter_name").val(myFilterName);
         }
       );
       return;
     }
-    let filter_array = $(".gcmi-fb-filters-container")
+    filter_array = $(".gcmi-fb-filters-container")
       .find("span.gcmi-fb-filters-name")
       .map(function () {
         return $(this).text();
       })
       .get();
-    let sovrascrivi = false;
     filter_array.forEach(function (i) {
-      if (myfiltername === i) {
+      if (myFilterName === i) {
         sovrascrivi = true;
       }
     });
     if (true === sovrascrivi) {
-      let title = "Sovrascrivi";
-      let message =
-        "<span class=\"ui-icon ui-icon-notice\" style=\"float:left; margin:12px 12px 20px 0;\"></span>" +
-        __("You are overwriting the filter:", "campi-moduli-italiani") + "<b><i>" +
-        myfiltername +
+      title = "Sovrascrivi";
+      message =
+        "<span class=\"ui-icon ui-icon-notice\" style=\"float:left; " +
+        "margin:12px 12px 20px 0;\"></span>" +
+        __("You are overwriting the filter:",
+          "campi-moduli-italiani") +
+        "<b><i>" +
+        myFilterName +
         "</i></b>.<br>" +
         __("Do you want to continue?", "campi-moduli-italiani");
       $.when(customConfirm(message, title)).then(function () {
-        saveFilter(includi, myfiltername, searchIDs);
+        saveFilter(include, myFilterName, searchIDs);
       });
       return;
     }
-    saveFilter(includi, myfiltername, searchIDs);
+    saveFilter(include, myFilterName, searchIDs);
   });
   // Creo le tabs per il filter builder
   $("#gcmi-fb-tabs").tabs({
     active: 0,
-    collapsible: true,
-    heightStyle: "content",
     classes: {
       "ui-tabs": "ui-corner-none",
       "ui-tabs-nav": "ui-corner-none",
-      "ui-tabs-tab": "ui-corner-none",
-      "ui-tabs-panel": "ui-corner-none"
-    }
+      "ui-tabs-panel": "ui-corner-none",
+      "ui-tabs-tab": "ui-corner-none"
+    },
+    collapsible: true,
+    heightStyle: "content"
   });
   // click su regioni
-  $(document).on("change", "input[type='checkbox'][id^='fb-gcmi-reg-']", function () {
-    var chk = $(this);
-    var codreg = $(this).attr("id").split("-").pop();
-    if (false === chk.prop("checked")) {
-      // Rimuovo il check da checkall
-      $("[id='fb-gcmi-chkallreg'").removeAttr("checked");
-      // disabilito le province della regione
-      $("#gcmi-fb-regione-blocco-" + codreg)
-        .find("input[type='checkbox'][id^=\"fb-gcmi-prov-\"]:checked")
-        .removeAttr("checked");
-      $("#gcmi-fb-regione-blocco-" + codreg)
-        .find("input[type=checkbox][id^=\"fb-gcmi-prov-\"]")
-        .trigger("change");
-      // rendo invisibile il blocco
-      $("#gcmi-fb-regione-blocco-" + codreg).hide();
-    } else {
-      // li abilito (difficile capire qui cosa gli utenti possono preferire)
-      $("#gcmi-fb-regione-blocco-" + codreg)
-        .find("input[type=checkbox][id^='fb-gcmi-prov-']:not(:checked)")
-        .prop("checked", true);
-      $("#gcmi-fb-regione-blocco-" + codreg)
-        .find("input[type=checkbox][id^='fb-gcmi-prov-']")
-        .trigger("change");
-      $("#gcmi-fb-regione-blocco-" + codreg).show();
-       // metto il check a checkall se sono tutte checked
-      if (
-      $("[id='gcmi-fb-regioni-container").find(
-        "input[type=checkbox][id^=fb-gcmi-reg-]:checked"
-      ).length ===
-      $("[id='gcmi-fb-regioni-container'").find(
-        "input[type=checkbox][id^=fb-gcmi-reg-]"
-      ).length
-    ) {
-      $("[id='fb-gcmi-chkallreg").prop("checked", true);
-    }
-    
-    }
-  });
+  $(document).on("change", "input[type='checkbox'][id^='fb-gcmi-reg-']",
+    function () {
+      var chk = $(this);
+      var codreg = $(this).attr("id").split("-").pop();
+      if (false === chk.prop("checked")) {
+        // Rimuovo il check da checkall
+        $("[id='fb-gcmi-chkallreg'").prop("checked", false);
+        // disabilito le province della regione
+        $("#gcmi-fb-regione-blocco-" + codreg)
+          .find("input[type='checkbox'][id^=\"fb-gcmi-prov-\"]:checked")
+          .prop("checked", false);
+        $("#gcmi-fb-regione-blocco-" + codreg)
+          .find("input[type=checkbox][id^=\"fb-gcmi-prov-\"]")
+          .trigger("change");
+        // rendo invisibile il blocco
+        $("#gcmi-fb-regione-blocco-" + codreg).hide();
+      } else {
+        // li abilito (difficile capire qui cosa gli utenti possono preferire)
+        $("#gcmi-fb-regione-blocco-" + codreg)
+          .find("input[type=checkbox][id^='fb-gcmi-prov-']:not(:checked)")
+          .prop("checked", true);
+        $("#gcmi-fb-regione-blocco-" + codreg)
+          .find("input[type=checkbox][id^='fb-gcmi-prov-']")
+          .trigger("change");
+        $("#gcmi-fb-regione-blocco-" + codreg).show();
+        // metto il check a checkall se sono tutte checked
+        if (
+          $("[id='gcmi-fb-regioni-container").find(
+            "input[type=checkbox][id^=fb-gcmi-reg-]:checked"
+          ).length ===
+          $("[id='gcmi-fb-regioni-container'").find(
+            "input[type=checkbox][id^=fb-gcmi-reg-]"
+          ).length
+        ) {
+          $("[id='fb-gcmi-chkallreg").prop("checked", true);
+        }
+
+      }
+    });
   // click su province
-  $(document).on("change", "input[type='checkbox'][id^='fb-gcmi-prov-']", function () {
-    var chk = $(this);
-    var codprov = $(this).attr("id").split("-").pop();
-    var codreg = $(this).parent().attr("class").split("-").pop();
-    if (false === chk.prop("checked")) {
+  $(document).on("change", "input[type='checkbox'][id^='fb-gcmi-prov-']",
+    function () {
+      var chk = $(this);
+      var codprov = $(this).attr("id").split("-").pop();
+      var codreg = $(this).parent().attr("class").split("-").pop();
+      if (false === chk.prop("checked")) {
+        // Rimuovo il check da checkall
+        $("[id='fb-gcmi-chkallpr-" + codreg + "'").prop("checked", false);
+        // disabilito tutti i comuni della provincia
+        $("[name^='gcmi-com-cod-pro-" + codprov + "'")
+          .find("input[type=checkbox]:checked")
+          .prop("checked", false);
+        // li nascondo
+        $("[name^='gcmi-com-cod-pro-" + codprov + "'").hide();
+        hideemptyletters();
+      } else {
+        // li visualizzo
+        $("[name^='gcmi-com-cod-pro-" + codprov + "'").show();
+        // li abilito (difficile capire qui cosa gli utenti possono preferire)
+        $("[name^='gcmi-com-cod-pro-" + codprov + "'")
+          .find("input[type=checkbox]:not(:checked)")
+          .prop("checked", true);
+        hideemptyletters();
+        // metto il check a checkall se sono tutte checked
+        if (
+          $("[id='gcmi-fb-regione-blocco-" + codreg + "'").find(
+            "input[type=checkbox][id^=fb-gcmi-prov-]:checked"
+          ).length ===
+          $("[id='gcmi-fb-regione-blocco-" + codreg + "'").find(
+            "input[type=checkbox][id^=fb-gcmi-prov-]"
+          ).length
+        ) {
+          $("[id='fb-gcmi-chkallpr-" + codreg + "'").prop("checked", true);
+        }
+      }
+    });
+  // click su un comune
+  $(document).on("change", "input[type='checkbox'][id^='fb-gcmi-com-']",
+    function () {
+      var letteraIniziale = Array.from(
+        $("label[for='" + this.name + "']").text()
+      )[0];
       // Rimuovo il check da checkall
-      $("[id='fb-gcmi-chkallpr-" + codreg + "'").removeAttr("checked");
-      // disabilito tutti i comuni della provincia
-      $("[name^='gcmi-com-cod-pro-" + codprov + "'")
-        .find("input[type=checkbox]:checked")
-        .removeAttr("checked");
-      // li nascondo
-      $("[name^='gcmi-com-cod-pro-" + codprov  + "'").hide();
-      hideemptyletters();
-    } else {
-      // li visualizzo
-      $("[name^='gcmi-com-cod-pro-" + codprov  + "'").show();
-      // li abilito (difficile capire qui cosa gli utenti possono preferire)
-      $("[name^='gcmi-com-cod-pro-" + codprov  + "'")
-        .find("input[type=checkbox]:not(:checked)")
-        .prop("checked", true);
-      hideemptyletters();
+      $("[id='fb-gcmi-chkallcom-" + letteraIniziale + "'").prop("checked", false);
       // metto il check a checkall se sono tutte checked
       if (
-        $("[id='gcmi-fb-regione-blocco-" + codreg + "'").find(
-          "input[type=checkbox][id^=fb-gcmi-prov-]:checked"
+        $("[id='gcmi-fb-lettera-blocco-" + letteraIniziale + "'").find(
+          "input[type=checkbox][id^=fb-gcmi-com-]:visible:checked"
         ).length ===
-        $("[id='gcmi-fb-regione-blocco-" + codreg + "'").find(
-          "input[type=checkbox][id^=fb-gcmi-prov-]"
+        $("[id='gcmi-fb-lettera-blocco-" + letteraIniziale + "'").find(
+          "input[type=checkbox][id^=fb-gcmi-com-]:visible"
         ).length
       ) {
-        $("[id='fb-gcmi-chkallpr-" + codreg + "'").prop("checked", true);
+        $("[id='fb-gcmi-chkallcom-" + letteraIniziale + "'")
+          .prop("checked", true);
       }
-    }
-  });
-  // click su un comune
-  $(document).on("change", "input[type='checkbox'][id^='fb-gcmi-com-']", function () {
-    let letteraIniziale = Array.from(
-      $("label[for='" + this.name + "']").text()
-    )[0];
-    // Rimuovo il check da checkall
-    $("[id='fb-gcmi-chkallcom-" + letteraIniziale + "'").removeAttr("checked");
-    // metto il check a checkall se sono tutte checked
-    if (
-      $("[id='gcmi-fb-lettera-blocco-" + letteraIniziale + "'").find(
-        "input[type=checkbox][id^=fb-gcmi-com-]:visible:checked"
-      ).length ===
-      $("[id='gcmi-fb-lettera-blocco-" + letteraIniziale + "'").find(
-        "input[type=checkbox][id^=fb-gcmi-com-]:visible"
-      ).length
-    ) {
-      $("[id='fb-gcmi-chkallcom-" + letteraIniziale + "'").prop("checked", true);
-    }
-  });
-  // seleziona/deseleziona tutte le regioni
-  $(document).on("change", "input[type='checkbox'][id='fb-gcmi-chkallreg']", function () {
-    var chk = $(this);
-    if (false === chk.prop("checked")) {
-      $( "input[type='checkbox'][id^='fb-gcmi-reg-']" ).each(function () {
-        $(this)
-          .removeAttr("checked")
-          .trigger("change");
-      });
-    } else {
-      $( "input[type='checkbox'][id^='fb-gcmi-reg-']" ).each(function () {
-        $(this)
-          .prop("checked",true)
-          .trigger("change");
-      });
-    }
-  });
-  // seleziona/deseleziona tutte le province della regione
-  $(document).on("change", "input[type='checkbox'][id^='fb-gcmi-chkallpr-']", function () {
-    var chk = $(this);
-    var codreg = $(this).attr("id").split("-").pop();
-    if (false === chk.prop("checked")) {
-      // disabilito le province della regione
-      $("#gcmi-fb-regione-blocco-" + codreg)
-        .find("input[type=checkbox]:checked")
-        .not("[id^='fb-gcmi-chkallpr-']")
-        .removeAttr("checked");
-      $("#gcmi-fb-regione-blocco-" + codreg)
-        .find("input[type=checkbox]")
-        .not("[id^='fb-gcmi-chkallpr-']")
-        .trigger("change");
-    } else {
-      $("#gcmi-fb-regione-blocco-" + codreg)
-        .find("input[type=checkbox]:not(:checked)")
-        .not("[id^='fb-gcmi-chkallpr-']")
-        .prop("checked", true);
-      $("#gcmi-fb-regione-blocco-" + codreg)
-        .find("input[type=checkbox]")
-        .not("[id^='fb-gcmi-chkallpr-']")
-        .trigger("change");
-    }
-  });
-  // seleziona/deseleziona tutti i comuni con la lettera
-  $(document).on("change", "input[type='checkbox'][id^='fb-gcmi-chkallcom-']", function () {
-    var chk = $(this);
-    var lettera = $(this).attr("id").split("-").pop();
-    if (false === chk.prop("checked")) {
-      // disabilito i comuni con l'iniziale
-      $("#gcmi-fb-lettera-blocco-" + lettera)
-        .find("input[type=checkbox]:checked:visible")
-        .not("[id^='fb-gcmi-chkallcom-']")
-        .removeAttr("checked");
-    } else {
-      $("#gcmi-fb-lettera-blocco-" + lettera)
-        .find("input[type=checkbox]:not(:checked):visible")
-        .not("[id^='fb-gcmi-chkallcom-']")
-        .prop("checked", true);
-    }
-  });
-  // click su selettore cessati
-  $(document).on("change", "input[type='checkbox'][id='gcmi-fb-include-ceased']",function () {
-    realFilterName = $("#fb_gcmi_filter_name").val();
-    var cdate = new Date();
-    var tmpFilterName = "tmp_" + cdate.getTime();
-    var includi = $("#gcmi-fb-include-ceased").prop("checked");
-    event.preventDefault();
-    var searchIDs = $("#gcmi-fb-tabs-4")
-      .find("input[type=checkbox]:checked")
-      .not("[id^='fb-gcmi-chkallcom-']")
-      .map(function () {
-        return $(this).val();
-      })
-      .get();
-    cleaningTabs();
-    waitingTabs();
-    saveFilter(includi, tmpFilterName, searchIDs, true );
-    waitForEl("#fb_gcmi_filter_name", function() {
-      $("#fb_gcmi_filter_name").val(realFilterName);
     });
-  });
+  // seleziona/deseleziona tutte le regioni
+  $(document).on("change", "input[type='checkbox'][id='fb-gcmi-chkallreg']",
+    function () {
+      var chk = $(this);
+      if (false === chk.prop("checked")) {
+        $("input[type='checkbox'][id^='fb-gcmi-reg-']").each(function () {
+          $(this)
+            .prop("checked", false)
+            .trigger("change");
+        });
+      } else {
+        $("input[type='checkbox'][id^='fb-gcmi-reg-']").each(function () {
+          $(this)
+            .prop("checked", true)
+            .trigger("change");
+        });
+      }
+    });
+  // seleziona/deseleziona tutte le province della regione
+  $(document).on("change", "input[type='checkbox'][id^='fb-gcmi-chkallpr-']",
+    function () {
+      var chk = $(this);
+      var codreg = $(this).attr("id").split("-").pop();
+      if (false === chk.prop("checked")) {
+        // disabilito le province della regione
+        $("#gcmi-fb-regione-blocco-" + codreg)
+          .find("input[type=checkbox]:checked")
+          .not("[id^='fb-gcmi-chkallpr-']")
+          .prop("checked", false);
+        $("#gcmi-fb-regione-blocco-" + codreg)
+          .find("input[type=checkbox]")
+          .not("[id^='fb-gcmi-chkallpr-']")
+          .trigger("change");
+      } else {
+        $("#gcmi-fb-regione-blocco-" + codreg)
+          .find("input[type=checkbox]:not(:checked)")
+          .not("[id^='fb-gcmi-chkallpr-']")
+          .prop("checked", true);
+        $("#gcmi-fb-regione-blocco-" + codreg)
+          .find("input[type=checkbox]")
+          .not("[id^='fb-gcmi-chkallpr-']")
+          .trigger("change");
+      }
+    });
+  // seleziona/deseleziona tutti i comuni con la lettera
+  $(document).on("change", "input[type='checkbox'][id^='fb-gcmi-chkallcom-']",
+    function () {
+      var chk = $(this);
+      var lettera = $(this).attr("id").split("-").pop();
+      if (false === chk.prop("checked")) {
+        // disabilito i comuni con l'iniziale
+        $("#gcmi-fb-lettera-blocco-" + lettera)
+          .find("input[type=checkbox]:checked:visible")
+          .not("[id^='fb-gcmi-chkallcom-']")
+          .prop("checked", false);
+      } else {
+        $("#gcmi-fb-lettera-blocco-" + lettera)
+          .find("input[type=checkbox]:not(:checked):visible")
+          .not("[id^='fb-gcmi-chkallcom-']")
+          .prop("checked", true);
+      }
+    });
+  // click su selettore cessati
+  $(document).on("change",
+    "input[type='checkbox'][id='gcmi-fb-include-ceased']",
+    function () {
+      var cdate = new Date();
+      var tmpFilterName = "tmp_" + cdate.getTime();
+      var includi = $("#gcmi-fb-include-ceased").prop("checked");
+      var searchIDs = [];
+      event.preventDefault();
+      realFilterName = $("#fb_gcmi_filter_name").val();
+      searchIDs = $("#gcmi-fb-tabs-4")
+        .find("input[type=checkbox]:checked")
+        .not("[id^='fb-gcmi-chkallcom-']")
+        .map(function () {
+          return $(this).val();
+        })
+        .get();
+      cleaningTabs();
+      waitingTabs();
+      saveFilter(includi, tmpFilterName, searchIDs, true);
+      waitForEl("#fb_gcmi_filter_name", function () {
+        $("#fb_gcmi_filter_name").val(realFilterName);
+      });
+    });
 
   function disableFilters() {
     $("button[id^='gcmi-fb-delete-filter-']").attr("disabled", "disabled");
@@ -432,7 +480,7 @@ jQuery(document).ready(function ($) {
 
   function waitingTabs() {
     var waiting_string = "<span>In attesa dei dati...</span>";
-    $('#gcmi-spinner-blocks').removeClass('hidden');
+    $("#gcmi-spinner-blocks").removeClass("hidden");
     $("#gcmi-fb-tabs-2").append(waiting_string);
     $("#gcmi-fb-tabs-3").append(waiting_string);
     $("#gcmi-fb-tabs-4").append(waiting_string);
@@ -440,19 +488,17 @@ jQuery(document).ready(function ($) {
   }
 
   function printTabsContent() {
-    var includi = $("#gcmi-fb-include-ceased").prop("checked");
+    var include = $("#gcmi-fb-include-ceased").prop("checked");
     $.ajax({
-      type: "post",
-      dataType: "json",
-      url: gcmi_fb_obj.ajax_url,
-      data: {
-        action: "gcmi_fb_requery_comuni",
-        _ajax_nonce: gcmi_fb_obj.nonce,
-        includi: includi
-      },
       complete: function () {
-        $('#gcmi-spinner-blocks').addClass('hidden');
+        $("#gcmi-spinner-blocks").addClass("hidden");
       },
+      data: {
+        _ajax_nonce: gcmi_fb_obj.nonce,
+        action: "gcmi_fb_requery_comuni",
+        includi: include
+      },
+      dataType: "json",
       success: function (res) {
         cleaningTabs();
         $("#gcmi-fb-tabs-2").append(res.regioni_html);
@@ -460,24 +506,26 @@ jQuery(document).ready(function ($) {
         $("#gcmi-fb-tabs-4").append(res.comuni_html);
         $("#gcmi-fb-tabs-5").append(res.commit_buttons);
       },
+      type: "post",
+      url: gcmi_fb_obj.ajax_url
     });
   }
 
   function printTabsEditFilter(editfiltername) {
-    var includi = $("#gcmi-fb-include-ceased").prop("checked");
+    var include = $("#gcmi-fb-include-ceased").prop("checked");
     $.ajax({
-      type: "post",
-      dataType: "json",
-      url: gcmi_fb_obj.ajax_url,
-      data: {
-        action: "gcmi_fb_edit_filter",
-        _ajax_nonce: gcmi_fb_obj.nonce,
-        includi: includi,
-        filtername: editfiltername
-      },
-
       complete: function () {
-        $('#gcmi-spinner-blocks').addClass('hidden');
+        $("#gcmi-spinner-blocks").addClass("hidden");
+      },
+      data: {
+        _ajax_nonce: gcmi_fb_obj.nonce,
+        action: "gcmi_fb_edit_filter",
+        filtername: editfiltername,
+        includi: include
+      },
+      dataType: "json",
+      error: function (res) {
+        showResErrorMessage(res, "RetrieveFilter");
       },
       success: function (res) {
         cleaningTabs();
@@ -496,55 +544,55 @@ jQuery(document).ready(function ($) {
         $("#gcmi-fb-tabs-4").append(res.comuni_html);
         $("#gcmi-fb-tabs-5").append(res.commit_buttons);
 
-        // se non sono selezionate le regioni nel primo quadro, metto l'uncheck al checkall della regione
+        // se non sono selezionate le regioni nel primo quadro,
+        // metto l'uncheck al checkall della regione
         $("#gcmi-fb-tabs-2 input[type=checkbox]:not(:checked)")
           .not("[id^='fb-gcmi-chkall-']")
           .each(function () {
-            $(this).change();
+            $(this).trigger("change");
           });
         $("#gcmi-fb-tabs-3 input[type=checkbox]:not(:checked)")
           .not("[id^='fb-gcmi-chkallpr-']")
           .each(function () {
-            $(this).change();
+            $(this).trigger("change");
           });
-        $( ".gcmi-fb-lettera-blocco" )
-          .each(function (){
+        $(".gcmi-fb-lettera-blocco")
+          .each(function () {
             $(this).find(":checkbox").not("[id^='fb-gcmi-chkallcom-']")
-            .first()
-            .change();
-        });
+              .first()
+              .trigger("change");
+          });
       },
-      error: function (res) {
-        showResErrorMessage(res, "RetrieveFilter");
-      }
+      type: "post",
+      url: gcmi_fb_obj.ajax_url
     });
   }
 
   function print_filters() {
     $.ajax({
-      type: "post",
-      dataType: "json",
-      url: gcmi_fb_obj.ajax_url,
       data: {
-        action: "gcmi_fb_get_filters",
-        _ajax_nonce: gcmi_fb_obj.nonce
+        _ajax_nonce: gcmi_fb_obj.nonce,
+        action: "gcmi_fb_get_filters"
       },
+      dataType: "json",
       success: function (res) {
         $("#gcmi-fb-filters-container").html("");
         $("#gcmi-fb-filters-container").append(res.data.filters_html);
       },
+      type: "post",
+      url: gcmi_fb_obj.ajax_url
     });
   }
 
   function sanitize_table_name(name) {
-    let clean;
+    var clean;
+    // caratteri ascii da 128 a 255
+    var thisRegex = new RegExp(/[\x80-\xff]/g);
     if (typeof name === "string" || name instanceof String) {
       if (0 === name.length) {
         return false;
       }
       clean = name.trim();
-      // caratteri ascii da 128 a 255
-      let thisRegex = new RegExp(/[\x80-\xff]/g);
       if (thisRegex.test(clean)) {
         //clean = clean.normalize("NFKC").replace(/[\u0300-\u036f]/g, "");
         //clean = clean.normalize("NFD").replace(/\p{Diacritic}/gu, "");
@@ -568,334 +616,336 @@ jQuery(document).ready(function ($) {
   }
 
   function remove_accents(string) {
-    let chars = {
+    var replaced_string = "";
+    var i = 0;
+    var chars = {
       // Decompositions for Latin-1 Supplement.
-      ª: "a",
-      º: "o",
-      À: "A",
-      Á: "A",
-      Â: "A",
-      Ã: "A",
-      Ä: "A",
-      Å: "A",
-      Æ: "AE",
-      Ç: "C",
-      È: "E",
-      É: "E",
-      Ê: "E",
-      Ë: "E",
-      Ì: "I",
-      Í: "I",
-      Î: "I",
-      Ï: "I",
-      Ð: "D",
-      Ñ: "N",
-      Ò: "O",
-      Ó: "O",
-      Ô: "O",
-      Õ: "O",
-      Ö: "O",
-      Ù: "U",
-      Ú: "U",
-      Û: "U",
-      Ü: "U",
-      Ý: "Y",
-      Þ: "TH",
-      ß: "s",
-      à: "a",
-      á: "a",
-      â: "a",
-      ã: "a",
-      ä: "a",
-      å: "a",
-      æ: "ae",
-      ç: "c",
-      è: "e",
-      é: "e",
-      ê: "e",
-      ë: "e",
-      ì: "i",
-      í: "i",
-      î: "i",
-      ï: "i",
-      ð: "d",
-      ñ: "n",
-      ò: "o",
-      ó: "o",
-      ô: "o",
-      õ: "o",
-      ö: "o",
-      ø: "o",
-      ù: "u",
-      ú: "u",
-      û: "u",
-      ü: "u",
-      ý: "y",
-      þ: "th",
-      ÿ: "y",
-      Ø: "O",
+      "ª": "a",
+      "º": "o",
+      "À": "A",
+      "Á": "A",
+      "Â": "A",
+      "Ã": "A",
+      "Ä": "A",
+      "Å": "A",
+      "Æ": "AE",
+      "Ç": "C",
+      "È": "E",
+      "É": "E",
+      "Ê": "E",
+      "Ë": "E",
+      "Ì": "I",
+      "Í": "I",
+      "Î": "I",
+      "Ï": "I",
+      "Ð": "D",
+      "Ñ": "N",
+      "Ò": "O",
+      "Ó": "O",
+      "Ô": "O",
+      "Õ": "O",
+      "Ö": "O",
+      "Ù": "U",
+      "Ú": "U",
+      "Û": "U",
+      "Ü": "U",
+      "Ý": "Y",
+      "Þ": "TH",
+      "ß": "s",
+      "à": "a",
+      "á": "a",
+      "â": "a",
+      "ã": "a",
+      "ä": "a",
+      "å": "a",
+      "æ": "ae",
+      "ç": "c",
+      "è": "e",
+      "é": "e",
+      "ê": "e",
+      "ë": "e",
+      "ì": "i",
+      "í": "i",
+      "î": "i",
+      "ï": "i",
+      "ð": "d",
+      "ñ": "n",
+      "ò": "o",
+      "ó": "o",
+      "ô": "o",
+      "õ": "o",
+      "ö": "o",
+      "ø": "o",
+      "ù": "u",
+      "ú": "u",
+      "û": "u",
+      "ü": "u",
+      "ý": "y",
+      "þ": "th",
+      "ÿ": "y",
+      "Ø": "O",
       // Decompositions for Latin Extended-A.
-      Ā: "A",
-      ā: "a",
-      Ă: "A",
-      ă: "a",
-      Ą: "A",
-      ą: "a",
-      Ć: "C",
-      ć: "c",
-      Ĉ: "C",
-      ĉ: "c",
-      Ċ: "C",
-      ċ: "c",
-      Č: "C",
-      č: "c",
-      Ď: "D",
-      ď: "d",
-      Đ: "D",
-      đ: "d",
-      Ē: "E",
-      ē: "e",
-      Ĕ: "E",
-      ĕ: "e",
-      Ė: "E",
-      ė: "e",
-      Ę: "E",
-      ę: "e",
-      Ě: "E",
-      ě: "e",
-      Ĝ: "G",
-      ĝ: "g",
-      Ğ: "G",
-      ğ: "g",
-      Ġ: "G",
-      ġ: "g",
-      Ģ: "G",
-      ģ: "g",
-      Ĥ: "H",
-      ĥ: "h",
-      Ħ: "H",
-      ħ: "h",
-      Ĩ: "I",
-      ĩ: "i",
-      Ī: "I",
-      ī: "i",
-      Ĭ: "I",
-      ĭ: "i",
-      Į: "I",
-      į: "i",
-      İ: "I",
-      ı: "i",
-      Ĳ: "IJ",
-      ĳ: "ij",
-      Ĵ: "J",
-      ĵ: "j",
-      Ķ: "K",
-      ķ: "k",
-      ĸ: "k",
-      Ĺ: "L",
-      ĺ: "l",
-      Ļ: "L",
-      ļ: "l",
-      Ľ: "L",
-      ľ: "l",
-      Ŀ: "L",
-      ŀ: "l",
-      Ł: "L",
-      ł: "l",
-      Ń: "N",
-      ń: "n",
-      Ņ: "N",
-      ņ: "n",
-      Ň: "N",
-      ň: "n",
-      ŉ: "n",
-      Ŋ: "N",
-      ŋ: "n",
-      Ō: "O",
-      ō: "o",
-      Ŏ: "O",
-      ŏ: "o",
-      Ő: "O",
-      ő: "o",
-      Œ: "OE",
-      œ: "oe",
-      Ŕ: "R",
-      ŕ: "r",
-      Ŗ: "R",
-      ŗ: "r",
-      Ř: "R",
-      ř: "r",
-      Ś: "S",
-      ś: "s",
-      Ŝ: "S",
-      ŝ: "s",
-      Ş: "S",
-      ş: "s",
-      Š: "S",
-      š: "s",
-      Ţ: "T",
-      ţ: "t",
-      Ť: "T",
-      ť: "t",
-      Ŧ: "T",
-      ŧ: "t",
-      Ũ: "U",
-      ũ: "u",
-      Ū: "U",
-      ū: "u",
-      Ŭ: "U",
-      ŭ: "u",
-      Ů: "U",
-      ů: "u",
-      Ű: "U",
-      ű: "u",
-      Ų: "U",
-      ų: "u",
-      Ŵ: "W",
-      ŵ: "w",
-      Ŷ: "Y",
-      ŷ: "y",
-      Ÿ: "Y",
-      Ź: "Z",
-      ź: "z",
-      Ż: "Z",
-      ż: "z",
-      Ž: "Z",
-      ž: "z",
-      ſ: "s",
+      "Ā": "A",
+      "ā": "a",
+      "Ă": "A",
+      "ă": "a",
+      "Ą": "A",
+      "ą": "a",
+      "Ć": "C",
+      "ć": "c",
+      "Ĉ": "C",
+      "ĉ": "c",
+      "Ċ": "C",
+      "ċ": "c",
+      "Č": "C",
+      "č": "c",
+      "Ď": "D",
+      "ď": "d",
+      "Đ": "D",
+      "đ": "d",
+      "Ē": "E",
+      "ē": "e",
+      "Ĕ": "E",
+      "ĕ": "e",
+      "Ė": "E",
+      "ė": "e",
+      "Ę": "E",
+      "ę": "e",
+      "Ě": "E",
+      "ě": "e",
+      "Ĝ": "G",
+      "ĝ": "g",
+      "Ğ": "G",
+      "ğ": "g",
+      "Ġ": "G",
+      "ġ": "g",
+      "Ģ": "G",
+      "ģ": "g",
+      "Ĥ": "H",
+      "ĥ": "h",
+      "Ħ": "H",
+      "ħ": "h",
+      "Ĩ": "I",
+      "ĩ": "i",
+      "Ī": "I",
+      "ī": "i",
+      "Ĭ": "I",
+      "ĭ": "i",
+      "Į": "I",
+      "į": "i",
+      "İ": "I",
+      "ı": "i",
+      "Ĳ": "IJ",
+      "ĳ": "ij",
+      "Ĵ": "J",
+      "ĵ": "j",
+      "Ķ": "K",
+      "ķ": "k",
+      "ĸ": "k",
+      "Ĺ": "L",
+      "ĺ": "l",
+      "Ļ": "L",
+      "ļ": "l",
+      "Ľ": "L",
+      "ľ": "l",
+      "Ŀ": "L",
+      "ŀ": "l",
+      "Ł": "L",
+      "ł": "l",
+      "Ń": "N",
+      "ń": "n",
+      "Ņ": "N",
+      "ņ": "n",
+      "Ň": "N",
+      "ň": "n",
+      "ŉ": "n",
+      "Ŋ": "N",
+      "ŋ": "n",
+      "Ō": "O",
+      "ō": "o",
+      "Ŏ": "O",
+      "ŏ": "o",
+      "Ő": "O",
+      "ő": "o",
+      "Œ": "OE",
+      "œ": "oe",
+      "Ŕ": "R",
+      "ŕ": "r",
+      "Ŗ": "R",
+      "ŗ": "r",
+      "Ř": "R",
+      "ř": "r",
+      "Ś": "S",
+      "ś": "s",
+      "Ŝ": "S",
+      "ŝ": "s",
+      "Ş": "S",
+      "ş": "s",
+      "Š": "S",
+      "š": "s",
+      "Ţ": "T",
+      "ţ": "t",
+      "Ť": "T",
+      "ť": "t",
+      "Ŧ": "T",
+      "ŧ": "t",
+      "Ũ": "U",
+      "ũ": "u",
+      "Ū": "U",
+      "ū": "u",
+      "Ŭ": "U",
+      "ŭ": "u",
+      "Ů": "U",
+      "ů": "u",
+      "Ű": "U",
+      "ű": "u",
+      "Ų": "U",
+      "ų": "u",
+      "Ŵ": "W",
+      "ŵ": "w",
+      "Ŷ": "Y",
+      "ŷ": "y",
+      "Ÿ": "Y",
+      "Ź": "Z",
+      "ź": "z",
+      "Ż": "Z",
+      "ż": "z",
+      "Ž": "Z",
+      "ž": "z",
+      "ſ": "s",
       // Decompositions for Latin Extended-B.
-      Ə: "E",
-      ǝ: "e",
-      Ș: "S",
-      ș: "s",
-      Ț: "T",
-      ț: "t",
+      "Ə": "E",
+      "ǝ": "e",
+      "Ș": "S",
+      "ș": "s",
+      "Ț": "T",
+      "ț": "t",
       // Euro sign.
       "€": "E",
       // GBP (Pound) sign.
       "£": "",
       // Vowels with diacritic (Vietnamese). Unmarked.
-      Ơ: "O",
-      ơ: "o",
-      Ư: "U",
-      ư: "u",
+      "Ơ": "O",
+      "ơ": "o",
+      "Ư": "U",
+      "ư": "u",
       // Grave accent.
-      Ầ: "A",
-      ầ: "a",
-      Ằ: "A",
-      ằ: "a",
-      Ề: "E",
-      ề: "e",
-      Ồ: "O",
-      ồ: "o",
-      Ờ: "O",
-      ờ: "o",
-      Ừ: "U",
-      ừ: "u",
-      Ỳ: "Y",
-      ỳ: "y",
+      "Ầ": "A",
+      "ầ": "a",
+      "Ằ": "A",
+      "ằ": "a",
+      "Ề": "E",
+      "ề": "e",
+      "Ồ": "O",
+      "ồ": "o",
+      "Ờ": "O",
+      "ờ": "o",
+      "Ừ": "U",
+      "ừ": "u",
+      "Ỳ": "Y",
+      "ỳ": "y",
       // Hook.
-      Ả: "A",
-      ả: "a",
-      Ẩ: "A",
-      ẩ: "a",
-      Ẳ: "A",
-      ẳ: "a",
-      Ẻ: "E",
-      ẻ: "e",
-      Ể: "E",
-      ể: "e",
-      Ỉ: "I",
-      ỉ: "i",
-      Ỏ: "O",
-      ỏ: "o",
-      Ổ: "O",
-      ổ: "o",
-      Ở: "O",
-      ở: "o",
-      Ủ: "U",
-      ủ: "u",
-      Ử: "U",
-      ử: "u",
-      Ỷ: "Y",
-      ỷ: "y",
+      "Ả": "A",
+      "ả": "a",
+      "Ẩ": "A",
+      "ẩ": "a",
+      "Ẳ": "A",
+      "ẳ": "a",
+      "Ẻ": "E",
+      "ẻ": "e",
+      "Ể": "E",
+      "ể": "e",
+      "Ỉ": "I",
+      "ỉ": "i",
+      "Ỏ": "O",
+      "ỏ": "o",
+      "Ổ": "O",
+      "ổ": "o",
+      "Ở": "O",
+      "ở": "o",
+      "Ủ": "U",
+      "ủ": "u",
+      "Ử": "U",
+      "ử": "u",
+      "Ỷ": "Y",
+      "ỷ": "y",
       // Tilde.
-      Ẫ: "A",
-      ẫ: "a",
-      Ẵ: "A",
-      ẵ: "a",
-      Ẽ: "E",
-      ẽ: "e",
-      Ễ: "E",
-      ễ: "e",
-      Ỗ: "O",
-      ỗ: "o",
-      Ỡ: "O",
-      ỡ: "o",
-      Ữ: "U",
-      ữ: "u",
-      Ỹ: "Y",
-      ỹ: "y",
+      "Ẫ": "A",
+      "ẫ": "a",
+      "Ẵ": "A",
+      "ẵ": "a",
+      "Ẽ": "E",
+      "ẽ": "e",
+      "Ễ": "E",
+      "ễ": "e",
+      "Ỗ": "O",
+      "ỗ": "o",
+      "Ỡ": "O",
+      "ỡ": "o",
+      "Ữ": "U",
+      "ữ": "u",
+      "Ỹ": "Y",
+      "ỹ": "y",
       // Acute accent.
-      Ấ: "A",
-      ấ: "a",
-      Ắ: "A",
-      ắ: "a",
-      Ế: "E",
-      ế: "e",
-      Ố: "O",
-      ố: "o",
-      Ớ: "O",
-      ớ: "o",
-      Ứ: "U",
-      ứ: "u",
+      "Ấ": "A",
+      "ấ": "a",
+      "Ắ": "A",
+      "ắ": "a",
+      "Ế": "E",
+      "ế": "e",
+      "Ố": "O",
+      "ố": "o",
+      "Ớ": "O",
+      "ớ": "o",
+      "Ứ": "U",
+      "ứ": "u",
       // Dot below.
-      Ạ: "A",
-      ạ: "a",
-      Ậ: "A",
-      ậ: "a",
-      Ặ: "A",
-      ặ: "a",
-      Ẹ: "E",
-      ẹ: "e",
-      Ệ: "E",
-      ệ: "e",
-      Ị: "I",
-      ị: "i",
-      Ọ: "O",
-      ọ: "o",
-      Ộ: "O",
-      ộ: "o",
-      Ợ: "O",
-      ợ: "o",
-      Ụ: "U",
-      ụ: "u",
-      Ự: "U",
-      ự: "u",
-      Ỵ: "Y",
-      ỵ: "y",
+      "Ạ": "A",
+      "ạ": "a",
+      "Ậ": "A",
+      "ậ": "a",
+      "Ặ": "A",
+      "ặ": "a",
+      "Ẹ": "E",
+      "ẹ": "e",
+      "Ệ": "E",
+      "ệ": "e",
+      "Ị": "I",
+      "ị": "i",
+      "Ọ": "O",
+      "ọ": "o",
+      "Ộ": "O",
+      "ộ": "o",
+      "Ợ": "O",
+      "ợ": "o",
+      "Ụ": "U",
+      "ụ": "u",
+      "Ự": "U",
+      "ự": "u",
+      "Ỵ": "Y",
+      "ỵ": "y",
       // Vowels with diacritic (Chinese, Hanyu Pinyin).
-      ɑ: "a",
+      "ɑ": "a",
       // Macron.
-      Ǖ: "U",
-      ǖ: "u",
+      "Ǖ": "U",
+      "ǖ": "u",
       // Acute accent.
-      Ǘ: "U",
-      ǘ: "u",
+      "Ǘ": "U",
+      "ǘ": "u",
       // Caron.
-      Ǎ: "A",
-      ǎ: "a",
-      Ǐ: "I",
-      ǐ: "i",
-      Ǒ: "O",
-      ǒ: "o",
-      Ǔ: "U",
-      ǔ: "u",
-      Ǚ: "U",
-      ǚ: "u",
+      "Ǎ": "A",
+      "ǎ": "a",
+      "Ǐ": "I",
+      "ǐ": "i",
+      "Ǒ": "O",
+      "ǒ": "o",
+      "Ǔ": "U",
+      "ǔ": "u",
+      "Ǚ": "U",
+      "ǚ": "u",
       // Grave accent.
-      Ǜ: "U",
-      ǜ: "u"
+      "Ǜ": "U",
+      "ǜ": "u"
     };
     if (localeFromServer.startsWith("de")) {
       chars["Ä"] = "Ae";
@@ -921,8 +971,7 @@ jQuery(document).ready(function ($) {
       chars["Đ"] = "DJ";
       chars["đ"] = "dj";
     }
-    let replaced_string = "";
-    for (let i = 0; i < string.length; i++) {
+    for (i = 0; i < string.length; i += 1) {
       if (string.charAt(i) in chars) {
         replaced_string = replaced_string + chars[string.charAt(i)];
       } else {
@@ -931,7 +980,9 @@ jQuery(document).ready(function ($) {
     }
     return replaced_string;
   }
-  // Rende invisibili i blocchi con le lettere se tutti i comuni sono non selezionati
+
+  // Rende invisibili i blocchi con le lettere,
+  // se tutti i comuni sono non selezionati
   function hideemptyletters() {
     $("div[class^='gcmi-fb-lettera-blocco']").each(function () {
       var wrap = $(this);
@@ -946,47 +997,47 @@ jQuery(document).ready(function ($) {
     });
   }
   // a confirmation dialog using deferred object
-  function customConfirm(customMessage, title) {
+  function customConfirm(customMessage, myTitle) {
     var dfd = new jQuery.Deferred();
     $("#gcmi-fb-dialog").html(customMessage);
     $("#gcmi-fb-dialog").dialog({
-      resizable: false,
-      height: 240,
-      modal: true,
-      title: title,
       buttons: {
-        OK: function () {
-          $(this).dialog("close");
-          dfd.resolve();
-        },
         Cancel: function () {
           $(this).dialog("close");
           dfd.reject();
+        },
+        OK: function () {
+          $(this).dialog("close");
+          dfd.resolve();
         }
-      }
+      },
+      height: 240,
+      modal: true,
+      resizable: false,
+      title: myTitle
     });
     return dfd.promise();
   }
 
-  function customOkMessage(customMessage, title) {
+  function customOkMessage(customMessage, myTitle) {
     var dfd = new jQuery.Deferred();
     $("#gcmi-fb-dialog").html(customMessage);
     $("#gcmi-fb-dialog").dialog({
-      resizable: false,
-      height: 240,
-      modal: true,
-      title: title,
       buttons: {
         OK: function () {
           $(this).dialog("close");
           dfd.resolve();
         }
-      }
+      },
+      height: 240,
+      modal: true,
+      resizable: false,
+      title: myTitle
     });
     return dfd.promise();
   }
 
-  function saveFilter(includi, myfiltername, searchIDs, tmp=false) {
+  function saveFilter(includi, myfiltername, searchIDs, tmp = false) {
     /*
      * Nel caso in cui l'array spedito sia molto grande (nel test,
      * superiore a 997 elementi) il JS lo manda intero, ma il codice PHP
@@ -1013,64 +1064,64 @@ jQuery(document).ready(function ($) {
     }
   }
 
-  function saveFilterSingular(includi, myfiltername, searchIDs, tmp) {
+  function saveFilterSingular(include, myFilterName, searchIDs, tmp) {
     $.ajax({
-      type: "post",
-      dataType: "json",
-      url: gcmi_fb_obj.ajax_url,
-      data: {
-        action: "gcmi_fb_create_filter",
-        _ajax_nonce: gcmi_fb_obj.nonce,
-        includi: includi,
-        filtername: myfiltername,
-        codici: searchIDs
-      },
       beforeSend: function () {
-        $('#gcmi-spinner-blocks').removeClass('hidden');
+        $("#gcmi-spinner-blocks").removeClass("hidden");
       },
       complete: function () {
-        $('#gcmi-spinner-blocks').addClass('hidden');
+        $("#gcmi-spinner-blocks").addClass("hidden");
       },
-      success: function (res) {
-        if ( false === tmp ) {
-            print_filters();
-            $("#gcmi-fb-tabs").hide();
-        } else {
-          // stampo le nuove tabs
-          printTabsEditFilter(myfiltername);
-          // rimuovo il filtro temporaneo dal database
-          waitForEl("#fb_gcmi_filter_name", function() {
-            $.ajax({
-              type: "post",
-              dataType: "json",
-              url: gcmi_fb_obj.ajax_url,
-              data: {
-                action: "gcmi_fb_delete_filter",
-                _ajax_nonce: gcmi_fb_obj.nonce,
-                filtername: myfiltername
-              },
-              error: function (res) {
-                console.log(res);
-              }
-            });
-          });
-        }
+      data: {
+        _ajax_nonce: gcmi_fb_obj.nonce,
+        action: "gcmi_fb_create_filter",
+        codici: searchIDs,
+        filtername: myFilterName,
+        includi: include
       },
+      dataType: "json",
       error: function (res) {
-        if ( false === tmp ) {
+        if (false === tmp) {
           showResErrorMessage(res, "CreateFilter");
           return;
         } else {
           showResErrorMessage(res, "TmpFilterFailed");
           return;
         }
-      }
+      },
+      success: function (res) {
+        if (false === tmp) {
+          print_filters();
+          $("#gcmi-fb-tabs").hide();
+        } else {
+          // stampo le nuove tabs
+          printTabsEditFilter(myFilterName);
+          // rimuovo il filtro temporaneo dal database
+          waitForEl("#fb_gcmi_filter_name", function () {
+            $.ajax({
+              data: {
+                _ajax_nonce: gcmi_fb_obj.nonce,
+                action: "gcmi_fb_delete_filter",
+                filtername: myFilterName
+              },
+              dataType: "json",
+              error: function (res) {
+                console.log(res);
+              },
+              type: "post",
+              url: gcmi_fb_obj.ajax_url
+            });
+          });
+        }
+      },
+      type: "post",
+      url: gcmi_fb_obj.ajax_url
     });
   }
 
-  function saveFilterMulti(includi, myfiltername, searchIDs, tmp=false) {
+  function saveFilterMulti(include, myFilterName, searchIDs, tmp = false) {
     var chunkedArray = splitArray(searchIDs, chunkSize);
-    let TotalSlices = chunkedArray.length;
+    var TotalSlices = chunkedArray.length;
     var sliceSent = 0;
     var sliceIndex;
     var TotalSuccess = 0;
@@ -1080,135 +1131,109 @@ jQuery(document).ready(function ($) {
     var requests = chunkedArray.map(async function (slice, sliceIndex) {
       await sleep(1000);
       return $.ajax({
-        type: "post",
-        dataType: "json",
-        url: gcmi_fb_obj.ajax_url,
-        tryCount: 0,
-        retryLimit: 3,
-        data: {
-          action: "gcmi_fb_save_filter_slice",
-          _ajax_nonce: gcmi_fb_obj.nonce,
-          includi: includi,
-          filtername: myfiltername,
-          codici: slice,
-          total: TotalSlices,
-          slice: sliceIndex + 1,
-        },
         beforeSend: function () {
-          if ( $('#gcmi-spinner-blocks').hasClass('hidden' ) ) {
-            $('#gcmi-spinner-blocks').removeClass('hidden');
+          if ($("#gcmi-spinner-blocks").hasClass("hidden")) {
+            $("#gcmi-spinner-blocks").removeClass("hidden");
           }
-				},
-        success: function (res) {
-          TotalSuccess++;
         },
+        data: {
+          _ajax_nonce: gcmi_fb_obj.nonce,
+          action: "gcmi_fb_save_filter_slice",
+          codici: slice,
+          filtername: myFilterName,
+          includi: include,
+          slice: sliceIndex + 1,
+          total: TotalSlices
+        },
+        dataType: "json",
         error: function (res) {
-          if (res.status == 422) {
-            this.tryCount++;
+          if (res.status === 422) {
+            this.tryCount += 1;
             if (this.tryCount <= this.retryLimit) {
               $.ajax(this);
               return;
             } else {
-              $('#gcmi-spinner-blocks').addClass('hidden');
+              $("#gcmi-spinner-blocks").addClass("hidden");
               showResErrorMessage(res, "CreateFilter");
               return;
             }
-            return;
           }
-          if (res.status != 422) {
-            $('#gcmi-spinner-blocks').addClass('hidden');
+          if (res.status !== 422) {
+            $("#gcmi-spinner-blocks").addClass("hidden");
             showResErrorMessage(res);
             return;
           }
           return;
         },
+        retryLimit: 3,
+        success: function (res) {
+          TotalSuccess += 1;
+        },
+        tryCount: 0,
+        type: "post",
+        url: gcmi_fb_obj.ajax_url
       });
     });
     $.when(...requests).then((...responses) => {
-      // do something with responses
-      // console.log( responses );
-
       if (TotalSlices === TotalSuccess) {
         // procedo con la richiesta di filtro
-        sendSplittedSaveReq(includi, myfiltername, TotalSlices, TotalSelected, tmp);
+        sendSplittedSaveReq(
+          include,
+          myFilterName,
+          TotalSlices,
+          TotalSelected, tmp
+        );
       }
     });
   }
 
   function splitArray(array, chunkSize) {
-    let result = [];
-    for (let i = 0; i < array.length; i += chunkSize) {
-      let chunk = array.slice(i, i + chunkSize);
+    var result = [];
+    var i = 0;
+    var chunk = [];
+    for (i = 0; i < array.length; i += chunkSize) {
+      chunk = array.slice(i, i + chunkSize);
       result.push(chunk);
     }
     return result;
   }
 
-  function sendSplittedSaveReq(includi, myfiltername, TotalSlices, TotalSelected, tmp=false) {
+  function sendSplittedSaveReq(
+    include,
+    myFilterName,
+    TotalSlices,
+    TotalSelected,
+    tmp = false
+  ) {
     $.ajax({
-      type: "post",
-      dataType: "json",
-      url: gcmi_fb_obj.ajax_url,
-      tryCount: 0,
-      retryLimit: 3,
       data: {
-        action: "gcmi_fb_create_filter_multi",
         _ajax_nonce: gcmi_fb_obj.nonce,
-        includi: includi,
-        filtername: myfiltername,
-        total: TotalSlices,
-        count: TotalSelected
+        action: "gcmi_fb_create_filter_multi",
+        count: TotalSelected,
+        filtername: myFilterName,
+        includi: include,
+        total: TotalSlices
       },
-        success: function (res) {
-        // filtro creato
-        if ( false === tmp ) {
-            print_filters();
-            $("#gcmi-fb-tabs").hide();
-            $('#gcmi-spinner-blocks').addClass('hidden');
-        } else {
-          // stampo le nuove tabs
-          printTabsEditFilter(myfiltername);
-          // rimuovo il filtro temporaneo dal database
-          waitForEl("#fb_gcmi_filter_name", function() {
-            $.ajax({
-              type: "post",
-              dataType: "json",
-              url: gcmi_fb_obj.ajax_url,
-              data: {
-                action: "gcmi_fb_delete_filter",
-                _ajax_nonce: gcmi_fb_obj.nonce,
-                filtername: myfiltername
-              },
-              complete: function () {
-                $('#gcmi-spinner-blocks').addClass('hidden');
-              },
-              error: function (res) {
-                console.log(res);
-              }
-            });
-          });
-        }
-      },
+      dataType: "json",
       error: function (res) {
-        if (res.status == 422) {
-          this.tryCount++;
+        if (res.status === 422) {
+          this.tryCount += 1;
           if (this.tryCount <= this.retryLimit) {
             $.ajax(this);
             return;
           } else {
-            $('#gcmi-spinner-blocks').addClass('hidden');
-            if ( false === tmp ) {
+            $("#gcmi-spinner-blocks").addClass("hidden");
+            if (false === tmp) {
               showResErrorMessage(res, "CreateFilter");
             } else {
               showResErrorMessage(res, "TmpFilterFailed");
             }
             return;
           }
-          return;
         }
-        if (res.status != 422) {
-          $('#gcmi-spinner-blocks').addClass('hidden');
-          if ( false === tmp ) {
+        if (res.status !== 422) {
+          $("#gcmi-spinner-blocks").addClass("hidden");
+          if (false === tmp) {
             showResErrorMessage(res, "CreateFilter");
           } else {
             showResErrorMessage(res, "TmpFilterFailed");
@@ -1216,80 +1241,119 @@ jQuery(document).ready(function ($) {
           return;
         }
         return;
-      }
+      },
+      retryLimit: 3,
+      success: function (res) {
+        // filtro creato
+        if (false === tmp) {
+          print_filters();
+          $("#gcmi-fb-tabs").hide();
+          $("#gcmi-spinner-blocks").addClass("hidden");
+        } else {
+          // stampo le nuove tabs
+          printTabsEditFilter(myFilterName);
+          // rimuovo il filtro temporaneo dal database
+          waitForEl("#fb_gcmi_filter_name", function () {
+            $.ajax({
+              complete: function () {
+                $("#gcmi-spinner-blocks").addClass("hidden");
+              },
+              data: {
+                _ajax_nonce: gcmi_fb_obj.nonce,
+                action: "gcmi_fb_delete_filter",
+                filtername: myFilterName
+              },
+              dataType: "json",
+              error: function (res) {
+                console.log(res);
+              },
+              type: "post",
+              url: gcmi_fb_obj.ajax_url
+            });
+          });
+        }
+      },
+      tryCount: 0,
+      type: "post",
+      url: gcmi_fb_obj.ajax_url
     });
   }
 
   function focusFilter() {
-    $("#fb_gcmi_filter_name").focus();
+    $("#fb_gcmi_filter_name").trigger("focus");
   }
 
   function sleep(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
+    return new Promise((resolve) => setTimeout(resolve, ms));
   }
-  
+
   function waitForEl(selector, callback) {
     if ($(selector).length) {
       callback();
     } else {
-      setTimeout(function() {
+      setTimeout(function () {
         waitForEl(selector, callback);
       }, 100);
     }
   }
 
   function showResErrorMessage(res, errCode) {
-    let errTitle = "";
-    let errMessageIcon =
-      '<span class="ui-icon ui-icon-notice" style="float:left; margin:12px 12px 0 0;"></span>';
-    let errMessage = errMessageIcon;
-    let arrData;
+    var errTitle = "";
+    var errMessageIcon =
+      "<span class=\"ui-icon ui-icon-notice\" style=\"float:left; " +
+      "margin:12px 12px 0 0;\"></span>";
+    var errMessage = errMessageIcon;
+    var arrData;
+    var i = 0;
     switch (errCode) {
-      case "CreateFilter":
-        errTitle = __("Error while creating the filter", "campi-moduli-italiani");
-        break;
-      case "RetrieveFilter":
-        errTitle = __("Data recovery error", "campi-moduli-italiani");
-        break;
-      case "TmpFilterFailed":
-        errTitle = __("Error in creating the temporary filter", "campi-moduli-italiani");
-        break;
-      default:
-        errTitle = __("Received a server error", "campi-moduli-italiani");
+    case "CreateFilter":
+      errTitle = __("Error while creating the filter", "campi-moduli-italiani");
+      break;
+    case "RetrieveFilter":
+      errTitle = __("Data recovery error", "campi-moduli-italiani");
+      break;
+    case "TmpFilterFailed":
+      errTitle = __("Error in creating the temporary filter",
+        "campi-moduli-italiani");
+      break;
+    default:
+      errTitle = __("Received a server error", "campi-moduli-italiani");
     }
-    if ( res.responseJSON ) {
-        arrData = res.responseJSON.data;
-        for (let i = 0; i < arrData.length; i++) {
-          errMessage =
-            errMessage +
-            "<p><b>Err: " +
-            arrData[i].code +
-            "</b></p>" +
-            "<p><i>" +
-            arrData[i].message +
-            "</i></p><p></p>";
-        }
+    if (res.responseJSON) {
+      arrData = res.responseJSON.data;
+      for (i = 0; i < arrData.length; i += 1) {
+        errMessage =
+          errMessage +
+          "<p><b>Err: " +
+          arrData[i].code +
+          "</b></p>" +
+          "<p><i>" +
+          arrData[i].message +
+          "</i></p><p></p>";
+      }
     } else {
-        errMessage = errMessageIcon + "<p><b>" + __("Err: Error not defined", "campi-moduli-italiani") + "</b></p>";
+      errMessage = errMessageIcon + "<p><b>" + __("Err: Error not defined",
+          "campi-moduli-italiani") +
+        "</b></p>";
     }
     switch (errCode) {
-      case "CreateFilter":
-        $.when(customOkMessage(errMessage, errTitle)).then(focusFilter());
-        return;
+    case "CreateFilter":
+      $.when(customOkMessage(errMessage, errTitle)).then(focusFilter());
+      return;
 
-      case "TmpFilterFailed":
-        $.when(customOkMessage(errMessage, errTitle)).then(printTabsContent());
-        return;
-      default:
-        return;
+    case "TmpFilterFailed":
+      $.when(customOkMessage(errMessage, errTitle)).then(printTabsContent());
+      return;
+    default:
+      return;
     }
   }
-  
+
   function getLocaleFromServer() {
     $.ajax({
       data: {
-        action: "gcmi_fb_get_locale",
-        _ajax_nonce: gcmi_fb_obj.nonce
+        _ajax_nonce: gcmi_fb_obj.nonce,
+        action: "gcmi_fb_get_locale"
       },
       dataType: "json",
       error: function (res) {

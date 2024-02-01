@@ -1,354 +1,411 @@
-'use strict';
+/*global
+ event, gcmi_ajax, jQuery
+ */
 jQuery(document).ready(function ($) {
-  /// DA RIMUOVERE
-  //$('select').niceSelect();
-
+  "use strict";
   const {
     __,
     _x,
     _n,
     _nx
   } = wp.i18n;
-  var scegli = '<option value="">' + __('Select...', 'campi-moduli-italiani') + '</option>';
-  var attendere = '<option value="">' + __('Wait...', 'campi-moduli-italiani') + '</option>';
-  var comune = '';
-  var provincia = '';
-  var regione = '';
-  var gcmi_comu_mail_value = '';
-  var gcmi_istance_kind = '';
-  var gcmi_istance_filtername = '';
-  var myID = '';
-  var regione_desc = '';
-  var provincia_desc = '';
-  var comune_desc = '';
-  var predefiniti = '';
+  var scegli = "<option value=\"\">" +
+    __("Select...", "campi-moduli-italiani") + "</option>";
+  var attendere = "<option value=\"\">" +
+    __("Wait...", "campi-moduli-italiani") + "</option>";
+  var comune = "";
+  var provincia = "";
+  var regione = "";
+  var gcmi_comu_mail_value = "";
+  var gcmi_istance_kind = "";
+  var gcmi_istance_filtername = "";
+  var myID = "";
+  var regione_desc = "";
+  var provincia_desc = "";
+  var comune_desc = "";
+  var predefiniti = "";
   // da versione 2.0.0 .
-  var choichesLoaded = $.isFunction(window.Choices);
-  var el = '';
-  $("select[id$='gcmi_regione']").val("");
-  $("select[id$='gcmi_regione']").removeAttr("disabled");
-  $("select[id$='gcmi_province']").html(scegli);
-  $("select[id$='gcmi_province']").attr("disabled", "disabled");
-  $("select[id$='gcmi_comuni']").html(scegli);
-  $("select[id$='gcmi_comuni']").attr("disabled", "disabled");
-  $("[id$='gcmi_icon']").hide();
-  $("input[id$='gcmi_targa']").val("");
+  var choichesLoaded = typeof (window.Choices === "function");
+  var el = "";
+  var regString = "gcmi_regione";
+  var provString = "gcmi_province";
+  var comString = "gcmi_comuni";
+  var iconString = "gcmi_icon";
+  var targaString = "gcmi_targa";
+  var infoString = "gcmi_info";
+
+  var targetNodes;
+  var MutationObserver;
+  var myObserver;
+  var obsConfig;
+
+  $("select[id$='" + regString + "']").val("");
+  $("select[id$='" + regString + "']").prop("disabled", false);
+  $("select[id$='" + provString + "']").html(scegli);
+  $("select[id$='" + provString + "']").attr("disabled", "disabled");
+  $("select[id$='" + comString + "']").html(scegli);
+  $("select[id$='" + comString + "']").attr("disabled", "disabled");
+  $("[id$='" + iconString + "']").hide();
+  $("input[id$='" + targaString + "']").val("");
   $("input[id$='gcmi_mail']").val("");
+
   /* compatibilità con JQuery Nice Select */
-  if (typeof $.fn.niceSelect !== 'undefined') {
-    var targetNodes = $("select[id*='gcmi'][style='display: none']");
-    var MutationObserver = window.MutationObserver || window.WebKitMutationObserver;
-    var myObserver = new MutationObserver(mutationHandler);
-    var obsConfig = {
-      childList: true,
-      characterData: true,
+  function mutationHandler(mutationRecords) {
+    var target = mutationRecords[0].target;
+    $(target).niceSelect("update");
+  }
+
+  if (typeof $.fn.niceSelect !== "undefined") {
+    targetNodes = $("select[id*='gcmi'][style='display: none']");
+    MutationObserver =
+      window.MutationObserver ||
+      window.WebKitMutationObserver;
+    myObserver = new MutationObserver(mutationHandler);
+    obsConfig = {
       attributes: true,
+      characterData: true,
+      childList: true,
       subtree: true
     };
     //--- Add a target node to the observer. Can only add one node at a time.
     targetNodes.each(function () {
       myObserver.observe(this, obsConfig);
     });
-
-    function mutationHandler(mutationRecords) {
-      var target = mutationRecords[0].target;
-      $(target).niceSelect('update');
-    }
   }
   /* FINE compatibilità con JQuery Nice Select */
-  
+
   // Seleziono una regione.
-  $("select[id$='gcmi_regione']").change(
+  $("select[id$='" + regString + "']").on("change",
     function () {
-      window.MyPrefix = this.id.substring(0, (this.id.length - ("gcmi_regione").length));
-      regione = $("select#" + window.MyPrefix + "gcmi_regione option:selected").attr('value');
-      regione_desc = $("select#" + window.MyPrefix + "gcmi_regione option:selected").text();
+
+      window.MyPrefix = this.id.substring(
+        0,
+        (this.id.length - regString.length));
+      regione = $("select#" + window.MyPrefix + regString + " option:selected")
+        .attr("value");
+      regione_desc = $("select#" +
+        window.MyPrefix + regString + " option:selected")
+        .text();
       $("input#" + window.MyPrefix + "gcmi_reg_desc").val(regione_desc);
-      $("input#" + window.MyPrefix + "gcmi_prov_desc").val('');
-      $("input#" + window.MyPrefix + "gcmi_comu_desc").val('');
-      gcmi_istance_kind = $("input#" + window.MyPrefix + "gcmi_kind").attr('value');
-      gcmi_istance_filtername = $("input#" + window.MyPrefix + "gcmi_filtername").attr('value');
-      if (!regione == '') {
-        if (regione != '00') {
-          el = $("select#" + window.MyPrefix + "gcmi_province");
+      $("input#" + window.MyPrefix + "gcmi_prov_desc").val("");
+      $("input#" + window.MyPrefix + "gcmi_comu_desc").val("");
+      gcmi_istance_kind = $("input#" + window.MyPrefix + "gcmi_kind")
+        .attr("value");
+      gcmi_istance_filtername = $("input#" + window.MyPrefix +
+        "gcmi_filtername")
+        .attr("value");
+      if ("" !== regione) {
+        if ("00" !== regione) {
+          el = $("select#" + window.MyPrefix + provString);
           el.html(attendere);
           el.attr("disabled", "disabled");
-          if (choichesLoaded && el.hasClass('choicesjs-select')) {
-            $(el).data('choicesjs').setChoices(
+          if (choichesLoaded && el.hasClass("choicesjs-select")) {
+            $(el).data("choicesjs").setChoices(
               Array.from($(el)[0].options),
-              'value',
-              'label',
-              true,
-            );
-            $(el).data('choicesjs').disable();
+              "value",
+              "label",
+              true
+              );
+            $(el).data("choicesjs").disable();
           }
 
-          el = $("select#" + window.MyPrefix + "gcmi_comuni");
+          el = $("select#" + window.MyPrefix + comString);
           el.html(scegli);
           el.attr("disabled", "disabled");
-          if (choichesLoaded && el.hasClass('choicesjs-select')) {
-            $(el).data('choicesjs').setChoices(
+          if (choichesLoaded && el.hasClass("choicesjs-select")) {
+            $(el).data("choicesjs").setChoices(
               Array.from($(el)[0].options),
-              'value',
-              'label',
-              true,
-            );
-            $(el).data('choicesjs').disable();
+              "value",
+              "label",
+              true
+              );
+            $(el).data("choicesjs").disable();
           }
 
           $.ajax({
-            type: 'POST',
-            url: gcmi_ajax.ajaxurl,
             data: {
-              action: 'the_ajax_hook_prov',
-              nonce_ajax: gcmi_ajax.nonce,
+              action: "the_ajax_hook_prov",
               codice_regione: regione,
+              gcmi_filtername: gcmi_istance_filtername,
               gcmi_kind: gcmi_istance_kind,
-              gcmi_filtername: gcmi_istance_filtername
+              nonce_ajax: gcmi_ajax.nonce
             },
             success: function (data) {
-              el = $("select#" + window.MyPrefix + "gcmi_province");
-              el.removeAttr("disabled");
+              el = $("select#" + window.MyPrefix + provString);
+              el.prop("disabled", false);
               el.html(data);
-              if (choichesLoaded && el.hasClass('choicesjs-select')) {
-                $(el).data('choicesjs').setChoices(
+              if (choichesLoaded && el.hasClass("choicesjs-select")) {
+                $(el).data("choicesjs").setChoices(
                   Array.from($(el)[0].options),
-                  'value',
-                  'label',
-                  true,
-                );
-                $(el).data('choicesjs').enable();
+                  "value",
+                  "label",
+                  true
+                  );
+                $(el).data("choicesjs").enable();
               }
-              hideSingleProvince( window.MyPrefix );
-              // fine nuovo.
+              hideSingleProvince(window.MyPrefix);
             },
-            async: false
+            type: "POST",
+            url: gcmi_ajax.ajaxurl
           });
         } else {
-          el = $("select#" + window.MyPrefix + "gcmi_comuni");
+          el = $("select#" + window.MyPrefix + comString);
           el.html(attendere);
           el.attr("disabled", "disabled");
-          if (choichesLoaded && el.hasClass('choicesjs-select')) {
-            $(el).data('choicesjs').setChoices(
+          if (choichesLoaded && el.hasClass("choicesjs-select")) {
+            $(el).data("choicesjs").setChoices(
               Array.from($(el)[0].options),
-              'value',
-              'label',
-              true,
-            );
-            $(el).data('choicesjs').disable();
+              "value",
+              "label",
+              true
+              );
+            $(el).data("choicesjs").disable();
           }
 
-          el = $("select#" + window.MyPrefix + "gcmi_province");
+          el = $("select#" + window.MyPrefix + provString);
           el.html(attendere);
           el.attr("disabled", "disabled");
-          if (choichesLoaded && el.hasClass('choicesjs-select')) {
-            $(el).data('choicesjs').setChoices(
+          if (choichesLoaded && el.hasClass("choicesjs-select")) {
+            $(el).data("choicesjs").setChoices(
               Array.from($(el)[0].options),
-              'value',
-              'label',
-              true,
-            );
-            $(el).data('choicesjs').disable();
+              "value",
+              "label",
+              true
+              );
+            $(el).data("choicesjs").disable();
           }
 
           $.ajax({
-            type: 'POST',
-            url: gcmi_ajax.ajaxurl,
+            async: false,
             data: {
-              action: 'the_ajax_hook_prov',
-              nonce_ajax: gcmi_ajax.nonce,
+              action: "the_ajax_hook_prov",
               codice_regione: regione,
+              gcmi_filtername: gcmi_istance_filtername,
               gcmi_kind: gcmi_istance_kind,
-              gcmi_filtername: gcmi_istance_filtername
+              nonce_ajax: gcmi_ajax.nonce
             },
             success: function (data) {
-              el = $("select#" + window.MyPrefix + "gcmi_comuni");
-              el.removeAttr("disabled");
+              el = $("select#" + window.MyPrefix + comString);
+              el.prop("disabled", false);
               el.html(data);
-              if (choichesLoaded && el.hasClass('choicesjs-select')) {
-                $(el).data('choicesjs').setChoices(
+              if (choichesLoaded && el.hasClass("choicesjs-select")) {
+                $(el).data("choicesjs").setChoices(
                   Array.from($(el)[0].options),
-                  'value',
-                  'label',
-                  true,
-                );
-                $(el).data('choicesjs').enable();
+                  "value",
+                  "label",
+                  true
+                  );
+                $(el).data("choicesjs").enable();
               }
-
             },
-            async: false
+            type: "POST",
+            url: gcmi_ajax.ajaxurl
           });
         }
       } else {
-        el = $("select#" + window.MyPrefix + "gcmi_province");
+        el = $("select#" + window.MyPrefix + provString);
         el.html(scegli);
         el.attr("disabled", "disabled");
-        if (choichesLoaded && el.hasClass('choicesjs-select')) {
-          $(el).data('choicesjs').setChoices(
+        if (choichesLoaded && el.hasClass("choicesjs-select")) {
+          $(el).data("choicesjs").setChoices(
             Array.from($(el)[0].options),
-            'value',
-            'label',
-            true,
-          );
-          $(el).data('choicesjs').disable();
+            "value",
+            "label",
+            true
+            );
+          $(el).data("choicesjs").disable();
         }
-        el = $("select#" + window.MyPrefix + "gcmi_comuni");
+        el = $("select#" + window.MyPrefix + comString);
         el.html(scegli);
         el.attr("disabled", "disabled");
-        if (choichesLoaded && el.hasClass('choicesjs-select')) {
-          $(el).data('choicesjs').setChoices(
+        if (choichesLoaded && el.hasClass("choicesjs-select")) {
+          $(el).data("choicesjs").setChoices(
             Array.from($(el)[0].options),
-            'value',
-            'label',
-            true,
-          );
-          $(el).data('choicesjs').disable();
+            "value",
+            "label",
+            true
+            );
+          $(el).data("choicesjs").disable();
         }
       }
-      $("#" + window.MyPrefix + "gcmi_icon").hide();
-      $("#" + window.MyPrefix + "gcmi_info").hide();
+      $("#" + window.MyPrefix + iconString).hide();
+      $("#" + window.MyPrefix + infoString).hide();
     }
   );
 
   // Seleziono una provincia.
-  $("select[id$='gcmi_province']").change(
+  $("select[id$='" + provString + "']").on("change",
     function () {
-      window.MyPrefix = this.id.substring(0, (this.id.length - ("gcmi_province").length));
-      provincia = $("select#" + window.MyPrefix + "gcmi_province option:selected").attr('value');
-      provincia_desc = $("select#" + window.MyPrefix + "gcmi_province option:selected").text();
+      window.MyPrefix = this.id.substring(
+        0,
+        (this.id.length - provString.length)
+        );
+      provincia = $("select#" + window.MyPrefix +
+        provString + " option:selected")
+        .attr("value");
+      provincia_desc = $("select#" + window.MyPrefix +
+        provString + " option:selected")
+        .text();
       $("input#" + window.MyPrefix + "gcmi_prov_desc").val(provincia_desc);
-      $("input#" + window.MyPrefix + "gcmi_comu_desc").val('');
-      gcmi_istance_kind = $("input#" + window.MyPrefix + "gcmi_kind").attr('value');
-      gcmi_istance_filtername = $("input#" + window.MyPrefix + "gcmi_filtername").attr('value');
-      el = $("select#" + window.MyPrefix + "gcmi_comuni");
+      $("input#" + window.MyPrefix + "gcmi_comu_desc").val("");
+      gcmi_istance_kind = $("input#" + window.MyPrefix + "gcmi_kind")
+        .attr("value");
+      gcmi_istance_filtername = $("input#" + window.MyPrefix +
+        "gcmi_filtername")
+        .attr("value");
+      el = $("select#" + window.MyPrefix + comString);
       el.html(attendere);
       el.attr("disabled", "disabled");
-      if (choichesLoaded && el.hasClass('choicesjs-select')) {
-        $(el).data('choicesjs').setChoices(
+      if (choichesLoaded && el.hasClass("choicesjs-select")) {
+        $(el).data("choicesjs").setChoices(
           Array.from($(el)[0].options),
-          'value',
-          'label',
-          true,
-        );
-        $(el).data('choicesjs').disable();
+          "value",
+          "label",
+          true
+          );
+        $(el).data("choicesjs").disable();
       }
 
-      if (!provincia == '') {
+      if ("" !== provincia) {
         $.ajax({
-          type: 'POST',
-          url: gcmi_ajax.ajaxurl,
+          async: false,
           data: {
-            action: 'the_ajax_hook_comu',
-            nonce_ajax: gcmi_ajax.nonce,
+            action: "the_ajax_hook_comu",
             codice_provincia: provincia,
+            gcmi_filtername: gcmi_istance_filtername,
             gcmi_kind: gcmi_istance_kind,
-            gcmi_filtername: gcmi_istance_filtername
+            nonce_ajax: gcmi_ajax.nonce
           },
           success: function (data) {
-            el.removeAttr("disabled");
+            el.prop("disabled", false);
             el.html(data);
-            if (choichesLoaded && el.hasClass('choicesjs-select')) {
-              $(el).data('choicesjs').setChoices(
+            if (choichesLoaded && el.hasClass("choicesjs-select")) {
+              $(el).data("choicesjs").setChoices(
                 Array.from($(el)[0].options),
-                'value',
-                'label',
-                true,
-              );
-              $(el).data('choicesjs').enable();
+                "value",
+                "label",
+                true
+                );
+              $(el).data("choicesjs").enable();
             }
           },
-          async: false
+          type: "POST",
+          url: gcmi_ajax.ajaxurl
         });
       } else {
         el.html(scegli);
-        if (choichesLoaded && el.hasClass('choicesjs-select')) {
-          $(el).data('choicesjs').setChoices(
+        if (choichesLoaded && el.hasClass("choicesjs-select")) {
+          $(el).data("choicesjs").setChoices(
             Array.from($(el)[0].options),
-            'value',
-            'label',
-            true,
-          );
+            "value",
+            "label",
+            true
+            );
         }
       }
-      $("#" + window.MyPrefix + "gcmi_icon").hide();
-      $("#" + window.MyPrefix + "gcmi_info").hide();
+      $("#" + window.MyPrefix + iconString).hide();
+      $("#" + window.MyPrefix + infoString).hide();
     }
   );
 
   // Seleziono un comune.
-  $("select[id$='gcmi_comuni']").change(
+  $("select[id$='" + comString + "']").on("change",
     function () {
-      window.MyPrefix = this.id.substring(0, (this.id.length - ("gcmi_comuni").length));
-      comune = $("select#" + window.MyPrefix + "gcmi_comuni option:selected").attr('value');
-      gcmi_istance_kind = $("input#" + window.MyPrefix + "gcmi_kind").attr('value');
-      gcmi_istance_filtername = $("input#" + window.MyPrefix + "gcmi_filtername").attr('value');
-      comune_desc = $("select#" + window.MyPrefix + "gcmi_comuni option:selected").text();
+      var gcmi_comu_form_value = "";
+      window.MyPrefix = this.id.substring(
+        0,
+        (this.id.length - comString.length));
+      comune = $("select#" + window.MyPrefix +
+        comString + " option:selected")
+        .attr("value");
+      gcmi_istance_kind = $("input#" + window.MyPrefix +
+        "gcmi_kind")
+        .attr("value");
+      gcmi_istance_filtername = $("input#" + window.MyPrefix +
+        "gcmi_filtername")
+        .attr("value");
+      comune_desc = $("select#" + window.MyPrefix +
+        comString + " option:selected")
+        .text();
       $("input#" + window.MyPrefix + "gcmi_comu_desc").val(comune_desc);
       $.ajax({
-        type: 'POST',
-        url: gcmi_ajax.ajaxurl,
+        async: false,
         data: {
-          action: 'the_ajax_hook_targa',
-          nonce_ajax: gcmi_ajax.nonce,
+          action: "the_ajax_hook_targa",
           codice_comune: comune,
+          gcmi_filtername: gcmi_istance_filtername,
           gcmi_kind: gcmi_istance_kind,
-          gcmi_filtername: gcmi_istance_filtername
+          nonce_ajax: gcmi_ajax.nonce
         },
         success: function (data) {
-          $("input#" + window.MyPrefix + "gcmi_targa").val(data);
-          if (regione != '00') {
-            var gcmi_comu_form_value = $("select#" + window.MyPrefix + "gcmi_comuni option:selected").text() + ' (' + $("input#" + window.MyPrefix + "gcmi_targa").val() + ')';
+          $("input#" + window.MyPrefix + targaString).val(data);
+          if (regione !== "00") {
+            gcmi_comu_form_value = $(
+              "select#" + window.MyPrefix + comString + " option:selected")
+              .text() + " (" + $(
+              "input#" + window.MyPrefix + targaString).val() + ")";
           } else {
-            var gcmi_comu_form_value = $("select#" + window.MyPrefix + "gcmi_comuni option:selected").text() + ' - (sopp.)' + ' (' + $("input#" + window.MyPrefix + "gcmi_targa").val() + ')';
+            gcmi_comu_form_value = $(
+              "select#" + window.MyPrefix + comString + " option:selected")
+              .text() + " - (" + __("sopp.", "campi-moduli-italiani") + ")" + " (" + $(
+              "input#" + window.MyPrefix + targaString).val() + ")";
           }
-          $("input#" + window.MyPrefix + "gcmi_formatted").attr('value', gcmi_comu_form_value);
-          $("#" + window.MyPrefix + "gcmi_info").hide();
-          if ($("select#" + window.MyPrefix + "gcmi_comuni option:selected").val() != "") {
-            $("#" + window.MyPrefix + "gcmi_icon").show();
+          $("input#" + window.MyPrefix + "gcmi_formatted")
+            .attr("value", gcmi_comu_form_value);
+          $("#" + window.MyPrefix + infoString).hide();
+          if ($("select#" + window.MyPrefix + comString + " option:selected")
+            .val() !== "") {
+            $("#" + window.MyPrefix + iconString).show();
           } else {
-            $("#" + window.MyPrefix + "gcmi_icon").hide();
+            $("#" + window.MyPrefix + iconString).hide();
           }
         },
-        async: false
+        type: "POST",
+        url: gcmi_ajax.ajaxurl
       });
     }
   );
 
   // Click sull'icona per le info.
-  $("[id$='gcmi_icon']").click(
+  $("[id$='" + iconString + "']").on("click",
     function () {
-      window.MyPrefix = event.target.id.substring(0, (event.target.id.length - ("gcmi_icon").length));
-      comune = $("select#" + window.MyPrefix + "gcmi_comuni option:selected").attr('value');
-      $.post(
-        gcmi_ajax.ajaxurl, {
-          action: 'the_ajax_hook_info',
-          nonce_ajax: gcmi_ajax.nonce,
+      window.MyPrefix = event.target.id.substring(
+        0, (event.target.id.length - iconString.length));
+      comune = $("select#" + window.MyPrefix + comString + " option:selected")
+        .attr("value");
+      $.ajax({
+        data: {
+          action: "the_ajax_hook_info",
           codice_comune: comune,
-          gcmi_filtername: gcmi_istance_filtername
+          gcmi_filtername: gcmi_istance_filtername,
+          nonce_ajax: gcmi_ajax.nonce
         },
-        function (data) {
-          if ($.trim(data)) {
-            $("#" + window.MyPrefix + "gcmi_info").html(data);
-            $("#" + window.MyPrefix + "gcmi_info").dialog({
+        success: function (data) {
+          var trimmed = data.trim();
+          if ("" !== trimmed) {
+            $("#" + window.MyPrefix + infoString).html(trimmed);
+            $("#" + window.MyPrefix + infoString).dialog({
               autoOpen: false,
-              hide: "puff",
-              show: "slide",
-              width: 'auto',
-              maxWidth: 600,
+              closeText: __("Close", "campi-moduli-italiani"),
               height: "auto",
+              hide: "puff",
+              maxWidth: 600,
               minWidth: 300,
-              title: __('Municipality details', 'campi-moduli-italiani'),
-              closeText: __('Close', 'campi-moduli-italiani')
+              show: "slide",
+              title: __("Municipality details", "campi-moduli-italiani"),
+              width: "auto"
             });
-            $("#" + window.MyPrefix + "gcmi_info").dialog('open');
+            $("#" + window.MyPrefix + infoString).dialog("open");
           }
-        }
-      );
+        },
+        type: "POST",
+        url: gcmi_ajax.ajaxurl
+      });
     }
   );
 
   // tooltip.
-  $("[id^='TTVar']").mouseover(
+  $("[id^='TTVar']").on("mouseover",
     function () {
       event.target.id.tooltip();
     }
@@ -356,69 +413,76 @@ jQuery(document).ready(function ($) {
 
   // Imposta i valori di default.
   async function setDefault(CurPrefix, predefiniti) {
+    var response;
     try {
-      let response = await $('select#' + CurPrefix + 'gcmi_regione')
-        .find('option[value="' + predefiniti.substring(0, 2) + '"]')
-        .prop('selected', true)
-        .trigger('change');
+      response = await $("select#" + CurPrefix + regString)
+        .find("option[value=\"" + predefiniti.substring(0, 2) + "\"]")
+        .prop("selected", true)
+        .trigger("change");
     } catch (e) {
       console.log(e);
     }
-    if ($('select#' + CurPrefix + 'gcmi_regione').val() != '00') {
+    if ($("select#" + CurPrefix + regString).val() !== "00") {
       try {
-        let response = await $('select#' + CurPrefix + 'gcmi_province')
-          .find('option[value="' + predefiniti.substring(2, 5) + '"]')
-          .prop('selected', true)
-          .trigger('change');
+        response = await $("select#" + CurPrefix + provString)
+          .find("option[value=\"" + predefiniti.substring(2, 5) + "\"]")
+          .prop("selected", true)
+          .trigger("change");
       } catch (e) {
         console.log(e);
       }
     }
     try {
-      let response = await $('select#' + CurPrefix + 'gcmi_comuni')
-        .find('option[value="' + predefiniti.substring(5) + '"]')
-        .prop('selected', true)
-        .trigger('change');
+      response = await $("select#" + CurPrefix + comString)
+        .find("option[value=\"" + predefiniti.substring(5) + "\"]")
+        .prop("selected", true)
+        .trigger("change");
     } catch (e) {
       console.log(e);
     }
   }
 
-  $("select[id$='gcmi_comuni']").each(
+  $("select[id$='" + comString + "']").each(
     function () {
-      var CurPrefix = this.id.substring(0, (this.id.length - ("gcmi_comuni").length));
-      predefiniti = $(this).attr('data-prval');
+      var CurPrefix = this.id.substring(0, (this.id.length - comString.length));
+      predefiniti = $(this).attr("data-prval");
       if (typeof predefiniti !== typeof undefined && predefiniti !== false) {
         setDefault(CurPrefix, predefiniti);
-        1
       }
     }
   );
 
   function hideSingleRegion() {
     // se sono solo 2 le opzioni, nella regione seleziono la seconda
-    $("select[id$='gcmi_regione']").each(function () {
-      window.MyPrefix = this.id.substring(0, (this.id.length - ("gcmi_regione").length));
-      let RegOps = $(this).children('option').length;
+    var RegOps = 0;
+    $("select[id$='" + regString + "']").each(function () {
+      window.MyPrefix = this.id.substring(
+        0,
+        (this.id.length - regString.length)
+        );
+      RegOps = $(this).children("option").length;
       if (2 === RegOps) {
-        $("#" + window.MyPrefix + "gcmi_regione option").eq(1).prop('selected', true);
-        $("#" + window.MyPrefix + "gcmi_regione").trigger("change");
-        $("label[for='" + window.MyPrefix + "gcmi_regione'").hide();
+        $("#" + window.MyPrefix + regString + " option")
+          .eq(1)
+          .prop("selected", true);
+        $("#" + window.MyPrefix + regString).trigger("change");
+        $("label[for='" + window.MyPrefix + regString + "'").hide();
         $(this).hide();
       }
     });
   }
   hideSingleRegion();
-  
-  function hideSingleProvince( MyPrefix ) {
-    //nasconde la selezione delle province se è inutile (solo 1 provincia selezionabile)
-    let ProOps = $("#" + MyPrefix + "gcmi_province").children('option').length;
+
+  function hideSingleProvince(MyPrefix) {
+    // nasconde la selezione delle province se è inutile
+    // (solo 1 provincia selezionabile)
+    var ProOps = 0;
+    ProOps = $("#" + MyPrefix + provString).children("option").length;
     if (2 === ProOps) {
-      $("#" + MyPrefix + "gcmi_province option").eq(1).prop('selected', true);
-      $("#" + MyPrefix + "gcmi_province").trigger("change");
-      //$("#" + MyPrefix + "gcmi_province").attr("hidden",true);
-      $("label[for='" + MyPrefix + "gcmi_province" ).hide();
-      $("#" + MyPrefix + "gcmi_province").hide();
+      $("#" + MyPrefix + provString + " option").eq(1).prop("selected", true);
+      $("#" + MyPrefix + provString).trigger("change");
+      $("label[for='" + MyPrefix + provString).hide();
+      $("#" + MyPrefix + provString).hide();
     }
   }
 });
