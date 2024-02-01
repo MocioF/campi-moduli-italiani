@@ -224,10 +224,11 @@ function gcmi_ajax_admin_menu_change_notice(): void {
  * @return void
  */
 function gcmi_admin_enqueue_scripts( $hook_suffix ) {
+	$suffix = wp_scripts_get_suffix();
 	// questi vengono inclusi in tutte le pagine di admin.
 	wp_enqueue_script(
 		'gcmi-alertupd',
-		plugins_url( GCMI_PLUGIN_NAME . '/admin/js/alertupd.min.js' ),
+		plugins_url( GCMI_PLUGIN_NAME . "/admin/js/alertupd$suffix.js" ),
 		array( 'jquery' ),
 		GCMI_VERSION,
 		true
@@ -243,7 +244,7 @@ function gcmi_admin_enqueue_scripts( $hook_suffix ) {
 
 	wp_enqueue_style(
 		'gcmi-menu',
-		plugins_url( GCMI_PLUGIN_NAME . '/admin/css/gcmi-menu.min.css' ),
+		plugins_url( GCMI_PLUGIN_NAME . "/admin/css/gcmi-menu$suffix.css" ),
 		array(),
 		GCMI_VERSION,
 		'all'
@@ -255,7 +256,7 @@ function gcmi_admin_enqueue_scripts( $hook_suffix ) {
 	}
 	wp_enqueue_style(
 		'gcmi-admin',
-		plugins_url( GCMI_PLUGIN_NAME . '/admin/css/styles.min.css' ),
+		plugins_url( GCMI_PLUGIN_NAME . "/admin/css/styles$suffix.css" ),
 		array(),
 		GCMI_VERSION,
 		'all'
@@ -263,7 +264,7 @@ function gcmi_admin_enqueue_scripts( $hook_suffix ) {
 
 	wp_enqueue_style(
 		'gcmi-fb-spinner',
-		plugins_url( GCMI_PLUGIN_NAME . '/admin/css/gcmi-fb-spinner.min.css' ),
+		plugins_url( GCMI_PLUGIN_NAME . "/admin/css/gcmi-fb-spinner$suffix.css" ),
 		array(),
 		GCMI_VERSION,
 		'all'
@@ -274,7 +275,7 @@ function gcmi_admin_enqueue_scripts( $hook_suffix ) {
 		'jquery-ui-theme-smoothness',
 		plugin_dir_url( __FILE__ ) .
 		sprintf(
-			'css/jqueryui/%s/themes/smoothness/jquery-ui.min.css',
+			"css/jqueryui/%s/themes/smoothness/jquery-ui$suffix.css",
 			$wp_scripts->registered['jquery-ui-core']->ver
 		),
 		array(),
@@ -284,7 +285,7 @@ function gcmi_admin_enqueue_scripts( $hook_suffix ) {
 
 	wp_enqueue_script(
 		'gcmi-admin',
-		plugins_url( GCMI_PLUGIN_NAME . '/admin/js/scripts.min.js' ),
+		plugins_url( GCMI_PLUGIN_NAME . "/admin/js/scripts$suffix.js" ),
 		array( 'jquery', 'jquery-ui-tabs', 'jquery-ui-dialog', 'wp-i18n' ),
 		GCMI_VERSION,
 		true
