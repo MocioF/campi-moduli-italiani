@@ -1,5 +1,5 @@
 /*global
- event, gcmi_ajax, jQuery
+ event, gcmi_ajax, jQuery, wp
  */
 jQuery(document).ready(function ($) {
   "use strict";
@@ -27,8 +27,17 @@ jQuery(document).ready(function ($) {
   // da versione 2.0.0 .
   var choichesLoaded = typeof (window.Choices === "function");
   var el = "";
+  var elP = "";
+  var elC = "";
+  var kindString = "gcmi_kind";
+  var fNameString = "gcmi_filtername";
   var regString = "gcmi_regione";
   var provString = "gcmi_province";
+  var regDescString = "gcmi_reg_desc";
+  var provDescString = "gcmi_prov_desc";
+  var comDescString = "gcmi_comu_desc";
+  var choicesjsClassString = "choicesjs-select";
+  
   var comString = "gcmi_comuni";
   var iconString = "gcmi_icon";
   var targaString = "gcmi_targa";
@@ -77,7 +86,6 @@ jQuery(document).ready(function ($) {
   // Seleziono una regione.
   $("select[id$='" + regString + "']").on("change",
     function () {
-
       window.MyPrefix = this.id.substring(
         0,
         (this.id.length - regString.length));
@@ -86,148 +94,75 @@ jQuery(document).ready(function ($) {
       regione_desc = $("select#" +
         window.MyPrefix + regString + " option:selected")
         .text();
-      $("input#" + window.MyPrefix + "gcmi_reg_desc").val(regione_desc);
-      $("input#" + window.MyPrefix + "gcmi_prov_desc").val("");
-      $("input#" + window.MyPrefix + "gcmi_comu_desc").val("");
-      gcmi_istance_kind = $("input#" + window.MyPrefix + "gcmi_kind")
+      gcmi_istance_kind = $("input#" + window.MyPrefix + kindString)
         .attr("value");
       gcmi_istance_filtername = $("input#" + window.MyPrefix +
-        "gcmi_filtername")
+        fNameString)
         .attr("value");
-      if ("" !== regione) {
-        if ("00" !== regione) {
-          el = $("select#" + window.MyPrefix + provString);
-          el.html(attendere);
-          el.attr("disabled", "disabled");
-          if (choichesLoaded && el.hasClass("choicesjs-select")) {
-            $(el).data("choicesjs").setChoices(
-              Array.from($(el)[0].options),
-              "value",
-              "label",
-              true
-              );
-            $(el).data("choicesjs").disable();
+      $.ajax({
+        beforeSend: function (regione) {
+          // imposto gli altri campi
+          $("input#" + window.MyPrefix + regDescString).val(regione_desc);
+          $("input#" + window.MyPrefix + provDescString).val("");
+          $("input#" + window.MyPrefix + comDescString).val("");
+
+          // disabilito provincia e comune
+          elP = $("select#" + window.MyPrefix + provString);
+          elC = $("select#" + window.MyPrefix + comString);
+          switch (regione) {
+            case "":
+              elP.html(scegli);
+              elC.html(scegli);
+              break;
+            case "00":
+              elP.html(attendere);
+              elC.html(attendere);
+              break;
+            default:
+              elP.html(attendere);
+              elC.html(scegli);
+          }
+          elP.attr("disabled", "disabled");
+          elC.attr("disabled", "disabled");
+          if (choichesLoaded && elP.hasClass(choicesjsClassString)) {
+            $(elP).data("choicesjs")
+              .setChoices(Array.from($(elP)[0].options), "value", "label", true);
+            $(elP).data("choicesjs").disable();
           }
 
-          el = $("select#" + window.MyPrefix + comString);
-          el.html(scegli);
-          el.attr("disabled", "disabled");
-          if (choichesLoaded && el.hasClass("choicesjs-select")) {
-            $(el).data("choicesjs").setChoices(
-              Array.from($(el)[0].options),
-              "value",
-              "label",
-              true
-              );
-            $(el).data("choicesjs").disable();
+          if (choichesLoaded && elC.hasClass(choicesjsClassString)) {
+            $(elC).data("choicesjs")
+              .setChoices(Array.from($(elC)[0].options), "value", "label", true);
+            $(elC).data("choicesjs").disable();
           }
-
-          $.ajax({
-            data: {
-              action: "the_ajax_hook_prov",
-              codice_regione: regione,
-              gcmi_filtername: gcmi_istance_filtername,
-              gcmi_kind: gcmi_istance_kind,
-              nonce_ajax: gcmi_ajax.nonce
-            },
-            success: function (data) {
-              el = $("select#" + window.MyPrefix + provString);
-              el.prop("disabled", false);
-              el.html(data);
-              if (choichesLoaded && el.hasClass("choicesjs-select")) {
-                $(el).data("choicesjs").setChoices(
-                  Array.from($(el)[0].options),
-                  "value",
-                  "label",
-                  true
-                  );
-                $(el).data("choicesjs").enable();
-              }
-              hideSingleProvince(window.MyPrefix);
-            },
-            type: "POST",
-            url: gcmi_ajax.ajaxurl
-          });
-        } else {
-          el = $("select#" + window.MyPrefix + comString);
-          el.html(attendere);
-          el.attr("disabled", "disabled");
-          if (choichesLoaded && el.hasClass("choicesjs-select")) {
-            $(el).data("choicesjs").setChoices(
-              Array.from($(el)[0].options),
-              "value",
-              "label",
-              true
-              );
-            $(el).data("choicesjs").disable();
-          }
-
-          el = $("select#" + window.MyPrefix + provString);
-          el.html(attendere);
-          el.attr("disabled", "disabled");
-          if (choichesLoaded && el.hasClass("choicesjs-select")) {
-            $(el).data("choicesjs").setChoices(
-              Array.from($(el)[0].options),
-              "value",
-              "label",
-              true
-              );
-            $(el).data("choicesjs").disable();
-          }
-
-          $.ajax({
-            async: false,
-            data: {
-              action: "the_ajax_hook_prov",
-              codice_regione: regione,
-              gcmi_filtername: gcmi_istance_filtername,
-              gcmi_kind: gcmi_istance_kind,
-              nonce_ajax: gcmi_ajax.nonce
-            },
-            success: function (data) {
+        },
+        data: {
+          action: "the_ajax_hook_prov",
+          codice_regione: regione,
+          gcmi_filtername: gcmi_istance_filtername,
+          gcmi_kind: gcmi_istance_kind,
+          nonce_ajax: gcmi_ajax.nonce
+        },
+        success: function (data) {
+          switch (regione) {
+            case "00":
               el = $("select#" + window.MyPrefix + comString);
-              el.prop("disabled", false);
-              el.html(data);
-              if (choichesLoaded && el.hasClass("choicesjs-select")) {
-                $(el).data("choicesjs").setChoices(
-                  Array.from($(el)[0].options),
-                  "value",
-                  "label",
-                  true
-                  );
-                $(el).data("choicesjs").enable();
-              }
-            },
-            type: "POST",
-            url: gcmi_ajax.ajaxurl
-          });
-        }
-      } else {
-        el = $("select#" + window.MyPrefix + provString);
-        el.html(scegli);
-        el.attr("disabled", "disabled");
-        if (choichesLoaded && el.hasClass("choicesjs-select")) {
-          $(el).data("choicesjs").setChoices(
-            Array.from($(el)[0].options),
-            "value",
-            "label",
-            true
-            );
-          $(el).data("choicesjs").disable();
-        }
-        el = $("select#" + window.MyPrefix + comString);
-        el.html(scegli);
-        el.attr("disabled", "disabled");
-        if (choichesLoaded && el.hasClass("choicesjs-select")) {
-          $(el).data("choicesjs").setChoices(
-            Array.from($(el)[0].options),
-            "value",
-            "label",
-            true
-            );
-          $(el).data("choicesjs").disable();
-        }
-      }
+              break;
+            default:
+              el = $("select#" + window.MyPrefix + provString);
+          }
+          el.prop("disabled", false);
+          el.html(data);
+          if (choichesLoaded && el.hasClass(choicesjsClassString)) {
+            $(el).data("choicesjs")
+              .setChoices(Array.from($(el)[0].options), "value", "label", true);
+            $(el).data("choicesjs").enable();
+          }
+          hideSingleProvince(window.MyPrefix);
+        },
+        type: "POST",
+        url: gcmi_ajax.ajaxurl
+      });
       $("#" + window.MyPrefix + iconString).hide();
       $("#" + window.MyPrefix + infoString).hide();
     }
@@ -246,63 +181,49 @@ jQuery(document).ready(function ($) {
       provincia_desc = $("select#" + window.MyPrefix +
         provString + " option:selected")
         .text();
-      $("input#" + window.MyPrefix + "gcmi_prov_desc").val(provincia_desc);
-      $("input#" + window.MyPrefix + "gcmi_comu_desc").val("");
-      gcmi_istance_kind = $("input#" + window.MyPrefix + "gcmi_kind")
+      gcmi_istance_kind = $("input#" + window.MyPrefix + kindString)
         .attr("value");
       gcmi_istance_filtername = $("input#" + window.MyPrefix +
-        "gcmi_filtername")
+        fNameString)
         .attr("value");
-      el = $("select#" + window.MyPrefix + comString);
-      el.html(attendere);
-      el.attr("disabled", "disabled");
-      if (choichesLoaded && el.hasClass("choicesjs-select")) {
-        $(el).data("choicesjs").setChoices(
-          Array.from($(el)[0].options),
-          "value",
-          "label",
-          true
-          );
-        $(el).data("choicesjs").disable();
-      }
+      $.ajax({
+        beforeSend: function (provincia) {
+          $("input#" + window.MyPrefix + provDescString).val(provincia_desc);
+          $("input#" + window.MyPrefix + comDescString).val("");
 
-      if ("" !== provincia) {
-        $.ajax({
-          async: false,
-          data: {
-            action: "the_ajax_hook_comu",
-            codice_provincia: provincia,
-            gcmi_filtername: gcmi_istance_filtername,
-            gcmi_kind: gcmi_istance_kind,
-            nonce_ajax: gcmi_ajax.nonce
-          },
-          success: function (data) {
-            el.prop("disabled", false);
-            el.html(data);
-            if (choichesLoaded && el.hasClass("choicesjs-select")) {
-              $(el).data("choicesjs").setChoices(
-                Array.from($(el)[0].options),
-                "value",
-                "label",
-                true
-                );
-              $(el).data("choicesjs").enable();
-            }
-          },
-          type: "POST",
-          url: gcmi_ajax.ajaxurl
-        });
-      } else {
-        el.html(scegli);
-        if (choichesLoaded && el.hasClass("choicesjs-select")) {
-          $(el).data("choicesjs").setChoices(
-            Array.from($(el)[0].options),
-            "value",
-            "label",
-            true
-            );
-        }
-      }
+          elC = $("select#" + window.MyPrefix + comString);
+          elC.html(attendere);
+          elC.attr("disabled", "disabled");
+          if (choichesLoaded && elC.hasClass(choicesjsClassString)) {
+            $(elC).data("choicesjs")
+              .setChoices(Array.from($(elC)[0].options), "value", "label", true);
+            $(elC).data("choicesjs").disable();
+          }
+        },
+        data: {
+          action: "the_ajax_hook_comu",
+          codice_provincia: provincia,
+          gcmi_filtername: gcmi_istance_filtername,
+          gcmi_kind: gcmi_istance_kind,
+          nonce_ajax: gcmi_ajax.nonce
+        },
+        success: function (data) {
+          if ("" !== provincia) {
+            elC.html(data);
+            elC.prop("disabled", false);
+          } else {
+            elC.html(scegli);
+          }
+
+          if (choichesLoaded && elC.hasClass(choicesjsClassString)) {
+            $(elC).data("choicesjs")
+              .setChoices(Array.from($(elC)[0].options), "value", "label", true);
+            $(elC).data("choicesjs").enable();
+          }
+        },
+        type: "POST",
+        url: gcmi_ajax.ajaxurl
+      });
       $("#" + window.MyPrefix + iconString).hide();
       $("#" + window.MyPrefix + infoString).hide();
     }
@@ -318,18 +239,19 @@ jQuery(document).ready(function ($) {
       comune = $("select#" + window.MyPrefix +
         comString + " option:selected")
         .attr("value");
-      gcmi_istance_kind = $("input#" + window.MyPrefix +
-        "gcmi_kind")
-        .attr("value");
-      gcmi_istance_filtername = $("input#" + window.MyPrefix +
-        "gcmi_filtername")
-        .attr("value");
-      comune_desc = $("select#" + window.MyPrefix +
-        comString + " option:selected")
-        .text();
-      $("input#" + window.MyPrefix + "gcmi_comu_desc").val(comune_desc);
       $.ajax({
-        async: false,
+        beforeSend: function () {
+          gcmi_istance_kind = $("input#" + window.MyPrefix +
+            kindString)
+            .attr("value");
+          gcmi_istance_filtername = $("input#" + window.MyPrefix +
+            fNameString)
+            .attr("value");
+          comune_desc = $("select#" + window.MyPrefix +
+            comString + " option:selected")
+            .text();
+          $("input#" + window.MyPrefix + comDescString).val(comune_desc);
+        },
         data: {
           action: "the_ajax_hook_targa",
           codice_comune: comune,
@@ -347,8 +269,8 @@ jQuery(document).ready(function ($) {
           } else {
             gcmi_comu_form_value = $(
               "select#" + window.MyPrefix + comString + " option:selected")
-              .text() + " - (" + __("sopp.", "campi-moduli-italiani") + ")" + " (" + $(
-              "input#" + window.MyPrefix + targaString).val() + ")";
+              .text() + " - (" + __("sopp.", "campi-moduli-italiani") + ")" +
+              " (" + $("input#" + window.MyPrefix + targaString).val() + ")";
           }
           $("input#" + window.MyPrefix + "gcmi_formatted")
             .attr("value", gcmi_comu_form_value);

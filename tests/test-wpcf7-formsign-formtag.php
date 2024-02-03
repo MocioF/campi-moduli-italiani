@@ -3,10 +3,10 @@
 final class FormsignFormtagTest extends WP_UnitTestCase {
 
 	private $contact_form;
-	private $form_id;
+	// private $form_id;
 	private $form_hash;
 	private $form_title;
-	private $tag_manager;
+	// private $tag_manager;
 
 	public function set_up() {
 		parent::set_up();
