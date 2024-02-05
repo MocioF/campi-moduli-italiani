@@ -1,0 +1,27 @@
+<phpunit
+	bootstrap="bootstrap.php"
+	backupGlobals="false"
+	colors="true"
+	convertErrorsToExceptions="true"
+	convertNoticesToExceptions="true"
+	convertWarningsToExceptions="true"
+	>
+    <php>
+        <const name="WP_TESTS_MULTISITE" value="1" />
+    </php>
+    <testsuites>
+        <testsuite name="multisite">
+            <directory prefix="test-" suffix="multisite.php">.</directory>
+        </testsuite>
+    </testsuites>
+    <coverage>
+        <include>
+            <directory suffix=".php">../..//admin</directory>
+        </include>
+    </coverage>
+    <groups>
+        <exclude>
+            <group>ajax</group>
+        </exclude>
+    </groups>
+</phpunit>

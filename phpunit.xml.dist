@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <phpunit
-	bootstrap="tests/bootstrap.php"
+	bootstrap="tests/phpunit/bootstrap.php"
 	backupGlobals="false"
 	colors="true"
 	convertErrorsToExceptions="true"
@@ -8,12 +8,13 @@
 	convertWarningsToExceptions="true"
 	>
 	<extensions>
-            <extension class="tests\Extensions\Boot"/>
+            <extension class="tests\phpunit\Extensions\Boot"/>
 	</extensions>
 	<testsuites>
 		<testsuite name="default">
-			<directory prefix="test-" suffix=".php">./tests/</directory>
-			<exclude>./tests/test-sample.php</exclude>
+			<directory prefix="test-" suffix=".php">./tests/phpunit/</directory>
+			<exclude>./tests/phpunit/test-sample.php</exclude>
+			<exclude>./tests/phpunit/test-class-campi-moduli-italiani-activator-multisite.php</exclude>
 		</testsuite>
 	</testsuites>
         <coverage>

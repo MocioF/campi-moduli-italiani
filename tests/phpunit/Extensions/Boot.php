@@ -1,6 +1,6 @@
 <?php
 
-namespace tests\Extensions;
+namespace tests\phpunit\Extensions;
 
 use PHPUnit\Runner\AfterLastTestHook;
 use PHPUnit\Runner\BeforeFirstTestHook;
