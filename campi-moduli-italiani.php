@@ -45,5 +45,4 @@ define( 'GCMI_SVIEW_PREFIX', $wpdb->prefix . 'gcmi_' );
 define( 'GCMI_CACHE_EXPIRE_SECS', 1000 );
 define( 'GCMI_CACHE_GROUP', 'campi-moduli-italiani' );
 
-require_once plugin_dir_path( GCMI_PLUGIN ) . 'includes/gcmi-custom-lib.php';
 require_once plugin_dir_path( GCMI_PLUGIN ) . 'settings.php';

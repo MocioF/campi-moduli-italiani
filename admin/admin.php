@@ -91,7 +91,6 @@ function gcmi_admin_menu() {
 		'gcmi',
 		'gcmi_admin_update_db'
 	);
-
 	add_action( 'load-' . $edit, 'gcmi_load_db_management', 10, 0 );
 
 	if ( true === GCMI_USE_COMUNE ) {

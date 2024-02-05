@@ -361,7 +361,7 @@ class GCMI_Activator {
 	 * @since 1.0.0
 	 * @return void
 	 */
-	public static function create_all_tables(): void {
+	private static function create_all_tables(): void {
 		global $wpdb;
 		global $gcmi_error;
 
@@ -844,8 +844,8 @@ class GCMI_Activator {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param string $name  from $database_file_info .
-	 * @param string $table $table_name from $database_file_info .
+	 * @param string $name  from $database_file_info; identifies the dataset.
+	 * @param string $table The full table name to be used.
 	 * @return boolean
 	 */
 	public static function create_db_table( $name, $table ) {
@@ -1838,20 +1838,5 @@ class GCMI_Activator {
 			}
 		}
 		return true;
-	}
-
-	/**
-	 * Running setup whenever a new blog is created
-	 *
-	 * @since 2.2.0
-	 * @param WP_Site $params New site object.
-	 * @return void
-	 */
-	public static function add_blog( $params ) {
-		if ( is_plugin_active_for_network( GCMI_PLUGIN_BASENAME ) ) {
-			switch_to_blog( intval( $params->blog_id ) );
-			gcmi_create_unfiltered_views();
-			restore_current_blog();
-		}
 	}
 }

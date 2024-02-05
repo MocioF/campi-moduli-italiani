@@ -46,6 +46,11 @@ if ( ! defined( 'GCMI_USE_WPFORMS_INTEGRATION' ) ) {
 /* fine sezione editabile */
 
 /**
+ * Requires a custom functions lib
+ */
+require_once plugin_dir_path( GCMI_PLUGIN ) . 'includes/gcmi-custom-lib.php';
+
+/**
  * Requires the activator class
  */
 require_once plugin_dir_path( GCMI_PLUGIN ) . 'admin/class-gcmi-activator.php';
