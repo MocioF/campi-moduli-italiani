@@ -7,8 +7,21 @@ on:
 
 name: Tests
 
+env:
+  coverage-php-version: 8.1
+  coverage-wp-version: 6.4
+
+# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
 jobs:
   test:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -56,7 +69,7 @@ jobs:
       with:
         php-version: ${{ matrix.php-versions }}
         tools: php-cs-fixer, composer
-        extensions: pcntl, posix
+        extensions: pcntl, posix, xdebug
       env:
         fail-fast: true
 
@@ -77,6 +90,10 @@ jobs:
         key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
         restore-keys: ${{ runner.os }}-composer-
 
+    - name: Remove phpunit-merger
+      if: matrix.php-versions != env.coverage-php-version || matrix.wordpress-version != env.coverage-wp-version
+      run: (composer remove --dev nimut/phpunit-merger phpunit/phpunit || true ) && composer update
+
     - name: Only for WP >= 5.9 Install Composer dependencies
       # See: https://make.wordpress.org/core/2021/09/27/changes-to-the-wordpress-core-php-test-suite/
       if: ${{ ( matrix.wordpress-version == '5.9' || matrix.wordpress-version == '6.0' || matrix.wordpress-version == '6.1' || matrix.wordpress-version == '6.2' || matrix.wordpress-version == '6.3' || matrix.wordpress-version == '6.4' ) }}
@@ -93,10 +110,42 @@ jobs:
       # Rest of the versions
       #if: ${{ matrix.php-versions != '8.0' }}
       #run: composer install --no-progress --prefer-dist --optimize-autoloader
-
+       
     - name: Run the tests
+      if: matrix.php-versions != env.coverage-php-version || matrix.wordpress-version != env.coverage-wp-version
       run: vendor/bin/phpunit --debug
 
+    - name: When using PHP 8.1 and WP 6.4 - Run the tests and generate coverage report (single)
+      if: matrix.php-versions == env.coverage-php-version && matrix.wordpress-version == env.coverage-wp-version
+      run: vendor/bin/phpunit --debug --coverage-php coverage/single.cov
+    
+    - name: When using PHP 8.1 and WP 6.4 - Run the tests and generate coverage report (multisite)
+      if: matrix.php-versions == env.coverage-php-version && matrix.wordpress-version == env.coverage-wp-version
+      run: vendor/bin/phpunit --debug -c tests/phpunit/multisite.xml --coverage-php=coverage/multisite.cov
+      env:
+        XDEBUG_MODE: coverage
+
+    - name: Generate coverage merged report
+      if: matrix.php-versions == env.coverage-php-version && matrix.wordpress-version == env.coverage-wp-version
+      run: vendor/bin/phpunit-merger coverage coverage/ --html=coverage-html/ coverage/coverage-merged.cov
+      env:
+        XDEBUG_MODE: coverage
+
+    - name: Setup Pages
+      if: matrix.php-versions == env.coverage-php-version && matrix.wordpress-version == env.coverage-wp-version
+      uses: actions/configure-pages@v4
+
+    - name: Upload artifact
+      if: matrix.php-versions == env.coverage-php-version && matrix.wordpress-version == env.coverage-wp-version
+      uses: actions/upload-pages-artifact@v3
+      with:
+        # Upload the coverage directory from the repository
+        path: './coverage-html'
+    - name: Deploy to GitHub Pages
+      if: matrix.php-versions == env.coverage-php-version && matrix.wordpress-version == env.coverage-wp-version
+      id: deployment
+      uses: actions/deploy-pages@v4
+        
   sync-trunk:
     name: Sync trunk with main
     runs-on: ubuntu-latest
