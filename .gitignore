@@ -11,6 +11,9 @@ phpcs.xml
 node_modules
 npm-debug.log
 docs
+coverage
+coverage-html
 .sass-cache
-/.phpunit.result.cache
+.phpunit.result.cache
+tests/phpunit/.phpunit.result.cache
 phpstan.neon

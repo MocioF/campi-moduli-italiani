@@ -24,10 +24,24 @@ if ( ! class_exists( 'WP_List_Table' ) ) {
  */
 class Gcmi_Remote_Files_List extends WP_List_Table {
 
-	/** Class constructor */
+	/**
+	 * Class constructor
+	 */
 	public function __construct() {
+		// necessario per WP <  6.1, see: https://core.trac.wordpress.org/changeset/54414 .
+		if ( is_null( get_current_screen() ) ) {
+			set_current_screen( 'admin.php' );
+		}
+		$screen = get_current_screen();
+		if ( ! is_null( $screen ) ) {
+			$screen_id = $screen->id;
+		} else {
+			$screen_id = 'admin.php';
+		}
 		parent::__construct(
 			array(
+				// necessario per WP <  6.1 .
+				'screen'   => $screen_id,
 				'singular' => 'fname', // singular name of the listed records.
 				'plural'   => 'fnames', // plural name of the listed records.
 				'ajax'     => false, // should this table support ajax?
