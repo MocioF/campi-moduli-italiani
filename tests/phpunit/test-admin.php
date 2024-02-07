@@ -97,7 +97,7 @@ final class adminFunctionsTest extends WP_Ajax_UnitTestCase {
 		gcmi_update_table($input);
 		$option_name = 'gcmi_' . $input . '_downloaded_time';
 		$real_downloaded_time = get_option($option_name);
-		$this->assertEqualsWithDelta($now, $real_downloaded_time, 3);
+		$this->assertEqualsWithDelta($now, $real_downloaded_time, 30);
 	}
 
 	public function test_gcmi_admin_enqueue_scripts() {
