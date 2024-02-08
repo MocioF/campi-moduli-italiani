@@ -340,9 +340,9 @@ class GCMI_CF_WPCF7_FormTag {
 										'SELECT `i_cod_AT` FROM `%3$s` ' .
 										'WHERE `i_cod_istat` = \'%4$s\'' .
 										') as subQuery ',
-										GCMI_TABLE_PREFIX . 'stati',
+										GCMI_SVIEW_PREFIX . 'stati',
 										esc_sql( $codice_stato ),
-										GCMI_TABLE_PREFIX . 'stati_cessati',
+										GCMI_SVIEW_PREFIX . 'stati_cessati',
 										esc_sql( $codice_stato )
 									)
 								);
@@ -389,8 +389,8 @@ class GCMI_CF_WPCF7_FormTag {
 										'UNION ' .
 										'SELECT `i_cod_comune`, `i_denominazione_full` FROM `%2$s` ' .
 										') as subQuery WHERE `i_cod_comune` = \'%2$s\'',
-										GCMI_TABLE_PREFIX . 'comuni_attuali',
-										GCMI_TABLE_PREFIX . 'comuni_soppressi',
+										GCMI_SVIEW_PREFIX . 'comuni_attuali',
+										GCMI_SVIEW_PREFIX . 'comuni_soppressi',
 										esc_sql( $cod_comune )
 									),
 									0
@@ -421,7 +421,7 @@ class GCMI_CF_WPCF7_FormTag {
 									$wpdb->prepare(
 										'SELECT `i_cod_catastale` FROM `%1$s` ' .
 										'WHERE `i_denominazione_ita` = \'%2$s\'',
-										GCMI_TABLE_PREFIX . 'codici_catastali',
+										GCMI_SVIEW_PREFIX . 'codici_catastali',
 										$escaped
 									),
 									0

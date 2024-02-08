@@ -117,12 +117,12 @@ class GCMI_WPForms_Field_Stato extends WPForms_Field {
 			$sql = 'SELECT `i_cod_istat`, `i_cod_continente`, `i_denominazione_ita`, `i_cod_AT` FROM ';
 			if ( ! isset( $field['only_current'] ) ) {
 				$sql .= '( ';
-				$sql .= 'SELECT `i_cod_istat`, `i_cod_continente`, `i_denominazione_ita`, `i_cod_AT` FROM `' . GCMI_TABLE_PREFIX . 'stati` ';
+				$sql .= 'SELECT `i_cod_istat`, `i_cod_continente`, `i_denominazione_ita`, `i_cod_AT` FROM `' . GCMI_SVIEW_PREFIX . 'stati` ';
 				$sql .= 'UNION ';
-				$sql .= 'SELECT `i_cod_istat`, `i_cod_continente`, `i_denominazione_ita`, `i_cod_AT` FROM `' . GCMI_TABLE_PREFIX . 'stati_cessati` ';
+				$sql .= 'SELECT `i_cod_istat`, `i_cod_continente`, `i_denominazione_ita`, `i_cod_AT` FROM `' . GCMI_SVIEW_PREFIX . 'stati_cessati` ';
 				$sql .= ') as subQuery ';
 			} else {
-				$sql .= '`' . GCMI_TABLE_PREFIX . 'stati` ';
+				$sql .= '`' . GCMI_SVIEW_PREFIX . 'stati` ';
 			}
 			if ( isset( $field['use_continent'] ) ) {
 				$sql .= 'ORDER BY `i_cod_continente`, `i_denominazione_ita`, `i_cod_istat` ASC';
@@ -140,7 +140,7 @@ class GCMI_WPForms_Field_Stato extends WPForms_Field {
 			$continenti = wp_cache_get( $cache_key, GCMI_CACHE_GROUP );
 
 			if ( false === $continenti ) {
-				$sql2       = 'SELECT DISTINCT `i_cod_continente`, `i_den_continente` FROM `' . GCMI_TABLE_PREFIX . 'stati` ORDER BY `i_cod_continente`'; // phpcs:ignore unprepared SQL OK.
+				$sql2       = 'SELECT DISTINCT `i_cod_continente`, `i_den_continente` FROM `' . GCMI_SVIEW_PREFIX . 'stati` ORDER BY `i_cod_continente`'; // phpcs:ignore unprepared SQL OK.
 				$continenti = $wpdb->get_results( $sql2 ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 				wp_cache_set( $cache_key, $continenti, GCMI_CACHE_GROUP, GCMI_CACHE_EXPIRE_SECS );
 			}
@@ -654,8 +654,8 @@ class GCMI_WPForms_Field_Stato extends WPForms_Field {
 								'SELECT `i_cod_istat`, `i_denominazione_ita` FROM `%2$s` ' .
 								') as subQuery ' .
 								'WHERE `i_cod_istat` = \'%3$s\' LIMIT 1',
-								GCMI_TABLE_PREFIX . 'stati',
-								GCMI_TABLE_PREFIX . 'stati_cessati',
+								GCMI_SVIEW_PREFIX . 'stati',
+								GCMI_SVIEW_PREFIX . 'stati_cessati',
 								$field['value']
 							),
 							OBJECT

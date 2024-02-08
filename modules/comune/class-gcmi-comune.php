@@ -914,7 +914,7 @@ class GCMI_COMUNE {
 					'DATE_FORMAT(`i_data_decorrenza`, \'%1$s\') AS `i_data_decorrenza` FROM `%2$s` ' .
 					'WHERE (`i_cod_comune` = \'%3$s\' OR `i_cod_comune_nuovo` = \'%4$s\')',
 					gcmi_safe_strval( esc_sql( $local_date_format_mysql ) ),
-					GCMI_TABLE_PREFIX . 'comuni_variazioni',
+					GCMI_SVIEW_PREFIX . 'comuni_variazioni',
 					esc_sql( $i_cod_comune ),
 					esc_sql( $i_cod_comune )
 				)

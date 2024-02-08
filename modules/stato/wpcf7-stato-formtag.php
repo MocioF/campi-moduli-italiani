@@ -91,12 +91,12 @@ function gcmi_wpcf7_stato_formtag_handler( $tag ) {
 		$sql = 'SELECT `i_cod_istat`, `i_cod_continente`, `i_denominazione_ita`, `i_cod_AT` FROM ';
 		if ( false === $solo_attuali ) {
 			$sql .= '( ';
-			$sql .= 'SELECT `i_cod_istat`, `i_cod_continente`, `i_denominazione_ita`, `i_cod_AT` FROM `' . GCMI_TABLE_PREFIX . 'stati` ';
+			$sql .= 'SELECT `i_cod_istat`, `i_cod_continente`, `i_denominazione_ita`, `i_cod_AT` FROM `' . GCMI_SVIEW_PREFIX . 'stati` ';
 			$sql .= 'UNION ';
-			$sql .= 'SELECT `i_cod_istat`, `i_cod_continente`, `i_denominazione_ita`, `i_cod_AT` FROM `' . GCMI_TABLE_PREFIX . 'stati_cessati` ';
+			$sql .= 'SELECT `i_cod_istat`, `i_cod_continente`, `i_denominazione_ita`, `i_cod_AT` FROM `' . GCMI_SVIEW_PREFIX . 'stati_cessati` ';
 			$sql .= ') as subQuery ';
 		} else {
-			$sql .= '`' . GCMI_TABLE_PREFIX . 'stati` ';
+			$sql .= '`' . GCMI_SVIEW_PREFIX . 'stati` ';
 		}
 		if ( true === $usa_continenti ) {
 			$sql .= 'ORDER BY `i_cod_continente`, `i_cod_istat`, `i_denominazione_ita` ASC';
@@ -120,7 +120,7 @@ function gcmi_wpcf7_stato_formtag_handler( $tag ) {
 		$continenti = wp_cache_get( $cache_key, GCMI_CACHE_GROUP );
 
 		if ( false === $continenti ) {
-			$sql2 = 'SELECT DISTINCT `i_cod_continente`, `i_den_continente` FROM `' . GCMI_TABLE_PREFIX . 'stati` ORDER BY `i_cod_continente`';
+			$sql2 = 'SELECT DISTINCT `i_cod_continente`, `i_den_continente` FROM `' . GCMI_SVIEW_PREFIX . 'stati` ORDER BY `i_cod_continente`';
 
 			$continenti = $wpdb->get_results( $sql2 ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 			wp_cache_set( $cache_key, $continenti, GCMI_CACHE_GROUP, GCMI_CACHE_EXPIRE_SECS );
@@ -207,10 +207,10 @@ add_filter(
 			global $wpdb;
 			$sql  = 'SELECT `i_denominazione_ita` FROM  ';
 			$sql .= '( ';
-			$sql .= 'SELECT `i_denominazione_ita` FROM `' . GCMI_TABLE_PREFIX . 'stati` ';
+			$sql .= 'SELECT `i_denominazione_ita` FROM `' . GCMI_SVIEW_PREFIX . 'stati` ';
 			$sql .= 'WHERE `i_cod_istat` = %s';
 			$sql .= 'UNION ';
-			$sql .= 'SELECT `i_denominazione_ita` FROM `' . GCMI_TABLE_PREFIX . 'stati_cessati` ';
+			$sql .= 'SELECT `i_denominazione_ita` FROM `' . GCMI_SVIEW_PREFIX . 'stati_cessati` ';
 			$sql .= 'WHERE `i_cod_istat` = %s';
 			$sql .= ') as subQuery ';
 
@@ -233,10 +233,10 @@ add_filter(
 			global $wpdb;
 			$sql  = 'SELECT `i_denominazione_ita` FROM  ';
 			$sql .= '( ';
-			$sql .= 'SELECT `i_denominazione_ita` FROM `' . GCMI_TABLE_PREFIX . 'stati` ';
+			$sql .= 'SELECT `i_denominazione_ita` FROM `' . GCMI_SVIEW_PREFIX . 'stati` ';
 			$sql .= 'WHERE `i_cod_istat` = %s';
 			$sql .= 'UNION ';
-			$sql .= 'SELECT `i_denominazione_ita` FROM `' . GCMI_TABLE_PREFIX . 'stati_cessati` ';
+			$sql .= 'SELECT `i_denominazione_ita` FROM `' . GCMI_SVIEW_PREFIX . 'stati_cessati` ';
 			$sql .= 'WHERE `i_cod_istat` = %s';
 			$sql .= ') as subQuery ';
 
