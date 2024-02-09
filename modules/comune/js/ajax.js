@@ -37,7 +37,7 @@ jQuery(document).ready(function ($) {
   var provDescString = "gcmi_prov_desc";
   var comDescString = "gcmi_comu_desc";
   var choicesjsClassString = "choicesjs-select";
-  
+
   var comString = "gcmi_comuni";
   var iconString = "gcmi_icon";
   var targaString = "gcmi_targa";
@@ -100,7 +100,8 @@ jQuery(document).ready(function ($) {
         fNameString)
         .attr("value");
       $.ajax({
-        beforeSend: function (regione) {
+        beforeSend: function() {
+          $(this).attr("disabled", "disabled");
           // imposto gli altri campi
           $("input#" + window.MyPrefix + regDescString).val(regione_desc);
           $("input#" + window.MyPrefix + provDescString).val("");
@@ -145,6 +146,15 @@ jQuery(document).ready(function ($) {
         },
         success: function (data) {
           switch (regione) {
+            case "":
+              // deve disabilitare tutte e due e inserire scegli e non procedere
+              elP = $("select#" + window.MyPrefix + provString);
+              elC = $("select#" + window.MyPrefix + comString);
+              elP.html(scegli);
+              elC.html(scegli);
+              elP.attr("disabled", "disabled");
+              elC.attr("disabled", "disabled");
+              return;
             case "00":
               el = $("select#" + window.MyPrefix + comString);
               break;
@@ -159,6 +169,7 @@ jQuery(document).ready(function ($) {
             $(el).data("choicesjs").enable();
           }
           hideSingleProvince(window.MyPrefix);
+          $(this).prop("disabled", false);
         },
         type: "POST",
         url: gcmi_ajax.ajaxurl
@@ -187,7 +198,8 @@ jQuery(document).ready(function ($) {
         fNameString)
         .attr("value");
       $.ajax({
-        beforeSend: function (provincia) {
+        beforeSend: function () {
+          $(this).attr("disabled", "disabled");
           $("input#" + window.MyPrefix + provDescString).val(provincia_desc);
           $("input#" + window.MyPrefix + comDescString).val("");
 
@@ -220,6 +232,7 @@ jQuery(document).ready(function ($) {
               .setChoices(Array.from($(elC)[0].options), "value", "label", true);
             $(elC).data("choicesjs").enable();
           }
+          $(this).prop("disabled", false);
         },
         type: "POST",
         url: gcmi_ajax.ajaxurl
@@ -390,6 +403,8 @@ jQuery(document).ready(function ($) {
         $("#" + window.MyPrefix + regString).trigger("change");
         $("label[for='" + window.MyPrefix + regString + "'").hide();
         $(this).hide();
+      } else {
+        $(this).show();
       }
     });
   }
@@ -405,6 +420,8 @@ jQuery(document).ready(function ($) {
       $("#" + MyPrefix + provString).trigger("change");
       $("label[for='" + MyPrefix + provString).hide();
       $("#" + MyPrefix + provString).hide();
+    } else {
+      $("#" + MyPrefix + provString).show();
     }
   }
 });
