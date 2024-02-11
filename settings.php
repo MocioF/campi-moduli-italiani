@@ -439,6 +439,7 @@ function gcmi_deactivate( $network_wide ) {
 function gcmi_uninstall() {
 	require_once plugin_dir_path( __FILE__ ) . 'admin/class-gcmi-activator.php';
 	GCMI_Activator::delete_all_tables();
+	GCMI_Activator::unset_gcmi_options();
 }
 
 

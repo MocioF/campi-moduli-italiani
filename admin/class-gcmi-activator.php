@@ -544,13 +544,18 @@ class GCMI_Activator {
 	 * @return void
 	 */
 	public static function deactivate( $network_wide ) {
+		/**
+		 * Tabelle e opzioni vengono eliminate solo in caso di disinstallazione
+		 * Eliminare le opzioni in disattivazione comporta annullamento dei tempi
+		 * dei file remoti e di aggiornamento dati che non sarebbero coerenti
+		 * in caso di riattivazione.
+		 */
 		if ( function_exists( 'is_multisite' ) && is_multisite() ) { // le unfiltered view servono solo in caso di multisite.
 			$sites             = self::get_sites_array();
 			$plugin            = GCMI_PLUGIN_BASENAME;
 			$attivo_su_singolo = self::gcmi_check_if_single_activated( $sites );
 
 			if ( true === $network_wide ) {
-				// se è una disattivazione network wide elimino tutte le views e tutte le table.
 				if ( 0 === count( $sites ) ) {
 					// devo dare errore, perché nessuna attivazione è possibile network wide in una rete troppo grande.
 					$error_network_wide = new WP_Error();
@@ -570,20 +575,10 @@ class GCMI_Activator {
 						}
 						restore_current_blog();
 					}
-					// se non è attivato su nessun sito singolo, elimino le tabelle e le opzioni.
-					if ( false === $attivo_su_singolo ) {
-						self::unset_gcmi_options();
-					}
 				}
 			} else { // è una disattivazione singola, non devo distruggere le tabelle, nel caso in cui il plugin sia attivo su qualche sito.
 				gcmi_delete_all_views();
 				self::destroy_gcmi_cron_job();
-
-				// controllo se almeno su un sito il plugin è attivo.
-				if ( false === $attivo_su_singolo ) {
-					// se non lo è, elimino le tabelle.
-					self::unset_gcmi_options();
-				}
 			}
 		} else { // non è multisite.
 			gcmi_delete_all_views();
@@ -631,13 +626,12 @@ class GCMI_Activator {
 	}
 
 	/**
-	 * Deletes options and cronjob
+	 * Deletes and cronjob
 	 *
 	 * @since 1.0.0
 	 * @return void
 	 */
 	public static function single_deactivate(): void {
-		self::unset_gcmi_options();
 		self::destroy_gcmi_cron_job();
 	}
 
@@ -796,7 +790,7 @@ class GCMI_Activator {
 	 * @since 1.0.0
 	 * @return void
 	 */
-	private static function unset_gcmi_options(): void {
+	public static function unset_gcmi_options(): void {
 		$keys = array_keys( self::$activator_options );
 		if ( false === is_multisite() ) {
 			foreach ( $keys as $key ) {
