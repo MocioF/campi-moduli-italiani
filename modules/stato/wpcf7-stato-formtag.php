@@ -77,9 +77,12 @@ function gcmi_wpcf7_stato_formtag_handler( $tag ) {
 	$solo_attuali   = $tag->has_option( 'only_current' );
 
 	// codice per gestire i valori di default.
-	$default_value = gcmi_safe_strval( $tag->values[0] );
-	$value         = wpcf7_get_hangover( $tag->name, $default_value );
-	$pr_value      = $value;
+	if ( 0 < count( $tag->values ) ) {
+		$default_value = gcmi_safe_strval( $tag->values[0] );
+		$pr_value      = wpcf7_get_hangover( $tag->name, $default_value );
+	} else {
+		$pr_value = '';
+	}
 
 	// codice per gestire la cache della query stati.
 	$cache_key  = 'stati_';
