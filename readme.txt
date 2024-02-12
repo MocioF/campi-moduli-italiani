@@ -4,8 +4,8 @@ Donate link: https://paypal.me/GiuseppeF77
 Tags: Contact Form 7, WPForms, comuni italiani, codice fiscale, firma digitale, multisite
 Requires at least: 5.9
 Tested up to: 6.4
-Requires PHP: 7.2
-Stable tag: 2.1.5
+Requires PHP: 7.4
+Stable tag: 2.2.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html
 
@@ -128,6 +128,10 @@ You can create an issue in our Github repo:
 5. Image of the admin screen, from which it is possible to update the data
 
 == Changelog ==
+= 2.2.1 =
+* Fix js for comune [comune]
+* Minor bugs fixed
+
 = 2.2.0 =
 * Added new filter builder for module [comune]
 
