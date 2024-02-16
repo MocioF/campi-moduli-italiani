@@ -400,34 +400,32 @@ class GCMI_CF_WPCF7_FormTag {
 				);
 			}
 			if ( '100' !== $codice_stato ) {
-				return true;
-			}
+				// 100 è il codice ISTAT per l'ITALIA
+				$cache_key = 'gcmi_codice_stato_cf_' . strval( $codice_stato );
+				$cod_at    = wp_cache_get( $cache_key, GCMI_CACHE_GROUP );
+				if ( false === $cod_at ) {
+					$cod_at = $wpdb->get_var(
+						$wpdb->prepare(
+							'SELECT `i_cod_AT` FROM  ' .
+							'( ' .
+							'SELECT `i_cod_AT` FROM `%1$s` ' .
+							'WHERE `i_cod_istat` = \'%2$s\'' .
+							'UNION ' .
+							'SELECT `i_cod_AT` FROM `%3$s` ' .
+							'WHERE `i_cod_istat` = \'%4$s\'' .
+							') as subQuery ',
+							GCMI_SVIEW_PREFIX . 'stati',
+							esc_sql( $codice_stato ),
+							GCMI_SVIEW_PREFIX . 'stati_cessati',
+							esc_sql( $codice_stato )
+						)
+					);
+					wp_cache_set( $cache_key, $cod_at, GCMI_CACHE_GROUP, GCMI_CACHE_EXPIRE_SECS );
+				}
 
-			// 100 è il codice ISTAT per l'ITALIA
-			$cache_key = 'gcmi_codice_stato_cf_' . strval( $codice_stato );
-			$cod_at    = wp_cache_get( $cache_key, GCMI_CACHE_GROUP );
-			if ( false === $cod_at ) {
-				$cod_at = $wpdb->get_var(
-					$wpdb->prepare(
-						'SELECT `i_cod_AT` FROM  ' .
-						'( ' .
-						'SELECT `i_cod_AT` FROM `%1$s` ' .
-						'WHERE `i_cod_istat` = \'%2$s\'' .
-						'UNION ' .
-						'SELECT `i_cod_AT` FROM `%3$s` ' .
-						'WHERE `i_cod_istat` = \'%4$s\'' .
-						') as subQuery ',
-						GCMI_SVIEW_PREFIX . 'stati',
-						esc_sql( $codice_stato ),
-						GCMI_SVIEW_PREFIX . 'stati_cessati',
-						esc_sql( $codice_stato )
-					)
-				);
-				wp_cache_set( $cache_key, $cod_at, GCMI_CACHE_GROUP, GCMI_CACHE_EXPIRE_SECS );
-			}
-
-			if ( $luogo !== $cod_at ) {
-				return false;
+				if ( $luogo !== $cod_at ) {
+					return false;
+				}
 			}
 		}
 		return true;
