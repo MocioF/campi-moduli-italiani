@@ -550,7 +550,7 @@ class GCMI_COMUNE {
 				$results = $wpdb->get_results(
 					$wpdb->prepare(
 						'SELECT DISTINCT `i_cod_unita_territoriale`, `i_den_unita_territoriale` FROM `%1$s` ' .
-						'WHERE `i_cod_regione` = \'%2$s\'',
+						'WHERE `i_cod_regione` = \'%2$s\' ORDER BY `i_den_unita_territoriale`',
 						GCMI_SVIEW_PREFIX . 'comuni_attuali' . $this->pfilter(),
 						esc_sql( $i_cod_regione )
 					)
