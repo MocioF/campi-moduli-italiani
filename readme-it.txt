@@ -5,7 +5,7 @@ Tags: Contact Form 7, WPForms, comuni italiani, codice fiscale, firma digitale, 
 Requires at least: 5.9
 Tested up to: 6.4
 Requires PHP: 7.4
-Stable tag: 2.2.2
+Stable tag: 2.2.3
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html
 
@@ -126,6 +126,9 @@ Puoi inviare una richiesta nel nostro repository Github:
 5. Immagine della schermata di admin, da cui è possibile effettuare l'aggiornamento dei dati
 
 == Changelog ==
+= 2.2.3 =
+* Corretto errore nell'ordinamento delle province in caso di visualizzazione di soli comuni attuali
+
 = 2.2.2 =
 * Corretto errore nella validazione del codice fiscale sullo stato estero di nascita
 
