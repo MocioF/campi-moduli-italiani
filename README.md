@@ -43,7 +43,8 @@ In particular, data made available at these URLs are acquired and stored:
 
 The data published on the ISTAT website are covered by a Creative Commons license - Attribution (CC-by) (https://creativecommons.org/licenses/by/3.0/it/), as indicated here: https://www.istat.it/it/note-legali
 The data taken from the website of the Agenzia delle entrate are in the public domain and constitute a public database made available to allow tax compliance and, more generally, to allow the identification of physical persons with the Italian public administrations, through the personal fiscal code.
-The data on the Agenzia delle entrate website can be freely stored on your computer or printed (https://www.agenziaentrate.gov.it/portale/web/guest/privacy). The data are managed by the Ufficio Archivio of the Agenzia delle entrate.
+The data are managed by the Ufficio Archivio of the Agenzia delle entrate.
+By Italian law (art. 52 d.lgs. 82/2005) all data, that are not personal data, published by an Italian administration without an explicit license are open data (CC0).
 This plugin uses the data taken from the website of the Agenzia delle entrate exclusively for the purpose of carrying out a formal regularity check of the pesonal tax code.
 This plugin does not include any links on the external pages of the website on which it is used, neither to the Agenzia delle entrate's site nor to the ISTAT's website; in particular, no kind of direct link is made, nor of deep linking.
 
