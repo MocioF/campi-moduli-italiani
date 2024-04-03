@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Class used to add the cf formtag to CF7
  *
@@ -541,9 +540,6 @@ class GCMI_CF_WPCF7_FormTag {
 	 * @return WPCF7_Validation
 	 */
 	public static function cf_validation_filter( $result, $tag ) {
-
-		// gcmi_error_log( $tag );
-
 		$name = $tag->name;
 		if ( $name ) {
 			$is_required = $tag->is_required();

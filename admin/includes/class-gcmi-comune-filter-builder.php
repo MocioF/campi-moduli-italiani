@@ -205,7 +205,7 @@ class GCMI_Comune_Filter_Builder {
 	 * @param string        $use_cessati "true" per usare i cessati.
 	 * @param array<string> $selected Array dei codici regione selezionati.
 	 *
-	 * @return array{string: object{"i_cod_regione": string, "i_den_regione": string, "selected": string}}
+	 * @return array<string, object{"i_cod_regione": string, "i_den_regione": string, "selected": string}>
 	 */
 	private static function get_list_regioni( $use_cessati = 'true', $selected = array() ) {
 		global $wpdb;
@@ -247,7 +247,7 @@ class GCMI_Comune_Filter_Builder {
 	/**
 	 * Stampa la lista delle regioni
 	 *
-	 * @param array{string: object{"i_cod_regione": string, "i_den_regione": string, "selected": string}} $list_regioni The array of objects returned by get_list_regioni (OBJECT_K format).
+	 * @param array<string, object{"i_cod_regione": string, "i_den_regione": string, "selected": string}> $list_regioni The array of objects returned by get_list_regioni (OBJECT_K format).
 	 * @return string
 	 */
 	private static function print_regioni( $list_regioni ) {
@@ -279,7 +279,7 @@ class GCMI_Comune_Filter_Builder {
 	 * @param string        $use_cessati "true" per usare i cessati.
 	 * @param array<string> $selected elenco delle province selezionate.
 	 *
-	 * @return array{string: object{"i_cod_unita_territoriale": string, "i_cod_regione": string, "i_den_unita_territoriale": string, "i_den_regione": string, "selected": string}}|false
+	 * @return array<string, object{"i_cod_unita_territoriale": string, "i_cod_regione": string, "i_den_unita_territoriale": string, "i_den_regione": string, "selected": string}>|false
 	 */
 	private static function get_list_province( $use_cessati = 'true', $selected = array() ) {
 		global $wpdb;
@@ -416,7 +416,7 @@ class GCMI_Comune_Filter_Builder {
 	/**
 	 * Stampa la lista delle province
 	 *
-	 * @param false|array{string: object{"i_cod_unita_territoriale": string, "i_cod_regione": string, "i_den_unita_territoriale": string, "i_den_regione": string, "selected": string}} $list_province Array di oggetti restituito da get_list_province (OBJECT_K).
+	 * @param false|array<string, object{"i_cod_unita_territoriale": string, "i_cod_regione": string, "i_den_unita_territoriale": string, "i_den_regione": string, "selected": string}> $list_province Array di oggetti restituito da get_list_province (OBJECT_K).
 	 * @return string
 	 */
 	private static function print_province( $list_province ) {
@@ -468,7 +468,7 @@ class GCMI_Comune_Filter_Builder {
 	 * @param string        $use_cessati "true" per usare i cessati.
 	 * @param array<string> $selected An array of codici comune.
 	 *
-	 * @return array{string: object{"i_cod_comune": string, "i_cod_unita_territoriale": string, "i_denominazione_full": string, "selected": string}}
+	 * @return array<string, object{"i_cod_comune": string, "i_cod_unita_territoriale": string, "i_denominazione_full": string, "selected": string}>
 	 */
 	private static function get_list_comuni( $use_cessati = 'true', $selected = array() ) {
 		global $wpdb;
@@ -528,7 +528,7 @@ class GCMI_Comune_Filter_Builder {
 	/**
 	 * Stampa la lista dei comuni
 	 *
-	 * @param array{string: object{"i_cod_comune": string, "i_cod_unita_territoriale": string, "i_denominazione_full": string, "selected": string}} $list_comuni Lista comuni restituita da get_list_comuni (OBJECT_K).
+	 * @param array<string, object{"i_cod_comune": string, "i_cod_unita_territoriale": string, "i_denominazione_full": string, "selected": string}> $list_comuni Lista comuni restituita da get_list_comuni (OBJECT_K).
 	 * @return string
 	 */
 	private static function print_comuni( $list_comuni ) {
