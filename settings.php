@@ -490,7 +490,7 @@ add_action( 'after_plugin_row_wp-' . GCMI_PLUGIN_BASENAME, 'gcmi_ms_plugin_updat
  * Show error in front end
  *
  * @param WP_Error $gcmi_error The error to be shown.
- * @return void
+ * @return string
  * @since 2.1.0
  */
 function gcmi_show_error( $gcmi_error ) {
@@ -500,14 +500,7 @@ function gcmi_show_error( $gcmi_error ) {
 		$output .= $error . '<br/>';
 		$output .= '</div>';
 
-		$allowed_html = array(
-			'div'    => array(
-				'class' => array(),
-			),
-			'strong' => array(),
-			'br'     => array(),
-		);
-		echo wp_kses( $output, $allowed_html );
+		return $output;
 	}
 }
 

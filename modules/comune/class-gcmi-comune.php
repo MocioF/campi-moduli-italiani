@@ -380,8 +380,22 @@ class GCMI_COMUNE {
 			}
 			if ( $wpdb->last_error ) {
 				$this->gcmi_error->add( 'get_regioni', $wpdb->last_error );
-				gcmi_show_error( $this->gcmi_error );
-				wp_die();
+				$allowed_html = array(
+					'div'    => array(
+						'class' => array(),
+					),
+					'strong' => array(),
+					'br'     => array(),
+					'p'      => array(),
+				);
+				wp_die(
+					wp_kses( gcmi_show_error( $this->gcmi_error ), $allowed_html ),
+					esc_html__( 'Campi Moduli Italiani activation error', 'campi-moduli-italiani' ),
+					array(
+						'response'  => 200,
+						'back_link' => true,
+					)
+				);
 			} else {
 				wp_cache_set( $cache_key, $results, GCMI_CACHE_GROUP, GCMI_CACHE_EXPIRE_SECS );
 			}

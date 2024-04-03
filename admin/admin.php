@@ -310,7 +310,15 @@ add_action( 'admin_enqueue_scripts', 'gcmi_admin_enqueue_scripts', 10, 1 );
  */
 function gcmi_update_table( $fname ) {
 	global $wpdb;
-	$gcmi_error = new WP_Error();
+	$allowed_html = array(
+		'div'    => array(
+			'class' => array(),
+		),
+		'strong' => array(),
+		'br'     => array(),
+		'p'      => array(),
+	);
+	$gcmi_error   = new WP_Error();
 
 	$database_file_info = GCMI_Activator::$database_file_info;
 	$options            = array();
@@ -324,20 +332,32 @@ function gcmi_update_table( $fname ) {
 		$error_code  = ( 'gcmi_wrong_fname' );
 		$error_title = esc_html__( 'Wrong file name', 'campi-moduli-italiani' );
 		// translators: %s is the fname value for the updating table.
-		$error_message = '<h1>' . $error_title . '</h1>' . sprintf( esc_html__( 'This plugin cannot manage file %s', 'campi-moduli-italiani' ), esc_html( $fname ) );
+		$error_message = '<p><strong>' . $error_title . '</strong></p>' . sprintf( esc_html__( 'This plugin cannot manage file %s', 'campi-moduli-italiani' ), esc_html( $fname ) );
 		$gcmi_error->add( $error_code, $error_message );
-		gcmi_show_error( $gcmi_error );
-		die;
+		wp_die(
+			wp_kses( gcmi_show_error( $gcmi_error ), $allowed_html ),
+			esc_html__( 'Campi Moduli Italiani activation error', 'campi-moduli-italiani' ),
+			array(
+				'response'  => 200,
+				'back_link' => true,
+			)
+		);
 	}
 	$i                 = null;
 	$download_temp_dir = GCMI_Activator::make_tmp_dwld_dir();
 	if ( false === $download_temp_dir ) {
 		$error_code    = ( 'gcmi_mkdir_fail' );
 		$error_title   = __( 'Error creating download directory', 'campi-moduli-italiani' );
-		$error_message = '<h1>' . $error_title . '</h1>' . __( 'Unable to create temporary download directory', 'campi-moduli-italiani' );
+		$error_message = '<p><strong>' . $error_title . '</strong></p>' . __( 'Unable to create temporary download directory', 'campi-moduli-italiani' );
 		$gcmi_error->add( $error_code, $error_message );
-		gcmi_show_error( $gcmi_error );
-		die;
+		wp_die(
+			wp_kses( gcmi_show_error( $gcmi_error ), $allowed_html ),
+			esc_html__( 'Campi Moduli Italiani activation error', 'campi-moduli-italiani' ),
+			array(
+				'response'  => 200,
+				'back_link' => true,
+			)
+		);
 	}
 	if (
 		'zip' === $database_file_info[ $id ]['file_type'] ||
@@ -355,10 +375,16 @@ function gcmi_update_table( $fname ) {
 			$error_title = __( 'Remote file download error', 'campi-moduli-italiani' );
 
 			/* translators: %s is the URL of the file it attempted to download */
-			$error_message = '<h1>' . $error_title . '</h1>' . sprintf( __( 'Unable to download %s', 'campi-moduli-italiani' ), $database_file_info[ $id ]['remote_URL'] );
+			$error_message = '<p><strong>' . $error_title . '</strong></p>' . sprintf( __( 'Unable to download %s', 'campi-moduli-italiani' ), $database_file_info[ $id ]['remote_URL'] );
 			$gcmi_error->add( $error_code, $error_message );
-			gcmi_show_error( $gcmi_error );
-			die;
+			wp_die(
+				wp_kses( gcmi_show_error( $gcmi_error ), $allowed_html ),
+				esc_html__( 'Campi Moduli Italiani activation error', 'campi-moduli-italiani' ),
+				array(
+					'response'  => 200,
+					'back_link' => true,
+				)
+			);
 		}
 	}
 
@@ -380,10 +406,16 @@ function gcmi_update_table( $fname ) {
 			$error_title = __( 'Zip archive extraction error', 'campi-moduli-italiani' );
 
 			/* translators: %1$s: the local csv file name; %2$s: the zip archive file name */
-			$error_message = '<h1>' . $error_title . '</h1>' . sprintf( __( 'Unable to extract %1$s from %2$s', 'campi-moduli-italiani' ), $database_file_info[ $id ]['featured_csv'], $pathtozip );
+			$error_message = '<p><strong>' . $error_title . '</strong></p>' . sprintf( __( 'Unable to extract %1$s from %2$s', 'campi-moduli-italiani' ), $database_file_info[ $id ]['featured_csv'], $pathtozip );
 			$gcmi_error->add( $error_code, $error_message );
-			gcmi_show_error( $gcmi_error );
-			die;
+			wp_die(
+				wp_kses( gcmi_show_error( $gcmi_error ), $allowed_html ),
+				esc_html__( 'Campi Moduli Italiani activation error', 'campi-moduli-italiani' ),
+				array(
+					'response'  => 200,
+					'back_link' => true,
+				)
+			);
 		}
 	}
 	if ( 'html' === $database_file_info[ $id ]['file_type'] ) {
@@ -395,10 +427,16 @@ function gcmi_update_table( $fname ) {
 			$error_code  = ( 'gcmi_grab_html_error' );
 			$error_title = __( 'Grab html data error', 'campi-moduli-italiani' );
 			/* translators: remote URL of the table from where it grabs data */
-			$error_message = '<h1>' . $error_title . '</h1>' . sprintf( __( 'Unable to grab data from %s', 'campi-moduli-italiani' ), $database_file_info[ $id ]['remote_URL'] );
+			$error_message = '<p><strong>' . $error_title . '</strong></p>' . sprintf( __( 'Unable to grab data from %s', 'campi-moduli-italiani' ), $database_file_info[ $id ]['remote_URL'] );
 			$gcmi_error->add( $error_code, $error_message );
-			gcmi_show_error( $gcmi_error );
-			die;
+			wp_die(
+				wp_kses( gcmi_show_error( $gcmi_error ), $allowed_html ),
+				esc_html__( 'Campi Moduli Italiani activation error', 'campi-moduli-italiani' ),
+				array(
+					'response'  => 200,
+					'back_link' => true,
+				)
+			);
 		}
 	}
 	$tmp_table_name = $database_file_info[ $id ]['table_name'] . '_tmp';
@@ -414,7 +452,7 @@ function gcmi_update_table( $fname ) {
 	if ( '' !== $wpdb->last_error ) { // qualcosa e' andato storto.
 		$error_code    = ( 'gcmi_data_import_error' );
 		$error_title   = esc_html__( 'Error importing data into database', 'campi-moduli-italiani' );
-		$error_message = '<h1>' . $error_title . '</h1><br>';
+		$error_message = '<p><strong>' . $error_title . '</strong></p>';
 		/* translators: %1$s: the data name; %2$s: the db table name. */
 		$error_message .= esc_html( sprintf( __( 'Unable to import %1$s into %2$s', 'campi-moduli-italiani' ), $csv_file_path, GCMI_Activator::$database_file_info[ $id ]['table_name'] ) ) . '<br>';
 		$str            = htmlspecialchars( print_r( $wpdb->last_error, true ), ENT_QUOTES ) .
@@ -430,8 +468,14 @@ function gcmi_update_table( $fname ) {
 			)
 		);
 		$gcmi_error->add( $error_code, $error_message );
-		gcmi_show_error( $gcmi_error );
-		die;
+		wp_die(
+			wp_kses( gcmi_show_error( $gcmi_error ), $allowed_html ),
+			esc_html__( 'Campi Moduli Italiani activation error', 'campi-moduli-italiani' ),
+			array(
+				'response'  => 200,
+				'back_link' => true,
+			)
+		);
 	} else {
 		$wpdb->query(
 			$wpdb->prepare(

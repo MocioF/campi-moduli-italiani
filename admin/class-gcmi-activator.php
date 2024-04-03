@@ -236,17 +236,20 @@ class GCMI_Activator {
 	 */
 	public static function activate( $network_wide ): void {
 		$requirements = self::gcmi_is_requirements_met();
+		$allowed_html = array(
+			'div'    => array(
+				'class' => array(),
+			),
+			'strong' => array(),
+			'br'     => array(),
+			'p'      => array(),
+		);
 		if ( is_wp_error( $requirements ) ) {
 			$codes         = $requirements->get_error_codes();
 			$admin_message = '';
 			foreach ( $codes as $error_code ) {
-				$admin_message .= '<p><b>' . $error_code . '</b>: ' . $requirements->get_error_message( $error_code ) . '</p>';
+				$admin_message .= '<p><strong>' . $error_code . '</strong>: ' . $requirements->get_error_message( $error_code ) . '</p>';
 			}
-
-			$allowed_html = array(
-				'p' => array(),
-				'b' => array(),
-			);
 
 			wp_die(
 				wp_kses( $admin_message, $allowed_html ),
@@ -273,10 +276,16 @@ class GCMI_Activator {
 					$error_network_wide = new WP_Error();
 					$error_code         = 'gcmi_activation_network_wide_error';
 					$error_title        = __( 'Error on network wide activation', 'campi-moduli-italiani' );
-					$error_message      = '<h1>' . $error_title . '</h1>' . __( 'Unable to activate the plugin network wide: the network is too big.', 'campi-moduli-italiani' );
+					$error_message      = '<p><strong>' . $error_title . '</strong></p>' . __( 'Unable to activate the plugin network wide: the network is too big.', 'campi-moduli-italiani' );
 					$error_network_wide->add( $error_code, $error_message );
-					gcmi_show_error( $error_network_wide );
-					die;
+					wp_die(
+						wp_kses( gcmi_show_error( $error_network_wide ), $allowed_html ),
+						esc_html__( 'Campi Moduli Italiani activation error', 'campi-moduli-italiani' ),
+						array(
+							'response'  => 200,
+							'back_link' => true,
+						)
+					);
 				} else {
 					foreach ( $sites as $site ) {
 						switch_to_blog( intval( $site->blog_id ) );
@@ -382,8 +391,15 @@ class GCMI_Activator {
 		global $wpdb;
 		global $gcmi_error;
 
-		$gcmi_error = new WP_Error();
-
+		$gcmi_error   = new WP_Error();
+		$allowed_html = array(
+			'div'    => array(
+				'class' => array(),
+			),
+			'strong' => array(),
+			'br'     => array(),
+			'p'      => array(),
+		);
 		set_time_limit( 360 );
 
 		/**
@@ -393,10 +409,16 @@ class GCMI_Activator {
 		if ( false === $download_temp_dir ) {
 			$error_code    = 'gcmi_make_tmp_dir_error';
 			$error_title   = esc_html__( 'Error creating download directory', 'campi-moduli-italiani' );
-			$error_message = '<h1>' . $error_title . '</h1>' . esc_html__( 'Unable to create temporary download directory', 'campi-moduli-italiani' );
+			$error_message = '<p><strong>' . $error_title . '</strong></p>' . esc_html__( 'Unable to create temporary download directory', 'campi-moduli-italiani' );
 			$gcmi_error->add( $error_code, $error_message );
-			gcmi_show_error( $gcmi_error );
-			die;
+			wp_die(
+				wp_kses( gcmi_show_error( $gcmi_error ), $allowed_html ),
+				esc_html__( 'Campi Moduli Italiani activation error', 'campi-moduli-italiani' ),
+				array(
+					'response'  => 200,
+					'back_link' => true,
+				)
+			);
 		}
 
 		/**
@@ -418,8 +440,14 @@ class GCMI_Activator {
 					/* translators: %s: the remote URL of the file to be downloaded */
 					$error_message = esc_html( sprintf( __( 'Could not download %s', 'campi-moduli-italiani' ), self::$database_file_info[ $i ]['remote_URL'] ) );
 					$response->add( $error_code, $error_message );
-					gcmi_show_error( $response );
-					die;
+					wp_die(
+						wp_kses( gcmi_show_error( $gcmi_error ), $allowed_html ),
+						esc_html__( 'Campi Moduli Italiani activation error', 'campi-moduli-italiani' ),
+						array(
+							'response'  => 200,
+							'back_link' => true,
+						)
+					);
 				} else {
 					$option_name = self::$database_file_info[ $i ]['optN_dwdtime'];
 					// acquisition time of the remote file.
@@ -465,10 +493,16 @@ class GCMI_Activator {
 					$error_code  = ( 'gcmi_zip_extract_error' );
 					$error_title = __( 'Zip archive extraction error', 'campi-moduli-italiani' );
 					/* translators: %1$s: the local csv file name; %2$s: the zip archive file name */
-					$error_message = '<h1>' . $error_title . '</h1>' . sprintf( __( 'Unable to extract %1$s from %2$s', 'campi-moduli-italiani' ), self::$database_file_info[ $i ]['featured_csv'], $pathtozip );
+					$error_message = '<p><strong>' . $error_title . '</strong></p>' . sprintf( __( 'Unable to extract %1$s from %2$s', 'campi-moduli-italiani' ), self::$database_file_info[ $i ]['featured_csv'], $pathtozip );
 					$gcmi_error->add( $error_code, $error_message );
-					gcmi_show_error( $gcmi_error );
-					die;
+					wp_die(
+						wp_kses( gcmi_show_error( $gcmi_error ), $allowed_html ),
+						esc_html__( 'gcmi activation error', 'campi-moduli-italiani' ),
+						array(
+							'response'  => 200,
+							'back_link' => true,
+						)
+					);
 				}
 			}
 
@@ -485,10 +519,16 @@ class GCMI_Activator {
 					$error_code  = ( 'gcmi_html_download_error' );
 					$error_title = __( 'Error retrieving html data', 'campi-moduli-italiani' );
 					/* translators: %s: The name of attempted downloaded data */
-					$error_message = '<h1>' . $error_title . '</h1>' . sprintf( __( 'Unable to download html data: %s', 'campi-moduli-italiani' ), self::$database_file_info[ $i ]['name'] );
+					$error_message = '<p><strong>' . $error_title . '</strong></p>' . sprintf( __( 'Unable to download html data: %s', 'campi-moduli-italiani' ), self::$database_file_info[ $i ]['name'] );
 					$gcmi_error->add( $error_code, $error_message );
-					gcmi_show_error( $gcmi_error );
-					die;
+					wp_die(
+						wp_kses( gcmi_show_error( $gcmi_error ), $allowed_html ),
+						esc_html__( 'Campi Moduli Italiani activation error', 'campi-moduli-italiani' ),
+						array(
+							'response'  => 200,
+							'back_link' => true,
+						)
+					);
 				}
 			}
 
@@ -496,10 +536,16 @@ class GCMI_Activator {
 				$error_code  = ( 'gcmi_create_tables_error' );
 				$error_title = __( 'Errore creating table', 'campi-moduli-italiani' );
 				/* translators: %1$s: the local name of the table it attempted to create in the database */
-				$error_message = '<h1>' . $error_title . '</h1>' . sprintf( __( 'Unable to create table %1$s', 'campi-moduli-italiani' ), self::$database_file_info[ $i ]['table_name'] );
+				$error_message = '<p><strong>' . $error_title . '</strong></p>' . sprintf( __( 'Unable to create table %1$s', 'campi-moduli-italiani' ), self::$database_file_info[ $i ]['table_name'] );
 				$gcmi_error->add( $error_code, $error_message );
-				gcmi_show_error( $gcmi_error );
-				die;
+				wp_die(
+					wp_kses( gcmi_show_error( $gcmi_error ), $allowed_html ),
+					esc_html__( 'Campi Moduli Italiani activation error', 'campi-moduli-italiani' ),
+					array(
+						'response'  => 200,
+						'back_link' => true,
+					)
+				);
 			}
 
 			$csv_file_path = $download_temp_dir . self::$database_file_info[ $i ]['featured_csv'];
@@ -508,20 +554,32 @@ class GCMI_Activator {
 				$error_code  = ( 'gcmi_utf8_encoding_error' );
 				$error_title = __( 'Error UTF-8 encoding csv file', 'campi-moduli-italiani' );
 				/* translators: %1$s: the full path of the csv file it tryed to prepare for import */
-				$error_message = '<h1>' . $error_title . '</h1>' . sprintf( __( 'Unable to encode %1$s into UTF-8', 'campi-moduli-italiani' ), $csv_file_path );
+				$error_message = '<p><strong>' . $error_title . '</strong></p>' . sprintf( __( 'Unable to encode %1$s into UTF-8', 'campi-moduli-italiani' ), $csv_file_path );
 				$gcmi_error->add( $error_code, $error_message );
-				gcmi_show_error( $gcmi_error );
-				die;
+				wp_die(
+					wp_kses( gcmi_show_error( $gcmi_error ), $allowed_html ),
+					esc_html__( 'Campi Moduli Italiani activation error', 'campi-moduli-italiani' ),
+					array(
+						'response'  => 200,
+						'back_link' => true,
+					)
+				);
 			}
 
 			if ( ! self::prepare_file( $csv_file_path ) ) {
 				$error_code  = ( 'gcmi_csv_prepare_error' );
 				$error_title = __( 'Error preparing csv file', 'campi-moduli-italiani' );
 				/* translators: %1$s: the full path of the csv file it tryed to prepare for import */
-				$error_message = '<h1>' . $error_title . '</h1>' . sprintf( __( 'Unable to prepare %1$s for import', 'campi-moduli-italiani' ), $csv_file_path );
+				$error_message = '<p><strong>' . $error_title . '</strong></p>' . sprintf( __( 'Unable to prepare %1$s for import', 'campi-moduli-italiani' ), $csv_file_path );
 				$gcmi_error->add( $error_code, $error_message );
-				gcmi_show_error( $gcmi_error );
-				die;
+				wp_die(
+					wp_kses( gcmi_show_error( $gcmi_error ), $allowed_html ),
+					esc_html__( 'Campi Moduli Italiani activation error', 'campi-moduli-italiani' ),
+					array(
+						'response'  => 200,
+						'back_link' => true,
+					)
+				);
 			}
 
 			set_time_limit( 360 );
@@ -534,7 +592,7 @@ class GCMI_Activator {
 			) {
 				$error_code    = ( 'gcmi_data_import_error' );
 				$error_title   = esc_html__( 'Error importing data into database', 'campi-moduli-italiani' );
-				$error_message = '<h1>' . $error_title . '</h1><br>';
+				$error_message = '<p><strong>' . $error_title . '</strong></p>';
 				/* translators: %1$s: the data name; %2$s: the db table name. */
 				$error_message .= esc_html( sprintf( __( 'Unable to import %1$s into %2$s', 'campi-moduli-italiani' ), $csv_file_path, self::$database_file_info[ $i ]['table_name'] ) ) . '<br>';
 				$str            = htmlspecialchars( print_r( $wpdb->last_error, true ), ENT_QUOTES ) .
@@ -542,8 +600,14 @@ class GCMI_Activator {
 				$query          = htmlspecialchars( $wpdb->last_query, ENT_QUOTES );
 				$error_message .= $str . '<br/><code>' . $query . '</code>';
 				$gcmi_error->add( $error_code, $error_message );
-				gcmi_show_error( $gcmi_error );
-				die;
+				wp_die(
+					wp_kses( gcmi_show_error( $gcmi_error ), $allowed_html ),
+					esc_html__( 'Campi Moduli Italiani activation error', 'campi-moduli-italiani' ),
+					array(
+						'response'  => 200,
+						'back_link' => true,
+					)
+				);
 			}
 		}
 
@@ -568,20 +632,41 @@ class GCMI_Activator {
 		 * in caso di riattivazione.
 		 */
 		if ( function_exists( 'is_multisite' ) && is_multisite() ) { // le unfiltered view servono solo in caso di multisite.
-			$sites             = self::get_sites_array();
-			$plugin            = GCMI_PLUGIN_BASENAME;
+			$sites  = self::get_sites_array();
+			$plugin = GCMI_PLUGIN_BASENAME;
+
+			/**
+			 * Questa variabile può essere utilizzata nel caso in cui il cronjob sia network-wide.
+			 * In questo caso, sulla disattivazione newtork-wide, il cronjob non andrebbe distrutto.
+			 * Al momento non è utilizzata nel codice.
+			 */
 			$attivo_su_singolo = self::gcmi_check_if_single_activated( $sites );
+
+			$allowed_html = array(
+				'div'    => array(
+					'class' => array(),
+				),
+				'strong' => array(),
+				'br'     => array(),
+				'p'      => array(),
+			);
 
 			if ( true === $network_wide ) {
 				if ( 0 === count( $sites ) ) {
 					// devo dare errore, perché nessuna attivazione è possibile network wide in una rete troppo grande.
 					$error_network_wide = new WP_Error();
 					$error_code         = 'gcmi_deactivation_network_wide_error';
-					$error_title        = __( 'Error on network wide deactivation', 'campi-moduli-italiani' );
-					$error_message      = '<h1>' . $error_title . '</h1>' . __( 'Unable to deactivate the plugin network wide: the network is too big.', 'campi-moduli-italiani' );
+					$error_title        = esc_html__( 'Error on network wide deactivation', 'campi-moduli-italiani' );
+					$error_message      = '<p><strong>' . $error_title . '</strong></p>' . __( 'Unable to deactivate the plugin network wide: the network is too big.', 'campi-moduli-italiani' );
 					$error_network_wide->add( $error_code, $error_message );
-					gcmi_show_error( $error_network_wide );
-					return;
+					wp_die(
+						wp_kses( gcmi_show_error( $error_network_wide ), $allowed_html ),
+						esc_html__( 'Campi Moduli Italiani activation error', 'campi-moduli-italiani' ),
+						array(
+							'response'  => 200,
+							'back_link' => true,
+						)
+					);
 				} else {
 					foreach ( $sites as $site ) {
 						switch_to_blog( intval( $site->blog_id ) );
@@ -593,7 +678,7 @@ class GCMI_Activator {
 						restore_current_blog();
 					}
 				}
-			} else { // è una disattivazione singola, non devo distruggere le tabelle, nel caso in cui il plugin sia attivo su qualche sito.
+			} else { // è una disattivazione singola.
 				gcmi_delete_all_views();
 				self::destroy_gcmi_cron_job();
 			}
@@ -698,7 +783,6 @@ class GCMI_Activator {
 			// translators: %s is a path to a file.
 			$error_message = esc_html( sprintf( __( 'Invalid path: %s', 'campi-moduli-italiani' ), $remoteurl ) );
 			$gcmi_error->add( $error_code, $error_message );
-			gcmi_show_error( $gcmi_error );
 			return $gcmi_error;
 		}
 

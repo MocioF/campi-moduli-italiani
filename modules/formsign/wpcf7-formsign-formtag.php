@@ -71,8 +71,23 @@ function gcmi_wpcf7_formsign_formtag_handler( $tag ) {
 	) ) {
 		$generate = gcmi_generate_keypair( $the_id );
 		if ( is_wp_error( $generate ) ) {
-			gcmi_show_error( $generate );
-			die;
+			$allowed_html = array(
+				'div'    => array(
+					'class' => array(),
+				),
+				'strong' => array(),
+				'br'     => array(),
+				'p'      => array(),
+			);
+
+			wp_die(
+				wp_kses( gcmi_show_error( $generate ), $allowed_html ),
+				esc_html__( 'Campi Moduli Italiani activation error', 'campi-moduli-italiani' ),
+				array(
+					'response'  => 200,
+					'back_link' => true,
+				)
+			);
 		}
 	}
 
