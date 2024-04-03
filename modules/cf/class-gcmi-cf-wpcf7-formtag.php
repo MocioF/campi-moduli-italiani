@@ -552,7 +552,8 @@ class GCMI_CF_WPCF7_FormTag {
 				$result->invalidate( $tag, wpcf7_get_message( 'invalid_required' ) );
 				return $result;
 			}
-
+			// Attenzione: questo richiede che l'estensione mbstring sia attiva, altrimenti restituisce false.
+			// TODO: Inserire un controllo in fase di attivazione.
 			$code_units = wpcf7_count_code_units( stripslashes( $value ) );
 			if ( false !== $code_units ) {
 				if ( 16 !== intval( $code_units ) ) {
@@ -604,7 +605,7 @@ class GCMI_CF_WPCF7_FormTag {
 
 			$date = $aa . '-' . $mm . '-' . $gg;
 			if ( false === self::cf_validate_birthdate( $name, $date ) ) {
-				$result->invalidate( $tag, esc_html__( 'Tax code does not match the gender', 'campi-moduli-italiani' ) );
+				$result->invalidate( $tag, esc_html__( 'Tax code does not match the birthdate', 'campi-moduli-italiani' ) );
 				return $result;
 			}
 
