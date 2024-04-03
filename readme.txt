@@ -1,11 +1,11 @@
 === Campi Moduli Italiani ===
 Contributors: mociofiletto
 Donate link: https://paypal.me/GiuseppeF77
-Tags: Contact Form 7, WPForms, comuni italiani, codice fiscale, firma digitale, multisite
+Tags: Contact Form 7, WPForms, comuni italiani, codice fiscale, firma digitale
 Requires at least: 5.9
-Tested up to: 6.4
+Tested up to: 6.5
 Requires PHP: 7.4
-Stable tag: 2.2.3
+Stable tag: 2.2.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html
 
@@ -40,7 +40,8 @@ In particular, data made available at these URLs are acquired and stored:
 
 The data published on the ISTAT website are covered by a Creative Commons license - Attribution (CC-by) (https://creativecommons.org/licenses/by/3.0/it/), as indicated here: https://www.istat.it/it/note-legali
 The data taken from the website of the Agenzia delle entrate are in the public domain and constitute a public database made available to allow tax compliance and, more generally, to allow the identification of physical persons with the Italian public administrations, through the personal fiscal code.
-The data on the Agenzia delle entrate website can be freely stored on your computer or printed (https://www.agenziaentrate.gov.it/portale/web/guest/privacy). The data are managed by the Ufficio Archivio of the Agenzia delle entrate.
+The data are managed by the Ufficio Archivio of the Agenzia delle entrate.
+By Italian law (art. 52 d.lgs. 82/2005) all data, that are not personal data, published by an Italian administration without an explicit license are open data (CC0).
 This plugin uses the data taken from the website of the Agenzia delle entrate exclusively for the purpose of carrying out a formal regularity check of the pesonal tax code.
 This plugin does not include any links on the external pages of the website on which it is used, neither to the Agenzia delle entrate's site nor to the ISTAT's website; in particular, no kind of direct link is made, nor of deep linking.
 
@@ -53,6 +54,11 @@ It is also possible to set the "comu_details" option, to show an icon after the 
 The value returned by the group is always the ISTAT code of the selected municipality. The corresponding mail-tag converts this value into the name of the municipality followed by the indication of the automotive code of the province.
 From version 1.1.1 hidden fields are also populated with the strings corresponding to the denomination of the region, province and municipality selected, useful for being used in plugins that directly capture the data transmitted by the form (such as "Send PDF for Contact Form 7" )
 The cascade of select can also be used outside of CF7, using the [comune] shortcode (options similar to those of the form tag for Contact Form 7).
+
+Starting from version 2.2.0 there is a new filters' builder for the field [comune] useful for creating fields that allow the selection of a customizable list of municipalities.
+Filters can be used both for CF7 tag, and for WPForms field, and for the shortcode 'comune'.
+A short youtube video illustrates how to use filters and the filters' builder.
+https://www.youtube.com/watch?v=seycOunfikk
 
 [cf]
 `[cf]` has a manager in the CF7 form creation area that allows you to set the various options.
@@ -128,6 +134,10 @@ You can create an issue in our Github repo:
 5. Image of the admin screen, from which it is possible to update the data
 
 == Changelog ==
+= 2.2.4 =
+* Enhancement in activation requirement checks
+* Fixed a validation's error string in module [cf]
+
 = 2.2.3 =
 * Fix error in the order of provinces when the module shows only actual municipalities
 

@@ -1,11 +1,11 @@
 === Campi Moduli Italiani ===
 Contributors: mociofiletto
 Donate link: https://paypal.me/GiuseppeF77
-Tags: Contact Form 7, WPForms, comuni italiani, codice fiscale, firma digitale, multisite
+Tags: Contact Form 7, WPForms, comuni italiani, codice fiscale, firma digitale
 Requires at least: 5.9
-Tested up to: 6.4
+Tested up to: 6.5
 Requires PHP: 7.4
-Stable tag: 2.2.3
+Stable tag: 2.2.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html
 
@@ -40,7 +40,8 @@ In particolare, vengono acquisiti e memorizzati dati messi a disposizione a ques
 
 I dati pubblicati sul sito dell'ISTAT sono coperti da licenza Creative Commons - Attribuzione (CC-by) (https://creativecommons.org/licenses/by/3.0/it/), come indicato qui: https://www.istat.it/it/note-legali
 I dati prelevati dal sito web dell'Agenzia delle entrate sono di pubblico dominio e costituiscono una banca dati pubblica resa disponibile per consentire gli adempimenti tributari e, più in generale, per consentire l'identificazione delle persone fisiche presso le pubbliche amministrazioni italiane, tramite il codice fiscale.
-I dati presenti sul sito dell'Agenzia delle entrate possono essere liberamente immagazzinati nel proprio computer o stampati (https://www.agenziaentrate.gov.it/portale/web/guest/privacy). I dati sono gestiti dall'Ufficio Archivio anagrafico dell'Agenzia delle entrate.
+I dati sono gestiti dall'Ufficio Archivio anagrafico dell'Agenzia delle entrate.
+Ai sensi della legge italiana (art. 52 d.lgs. 82/2005) tutti i dati, diversi dai dati personali, pubblicati da una pubblica amministrazione italiana senza esplicito riferimento ad una licenza sono open data (CC0).
 Questo plugin utilizza i dati prelevati dal sito internet dell'Agenzia delle entrate esclusivamente al fine di effettuare un controllo di regolarità formale del codice fiscale.
 Questo plugin non riporta nelle pagine esterne del sito internet su cui è utilizzato, nessun collegamento né al sito dell'Agenzia delle entrate, né al sito dell'ISTAT; in particolare non viene effettuata alcuna forma di link diretto, né di deep linking.
 
@@ -52,6 +53,11 @@ Inoltre è possibile settare l'opzione "comu_details", per mostrare dopo la casc
 Il valore restituito dal gruppo è sempre il codice ISTAT del comune selezionato. Il corrispondente mail-tag, converte tale valore nella denominazione del comune seguita dall'indicazione della targa automobilistica della provincia.
 Dalla versione 1.1.1 vengono creati anche dei campi hidden popolati con le stringhe corrispondenti alla denominazione di regione, provincia e comune selezionati, utili per essere utilizzanti in plugin che catturano direttamente i dati trasmessi dal form (come "Send PDF for Contact Form 7")
 La cascata di select, può essere utilizzata anche all'esterno di CF7, mediante lo shortcode [comune] (opzioni analoge a quelle del form-tag per Contact Form 7).
+
+A partire dalla versione 2.2.0 c'è un nuovo costruttore di filtri per il campo [comune] utile per creare campi che consentono la selezione di un elenco personalizzabile di comuni.
+I filtri possono essere utilizzati sia per il tag CF7, sia per il campo WPForms, sia per lo shortcode.
+Una breve guida su come utilizzare i filtri e il costruttore di filtri è disponibile in un video su youtube:
+https://www.youtube.com/watch?v=seycOunfikk
 
 [cf]
 `[cf]` dispone di un gestore nell'area di creazione dei form CF7 che consente di impostare le varie opzioni.
@@ -126,6 +132,10 @@ Puoi inviare una richiesta nel nostro repository Github:
 5. Immagine della schermata di admin, da cui è possibile effettuare l'aggiornamento dei dati
 
 == Changelog ==
+= 2.2.4 =
+* Migliorato controllo requisiti di attivazione
+* Corretto errore in una stringa del modulo codice fiscale
+
 = 2.2.3 =
 * Corretto errore nell'ordinamento delle province in caso di visualizzazione di soli comuni attuali
 
