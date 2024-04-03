@@ -237,8 +237,25 @@ class GCMI_Activator {
 	public static function activate( $network_wide ): void {
 		$requirements = self::gcmi_is_requirements_met();
 		if ( is_wp_error( $requirements ) ) {
-			gcmi_show_error( $requirements );
-			die;
+			$codes         = $requirements->get_error_codes();
+			$admin_message = '';
+			foreach ( $codes as $error_code ) {
+				$admin_message .= '<p><b>' . $error_code . '</b>: ' . $requirements->get_error_message( $error_code ) . '</p>';
+			}
+
+			$allowed_html = array(
+				'p' => array(),
+				'b' => array(),
+			);
+
+			wp_die(
+				wp_kses( $admin_message, $allowed_html ),
+				esc_html__( 'campi-moduli-italiani activation error', 'campi-moduli-italiani' ),
+				array(
+					'response'  => 200,
+					'back_link' => true,
+				)
+			);
 		}
 
 		// se non esistono le tabelle, qualunque sia il tipo di attivazione le creo.
@@ -1801,7 +1818,7 @@ class GCMI_Activator {
 	private static function gcmi_is_requirements_met() {
 		$min_wp  = GCMI_MINIMUM_WP_VERSION;
 		$min_php = GCMI_MINIMUM_PHP_VERSION;
-		$exts    = array( 'zip', 'dom' );
+		$exts    = array( 'ctype', 'date', 'dom', 'filter', 'json', 'libxml', 'pcre', 'reflection', 'spl', 'zip' );
 
 		// Check for WordPress version.
 		if ( version_compare( get_bloginfo( 'version' ), $min_wp, '<' ) ) {
