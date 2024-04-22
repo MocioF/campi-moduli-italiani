@@ -796,9 +796,15 @@ class GCMI_Activator {
 			'timeout'         => 300,
 			'stream'          => true,
 			'sslverify'       => true,
-			'sslcertificates' => GCMI_PLUGIN_DIR . '/admin/assets/istat-it-catena.pem',
+		/*	'sslcertificates' => GCMI_PLUGIN_DIR . '/admin/assets/istat-it-catena.pem', */
 			'filename'        => $tmpfname,
 		);
+		if( strpos( $remoteurl, 'istat.it' ) !== false ) {
+			$args['sslcertificates'] = GCMI_PLUGIN_DIR . '/admin/assets/istat-it-catena.pem';
+		}
+		if( strpos( $remoteurl, 'raw.githubusercontent.com' ) !== false ) {
+			$args['sslcertificates'] = GCMI_PLUGIN_DIR . '/admin/assets/github.pem';
+		}
 
 		$response = wp_remote_get( $remoteurl, $args );
 
