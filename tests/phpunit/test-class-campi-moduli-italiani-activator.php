@@ -112,4 +112,27 @@ final class GCMI_ActivatorTest extends WP_UnitTestCase {
 			),
 		);
 	}
+
+	/**
+	 * @dataProvider remoteFileArray
+	 * @group downloadf
+	 */
+	public function test_download_file( $name, $downd_name, $featured_csv, $remote_file, $remote_URL ) {
+		$tmp_dir = $this->gcmi_activator::make_tmp_dwld_dir();
+		$this->gcmi_activator->download_file( $remote_URL, $tmp_dir, $downd_name );
+		$tmpfname     = $tmp_dir . $downd_name;
+		$this->assertFileExists( $tmpfname );
+}
+
+	public function remoteFileArray(){
+		$main_array = GCMI_Activator::$database_file_info;
+		$download_array = array();
+		foreach( $main_array as $item ) {
+			if ( 'html' !== $item['file_type'] ) {
+				$download_array[] = $item;
+			}
+		}
+		return $download_array;
+	}
+
 }

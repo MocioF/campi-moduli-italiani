@@ -82,20 +82,25 @@ class GCMI_Activator {
 		),
 		array(
 			'name'             => 'stati',
-		/*	'downd_name'       => 'stati.zip', */
 			'downd_name'       => 'stati.csv',
 			'featured_csv'     => 'stati.csv',
-		/*	'remote_file'      => 'Elenco-codici-e-denominazioni-unita-territoriali-estere.zip', */
 			'remote_file'      => 'Elenco-codici-e-denominazioni-al-31_12_2023.csv',
-		/*	'remote_URL'       => 'https://www.istat.it/it/files//2011/01/Elenco-codici-e-denominazioni-unita-territoriali-estere.zip', */
 			'remote_URL'       => 'https://raw.githubusercontent.com/MocioF/campi-moduli-italiani/main/assets/data/Elenco-codici-e-denominazioni-al-31_12_2023.csv',
 			'table_name'       => GCMI_TABLE_PREFIX . 'stati',
 			'optN_dwdtime'     => 'gcmi_stati_downloaded_time',
 			'optN_remoteUpd'   => 'gcmi_stati_remote_file_time',
 			'remoteUpd_method' => 'get_headers_by_get',
-		/*	'file_type'        => 'zip', */
 			'file_type'        => 'csv',
 			'orig_encoding'    => 'ISO-8859-1',
+
+			/**
+			 * Valori utilizzati per scaricare il file da istat
+			 *
+			 * 'downd_name'       => 'stati.zip',
+			 * 'remote_file'      => 'Elenco-codici-e-denominazioni-unita-territoriali-estere.zip',
+			 * 'remote_URL'       => 'https://www.istat.it/it/files//2011/01/Elenco-codici-e-denominazioni-unita-territoriali-estere.zip',
+			 * 'file_type'        => 'zip',
+			 */
 		),
 		array(
 			'name'             => 'stati_cessati',
@@ -796,7 +801,6 @@ class GCMI_Activator {
 			'timeout'         => 300,
 			'stream'          => true,
 			'sslverify'       => true,
-		/*	'sslcertificates' => GCMI_PLUGIN_DIR . '/admin/assets/istat-it-catena.pem', */
 			'filename'        => $tmpfname,
 		);
 		if( strpos( $remoteurl, 'istat.it' ) !== false ) {
