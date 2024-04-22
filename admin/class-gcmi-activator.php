@@ -58,7 +58,7 @@ class GCMI_Activator {
 			'name'             => 'comuni_variazioni',
 			'downd_name'       => 'variazioni.zip',
 			'featured_csv'     => 'variazioni.csv',
-			'remote_file'      => 'Elenco-comuni-soppressi.zip',
+			'remote_file'      => 'Variazioni-amministrative-e-territoriali-dal-1991.zip',
 			'remote_URL'       => 'https://www.istat.it/storage/codici-unita-amministrative/Variazioni-amministrative-e-territoriali-dal-1991.zip',
 			'table_name'       => GCMI_TABLE_PREFIX . 'comuni_variazioni',
 			'optN_dwdtime'     => 'gcmi_comuni_variazioni_downloaded_time',
@@ -82,15 +82,19 @@ class GCMI_Activator {
 		),
 		array(
 			'name'             => 'stati',
-			'downd_name'       => 'stati.zip',
+		/*	'downd_name'       => 'stati.zip', */
+			'downd_name'       => 'stati.csv',
 			'featured_csv'     => 'stati.csv',
-			'remote_file'      => 'Elenco-codici-e-denominazioni-unita-territoriali-estere.zip',
-			'remote_URL'       => 'https://www.istat.it/it/files//2011/01/Elenco-codici-e-denominazioni-unita-territoriali-estere.zip',
+		/*	'remote_file'      => 'Elenco-codici-e-denominazioni-unita-territoriali-estere.zip', */
+			'remote_file'      => 'Elenco-codici-e-denominazioni-al-31_12_2023.csv',
+		/*	'remote_URL'       => 'https://www.istat.it/it/files//2011/01/Elenco-codici-e-denominazioni-unita-territoriali-estere.zip', */
+			'remote_URL'       => 'https://raw.githubusercontent.com/MocioF/campi-moduli-italiani/main/assets/data/Elenco-codici-e-denominazioni-al-31_12_2023.csv',
 			'table_name'       => GCMI_TABLE_PREFIX . 'stati',
 			'optN_dwdtime'     => 'gcmi_stati_downloaded_time',
 			'optN_remoteUpd'   => 'gcmi_stati_remote_file_time',
 			'remoteUpd_method' => 'get_headers_by_get',
-			'file_type'        => 'zip',
+		/*	'file_type'        => 'zip', */
+			'file_type'        => 'csv',
 			'orig_encoding'    => 'ISO-8859-1',
 		),
 		array(
