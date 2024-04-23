@@ -58,6 +58,7 @@ The cascade of select can also be used outside of CF7, using the [comune] shortc
 Starting from version 2.2.0 there is a new filters' builder for the field [comune] useful for creating fields that allow the selection of a customizable list of municipalities.
 Filters can be used both for CF7 tag, and for WPForms field, and for the shortcode 'comune'.
 A short youtube video illustrates how to use filters and the filters' builder.
+
 https://www.youtube.com/watch?v=seycOunfikk
 
 [cf]
@@ -137,6 +138,7 @@ You can create an issue in our Github repo:
 = 2.2.4 =
 * Enhancement in activation requirement checks
 * Fixed a validation's error string in module [cf]
+* Fixed error due to missing CSV in archive deployed by data provider
 
 = 2.2.3 =
 * Fix error in the order of provinces when the module shows only actual municipalities
