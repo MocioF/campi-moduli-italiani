@@ -26,8 +26,8 @@ jobs:
     strategy:
       matrix:
         # See: https://make.wordpress.org/core/handbook/references/php-compatibility-and-wordpress-versions/
-        wordpress-version: ['5.9', '6.0', '6.1', '6.2', '6.3', '6.4']
-        php-versions: ['7.4', '8.0', '8.1', '8.2']
+        wordpress-version: ['5.9', '6.0', '6.1', '6.2', '6.3', '6.4', '6.5', '6.6', '6.7']
+        php-versions: ['7.4', '8.0', '8.1', '8.2', '8.3']
         exclude:
           - php-versions: '8.0'
             wordpress-version: '5.9'
@@ -35,18 +35,28 @@ jobs:
             wordpress-version: '5.9'
           - php-versions: '8.2'
             wordpress-version: '5.9'
+          - php-versions: '8.3'
+            wordpress-version: '5.9'
           - php-versions: '8.0'
             wordpress-version: '6.0'
           - php-versions: '8.1'
             wordpress-version: '6.0'
           - php-versions: '8.2'
             wordpress-version: '6.0'
+          - php-versions: '8.3'
+            wordpress-version: '6.0'
           - php-versions: '8.0'
             wordpress-version: '6.1'
           - php-versions: '8.1'
             wordpress-version: '6.1'
           - php-versions: '8.2'
             wordpress-version: '6.1'
+          - php-versions: '8.3'
+            wordpress-version: '6.1'
+          - php-versions: '8.3'
+            wordpress-version: '6.2'
+          - php-versions: '8.3'
+            wordpress-version: '6.3'
 
     name: PHP:${{ matrix.php-versions }} / WP:${{ matrix.wordpress-version }}
     services:
@@ -73,6 +83,9 @@ jobs:
       env:
         fail-fast: true
 
+    - name: Install Subversion
+      run: sudo apt-get install subversion
+
     - name: Setup Wordpress over phpunit
       run: bash bin/install-wp-tests.sh wordpress root password 127.0.0.1:${{ job.services.mysql.ports[3306] }} ${{ matrix.wordpress-version }} true
 
@@ -95,12 +108,9 @@ jobs:
       run: (composer remove --dev nimut/phpunit-merger phpunit/phpunit || true ) && composer update
 
     - name: Only for WP >= 5.9 Install Composer dependencies
-      # See: https://make.wordpress.org/core/2021/09/27/changes-to-the-wordpress-core-php-test-suite/
-      if: ${{ ( matrix.wordpress-version == '5.9' || matrix.wordpress-version == '6.0' || matrix.wordpress-version == '6.1' || matrix.wordpress-version == '6.2' || matrix.wordpress-version == '6.3' || matrix.wordpress-version == '6.4' ) }}
-      # run: composer install --no-progress --prefer-dist --optimize-autoloader --ignore-platform-reqs
-      # Changed to stay with PHPUnit 9
+      # if: ${{ ( matrix.wordpress-version == '5.9' || matrix.wordpress-version == '6.0' || matrix.wordpress-version == '6.1' || matrix.wordpress-version == '6.2' || matrix.wordpress-version == '6.3' || matrix.wordpress-version == '6.4' ) }}
       run: (composer remove --dev phpunit/phpunit || true ) && composer update --dev yoast/phpunit-polyfills --with-dependencies && composer install --no-progress --prefer-dist --optimize-autoloader --ignore-platform-reqs
-      
+
     - name: When using PHP 8 and WP <= 5.8
       # See: https://core.trac.wordpress.org/ticket/50902
       if: ${{ matrix.php-versions == '8.0' && (matrix.wordpress-version == '5.6' || matrix.wordpress-version == '5.7' || matrix.wordpress-version == '5.8' )}}
@@ -110,7 +120,7 @@ jobs:
       # Rest of the versions
       #if: ${{ matrix.php-versions != '8.0' }}
       #run: composer install --no-progress --prefer-dist --optimize-autoloader
-       
+
     - name: Run the tests
       if: matrix.php-versions != env.coverage-php-version || matrix.wordpress-version != env.coverage-wp-version
       run: vendor/bin/phpunit --debug
@@ -118,7 +128,7 @@ jobs:
     - name: When using PHP 8.1 and WP 6.4 - Run the tests and generate coverage report (single)
       if: matrix.php-versions == env.coverage-php-version && matrix.wordpress-version == env.coverage-wp-version
       run: vendor/bin/phpunit --debug --coverage-php coverage/single.cov
-    
+
     - name: When using PHP 8.1 and WP 6.4 - Run the tests and generate coverage report (multisite)
       if: matrix.php-versions == env.coverage-php-version && matrix.wordpress-version == env.coverage-wp-version
       run: vendor/bin/phpunit --debug -c tests/phpunit/multisite.xml --coverage-php=coverage/multisite.cov
@@ -145,7 +155,7 @@ jobs:
       if: matrix.php-versions == env.coverage-php-version && matrix.wordpress-version == env.coverage-wp-version
       id: deployment
       uses: actions/deploy-pages@v4
-        
+
   sync-trunk:
     name: Sync trunk with main
     runs-on: ubuntu-latest
@@ -163,6 +173,9 @@ jobs:
           tools: composer
         env:
           fail-fast: true
+
+      - name: Install Subversion
+        run: sudo apt-get install subversion
 
       - name: Sync with SVN
         run: |
