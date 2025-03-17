@@ -105,8 +105,8 @@ class GCMI_WPForms_Field_Stato extends WPForms_Field {
 		}
 
 		// Define data.
-		$form_id  = absint( $form_data['id'] );
-		$field_id = absint( $field['id'] );
+		$form_id  = absint( gcmi_safe_intval( $form_data['id'] ) );
+		$field_id = absint( gcmi_safe_intval( $field['id'] ) );
 
 		// codice per gestire la cache della query stati.
 		$cache_key  = 'stati_';
