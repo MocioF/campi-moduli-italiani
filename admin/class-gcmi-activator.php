@@ -798,15 +798,15 @@ class GCMI_Activator {
 		$url_filename = basename( $path );
 		$tmpfname     = $tmp_dwld_dir . '/' . $url_filename;
 		$args         = array(
-			'timeout'         => 300,
-			'stream'          => true,
-			'sslverify'       => true,
-			'filename'        => $tmpfname,
+			'timeout'   => 300,
+			'stream'    => true,
+			'sslverify' => true,
+			'filename'  => $tmpfname,
 		);
-		if( strpos( $remoteurl, 'istat.it' ) !== false ) {
+		if ( strpos( $remoteurl, 'istat.it' ) !== false ) {
 			$args['sslcertificates'] = GCMI_PLUGIN_DIR . '/admin/assets/istat-it-catena.pem';
 		}
-		if( strpos( $remoteurl, 'raw.githubusercontent.com' ) !== false ) {
+		if ( strpos( $remoteurl, 'raw.githubusercontent.com' ) !== false ) {
 			$args['sslcertificates'] = GCMI_PLUGIN_DIR . '/admin/assets/github.pem';
 		}
 
