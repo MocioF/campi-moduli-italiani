@@ -69,7 +69,9 @@ class GCMI_WPForms_Field_Stato extends WPForms_Field {
 		add_action( 'wpforms_frontend_js', array( $this, 'enqueue_frontend_js' ) );
 
 		// Filtra i valori prima dell'invio via mail.
+		/*
 		add_action( 'wpforms_entry_email_data', array( $this, 'gcmi_wpf_stato_modify_email_value' ), 5, 3 );
+		*/
 
 		// Setta la classe per il <div> del builder.
 		add_filter( 'wpforms_field_new_class', array( $this, 'gcmi_wpf_country_add_class_select' ), 10, 2 );
@@ -631,6 +633,7 @@ class GCMI_WPForms_Field_Stato extends WPForms_Field {
 	 * @param array<mixed> $fields    List of fields.
 	 * @param array<mixed> $entry     Submitted form entry.
 	 * @param array<mixed> $form_data Form data and settings.
+	 * @deprecated versione 2.2.5
 	 */
 	public function gcmi_wpf_stato_modify_email_value( $fields, $entry, $form_data ): void {
 		global $wpdb;

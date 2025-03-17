@@ -70,7 +70,10 @@ class GCMI_WPForms_Field_Comune extends WPForms_Field {
 		add_action( 'wpforms_frontend_js', array( $this, 'enqueue_frontend_js' ) );
 
 		// Filtra i valori prima dell'invio via mail.
+		/*
 		add_action( 'wpforms_entry_email_data', array( $this, 'gcmi_wpf_comune_modify_email_value' ), 5, 3 );
+		*/
+		add_filter( 'wpforms_smarttags_process_field_id_value', array( $this, 'gcmi_wpf_comune_process_smarttag' ), 10, 6 );
 
 		// Setta la classe per il <div> del builder.
 		add_filter( 'wpforms_field_new_class', array( $this, 'gcmi_wpf_comune_add_class_select' ), 10, 2 );
@@ -689,9 +692,9 @@ class GCMI_WPForms_Field_Comune extends WPForms_Field {
 		$quattro .= '<input type="hidden" name="' . $prefix_name . '[reg_desc]" id="' . $my_ids['reg_desc'] . '"/>';
 		$quattro .= '<input type="hidden" name="' . $prefix_name . '[prov_desc]" id="' . $my_ids['prov_desc'] . '"/>';
 
-		$quattro .= '<input class="comu_mail" type="hidden" name="' . $prefix_name . '[formatted]" id="' . $my_ids['form'] . '"/>';
-
 		$quattro .= '<input type="hidden" name="' . $prefix_name . '[comu_desc]" id="' . $my_ids['comu_desc'] . '"/>';
+
+		$quattro .= '<input class="comu_mail" type="hidden" name="' . $prefix_name . '[formatted]" id="' . $my_ids['form'] . '"/>';
 
 		if ( $comu_details ) {
 			$quattro .= '<span id="' . $my_ids['info'] . '" title="' . __( 'Municipality details', 'campi-moduli-italiani' ) . '"></span>';
@@ -713,6 +716,8 @@ class GCMI_WPForms_Field_Comune extends WPForms_Field {
 	 * @param array $fields    List of fields.
 	 * @param array $entry     Submitted form entry.
 	 * @param array $form_data Form data and settings.
+	 * @deprecated versione 2.2.5
+	 * @return void
 	 */
 	public function gcmi_wpf_comune_modify_email_value( $fields, $entry, $form_data ): void {
 		foreach ( $fields as $key => $field ) {
@@ -724,6 +729,37 @@ class GCMI_WPForms_Field_Comune extends WPForms_Field {
 				$fields[ $id_campo ]['value'] = $valore_formattato;
 			}
 		}
+	}
+
+	/**
+	 * Processa lo smart tag per il campo comune
+	 *
+	 * @since 2.2.5
+	 *
+	 * @param string $value            Value of the field.
+	 * @param array  $form_data        Form data and settings.
+	 * @param array  $fields           List of fields.
+	 * @param int    $entry_id         Entry ID.
+	 * @param object $smart_tag_object Smart tag object.
+	 * @param string $context          Context of the smart tag.
+	 * @return string
+	 */
+	public function gcmi_wpf_comune_process_smarttag( $value, $form_data, $fields, $entry_id, $smart_tag_object, $context ) {
+		if ( ! method_exists( $smart_tag_object, 'get_attributes' ) ) {
+			return $value;
+		}
+		$attrs = $smart_tag_object->get_attributes();
+		if ( ! array_key_exists( 'field_id', $attrs ) ) {
+			return $value;
+		}
+		$field_id = $attrs['field_id'];
+		if ( 'comune' !== $fields[ $field_id ]['type'] ) {
+			return $value;
+		}
+		$values = explode( "\n", $value );
+		$n      = count( $values );
+
+		return $values[ $n - 1 ];
 	}
 
 	/**
