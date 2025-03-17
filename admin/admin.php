@@ -495,7 +495,7 @@ function gcmi_update_table( $fname ) {
 
 		// aggiorno opzione sul database.
 		if ( false === is_multisite() ) {
-			update_option( $database_file_info[ $id ]['optN_dwdtime'], $download_time, 'no' );
+			update_option( $database_file_info[ $id ]['optN_dwdtime'], $download_time, false );
 		} else {
 			update_site_option( $database_file_info[ $id ]['optN_dwdtime'], $download_time );
 		}

@@ -28,7 +28,7 @@ function gcmi_check_update(): void {
 		$timestamp = gcmi_get_remote_update_timestamp( $database_file_info[ $i ] );
 		if ( false !== $timestamp ) {
 			if ( false === is_multisite() ) {
-				update_option( $file_opt, $timestamp, 'no' );
+				update_option( $file_opt, $timestamp, false );
 			} else {
 				update_site_option( $file_opt, $timestamp );
 			}
@@ -36,7 +36,7 @@ function gcmi_check_update(): void {
 			// Aggiorno la data di aggiornamento dei codici catastali, con quella dei comuni_attuali.
 			if ( 'comuni_attuali' === $name ) {
 				if ( false === is_multisite() ) {
-					update_option( 'gcmi_codici_catastali_remote_file_time', $timestamp, 'no' );
+					update_option( 'gcmi_codici_catastali_remote_file_time', $timestamp, false );
 				} else {
 					update_site_option( 'gcmi_codici_catastali_remote_file_time', $timestamp );
 				}
@@ -44,7 +44,7 @@ function gcmi_check_update(): void {
 		}
 	}
 	if ( false === is_multisite() ) {
-		update_option( 'gcmi_last_update_check', time(), 'no' );
+		update_option( 'gcmi_last_update_check', time(), false );
 	} else {
 		update_site_option( 'gcmi_last_update_check', time() );
 	}

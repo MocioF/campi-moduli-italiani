@@ -120,64 +120,64 @@ class GCMI_Activator {
 	/**
 	 * Contains the values of the options set in the database at the time of activation.
 	 *
-	 * @var array<string, array{'value': string|int, 'autoload': string}> $activator_options
+	 * @var array<string, array{'value': string|int, 'autoload': bool}> $activator_options
 	 */
 	private static $activator_options = array(
 		'gcmi_plugin_version'                     => array(
 			'value'    => GCMI_VERSION,
-			'autoload' => 'no',
+			'autoload' => false,
 		),
 		'gcmi_last_update_check'                  => array(
 			'value'    => 0,
-			'autoload' => 'no',
+			'autoload' => false,
 		),
 		'gcmi_comuni_attuali_downloaded_time'     => array(
 			'value'    => 0,
-			'autoload' => 'no',
+			'autoload' => false,
 		),
 		'gcmi_comuni_soppressi_downloaded_time'   => array(
 			'value'    => 0,
-			'autoload' => 'no',
+			'autoload' => false,
 		),
 		'gcmi_comuni_variazioni_downloaded_time'  => array(
 			'value'    => 0,
-			'autoload' => 'no',
+			'autoload' => false,
 		),
 		'gcmi_codici_catastali_downloaded_time'   => array(
 			'value'    => 0,
-			'autoload' => 'no',
+			'autoload' => false,
 		),
 		'gcmi_stati_downloaded_time'              => array(
 			'value'    => 0,
-			'autoload' => 'no',
+			'autoload' => false,
 		),
 		'gcmi_stati_cessati_downloaded_time'      => array(
 			'value'    => 0,
-			'autoload' => 'no',
+			'autoload' => false,
 		),
 		'gcmi_comuni_attuali_remote_file_time'    => array(
 			'value'    => 0,
-			'autoload' => 'no',
+			'autoload' => false,
 		),
 		'gcmi_comuni_soppressi_remote_file_time'  => array(
 			'value'    => 0,
-			'autoload' => 'no',
+			'autoload' => false,
 		),
 		'gcmi_comuni_variazioni_remote_file_time' => array(
 			'value'    => 0,
-			'autoload' => 'no',
+			'autoload' => false,
 		),
 		'gcmi_codici_catastali_remote_file_time'  => array(
 			'value'    => 0,
-			'autoload' => 'no',
+			'autoload' => false,
 		),
 		'gcmi_stati_remote_file_time'             => array(
 			'value'    => 0,
-			'autoload' => 'no',
+			'autoload' => false,
 		),
 		'gcmi_stati_cessati_remote_file_time'     => array(
 			'value'    => 0,
-			'autoload' => 'no',
+			'autoload' => false,
 		),
 	);
 
