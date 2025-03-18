@@ -3,9 +3,9 @@ Contributors: mociofiletto
 Donate link: https://paypal.me/GiuseppeF77
 Tags: Contact Form 7, WPForms, comuni italiani, codice fiscale, firma digitale
 Requires at least: 5.9
-Tested up to: 6.5
+Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 2.2.4
+Stable tag: 2.2.5
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html
 
@@ -135,6 +135,10 @@ You can create an issue in our Github repo:
 5. Image of the admin screen, from which it is possible to update the data
 
 == Changelog ==
+= 2.2.5 =
+* Fixed use of wpforms Smart Tags
+* Update external servers pem chains
+
 = 2.2.4 =
 * Enhancement in activation requirement checks
 * Fixed a validation's error string in module [cf]
@@ -222,7 +226,7 @@ You can create an issue in our Github repo:
 * added standard wpcf7's classes to [comune] (wpcf7-select), [stato] (wpcf7-select) and [cf] (wpcf7-text)
 * changed behaviour of option "use_label_element" in [comune]: if not set, no strings will be shown before selects
 * changed previous first elements used as labels in selects of [comune]
-* added option to use a label in [stato] (Select a Country) 
+* added option to use a label in [stato] (Select a Country)
 * changed class name: gcmi_wrap to gcmi-wrap
 * for [comune] it is now possible to set custom classes both for the span container and for the selects
 *

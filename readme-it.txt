@@ -3,9 +3,9 @@ Contributors: mociofiletto
 Donate link: https://paypal.me/GiuseppeF77
 Tags: Contact Form 7, WPForms, comuni italiani, codice fiscale, firma digitale
 Requires at least: 5.9
-Tested up to: 6.5
+Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 2.2.4
+Stable tag: 2.2.5
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html
 
@@ -132,9 +132,14 @@ Puoi inviare una richiesta nel nostro repository Github:
 5. Immagine della schermata di admin, da cui è possibile effettuare l'aggiornamento dei dati
 
 == Changelog ==
+= 2.2.5 =
+* Corretto l'utilizzo degli Smart Tags in wpforms
+* Aggiornati i certificati dei siti esterni
+
 = 2.2.4 =
 * Migliorato controllo requisiti di attivazione
 * Corretto errore in una stringa del modulo codice fiscale
+* Corretto errore dovuto alla mancanza del file CSV nell'archivio distribuito dal provider
 
 = 2.2.3 =
 * Corretto errore nell'ordinamento delle province in caso di visualizzazione di soli comuni attuali
@@ -206,7 +211,7 @@ Puoi inviare una richiesta nel nostro repository Github:
 = 2.0.0 =
 * aggiunto un campo per selezionare un Comune a WPForms
 * rimossa la definizione di una variabile in global scope
-* aggiunto l'uso di gruppi di opzioni nella selezione del paese 
+* aggiunto l'uso di gruppi di opzioni nella selezione del paese
 
 = 1.3.0 =
 * prima integrazione con WPForms
@@ -218,7 +223,7 @@ Puoi inviare una richiesta nel nostro repository Github:
 * aggiunte classi standard wpcf7 a [comune] (wpcf7-select), [stato] (wpcf7-select) e [cf] (wpcf7-text)
 * modificato il comportamento dell'opzione "use_label_element" in [comune]: se non è settata, non verrà visualizzata alcuna stringa prima delle select
 * modificati i precedenti valori dei primi elementi utilizzati come label nelle selezioni di [comune]
-* aggiunta l'opzione per utilizzare un primo valore come etichetta nella select di [stato] (Seleziona un paese) 
+* aggiunta l'opzione per utilizzare un primo valore come etichetta nella select di [stato] (Seleziona un paese)
 * modificato il nome della classe "gcmi_wrap" in "gcmi-wrap"
 * per [comune] è ora possibile impostare classi personalizzate sia per il tag span contenitore, sia per le select
 *
