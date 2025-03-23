@@ -102,7 +102,15 @@ add_action( 'wpcf7_admin_init', 'gcmi_wpcf7_add_tag_generator_comune', 101, 0 );
 function gcmi_wpcf7_add_tag_generator_comune(): void {
 	if ( class_exists( 'WPCF7_TagGenerator' ) ) {
 		$tag_generator = WPCF7_TagGenerator::get_instance();
-		$tag_generator->add( 'gcmi-comune', __( 'Italian municipality', 'campi-moduli-italiani' ), 'gcmi_wpcf7_tg_pane_comune' );
+		$tag_generator->add(
+			'gcmi-comune', // ID.
+			__( 'Italian municipality', 'campi-moduli-italiani' ), // Button label.
+			'gcmi_wpcf7_tg_pane_comune', // callback.
+			array(
+				'version'   => 2,
+				'name-attr' => true,
+			) // options.
+		);
 	} elseif ( function_exists( 'wpcf7_add_tag_generator' ) ) {
 		wpcf7_add_tag_generator( 'gcmi-comune', __( 'Italian municipality', 'campi-moduli-italiani' ), 'gcmi_wpcf7_tg_pane_comune', 'gcmi_wpcf7_tg_pane_comune' );
 	}
@@ -121,16 +129,6 @@ function gcmi_wpcf7_tg_pane_comune( $contact_form, $args = '' ): void {
 	$description = __( 'Creates a tag for a concatenated selection of an Italian municipality. To get more information look at %s.', 'campi-moduli-italiani' );
 	$desc_link   = wpcf7_link( 'https://wordpress.org/plugins/campi-moduli-italiani/', __( 'the plugin page at WordPress.org', 'campi-moduli-italiani' ), array( 'target' => '_blank' ) );
 	?>
-	<script type="text/javascript">
-		// This is is needed to simulate tag-generator.js wpcf7.taggen.compose  if ( 'class' == $( this ).attr( 'name' ) ) for wrapper_class.
-		function toggle_wr_class() {
-			e = document.getElementById("<?php echo esc_attr( $args['content'] . '-wrapper-class' ); ?>");
-			val = e.value.trim();
-			val = val.replace( ' wrapper_class:', ' ' );
-			val = val.replace( ' ', ' wrapper_class:');
-			e.value = val;
-		}
-	</script>
 	<style>
 	.gcmi-combobox {
 		background:#fff url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2220%22%20height%3D%2220%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M5%206l5%205%205-5%202%201-7%207-7-7%202-1z%22%20fill%3D%22%23777%22%2F%3E%3C%2Fsvg%3E") no-repeat right 5px top 55%;
@@ -143,97 +141,86 @@ function gcmi_wpcf7_tg_pane_comune( $contact_form, $args = '' ): void {
 			-webkit-appearance:none
 			}
 	</style>
+	<header class="description-box">
+			<h3 class="title"><?php echo esc_html__( 'Italian municipality', 'campi-moduli-italiani' ); ?></h3>
+			<p><?php printf( esc_html( $description ), $desc_link ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></p>
+	</header>
 	<div class="control-box">
 		<fieldset>
-			<legend><?php printf( esc_html( $description ), $desc_link ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></legend>
-			<table class="form-table">
-				<tbody>
-					<tr>
-						<th scope="row"><?php echo esc_html__( 'Field type', 'contact-form-7' ); ?></th>
-						<td>
-							<fieldset>
-								<legend class="screen-reader-text"><?php echo esc_html__( 'Field type', 'contact-form-7' ); ?></legend>
-								<label><input type="checkbox" name="required" /> <?php echo esc_html__( 'Required field', 'contact-form-7' ); ?></label>
-							</fieldset>
-						</td>
-					</tr>
-					<tr>
-						<th scope="row"><label for="<?php echo esc_attr( $args['content'] . '-name' ); ?>"><?php echo esc_html__( 'Name', 'contact-form-7' ); ?></label></th>
-						<td><input type="text" name="name" class="tg-name oneline" id="<?php echo esc_attr( $args['content'] . '-name' ); ?>" /></td>
-					</tr>
-					<tr>
-						<th scope="row"><label for="<?php echo esc_attr( $args['content'] . '-values' ); ?>"><?php echo esc_html__( 'Default value', 'contact-form-7' ); ?></label></th>
-						<td><input type="text" name="values" class="oneline" id="<?php echo esc_attr( $args['content'] . '-values' ); ?>" /><br />
-						<?php echo esc_html__( 'Municipality\'s ISTAT Code (6 digits) or Italian Municipality\'s full denomination (case sensitive).', 'campi-moduli-italiani' ); ?></td>
-					</tr>
-					<tr>
-						<th scope="row"><?php echo esc_html__( 'Type (default "Every: current and deleted")', 'campi-moduli-italiani' ); ?></th>
-						<td>
-							<fieldset>	
-								<legend class="screen-reader-text"><?php echo esc_html__( 'Type (default "Every: current and deleted")', 'campi-moduli-italiani' ); ?></legend>
-								<input type="radio" class="option" id="<?php echo esc_attr( $args['content'] . '-tutti' ); ?>" name="kind" value="tutti"><label for="<?php echo esc_attr( $args['content'] . '-tutti' ); ?>"><?php esc_html_e( 'every', 'campi-moduli-italiani' ); ?></label><br/>
-								<input type="radio" class="option" id="<?php echo esc_attr( $args['content'] . '-attuali' ); ?>" name="kind" value="attuali"><label for="<?php echo esc_attr( $args['content'] . '-attuali' ); ?>"><?php esc_html_e( 'only current', 'campi-moduli-italiani' ); ?></label><br/>
-								<input type="radio" class="option" id="<?php echo esc_attr( $args['content'] . '-evidenza_cessati' ); ?>" name="kind" value="evidenza_cessati"><label for="<?php echo esc_attr( $args['content'] . '-evidenza_cessati' ); ?>"><?php esc_html_e( 'highlights deleted', 'campi-moduli-italiani' ); ?></label><br/>
-							</fieldset>
-						</td>
-					</tr>
-					<tr>
-						<th scope="row"><label for="<?php echo esc_attr( $args['content'] . '-filtername' ); ?>"><?php echo esc_html__( 'Filter name (leave empty for an unfiltered field)', 'campi-moduli-italiani' ); ?></label></th>
-						<td>
-							<input type="text" list="present_filternames" class="oneline option gcmi-combobox" name="filtername" id="<?php echo esc_attr( $args['content'] . '-filtername' ); ?>" />
-							<datalist id="present_filternames">
-								<?php
-								$filters = gcmi_get_list_filtri();
-								foreach ( $filters as $filter ) {
-									echo '<option value="' . esc_html( $filter ) . '"></option>';
-								}
-								?>
-							</datalist>
-						</td>
-					</tr>
-					<tr>
-						<th scope="row"><?php echo esc_html__( 'Show details', 'campi-moduli-italiani' ); ?></th>
-						<td>
-							<fieldset>
-								<legend class="screen-reader-text"><?php echo esc_html__( 'Show details', 'campi-moduli-italiani' ); ?></legend>
-								<label><input type="checkbox" name="comu_details" class="option"/> <?php echo esc_html__( 'Show details', 'campi-moduli-italiani' ); ?></label>
-							</fieldset>
-						</td>
-					</tr>
-					<tr>
-						<th scope="row"><?php echo esc_html__( 'Use labels', 'campi-moduli-italiani' ); ?></th>
-						<td>
-							<fieldset>
-								<legend class="screen-reader-text"><?php echo esc_html__( 'Use labels', 'campi-moduli-italiani' ); ?></legend>
-								<label><input type="checkbox" name="use_label_element" class="option" /> <?php echo esc_html__( 'Wrap each item with label element', 'contact-form-7' ); ?></label>
-							</fieldset>
-						</td>
-					</tr>
-					<tr>
-						<th scope="row"><label for="<?php echo esc_attr( $args['content'] . '-id' ); ?>"><?php echo esc_html__( 'Id attribute', 'contact-form-7' ); ?></label></th>
-						<td><input type="text" name="id" class="idvalue oneline option" id="<?php echo esc_attr( $args['content'] . '-id' ); ?>" /></td>
-					</tr>
-					<tr>
-						<th scope="row"><label for="<?php echo esc_attr( $args['content'] . '-wrapper-class' ); ?>"><?php echo esc_html__( 'Wrapper class attribute', 'campi-moduli-italiani' ); ?></label></th>
-						<td><input type="text" name="wrapper_class" class="oneline option" id="<?php echo esc_attr( $args['content'] . '-wrapper-class' ); ?>" onchange="toggle_wr_class()"/></td>
-					</tr>
-					<tr>
-						<th scope="row"><label for="<?php echo esc_attr( $args['content'] . '-class' ); ?>"><?php echo esc_html__( 'Select class attribute', 'campi-moduli-italiani' ); ?></label></th>
-						<td><input type="text" name="class" class="classvalue oneline option" id="<?php echo esc_attr( $args['content'] . '-class' ); ?>" /></td>
-					</tr>
-
-				</tbody>
-			</table>
+			<legend id="tag-generator-panel-comune-type-legend"><?php echo esc_html__( 'Field type', 'contact-form-7' ); ?></legend>
+			<select data-tag-part="basetype" aria-labelledby="tag-generator-panel-comune-type-legend"><option value="comune"><?php echo esc_html__( 'Italian municipality', 'campi-moduli-italiani' ); ?></option></select>
+			<label><input type="checkbox" data-tag-part="type-suffix" value="*"><?php echo esc_html__( 'Required field', 'contact-form-7' ); ?></label>
 		</fieldset>
-	</div>
-	<div class="insert-box">
-		<input type="text" name="comune" class="tag code" readonly="readonly" onfocus="this.select()" />
-		<div class="submitbox">
-			<input type="button" class="button button-primary insert-tag" value="<?php echo esc_attr( __( 'Insert Tag', 'contact-form-7' ) ); ?>" />
+		<fieldset>
+			<legend id="tag-generator-panel-comune-name-legend"><?php echo esc_html__( 'Name', 'contact-form-7' ); ?></legend>
+			<input type="text" data-tag-part="name" pattern="[A-Za-z][A-Za-z0-9_\-]*" aria-labelledby="tag-generator-panel-comune-name-legend">
+		</fieldset>
+		<fieldset>
+			<legend id="tag-generator-panel-comune-default-legend"><?php echo esc_html__( 'Default value', 'contact-form-7' ); ?></legend>
+			<input type="text" data-tag-part="value" aria-labelledby="tag-generator-panel-comune-default-legend"><br>
+			<label>
+			<?php echo esc_html__( 'Municipality\'s ISTAT Code (6 digits) or Italian Municipality\'s full denomination (case sensitive).', 'campi-moduli-italiani' ); ?>
+			</label>
+		</fieldset>
+		<fieldset>
+			<legend id="tag-generator-panel-comune-tipo-legend"><?php echo esc_html__( 'Type (default "Every: current and deleted")', 'campi-moduli-italiani' ); ?></legend>
+			<fieldset aria-labelledby="tag-generator-panel-comune-tipo-legend">
+				<input type="radio" name="kind" data-tag-part="option" data-tag-option="kind:tutti" aria-labelledby="tag-generator-panel-comune-tipo-tutti">
+				<label id="tag-generator-panel-comune-tipo-tutti"><?php esc_html_e( 'every', 'campi-moduli-italiani' ); ?></label>
+				<input type="radio" name="kind" data-tag-part="option" data-tag-option="kind:attuali" aria-labelledby="tag-generator-panel-comune-tipo-attuali">
+				<label id="tag-generator-panel-comune-tipo-attuali"><?php esc_html_e( 'only current', 'campi-moduli-italiani' ); ?></label>
+				<input type="radio" name="kind" data-tag-part="option" data-tag-option="kind:evidenza_cessati" aria-labelledby="tag-generator-panel-comune-tipo-evidenza-cessati">
+				<label id="tag-generator-panel-comune-tipo-evidenza-cessati"><?php esc_html_e( 'highlights deleted', 'campi-moduli-italiani' ); ?></label>
+			</fieldset>
+		</fieldset>
+		<fieldset>
+		<legend id="tag-generator-panel-comune-filtername-legend"><?php echo esc_html__( 'Filter name (leave empty for an unfiltered field)', 'campi-moduli-italiani' ); ?></legend>
+		<input type="text" list="present_filternames" class="gcmi-combobox" name="filtername" data-tag-part="option" data-tag-option="filtername:">
+			<datalist id="present_filternames">
+				<?php
+				$filters = gcmi_get_list_filtri();
+				foreach ( $filters as $filter ) {
+					echo '<option value="' . esc_html( $filter ) . '"></option>';
+				}
+				?>
+			</datalist>
+		</fieldset>
+		<fieldset>
+			<legend id="tag-generator-panel-comune-comu_details-legend"><?php echo esc_html__( 'Show details', 'campi-moduli-italiani' ); ?></legend>
+			<label><input type="checkbox" data-tag-part="option" data-tag-option="comu_details" value="*" aria-labelledby="tag-generator-panel-comune-comu_details-legend">
+			<?php echo esc_html__( 'Show details', 'campi-moduli-italiani' ); ?></label>
+		</fieldset>
+		<fieldset>
+			<legend id="tag-generator-panel-comune-use_label_element-legend"><?php echo esc_html__( 'Use labels', 'campi-moduli-italiani' ); ?></legend>
+			<label><input type="checkbox" data-tag-part="option" data-tag-option="use_label_element" name="use_label_element" aria-labelledby="tag-generator-panel-comune-use_label_element-legend">
+			<?php echo esc_html__( 'Wrap each item with label element', 'contact-form-7' ); ?></label>
+		</fieldset>
+		<fieldset>
+			<legend id="tag-generator-panel-comune-id-legend"><?php echo esc_html__( 'Id attribute', 'contact-form-7' ); ?></legend>
+			<input type="text" data-tag-part="option" data-tag-option="id:" aria-labelledby="tag-generator-panel-comune-id-legend">
+		</fieldset>
+		<fieldset>
+			<legend id="tag-generator-panel-comune-wrapper-class-legend"><?php echo esc_html__( 'Wrapper class attribute', 'campi-moduli-italiani' ); ?></legend>
+			<input type="text" data-tag-part="option" data-tag-option="wrapper_class:" aria-labelledby="tag-generator-panel-comune-wrapper-class-legend">
+		</fieldset>
+		<fieldset>
+			<legend id="tag-generator-panel-comune-class-legend"><?php echo esc_html__( 'Class attribute', 'contact-form-7' ); ?></legend>
+			<input type="text" data-tag-part="option" data-tag-option="class:" aria-labelledby="tag-generator-panel-comune-class-legend">
+		</fieldset>
+	</div><!-- /.control-box -->
+	<footer class="insert-box">
+		<div class="flex-container">
+			<input type="text" class="code" readonly="readonly" onfocus="this.select()" data-tag-part="tag" aria-label="The form-tag to be inserted into the form template">
+			<button type="button" class="button-primary" data-taggen="insert-tag">
+			<?php echo esc_attr( __( 'Insert Tag', 'contact-form-7' ) ); ?>
+			</button>
 		</div>
-
-		<br class="clear" />
-		<p class="description mail-tag"><label for="<?php echo esc_attr( $args['content'] . '-mailtag' ); ?>"><?php printf( esc_html__( 'To use the value input through this field in a mail field, you need to insert the corresponding mail-tag (%s) into the field on the Mail tab.', 'contact-form-7' ), '<strong><span class="mail-tag"></span></strong>' ); //phpcs:ignore WordPress.WP.I18n.MissingTranslatorsComment ?><input type="text" class="mail-tag code hidden" readonly="readonly" id="<?php echo esc_attr( $args['content'] . '-mailtag' ); ?>" /></label></p>
-	</div>
+		<p class="mail-tag-tip">
+		<?php
+		// translators: %s is the name of the mail-tag.
+		printf( esc_html__( 'To use the user input in the email, insert the corresponding mail-tag %s into the email template.', 'contact-form-7' ), '<strong data-tag-part="mail-tag"></strong>' );
+		?>
+		</p>
+	</footer>
 	<?php
 }
