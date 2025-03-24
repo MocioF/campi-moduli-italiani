@@ -25,28 +25,29 @@ function gcmi_wpforms_builder_fields_buttons( $fields ) {
 	);
 	return $fields;
 }
+if ( defined( 'WPFORMS_VERSION' ) && version_compare( WPFORMS_VERSION, GCMI_MINIMUM_WPFORMS_VERSION, '>=' ) ) {
+	// add the action.
+	add_filter( 'wpforms_builder_fields_buttons', 'gcmi_wpforms_builder_fields_buttons', 10, 1 );
 
-// add the action.
-add_filter( 'wpforms_builder_fields_buttons', 'gcmi_wpforms_builder_fields_buttons', 10, 1 );
+	// aggiungo i file per il campo "stato".
+	if ( GCMI_USE_STATO === true ) {
+		add_action(
+			'init',
+			function () {
+				require_once plugin_dir_path( GCMI_PLUGIN ) . 'modules/stato/class-gcmi-wpforms-field-stato.php';
+			},
+			99
+		);
+	}
 
-// aggiungo i file per il campo "stato".
-if ( GCMI_USE_STATO === true ) {
-	add_action(
-		'init',
-		function () {
-			require_once plugin_dir_path( GCMI_PLUGIN ) . 'modules/stato/class-gcmi-wpforms-field-stato.php';
-		},
-		99
-	);
-}
-
-// aggiungo i file per il campo "comune".
-if ( GCMI_USE_COMUNE === true ) {
-	add_action(
-		'init',
-		function () {
-			require_once plugin_dir_path( GCMI_PLUGIN ) . 'modules/comune/class-gcmi-wpforms-field-comune.php';
-		},
-		99
-	);
+	// aggiungo i file per il campo "comune".
+	if ( GCMI_USE_COMUNE === true ) {
+		add_action(
+			'init',
+			function () {
+				require_once plugin_dir_path( GCMI_PLUGIN ) . 'modules/comune/class-gcmi-wpforms-field-comune.php';
+			},
+			99
+		);
+	}
 }
