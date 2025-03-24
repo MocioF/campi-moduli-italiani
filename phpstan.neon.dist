@@ -25,3 +25,10 @@ parameters:
 		    message: '#Method [a-zA-Z0-9\\_]+::[a-zA-Z0-9\\_]+\(\) return type has no value type specified in iterable type array.#'
 		    path: modules/comune/class-gcmi-wpforms-field-comune.php
 		- '#Constant WPFORMS_PLUGIN_URL not found.#'
+	dynamicConstantNames:
+		- GCMI_USE_COMUNE
+		- GCMI_USE_CF
+		- GCMI_USE_STATO
+		- GCMI_USE_FORMSIGN
+		- GCMI_USE_CF7_INTEGRATION
+		- GCMI_USE_WPFORMS_INTEGRATION

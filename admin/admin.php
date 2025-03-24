@@ -22,7 +22,7 @@ require_once GCMI_PLUGIN_DIR . '/admin/includes/class-gcmi-remote-files-list-tab
 /**
  * Requires class that contains comune's filter builder.
  */
-if ( true === GCMI_USE_COMUNE ) {
+if ( GCMI_USE_COMUNE ) {
 	require_once GCMI_PLUGIN_DIR . '/admin/includes/class-gcmi-comune-filter-builder.php';
 
 	$gcmi_fb = new GCMI_Comune_Filter_Builder();
@@ -93,7 +93,7 @@ function gcmi_admin_menu() {
 	);
 	add_action( 'load-' . $edit, 'gcmi_load_db_management', 10, 0 );
 
-	if ( true === GCMI_USE_COMUNE ) {
+	if ( GCMI_USE_COMUNE ) {
 		$builder = add_submenu_page(
 			'gcmi', // parent slug.
 			__( 'Italian municipalities\' filter builder ', 'campi-moduli-italiani' ), // page title.
@@ -157,7 +157,7 @@ function gcmi_admin_update_db() {
 	$last_check  = gcmi_safe_intval( get_site_option( 'gcmi_last_update_check' ) );
 	$date_format = get_site_option( 'date_format' ) ? gcmi_safe_strval( get_site_option( 'date_format' ) ) : 'j F Y';
 	$time_format = get_site_option( 'time_format' ) ? gcmi_safe_strval( get_site_option( 'time_format' ) ) : 'H:i';
-	if ( false !== $last_check && function_exists( 'wp_date' ) ) {
+	if ( 0 !== $last_check && function_exists( 'wp_date' ) ) {
 		$last_check_string = sprintf(
 			// translators: %1$s is a date string; %2$s is a time string.
 			esc_html__( 'Last remote files update check on %1$s at %2$s.', 'campi-moduli-italiani' ),
