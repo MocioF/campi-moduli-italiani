@@ -24,7 +24,7 @@ defined( 'ABSPATH' ) || die( 'you do not have access to this page!' );
 define( 'GCMI_VERSION', '2.2.5' );
 define( 'GCMI_MINIMUM_WP_VERSION', '5.9' );
 define( 'GCMI_MINIMUM_PHP_VERSION', '7.4' );
-define( 'GCMI_MINIMUM_CF7_VERSION', '5.1.7' );
+define( 'GCMI_MINIMUM_CF7_VERSION', '6.0' );
 define( 'GCMI_PLUGIN', __FILE__ );
 define( 'GCMI_PLUGIN_BASENAME', 'campi-moduli-italiani/campi-moduli-italiani.php' );
 define( 'GCMI_PLUGIN_NAME', pathinfo( __FILE__, PATHINFO_FILENAME ) );
