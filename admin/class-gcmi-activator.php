@@ -13,6 +13,18 @@
 
 defined( 'ABSPATH' ) || die( 'you do not have access to this page!' );
 
+if ( defined( 'DB_CHARSET' ) ) {
+	define( 'GCMI_DB_CHARSET', DB_CHARSET );
+} else {
+	define( 'GCMI_DB_CHARSET', 'utf8' );
+}
+
+if ( defined( 'DB_COLLATE' ) ) {
+	define( 'GCMI_DB_COLLATE', DB_COLLATE );
+} else {
+	define( 'GCMI_DB_COLLATE', '' );
+}
+
 /**
  * Class with methods used on plugin activation
  *
@@ -1198,7 +1210,7 @@ class GCMI_Activator {
 	 * @return boolean
 	 */
 	public static function convert_file_charset( $filepath, $orig_enc = 'UTF-8' ) {
-		switch ( DB_CHARSET ) {
+		switch ( GCMI_DB_CHARSET ) {
 			case 'utf8mb4':
 			case 'utf8mb3':
 			case 'utf8':
