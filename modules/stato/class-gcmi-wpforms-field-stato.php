@@ -68,11 +68,6 @@ class GCMI_WPForms_Field_Stato extends WPForms_Field {
 		// Form frontend JS enqueues.
 		add_action( 'wpforms_frontend_js', array( $this, 'enqueue_frontend_js' ) );
 
-		// Filtra i valori prima dell'invio via mail.
-		/*
-		add_action( 'wpforms_entry_email_data', array( $this, 'gcmi_wpf_stato_modify_email_value' ), 5, 3 );
-		*/
-
 		// Setta la classe per il <div> del builder.
 		add_filter( 'wpforms_field_new_class', array( $this, 'gcmi_wpf_country_add_class_select' ), 10, 2 );
 

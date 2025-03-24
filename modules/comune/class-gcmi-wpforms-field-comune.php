@@ -70,9 +70,6 @@ class GCMI_WPForms_Field_Comune extends WPForms_Field {
 		add_action( 'wpforms_frontend_js', array( $this, 'enqueue_frontend_js' ) );
 
 		// Filtra i valori prima dell'invio via mail.
-		/*
-		add_action( 'wpforms_entry_email_data', array( $this, 'gcmi_wpf_comune_modify_email_value' ), 5, 3 );
-		*/
 		add_filter( 'wpforms_smarttags_process_field_id_value', array( $this, 'gcmi_wpf_comune_process_smarttag' ), 10, 6 );
 
 		// Setta la classe per il <div> del builder.
