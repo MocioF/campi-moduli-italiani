@@ -5,7 +5,7 @@ Tags: Contact Form 7, WPForms, comuni italiani, codice fiscale, firma digitale
 Requires at least: 5.9
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 2.2.5
+Stable tag: 2.3.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html
 
@@ -135,6 +135,12 @@ You can create an issue in our Github repo:
 5. Image of the admin screen, from which it is possible to update the data
 
 == Changelog ==
+= 2.3.0 =
+* Move selects to Schema-Woven Validation
+* Remove legacy code
+* Moving CF7 tag generator to v.2
+* Add checks on minimum CF7 and WPForms versions before load integrations
+
 = 2.2.5 =
 * Fixed use of wpforms Smart Tags
 * Update external servers pem chains
@@ -286,6 +292,8 @@ It is also recommended to update the tables relating to the municipalities suppr
 First installation
 
 == Upgrade Notice ==
+= 2.3.0 =
+Increased minimum CF7 supported version to 6.0
 
 = 2.1.0 =
 Security fixes and object cache implementation.

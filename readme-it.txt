@@ -5,7 +5,7 @@ Tags: Contact Form 7, WPForms, comuni italiani, codice fiscale, firma digitale
 Requires at least: 5.9
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 2.2.5
+Stable tag: 2.3.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html
 
@@ -132,6 +132,12 @@ Puoi inviare una richiesta nel nostro repository Github:
 5. Immagine della schermata di admin, da cui è possibile effettuare l'aggiornamento dei dati
 
 == Changelog ==
+= 2.3.0 =
+* Aggiornate le select per usare la Schema-Woven Validation
+* Rimosso codice obsoleto
+* Aggiornati i tag generator per CF7 alla versione 2
+* Aggiunti controlli alle versioni minime supportate di CF7 e WPForms
+
 = 2.2.5 =
 * Corretto l'utilizzo degli Smart Tags in wpforms
 * Aggiornati i certificati dei siti esterni
@@ -283,6 +289,8 @@ Dopo questo aggiornamento è necessario aggiornare la tabella relativa ai comuni
 Prima installazione
 
 == Upgrade Notice ==
+= 2.3.0 =
+Aumentato il numero minimo di versione di CF7 supportato a 6.0
 
 = 2.1.0 =
 Corretti problemi di sicurezza e implementata la cache per le query
