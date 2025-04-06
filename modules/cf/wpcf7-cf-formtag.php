@@ -172,7 +172,15 @@ add_action( 'wpcf7_admin_init', 'gcmi_wpcf7_add_tag_generator_cf', 103, 0 );
 function gcmi_wpcf7_add_tag_generator_cf(): void {
 	if ( class_exists( 'WPCF7_TagGenerator' ) ) {
 		$tag_generator = WPCF7_TagGenerator::get_instance();
-		$tag_generator->add( 'gcmi-cf', __( 'Insert Italian Tax Code', 'campi-moduli-italiani' ), 'gcmi_wpcf7_tg_pane_cf' );
+		$tag_generator->add(
+			'gcmi-cf', // ID.
+			__( 'Italian Tax Code', 'campi-moduli-italiani' ), // Button label.
+			'gcmi_wpcf7_tg_pane_cf', // callback.
+			array(
+				'version'   => 2,
+				'name-attr' => true,
+			) // options.
+		);
 	} elseif ( function_exists( 'wpcf7_add_tag_generator' ) ) {
 		wpcf7_add_tag_generator( 'gcmi-cf', __( 'Insert Italian Tax Code', 'campi-moduli-italiani' ), 'gcmi_wpcf7_tg_pane_cf', 'gcmi_wpcf7_tg_pane_cf' );
 	}
@@ -195,98 +203,89 @@ function gcmi_wpcf7_tg_pane_cf( $contact_form, $args = '' ): void {
 	$description = __( 'Creates a form tag for natural person Italian tax code. To get more informations look at %s.', 'campi-moduli-italiani' );
 	$desc_link   = wpcf7_link( 'https://wordpress.org/plugins/campi-moduli-italiani/', __( 'the plugin page at WordPress.org', 'campi-moduli-italiani' ), array( 'target' => '_blank' ) );
 	?>
-	<div class="control-box">
+		<header class="description-box">
+			<h3 class="title"><?php echo esc_html__( 'Italian Tax Code', 'campi-moduli-italiani' ); ?></h3>
+			<p><?php printf( esc_html( $description ), $desc_link ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></p>
+		</header>
+		<div class="control-box">
 		<fieldset>
-			<legend><?php printf( esc_html( $description ), $desc_link ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></legend>
-
-			<table class="form-table">
-				<tbody>
-					<tr>
-						<th scope="row"><?php echo esc_html__( 'Field type', 'contact-form-7' ); ?></th>
-						<td>
-							<fieldset>
-								<legend class="screen-reader-text"><?php echo esc_html__( 'Field type', 'contact-form-7' ); ?></legend>
-								<label><input type="checkbox" name="required" /> <?php echo esc_html__( 'Required field', 'contact-form-7' ); ?></label>
-							</fieldset>
-						</td>
-					</tr>
-					<tr>
-						<th scope="row"><label for="<?php echo esc_attr( $args['content'] . '-name' ); ?>"><?php echo esc_html__( 'Name', 'contact-form-7' ); ?></label></th>
-						<td><input type="text" name="name" class="tg-name oneline" id="<?php echo esc_attr( $args['content'] . '-name' ); ?>" /></td>
-					</tr>
-					<tr>
-						<th scope="row"><label for="<?php echo esc_attr( $args['content'] . '-values' ); ?>"><?php echo esc_html__( 'Default value', 'contact-form-7' ); ?></label></th>
-						<td><input type="text" name="values" class="oneline" id="<?php echo esc_attr( $args['content'] . '-values' ); ?>" /><br />
-						<label><input type="checkbox" name="placeholder" class="option" /> <?php echo esc_html__( 'Use this text as the placeholder of the field', 'contact-form-7' ); ?></label></td>
-					</tr>
-					<tr>
-						<th scope="row"><label for="<?php echo esc_attr( $args['content'] . '-id' ); ?>"><?php echo esc_html__( 'Id attribute', 'contact-form-7' ); ?></label></th>
-						<td><input type="text" name="id" class="idvalue oneline option" id="<?php echo esc_attr( $args['content'] . '-id' ); ?>" /></td>
-					</tr>
-					<tr>
-						<th scope="row"><label for="<?php echo esc_attr( $args['content'] . '-class' ); ?>"><?php echo esc_html__( 'Class attribute', 'contact-form-7' ); ?></label></th>
-						<td><input type="text" name="class" class="classvalue oneline option" id="<?php echo esc_attr( $args['content'] . '-class' ); ?>" /></td>
-					</tr>
-					<tr>
-						<th scope="column" colspan="2"><?php echo esc_html__( 'If you want tax code to match  form\'s others fields, please indicate the names given to these fields in the form. Tax code will be matched only against named fields (if you have just one field for born date, it is not necessary to check tax code against different fileds for day month and year of birth).', 'campi-moduli-italiani' ); ?></th>
-					</tr>
-					<tr>
-						<th scope="row"><label for="<?php echo esc_attr( $args['content'] . '-surname' ); ?>"><?php echo esc_html__( '"name" attr of surname field', 'campi-moduli-italiani' ); ?></label></th>
-						<td><input type="text" name="surname-field" class="oneline option" id="<?php echo esc_attr( $args['content'] . '-surname' ); ?>" /></td>
-					</tr>
-					<tr>
-						<th scope="row"><label for="<?php echo esc_attr( $args['content'] . '-name' ); ?>"><?php echo esc_html__( '"name" attr of name field', 'campi-moduli-italiani' ); ?></label></th>
-						<td><input type="text" name="name-field" class="oneline option" id="<?php echo esc_attr( $args['content'] . '-name' ); ?>" /></td>
-					</tr>
-
-					<tr>
-						<th scope="row"><label for="<?php echo esc_attr( $args['content'] . '-gender' ); ?>"><?php echo esc_html__( '"name" attr of gender field', 'campi-moduli-italiani' ); ?></label></th>
-						<td><input type="text" name="gender-field" class="oneline option" id="<?php echo esc_attr( $args['content'] . '-gender' ); ?>" /></td>
-					</tr>
-					<tr>
-						<th scope="row"><label for="<?php echo esc_attr( $args['content'] . '-birthdate' ); ?>"><?php echo esc_html__( '"name" attr of date of birth field', 'campi-moduli-italiani' ); ?></label></th>
-						<td><input type="text" name="birthdate-field" class="oneline option" id="<?php echo esc_attr( $args['content'] . '-birthdate' ); ?>" /></td>
-					</tr>
-					<tr>
-						<th scope="row"><label for="<?php echo esc_attr( $args['content'] . '-birthyear' ); ?>"><?php echo esc_html__( '"name" attr of year of birth field', 'campi-moduli-italiani' ); ?></label></th>
-						<td><input type="text" name="birthyear-field" class="oneline option" id="<?php echo esc_attr( $args['content'] . '-birthyear' ); ?>" /></td>
-					</tr>
-					<tr>
-						<th scope="row"><label for="<?php echo esc_attr( $args['content'] . '-birthmonth' ); ?>"><?php echo esc_html__( '"name" attr of month of birth field', 'campi-moduli-italiani' ); ?></label></th>
-						<td><input type="text" name="birthmonth-field" class="oneline option" id="<?php echo esc_attr( $args['content'] . '-birthmonth' ); ?>" /></td>
-					</tr>
-					<tr>
-						<th scope="row"><label for="<?php echo esc_attr( $args['content'] . '-birthday' ); ?>"><?php echo esc_html__( '"name" attr of day of birth field', 'campi-moduli-italiani' ); ?></label></th>
-						<td><input type="text" name="birthday-field" class="oneline option" id="<?php echo esc_attr( $args['content'] . '-birthday' ); ?>" /></td>
-					</tr>
-					<tr>
-						<th scope="row"><label for="<?php echo esc_attr( $args['content'] . '-birthmunicipality' ); ?>"><?php echo esc_html__( '"name" attr of municipality of birth field', 'campi-moduli-italiani' ); ?></label></th>
-						<td><input type="text" name="birthmunicipality-field" class="oneline option" id="<?php echo esc_attr( $args['content'] . '-birthmunicipality' ); ?>" /></td>
-					</tr>
-					<tr>
-						<th scope="row"><label for="<?php echo esc_attr( $args['content'] . '-birthNation' ); ?>"><?php echo esc_html__( '"name" attr of Country of birth field', 'campi-moduli-italiani' ); ?></label></th>
-						<td><input type="text" name="birthnation-field" class="oneline option" id="<?php echo esc_attr( $args['content'] . '-birthnation' ); ?>" /></td>
-					</tr>
-				</tbody>
-			</table>
+			<legend id="tag-generator-panel-cf-type-legend"><?php echo esc_html__( 'Field type', 'contact-form-7' ); ?></legend>
+			<select data-tag-part="basetype" aria-labelledby="tag-generator-panel-cf-type-legend"><option value="cf"><?php echo esc_html__( 'Italian Tax Code', 'campi-moduli-italiani' ); ?></option></select>
+			<label><input type="checkbox" data-tag-part="type-suffix" value="*"><?php echo esc_html__( 'Required field', 'contact-form-7' ); ?></label>
 		</fieldset>
-	</div>
-	<div class="insert-box">
-		<input type="text" name="cf" class="tag code" readonly="readonly" onfocus="this.select()" />
-
-		<div class="submitbox">
-			<input type="button" class="button button-primary insert-tag" value="<?php echo esc_attr( __( 'Insert Tag', 'contact-form-7' ) ); ?>" />
+		<fieldset>
+			<legend id="tag-generator-panel-cf-name-legend"><?php echo esc_html__( 'Name', 'contact-form-7' ); ?></legend>
+			<input type="text" data-tag-part="name" pattern="[A-Za-z][A-Za-z0-9_\-]*" aria-labelledby="tag-generator-panel-cf-name-legend">
+		</fieldset>
+		<fieldset>
+			<legend id="tag-generator-panel-cf-default-legend"><?php echo esc_html__( 'Default value', 'contact-form-7' ); ?></legend>
+			<input type="text" data-tag-part="value" aria-labelledby="tag-generator-panel-cf-default-legend"><br>
+			<label>
+				<input type="checkbox" data-tag-part="option" data-tag-option="placeholder"> <?php echo esc_html__( 'Use this text as the placeholder of the field', 'contact-form-7' ); ?>
+			</label>
+		</fieldset>
+		<fieldset>
+			<legend id="tag-generator-panel-cf-id-legend"><?php echo esc_html__( 'Id attribute', 'contact-form-7' ); ?></legend>
+			<input type="text" data-tag-part="option" data-tag-option="id:" aria-labelledby="tag-generator-panel-cf-id-legend">
+		</fieldset>
+		<fieldset>
+			<legend id="tag-generator-panel-cf-class-legend"><?php echo esc_html__( 'Class attribute', 'contact-form-7' ); ?></legend>
+			<input type="text" data-tag-part="option" data-tag-option="class:">
+		</fieldset>
+		<fieldset>
+			<legend><?php echo esc_html__( 'If you want tax code to match  form\'s others fields, please indicate the names given to these fields in the form. Tax code will be matched only against named fields (if you have just one field for born date, it is not necessary to check tax code against different fileds for day month and year of birth).', 'campi-moduli-italiani' ); ?></legend>
+		</fieldset>
+		<fieldset>
+			<legend id="tag-generator-panel-cf-surname-field-legend"><?php echo esc_html__( '"name" attr of surname field', 'campi-moduli-italiani' ); ?></legend>
+			<input type="text" data-tag-part="option" data-tag-option="surname-field:" aria-labelledby="tag-generator-panel-cf-surname-field-legend">
+		</fieldset>
+		<fieldset>
+			<legend id="tag-generator-panel-cf-name-field-legend"><?php echo esc_html__( '"name" attr of name field', 'campi-moduli-italiani' ); ?></legend>
+			<input type="text" data-tag-part="option" data-tag-option="name-field:" aria-labelledby="tag-generator-panel-cf-name-field-legend">
+		</fieldset>
+		<fieldset>
+			<legend id="tag-generator-panel-cf-gender-field-legend"><?php echo esc_html__( '"name" attr of gender field', 'campi-moduli-italiani' ); ?></legend>
+			<input type="text" data-tag-part="option" data-tag-option="gender-field:" aria-labelledby="tag-generator-panel-cf-gender-field-legend">
+		</fieldset>
+		<fieldset>
+			<legend id="tag-generator-panel-cf-birthdate-field-legend"><?php echo esc_html__( '"name" attr of date of birth field', 'campi-moduli-italiani' ); ?></legend>
+			<input type="text" data-tag-part="option" data-tag-option="birthdate-field:" aria-labelledby="tag-generator-panel-cf-birthdate-field-legend">
+		</fieldset>
+		<fieldset>
+			<legend id="tag-generator-panel-cf-birtyear-field-legend"><?php echo esc_html__( '"name" attr of year of birth field', 'campi-moduli-italiani' ); ?></legend>
+			<input type="text" data-tag-part="option" data-tag-option="birthyear-field:" aria-labelledby="tag-generator-panel-cf-birtyear-field-legend">
+		</fieldset>
+		<fieldset>
+			<legend id="tag-generator-panel-cf-birthmonth-field-legend"><?php echo esc_html__( '"name" attr of month of birth field', 'campi-moduli-italiani' ); ?></legend>
+			<input type="text" data-tag-part="option" data-tag-option="birthmonth-field:" aria-labelledby="tag-generator-panel-cf-birthmonth-field-legend">
+		</fieldset>
+		<fieldset>
+			<legend id="tag-generator-panel-cf-birthday-field-legend"><?php echo esc_html__( '"name" attr of day of birth field', 'campi-moduli-italiani' ); ?></legend>
+			<input type="text" data-tag-part="option" data-tag-option="birthday-field:" aria-labelledby="tag-generator-panel-cf-birthday-field-legend">
+		</fieldset>
+		<fieldset>
+			<legend id="tag-generator-panel-cf-birthmunicipality-field-legend"><?php echo esc_html__( '"name" attr of municipality of birth field', 'campi-moduli-italiani' ); ?></legend>
+			<input type="text" data-tag-part="option" data-tag-option="birthmunicipality-field:" aria-labelledby="tag-generator-panel-cf-birthmunicipality-field-legend">
+		</fieldset>
+		<fieldset>
+			<legend id="tag-generator-panel-cf-birthnation-field-legend"><?php echo esc_html__( '"name" attr of Country of birth field', 'campi-moduli-italiani' ); ?></legend>
+			<input type="text" data-tag-part="option" data-tag-option="birthnation-field:" aria-labelledby="tag-generator-panel-cf-birthnation-field-legend">
+		</fieldset>
+	</div><!-- /.control-box -->
+	<footer class="insert-box">
+		<div class="flex-container">
+			<input type="text" class="code" readonly onfocus="this.select()" data-tag-part="tag" aria-label="The form-tag to be inserted into the form template">
+			<button type="button" class="button-primary" data-taggen="insert-tag">
+			<?php echo esc_attr( __( 'Insert Tag', 'contact-form-7' ) ); ?>
+			</button>
 		</div>
-
-		<br class="clear" />
-
-		<p class="description mail-tag"><label for="<?php echo esc_attr( $args['content'] . '-mailtag' ); ?>">
+		<p class="mail-tag-tip">
 		<?php
 		// translators: %s is the name of the mail-tag.
-		printf( esc_html__( 'To use the value input through this field in a mail field, you need to insert the corresponding mail-tag (%s) into the field on the Mail tab.', 'contact-form-7' ), '<strong><span class="mail-tag"></span></strong>' );
+		printf( esc_html__( 'To use the user input in the email, insert the corresponding mail-tag %s into the email template.', 'contact-form-7' ), '<strong data-tag-part="mail-tag"></strong>' );
 		?>
-		<input type="text" class="mail-tag code hidden" readonly="readonly" id="<?php echo esc_attr( $args['content'] . '-mailtag' ); ?>" /></label></p>
-	</div>
+		</p>
+	</footer>
 	<?php
 }
 ?>

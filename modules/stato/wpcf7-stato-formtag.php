@@ -311,7 +311,15 @@ add_action( 'wpcf7_admin_init', 'gcmi_wpcf7_add_tag_generator_stato', 102, 0 );
 function gcmi_wpcf7_add_tag_generator_stato(): void {
 	if ( class_exists( 'WPCF7_TagGenerator' ) ) {
 		$tag_generator = WPCF7_TagGenerator::get_instance();
-		$tag_generator->add( 'gcmi-stato', __( 'countries selection', 'campi-moduli-italiani' ), 'gcmi_wpcf7_tg_pane_stato' );
+		$tag_generator->add(
+			'gcmi-stato',
+			__( 'countries selection', 'campi-moduli-italiani' ),
+			'gcmi_wpcf7_tg_pane_stato',
+			array(
+				'version'   => 2,
+				'name-attr' => true,
+			)
+		);
 	} elseif ( function_exists( 'wpcf7_add_tag_generator' ) ) {
 		wpcf7_add_tag_generator( 'gcmi-stato', __( 'Insert a select for Countries', 'campi-moduli-italiani' ), 'gcmi_wpcf7_tg_pane_stato', 'gcmi_wpcf7_tg_pane_stato' );
 	}
@@ -383,73 +391,69 @@ function gcmi_wpcf7_tg_pane_stato( $contact_form, $args = '' ): void {
 	$description = __( 'Creates a select with countries %s.', 'campi-moduli-italiani' );
 	$desc_link   = wpcf7_link( 'https://wordpress.org/plugins/campi-moduli-italiani/', __( 'the plugin page at WordPress.org', 'campi-moduli-italiani' ), array( 'target' => '_blank' ) );
 	?>
+	<header class="description-box">
+		<h3 class="title"><?php echo esc_html__( 'countries selection', 'campi-moduli-italiani' ); ?></h3>
+		<p><?php printf( esc_html( $description ), $desc_link ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></p>
+	</header>
 	<div class="control-box">
 		<fieldset>
-			<legend><?php printf( esc_html( $description ), $desc_link ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></legend>
-			<table class="form-table">
-				<tbody>
-					<tr>
-						<th scope="row"><?php echo esc_html__( 'Field type', 'contact-form-7' ); ?></th>
-						<td>
-							<fieldset>
-								<legend class="screen-reader-text"><?php echo esc_html__( 'Field type', 'contact-form-7' ); ?></legend>
-								<label><input type="checkbox" name="required" /> <?php echo esc_html__( 'Required field', 'contact-form-7' ); ?></label>
-							</fieldset>
-						</td>
-					</tr>
-					<tr>
-						<th scope="row"><label for="<?php echo esc_attr( $args['content'] . '-name' ); ?>"><?php echo esc_html__( 'Name', 'contact-form-7' ); ?></label></th>
-						<td><input type="text" name="name" class="tg-name oneline" id="<?php echo esc_attr( $args['content'] . '-name' ); ?>" /></td>
-					</tr>
-					<tr>
-						<th scope="row"><label for="<?php echo esc_attr( $args['content'] . '-values' ); ?>"><?php echo esc_html__( 'Default value', 'contact-form-7' ); ?></label></th>
-						<td><input type="text" name="values" class="oneline" id="<?php echo esc_attr( $args['content'] . '-values' ); ?>" /><br />
-						<?php echo esc_html__( 'Country\'s ISTAT Code (3 digits) or Country\'s Italian denomination (case sensitive).', 'campi-moduli-italiani' ); ?></td>
-					</tr>
-					<tr>
-					<th scope="row"><?php echo esc_html__( 'Options', 'contact-form-7' ); ?></th>
-					<td>
-						<fieldset>
-						<legend class="screen-reader-text"><?php echo esc_html__( 'Options', 'contact-form-7' ); ?></legend>
-						<label><input type="checkbox" name="first_as_label" class="option" />
-						<?php
-						echo esc_html__( 'Add a first element as label saying: ', 'campi-moduli-italiani' );
-						echo esc_html__( 'Select a Country', 'campi-moduli-italiani' );
-						?>
-						</label><br />
-						<label><input type="checkbox" name="use_continent" class="option" /> <?php echo esc_html__( 'Split States for continents', 'campi-moduli-italiani' ); ?></label><br />
-						<label><input type="checkbox" name="only_current" class="option" /> <?php echo esc_html__( 'Only actual States (not ceased)', 'campi-moduli-italiani' ); ?></label>
-						</fieldset>
-					</td>
-					</tr>
-					<tr>
-						<th scope="row"><label for="<?php echo esc_attr( $args['content'] . '-id' ); ?>"><?php echo esc_html__( 'Id attribute', 'contact-form-7' ); ?></label></th>
-						<td><input type="text" name="id" class="idvalue oneline option" id="<?php echo esc_attr( $args['content'] . '-id' ); ?>" /></td>
-					</tr>
-					<tr>
-						<th scope="row"><label for="<?php echo esc_attr( $args['content'] . '-class' ); ?>"><?php echo esc_html__( 'Class attribute', 'contact-form-7' ); ?></label></th>
-						<td><input type="text" name="class" class="classvalue oneline option" id="<?php echo esc_attr( $args['content'] . '-class' ); ?>" /></td>
-					</tr>
-				</tbody>
-			</table>
+			<legend id="tag-generator-panel-stato-type-legend"><?php echo esc_html__( 'Field type', 'contact-form-7' ); ?></legend>
+			<select data-tag-part="basetype" aria-labelledby="tag-generator-panel-stato-type-legend"><option value="stato"><?php echo esc_html__( 'countries selection', 'campi-moduli-italiani' ); ?></option></select>
+			<label><input type="checkbox" data-tag-part="type-suffix" value="*"><?php echo esc_html__( 'Required field', 'contact-form-7' ); ?></label>
 		</fieldset>
-	</div>
-	<div class="insert-box">
-		<input type="text" name="stato" class="tag code" readonly="readonly" onfocus="this.select()" />
+		<fieldset>
+			<legend id="tag-generator-panel-stato-name-legend"><?php echo esc_html__( 'Name', 'contact-form-7' ); ?></legend>
+			<input type="text" data-tag-part="name" pattern="[A-Za-z][A-Za-z0-9_\-]*" aria-labelledby="tag-generator-panel-stato-name-legend">
+		</fieldset>
+		<fieldset>
+			<legend id="tag-generator-panel-stato-default-legend"><?php echo esc_html__( 'Default value', 'contact-form-7' ); ?></legend>
+			<input type="text" data-tag-part="value" aria-labelledby="tag-generator-panel-stato-default-legend"><br>
+			<label>
+			<?php echo esc_html__( 'Country\'s ISTAT Code (3 digits) or Country\'s Italian denomination (case sensitive).', 'campi-moduli-italiani' ); ?>
+			</label>
+		</fieldset>
 
-		<div class="submitbox">
-			<input type="button" class="button button-primary insert-tag" value="<?php echo esc_attr( __( 'Insert Tag', 'contact-form-7' ) ); ?>" />
+		<fieldset>
+		<legend id="tag-generator-panel-stato-options-legend"><?php echo esc_html__( 'Options', 'contact-form-7' ); ?></legend>
+			<fieldset aria-labelledby="tag-generator-panel-stato-options-legend">
+				<input type="checkbox" data-tag-part="option" data-tag-option="first_as_label" aria-labelledby="tag-generator-panel-stato-firstaslabel">
+				<label id="tag-generator-panel-stato-firstaslabel">
+				<?php
+				esc_html_e( 'Add a first element as label saying: ', 'campi-moduli-italiani' );
+				esc_html_e( 'Select a Country', 'campi-moduli-italiani' );
+				?>
+				</label>
+				</br>
+				<input type="checkbox" data-tag-part="option" data-tag-option="use_continent" aria-labelledby="tag-generator-panel-stato-usecontinent">
+				<label id="tag-generator-panel-stato-usecontinent"><?php esc_html_e( 'Split States for continents', 'campi-moduli-italiani' ); ?></label>
+				</br>
+				<input type="checkbox" data-tag-part="option" data-tag-option="only_current" aria-labelledby="tag-generator-panel-stato-onlycurrent">
+				<label id="tag-generator-panel-stato-onlycurrent"><?php esc_html_e( 'Only actual States (not ceased)', 'campi-moduli-italiani' ); ?></label>
+			</fieldset>
+		</fieldset>
+		<fieldset>
+			<legend id="tag-generator-panel-stato-id-legend"><?php echo esc_html__( 'Id attribute', 'contact-form-7' ); ?></legend>
+			<input type="text" data-tag-part="option" data-tag-option="id:" aria-labelledby="tag-generator-panel-stato-id-legend">
+		</fieldset>
+		<fieldset>
+			<legend id="tag-generator-panel-stato-class-legend"><?php echo esc_html__( 'Class attribute', 'contact-form-7' ); ?></legend>
+			<input type="text" data-tag-part="option" data-tag-option="class:" aria-labelledby="tag-generator-panel-stato-class-legend">
+		</fieldset>
+	</div><!-- /.control-box -->
+	<footer class="insert-box">
+		<div class="flex-container">
+			<input type="text" class="code" readonly onfocus="this.select()" data-tag-part="tag" aria-label="The form-tag to be inserted into the form template">
+			<button type="button" class="button-primary" data-taggen="insert-tag">
+			<?php echo esc_attr( __( 'Insert Tag', 'contact-form-7' ) ); ?>
+			</button>
 		</div>
-
-		<br class="clear" />
-
-		<p class="description mail-tag"><label for="<?php echo esc_attr( $args['content'] . '-mailtag' ); ?>">
+		<p class="mail-tag-tip">
 		<?php
 		// translators: %s is the name of the mail-tag.
-		printf( esc_html__( 'To use the value input through this field in a mail field, you need to insert the corresponding mail-tag (%s) into the field on the Mail tab.', 'contact-form-7' ), '<strong><span class="mail-tag"></span></strong>' );
+		printf( esc_html__( 'To use the user input in the email, insert the corresponding mail-tag %s into the email template.', 'contact-form-7' ), '<strong data-tag-part="mail-tag"></strong>' );
 		?>
-		<input type="text" class="mail-tag code hidden" readonly="readonly" id="<?php echo esc_attr( $args['content'] . '-mailtag' ); ?>" /></label></p>
-	</div>
+		</p>
+	</footer>
 	<?php
 }
 ?>

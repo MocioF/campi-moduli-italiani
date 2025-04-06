@@ -113,9 +113,17 @@ function gcmi_wpcf7_formsign_formtag_handler( $tag ) {
 function gcmi_wpcf7_add_tag_generator_formsign(): void {
 	if ( class_exists( 'WPCF7_TagGenerator' ) ) {
 		$tag_generator = WPCF7_TagGenerator::get_instance();
-		$tag_generator->add( 'gcmi-formsign', __( 'form digital signature', 'campi-moduli-italiani' ), 'gcmi_wpcf7_tg_pane_formsign' );
+		$tag_generator->add(
+			'gcmi-formsign',
+			__( 'form digital signature', 'campi-moduli-italiani' ),
+			'gcmi_wpcf7_tg_pane_formsign',
+			array(
+				'version'   => 2,
+				'name-attr' => true,
+			) // options.
+		);
 	} elseif ( function_exists( 'wpcf7_add_tag_generator' ) ) {
-		wpcf7_add_tag_generator( 'gcmi-comune', __( 'form digital signature', 'campi-moduli-italiani' ), 'gcmi_wpcf7_tg_pane_formsign', 'gcmi_wpcf7_tg_pane_comune' );
+		wpcf7_add_tag_generator( 'gcmi-formsign', __( 'form digital signature', 'campi-moduli-italiani' ), 'gcmi_wpcf7_tg_pane_formsign', 'gcmi_wpcf7_tg_pane_formsign' );
 	}
 }
 /* Tag generator */
@@ -130,49 +138,48 @@ add_action( 'wpcf7_admin_init', 'gcmi_wpcf7_add_tag_generator_formsign', 104, 0 
  * @return void
  */
 function gcmi_wpcf7_tg_pane_formsign( $contact_form, $args = '' ): void {
-	$args = wp_parse_args( $args, array() );
+	$args        = wp_parse_args( $args, array() );
+	$description = __( 'Adds an hidden field to send a digital signature of the data sent with the form.', 'campi-moduli-italiani' ) . ' ';
+	/* translators: %s: link to plugin page */
+	$description .= __( 'To get more information look at %s.', 'campi-moduli-italiani' );
+	$desc_link    = wpcf7_link( 'https://wordpress.org/plugins/campi-moduli-italiani/', __( 'the plugin page at WordPress.org', 'campi-moduli-italiani' ), array( 'target' => '_blank' ) );
 	?>
+	<header class="description-box">
+		<h3 class="title"><?php echo esc_html__( 'form digital signature', 'campi-moduli-italiani' ); ?></h3>
+		<p><?php printf( esc_html( $description ), $desc_link ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></p>
+	</header>
 	<div class="control-box">
 		<fieldset>
-			<legend>
-			<?php
-			// translators: %s: link to plugin page URL.
-			printf( esc_html__( 'Adds an hidden field to send a digital signature of the data sent with the form.', 'campi-moduli-italiani' ) );
-			?>
-			</legend>
-			<table class="form-table">
-				<tbody>
-					<tr><th scope="row"><label for="<?php echo esc_attr( $args['content'] . '-name' ); ?>"><?php echo esc_html__( 'Name', 'contact-form-7' ); ?></label></th>
-						<td><input type="text" name="name" class="tg-name oneline" id="<?php echo esc_attr( $args['content'] . '-name' ); ?>"></td>
-					</tr>
-					<tr>
-						<th scope="row"><label for="<?php echo esc_attr( $args['content'] . '-id' ); ?>"><?php echo esc_html__( 'Id attribute', 'contact-form-7' ); ?></label></th>
-						<td><input type="text" name="id" class="idvalue oneline option" id="<?php echo esc_attr( $args['content'] . '-id' ); ?>"></td>
-					</tr>
-					<tr>
-						<th scope="row"><label for="<?php echo esc_attr( $args['content'] . '-class' ); ?>"><?php echo esc_html__( 'Class attribute', 'contact-form-7' ); ?></label></th>
-						<td><input type="text" name="class" class="classvalue oneline option" id="<?php echo esc_attr( $args['content'] . '-class' ); ?>"></td>
-					</tr>
-				</tbody>
-			</table>
+			<legend id="tag-generator-panel-formsign-type-legend"><?php echo esc_html__( 'Field type', 'contact-form-7' ); ?></legend>
+			<select data-tag-part="basetype" aria-labelledby="tag-generator-panel-formsign-type-legend"><option value="formsign"><?php echo esc_html__( 'form digital signature', 'campi-moduli-italiani' ); ?></option></select>
 		</fieldset>
-	</div>
-	<div class="insert-box">
-		<input type="text" name="formsign" class="tag code" readonly onfocus="this.select()">
-
-		<div class="submitbox">
-			<input type="button" class="button button-primary insert-tag" value="<?php echo esc_attr( __( 'Insert Tag', 'contact-form-7' ) ); ?>">
+		<fieldset>
+			<legend id="tag-generator-panel-formsign-name-legend"><?php echo esc_html__( 'Name', 'contact-form-7' ); ?></legend>
+			<input type="text" data-tag-part="name" pattern="[A-Za-z][A-Za-z0-9_\-]*" aria-labelledby="tag-generator-panel-formsign-name-legend">
+		</fieldset>
+		<fieldset>
+			<legend id="tag-generator-panel-formsign-id-legend"><?php echo esc_html__( 'Id attribute', 'contact-form-7' ); ?></legend>
+			<input type="text" data-tag-part="option" data-tag-option="id:" aria-labelledby="tag-generator-panel-formsign-id-legend">
+		</fieldset>
+		<fieldset>
+			<legend id="tag-generator-panel-formsign-class-legend"><?php echo esc_html__( 'Class attribute', 'contact-form-7' ); ?></legend>
+			<input type="text" data-tag-part="option" data-tag-option="class:" aria-labelledby="tag-generator-panel-formsign-class-legend">
+		</fieldset>
+	</div><!-- /.control-box -->
+	<footer class="insert-box">
+		<div class="flex-container">
+			<input type="text" class="code" readonly onfocus="this.select()" data-tag-part="tag" aria-label="The form-tag to be inserted into the form template">
+			<button type="button" class="button-primary" data-taggen="insert-tag">
+			<?php echo esc_attr( __( 'Insert Tag', 'contact-form-7' ) ); ?>
+			</button>
 		</div>
-
-		<br class="clear">
-
-		<p class="description mail-tag"><label for="<?php echo esc_attr( $args['content'] . '-mailtag' ); ?>">
+		<p class="mail-tag-tip">
 		<?php
 		// translators: %s is the name of the mail-tag.
-		printf( esc_html__( 'To use the value input through this field in a mail field, you need to insert the corresponding mail-tag (%s) into the field on the Mail tab.', 'contact-form-7' ), '<strong><span class="mail-tag"></span></strong>' );
+		printf( esc_html__( 'To use the user input in the email, insert the corresponding mail-tag %s into the email template.', 'contact-form-7' ), '<strong data-tag-part="mail-tag"></strong>' );
 		?>
-		<input type="text" class="mail-tag code hidden" readonly id="<?php echo esc_attr( $args['content'] . '-mailtag' ); ?>"></label></p>
-	</div>
+		</p>
+	</footer>
 	<?php
 }
 
@@ -450,8 +457,8 @@ function gcmi_flamingo_formsig_meta_box( $post ) {
 	if ( false !== $formid ) {
 		$formid = strval( $formid );
 		?>
-		<p><label for="mail_hash"><?php echo esc_html__( 'Insert/Paste hash from mail', 'campi-moduli-italiani' ); ?></label><input type="text" name="mail_hash" id="gcmi_flamingo_input_hash" minlength="32" maxlength="32"/></p>
-		<p><label><?php echo esc_html__( 'Insert/Paste signature from mail', 'campi-moduli-italiani' ); ?></label><input type="text" name="mail_signature" id="gcmi_flamingo_input_signature"/></p>
+		<p><label for="mail_hash"><?php echo esc_html__( 'Insert/Paste hash from mail', 'campi-moduli-italiani' ); ?></label><input type="text" name="mail_hash" id="gcmi_flamingo_input_hash" minlength="32" maxlength="32"></p>
+		<p><label><?php echo esc_html__( 'Insert/Paste signature from mail', 'campi-moduli-italiani' ); ?></label><input type="text" name="mail_signature" id="gcmi_flamingo_input_signature"></p>
 		<input type="hidden" id="gcmi_flamingo_input_form_ID" value="<?php echo ( esc_html( $formid ) ); ?>">
 		<input type="hidden" id="gcmi_flamingo_calc_hash" value="<?php echo ( esc_html( $hash ) ); ?>">
 		<div class="gcmi-flamingo-response" id="gcmi-flamingo-response"></div>
