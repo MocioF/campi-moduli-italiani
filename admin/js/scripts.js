@@ -1045,12 +1045,13 @@ jQuery(document).ready(function ($) {
      * In linea astratta, un filtro può contenetere fino a circa 10.000
      * elementi (comuni cessati, più comuni attuali).
      * Non sembra che la variabile max_input_vars abbia un effetto su questa
-     * cosa, e comunque il valore impotato di default è 1.000.
+     * cosa, e comunque il valore impostato di default è 1.000.
      * È possibile che la questione riguardi la dimensione massima dell'header
      * HTTP impostato nei server (a seconda dei server, compresa tra 4k e 16k).
      *
-     * Il codice seguente, gestisce questa eventualità con una strategia di
-     * invii multipli dei codici, che verranno poi riassemblati lato server.
+     * Il codice seguente gestisce questa eventualità con una strategia di
+     * invii multipli dei codici dei comuni, che verranno poi riassemblati
+     * lato server.
      *
      * Il meccanismo utilizza chiamate multiple ajax e deferred objects.
      *
