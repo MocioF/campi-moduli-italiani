@@ -780,7 +780,12 @@ class GCMI_Activator {
 	public static function download_file( $remoteurl, $tmp_dwld_dir, $filename ) {
 		global $gcmi_error;
 
-		if ( ! function_exists( 'download_url' ) ) {
+		if ( ! function_exists( 'download_url' ) && file_exists( ABSPATH . '/wp-admin/includes/file.php' ) ) {
+			/**
+			 * This is a wp core file
+			 *
+			 * @phpstan-ignore includeOnce.fileNotFound
+			 */
 			include_once ABSPATH . '/wp-admin/includes/file.php';
 		}
 		$path = wp_parse_url( $remoteurl, PHP_URL_PATH );
@@ -934,7 +939,7 @@ class GCMI_Activator {
 		if ( true === $zip->open( $pathtozip ) ) {
 			for ( $i = 0; $i < $zip->numFiles; $i++ ) {
 				$stat = $zip->statIndex( $i );
-				if ( is_array( $stat ) && array_key_exists( 'name', $stat ) && substr( strtolower( $stat['name'] ), -4 ) === '.csv' ) {
+				if ( is_array( $stat ) && substr( strtolower( $stat['name'] ), -4 ) === '.csv' ) {
 					file_put_contents( $outputdir . '/' . $csv_name, $zip->getFromName( $stat['name'] ) );
 				}
 			}

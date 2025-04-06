@@ -100,7 +100,6 @@ function gcmi_wpcf7_cf_formtag_handler( $tag ) {
 	 * Read:
 	 * https://contactform7.com/2022/05/20/contact-form-7-56-beta/#markup-changes-in-form-controls
 	 */
-	/* @phpstan-ignore-next-line */
 	if ( version_compare( WPCF7_VERSION, '5.6', '>=' ) ) {
 		$html = sprintf(
 			'<span class="wpcf7-form-control-wrap" data-name="%1$s"><input %2$s />%3$s</span>',

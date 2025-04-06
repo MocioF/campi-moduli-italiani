@@ -369,6 +369,11 @@ add_filter(
 );
 
 /* flamingo ADMIN stuff */
+/**
+ * This is a wp core file
+ *
+ * @phpstan-ignore requireOnce.fileNotFound
+ */
 require_once ABSPATH . 'wp-admin/includes/plugin.php';
 if ( is_plugin_active( 'flamingo/flamingo.php' ) && extension_loaded( 'openssl' ) ) {
 	add_action( 'load-flamingo_page_flamingo_inbound', 'gcmi_flamingo_check_sign' );
@@ -450,7 +455,7 @@ function gcmi_flamingo_formsig_meta_box( $post ) {
 		<input type="hidden" id="gcmi_flamingo_input_form_ID" value="<?php echo ( esc_html( $formid ) ); ?>">
 		<input type="hidden" id="gcmi_flamingo_calc_hash" value="<?php echo ( esc_html( $hash ) ); ?>">
 		<div class="gcmi-flamingo-response" id="gcmi-flamingo-response"></div>
-		<p><input type="button" class="button input.submit button-secondary" value="<?php echo esc_html__( 'Check Hash and signature', 'campi-moduli-italiani' ); ?>" id="gcmi_btn_check_sign"></p>	
+		<p><input type="button" class="button input.submit button-secondary" value="<?php echo esc_html__( 'Check Hash and signature', 'campi-moduli-italiani' ); ?>" id="gcmi_btn_check_sign"></p>
 		<?php
 	} else {
 		?>
@@ -488,7 +493,7 @@ function gcmi_get_form_post_id( $post ) {
  */
 function gcmi_ajax_flamingo_meta_box_handler(): void {
 	if ( isset( $_POST['checksignnonce'] ) ) {
-		if ( ! wp_verify_nonce( sanitize_key( $_POST['checksignnonce'] ), 'gcmi_flamingo_check_codes' ) ) {
+		if ( ! wp_verify_nonce( sanitize_key( gcmi_safe_strval( $_POST['checksignnonce'] ) ), 'gcmi_flamingo_check_codes' ) ) {
 			die( 'Permission Denied.' );
 		}
 	} else {

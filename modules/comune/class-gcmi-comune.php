@@ -294,7 +294,7 @@ class GCMI_COMUNE {
 	 *
 	 * @global wpdb $wpdb
 	 * @global WP_Error $gcmi_error
-	 * @return array<int, array<string, string>>.
+	 * @return array<int, array<string, string>>
 	 */
 	public function get_regioni() {
 		global $wpdb;
@@ -416,7 +416,7 @@ class GCMI_COMUNE {
 	/**
 	 * Restituisce gli id dei campi input HTML utilizzati
 	 *
-	 * @param string $idprefix Prefisso utilizzato per gli id dei campi input html.
+	 * @param string|false $idprefix Prefisso utilizzato per gli id dei campi input html.
 	 * @return array<string, string>
 	 */
 	public static function get_ids( $idprefix ) {
@@ -447,9 +447,9 @@ class GCMI_COMUNE {
 	 */
 	public function print_gcmi_province(): void {
 		// phpcs:disable WordPress.Security.NonceVerification.Missing
-		if ( ! empty( sanitize_text_field( wp_unslash( $_POST['codice_regione'] ) ) ) ) {
+		if ( ! empty( sanitize_text_field( gcmi_safe_strval( wp_unslash( $_POST['codice_regione'] ) ) ) ) ) {
 			// phpcs:disable WordPress.Security.NonceVerification.Missing
-			$i_cod_regione = sanitize_text_field( wp_unslash( $_POST['codice_regione'] ) );
+			$i_cod_regione = sanitize_text_field( gcmi_safe_strval( wp_unslash( $_POST['codice_regione'] ) ) );
 			if ( false === $this->is_valid_cod_regione( $i_cod_regione ) ) {
 				return;
 			}
@@ -619,8 +619,8 @@ class GCMI_COMUNE {
 	 */
 	public function print_gcmi_comuni() {
 		// phpcs:disable WordPress.Security.NonceVerification.Missing
-		if ( ! empty( sanitize_text_field( wp_unslash( $_POST['codice_provincia'] ) ) ) ) {
-			$i_cod_unita_territoriale = sanitize_text_field( wp_unslash( $_POST['codice_provincia'] ) );
+		if ( ! empty( sanitize_text_field( gcmi_safe_strval( wp_unslash( $_POST['codice_provincia'] ) ) ) ) ) {
+			$i_cod_unita_territoriale = sanitize_text_field( gcmi_safe_strval( wp_unslash( $_POST['codice_provincia'] ) ) );
 			if ( false === $this->is_valid_cod_provincia( $i_cod_unita_territoriale ) ) {
 				return;
 			}
@@ -760,8 +760,8 @@ class GCMI_COMUNE {
 	public function print_gcmi_targa() {
 		global $wpdb;
 
-		if ( ! empty( sanitize_text_field( wp_unslash( $_POST['codice_comune'] ) ) ) ) {
-			$i_cod_comune = sanitize_text_field( wp_unslash( $_POST['codice_comune'] ) );
+		if ( ! empty( sanitize_text_field( gcmi_safe_strval( wp_unslash( $_POST['codice_comune'] ) ) ) ) ) {
+			$i_cod_comune = sanitize_text_field( gcmi_safe_strval( wp_unslash( $_POST['codice_comune'] ) ) );
 			if ( false === $this->is_valid_cod_comune( $i_cod_comune ) ) {
 				return;
 			}
@@ -944,8 +944,8 @@ class GCMI_COMUNE {
 	 * @return void
 	 */
 	public function print_gcmi_comune_info() {
-		if ( ! empty( sanitize_text_field( wp_unslash( $_POST['codice_comune'] ) ) ) ) {
-			$i_cod_comune = sanitize_text_field( wp_unslash( $_POST['codice_comune'] ) );
+		if ( ! empty( sanitize_text_field( gcmi_safe_strval( wp_unslash( $_POST['codice_comune'] ) ) ) ) ) {
+			$i_cod_comune = sanitize_text_field( gcmi_safe_strval( wp_unslash( $_POST['codice_comune'] ) ) );
 			if ( false === $this->is_valid_cod_comune( $i_cod_comune ) ) {
 				return;
 			}

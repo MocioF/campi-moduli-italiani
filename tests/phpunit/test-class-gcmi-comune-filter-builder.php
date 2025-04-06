@@ -383,6 +383,7 @@ final class GCMI_Comune_Filter_BuilderTest extends WP_Ajax_UnitTestCase {
 	 */
 	function test_ajax_create_filters_multi( $input, $expectedResult ) {
 		$this->_setRole( 'administrator' );
+		$_SERVER['REQUEST_METHOD'] = 'POST';
 		$_POST['_ajax_nonce'] = wp_create_nonce( 'gcmi_fb_nonce' );
 		if ( array_key_exists( 'filtername', $input ) ) {
 			$_POST['filtername'] = $input['filtername'];

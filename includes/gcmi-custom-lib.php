@@ -89,6 +89,9 @@ function gcmi_is_list_pr_array( $value ): bool {
 		) {
 			return false;
 		}
+		if ( ! is_object( $element ) ) {
+			return false;
+		}
 		if (
 			! ( property_exists( $element, 'i_cod_regione' ) && is_string( $element->i_cod_regione ) ) ||
 			! ( property_exists( $element, 'i_den_regione' ) && is_string( $element->i_den_regione ) ) ||

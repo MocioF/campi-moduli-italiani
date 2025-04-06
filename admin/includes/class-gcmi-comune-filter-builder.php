@@ -87,7 +87,7 @@ class GCMI_Comune_Filter_Builder {
 	public static function ajax_get_tabs_html(): void {
 		check_ajax_referer( 'gcmi_fb_nonce' );
 
-		if ( array_key_exists( 'includi', $_POST ) ) {
+		if ( array_key_exists( 'includi', $_POST ) && is_string( $_POST['includi'] ) ) {
 			$includi = sanitize_text_field( wp_unslash( $_POST['includi'] ) );
 			if ( 'true' === $includi || 'false' === $includi ) {
 				$includi_cessati = $includi;
@@ -657,9 +657,9 @@ class GCMI_Comune_Filter_Builder {
 		if ( $error->has_errors() ) {
 			wp_send_json_error( $error, 422 );
 		}
-		$sanitized_name = self::sanitize_table_name( sanitize_key( wp_unslash( $_POST['filtername'] ) ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotValidated
+		$sanitized_name = self::sanitize_table_name( sanitize_key( gcmi_safe_strval( wp_unslash( $_POST['filtername'] ) ) ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotValidated
 		$codici         = $_POST['codici']; // phpcs:ignore
-		if ( false !== $sanitized_name ) {
+		if ( false !== $sanitized_name && gcmi_is_one_dimensional_string_array( $codici ) ) {
 			self::save_filter( $sanitized_name, $codici );
 		}
 	}
@@ -673,22 +673,26 @@ class GCMI_Comune_Filter_Builder {
 	 * @return void
 	 */
 	public static function ajax_create_filters_multi(): void {
+		if ( ! ( isset( $_SERVER['REQUEST_METHOD'] ) && 'POST' === $_SERVER['REQUEST_METHOD'] ) ) {
+			wp_die( 'Method not allowed', 405 );
+		}
+
 		check_ajax_referer( 'gcmi_fb_nonce' );
 		$error = self::check_filter_creation_fields_multi( $_POST );
 		if ( $error->has_errors() ) {
 			wp_send_json_error( $error, 422 );
 		}
 		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotValidated
-		$total_slices = gcmi_safe_intval( sanitize_text_field( wp_unslash( $_POST['total'] ) ) );
+		$total_slices = gcmi_safe_intval( sanitize_text_field( gcmi_safe_strval( wp_unslash( $_POST['total'] ) ) ) );
 		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotValidated
-		$total_codici = gcmi_safe_intval( sanitize_text_field( wp_unslash( $_POST['count'] ) ) );
+		$total_codici = gcmi_safe_intval( sanitize_text_field( gcmi_safe_strval( wp_unslash( $_POST['count'] ) ) ) );
 		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotValidated
-		$sanitized_name = self::sanitize_table_name( sanitize_key( wp_unslash( $_POST['filtername'] ) ) );
+		$sanitized_name = self::sanitize_table_name( sanitize_key( gcmi_safe_strval( wp_unslash( $_POST['filtername'] ) ) ) );
 		$codici         = array();
 
 		for ( $i = 0; $i < $total_slices; $i++ ) {
 			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotValidated
-			$option_name  = 'gcmi-fb-com-' . $sanitized_name . '-' . strval( $i + 1 ) . '_' . sanitize_text_field( wp_unslash( $_POST['total'] ) );
+			$option_name  = 'gcmi-fb-com-' . $sanitized_name . '-' . strval( $i + 1 ) . '_' . sanitize_text_field( gcmi_safe_strval( wp_unslash( $_POST['total'] ) ) );
 			$option_value = get_option( $option_name, false );
 			if ( false === $option_value ) {
 				$error->add( '-12', esc_html__( 'Request to store the partial filter was refused', 'campi-moduli-italiani' ) );
@@ -716,6 +720,7 @@ class GCMI_Comune_Filter_Builder {
 					wp_send_json_error( $error, 422 );
 				}
 			}
+			$codici = array_map( 'gcmi_safe_strval', $codici );
 			self::save_filter( $sanitized_name, $codici );
 		}
 	}
@@ -762,7 +767,6 @@ class GCMI_Comune_Filter_Builder {
 		$error        = self::check_filter_creation_common_fields( $posted );
 		$error_string = esc_html__( 'Received an incomplete request to create a filter.', 'campi-moduli-italiani' );
 		if (
-			! is_array( $posted ) ||
 			! array_key_exists( 'total', $posted ) ||
 			! array_key_exists( 'count', $posted )
 		) {
@@ -794,21 +798,25 @@ class GCMI_Comune_Filter_Builder {
 			wp_send_json_error( $error, 422 );
 		}
 		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotValidated
-		$response = sanitize_text_field( wp_unslash( $_POST['slice'] ) ) . '_' . sanitize_text_field( wp_unslash( $_POST['total'] ) );
+		$response = sanitize_text_field( gcmi_safe_strval( wp_unslash( $_POST['slice'] ) ) ) . '_' . sanitize_text_field( gcmi_safe_strval( wp_unslash( $_POST['total'] ) ) );
 		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotValidated
-		$filtername  = self::sanitize_table_name( sanitize_key( wp_unslash( $_POST['filtername'] ) ) );
+		$filtername  = self::sanitize_table_name( sanitize_key( gcmi_safe_strval( wp_unslash( $_POST['filtername'] ) ) ) );
 		$option_name = 'gcmi-fb-com-' . $filtername . '-' . $response;
+		if ( ! gcmi_is_one_dimensional_string_array( $_POST['codici'] ) ) {
+			$error->add( '-10', esc_html__( 'Received an invalid slice of codes.', 'campi-moduli-italiani' ) );
+			wp_send_json_error( $error, 422 );
+		}
 
 		$option_value = array(
 			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotValidated
-			'includi'    => strval( sanitize_text_field( wp_unslash( $_POST['includi'] ) ) ),
+			'includi'    => strval( sanitize_text_field( gcmi_safe_strval( wp_unslash( $_POST['includi'] ) ) ) ),
 			'filtername' => $filtername,
 			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotValidated
 			'codici'     => array_map( 'sanitize_text_field', wp_unslash( $_POST['codici'] ) ),
 			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotValidated
-			'total'      => gcmi_safe_intval( sanitize_text_field( wp_unslash( $_POST['total'] ) ) ),
+			'total'      => gcmi_safe_intval( sanitize_text_field( gcmi_safe_strval( wp_unslash( $_POST['total'] ) ) ) ),
 			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotValidated
-			'slice'      => gcmi_safe_intval( sanitize_text_field( wp_unslash( $_POST['slice'] ) ) ),
+			'slice'      => gcmi_safe_intval( sanitize_text_field( gcmi_safe_strval( wp_unslash( $_POST['slice'] ) ) ) ),
 		);
 
 		$option  = update_option( $option_name, $option_value, false );
@@ -880,7 +888,6 @@ class GCMI_Comune_Filter_Builder {
 		$error = new WP_Error();
 
 		if (
-			! is_array( $posted ) ||
 			! array_key_exists( 'filtername', $posted ) ||
 			! array_key_exists( 'includi', $posted )
 		) {
@@ -913,7 +920,6 @@ class GCMI_Comune_Filter_Builder {
 	private static function check_filter_creation_codici( $posted ) {
 		$error = new WP_Error();
 		if (
-			! is_array( $posted ) ||
 			! array_key_exists( 'codici', $posted ) ||
 			! is_array( $posted['codici'] )
 		) {
@@ -1245,7 +1251,7 @@ class GCMI_Comune_Filter_Builder {
 			);
 		}
 
-		$filter_name = sanitize_key( wp_unslash( $_POST['filtername'] ) );
+		$filter_name = sanitize_key( gcmi_safe_strval( wp_unslash( $_POST['filtername'] ) ) );
 
 		$delete = self::delete_filter( $filter_name );
 		if ( true === $delete ) {
@@ -1289,7 +1295,7 @@ class GCMI_Comune_Filter_Builder {
 	 */
 	protected static function sanitize_table_name( $name = '' ) {
 		// Bail if empty or not a string.
-		if ( empty( $name ) || ! is_string( $name ) ) {
+		if ( empty( $name ) ) {
 			return false;
 		}
 		$unspace = trim( $name ); // Trim spaces off the ends.

@@ -14,7 +14,15 @@
  * It returns the Istat Country code (useful to check italian fiscal code for people born outside Italy)
  *
  * @link https://wordpress.org/plugins/campi-moduli-italiani/
- *
+ * @phpstan-type T_container array{'attr': T_attr, 'class'?: array{int: string}, 'data': array{int: string}, 'id': string}
+ * @phpstan-type T_attr array{'name': string, 'value': string, 'style'?: string, 'readonly'?: string, 'aria-errormessage'?: string}
+ * @phpstan-type T_input array{'container': T_container, 'label': array{'id': string, 'text': string}, 'attr': T_attr, 'class': array{int: string}, 'data': array{'id': string, 'text': string}, 'id': string, 'required'?: string, 'default'?: bool }
+ * @phpstan-type T_label array{'attr': T_attr, 'class': array{int: string}, 'data': array{int: string}, 'disabled': bool, 'hidden': bool, 'id': string, 'required': bool, 'value': string}
+ * @phpstan-type T_wpforms_field_stato array{'id': string, 'type': string, 'label': string, 'description': string, 'size': string, 'style': string, 'required': bool, 'multiple'?: string, 'placeholder'?: string, 'properties': array{'container': T_container, 'input_container': T_container, 'label': T_label, 'inputs': array{int: T_input}}}
+ * @phpstan-type T_wpforms_field_ajax_error array{ 'attr': array{ 'for': string }, 'class': array{ 'wpforms-error': string }, 'data': array{ int: string }, 'id': string, 'value': string }
+ * @phpstan-type T_wpforms_field_ajax_error_description array{ 'attr': T_attr, 'class': string, 'data': array{ int: string }, 'id': string, 'position': string, 'value': string }
+ * @phpstan-type T_wpforms_field_properties array{ 'container': T_container, 'label': T_label, 'inputs'?: string | array{ 'primary': array{ 'attr': array{ 'name': string, 'value': string, 'placeholder': string }, 'class': array{ int: string }, 'data': array{ int: string }, 'id': string, 'required': string }, error: T_wpforms_field_ajax_error, description: T_wpforms_field_ajax_error_description }}
+
  * @package campi-moduli-italiani
  * @subpackage campi-moduli-italiani/modules/stato
  * @since 2.0.0
@@ -160,8 +168,10 @@ class GCMI_WPForms_Field_Stato extends WPForms_Field {
 						);
 					}
 					if ( isset( $field['default_value'] ) && ( '' !== $field['default_value'] ) ) {
-						if ( sanitize_text_field( strval( $field['default_value'] ) ) === stripslashes( $stato->i_denominazione_ita ) ||
-							sanitize_text_field( strval( $field['default_value'] ) ) === $stato->i_cod_istat ) {
+						if (
+							sanitize_text_field( strval( $field['default_value'] ) ) === stripslashes( $stato->i_denominazione_ita ) ||
+							sanitize_text_field( strval( $field['default_value'] ) ) === $stato->i_cod_istat
+						) {
 							$key                        = array_key_last( $choices );
 							$choices[ $key ]['default'] = 'default';
 						}
@@ -176,8 +186,10 @@ class GCMI_WPForms_Field_Stato extends WPForms_Field {
 					'image' => '',
 				);
 				if ( isset( $field['default_value'] ) && ( '' !== $field['default_value'] ) ) {
-					if ( sanitize_text_field( strval( $field['default_value'] ) ) === stripslashes( $stato->i_denominazione_ita ) ||
-						sanitize_text_field( strval( $field['default_value'] ) ) === $stato->i_cod_istat ) {
+					if (
+						sanitize_text_field( strval( $field['default_value'] ) ) === stripslashes( $stato->i_denominazione_ita ) ||
+						sanitize_text_field( strval( $field['default_value'] ) ) === $stato->i_cod_istat
+					) {
 						$key                        = array_key_last( $choices );
 						$choices[ $key ]['default'] = 'default';
 					}
@@ -512,41 +524,25 @@ class GCMI_WPForms_Field_Stato extends WPForms_Field {
 	 *
 	 * @since 2.0.0
 	 *
-	 * @param array<mixed> $field      Field data and settings.
-	 * @param array<mixed> $deprecated Deprecated array of field attributes.
-	 * @param array<mixed> $form_data  Form data and settings.
+	 * @param T_wpforms_field_stato $field      Field data and settings.
+	 * @param array<mixed>          $deprecated Deprecated array of field attributes.
+	 * @param array<mixed>          $form_data  Form data and settings.
 	 */
 	public function field_display( $field, $deprecated, $form_data ): void {
-		if ( is_array( $field['properties'] ) && array_key_exists( 'input_container', $field['properties'] ) ) {
-			$container = $field['properties']['input_container'];
-		} else {
-			return;
-		}
+		$container         = $field['properties']['input_container'];
 		$field_placeholder = ! empty( $field['placeholder'] ) ? $field['placeholder'] : '';
 		$is_multiple       = false;
 		$is_modern         = ! empty( $field['style'] ) && self::STYLE_MODERN === $field['style'];
 
-		$use_continent = ! empty( $field['use_continent'] ) ? esc_attr( $field['use_continent'] ) : false;
-		$only_current  = ! empty( $field['only_current'] ) ? esc_attr( $field['only_current'] ) : false;
-		$return_values = ! empty( $field['return_values'] ) ? esc_attr( $field['return_values'] ) : true;
-
 		$choices = $field['properties']['inputs'];
 
 		if ( ! empty( $field['required'] ) ) {
-			if (
-				is_array( $container ) &&
-				array_key_exists( 'attr', $container ) &&
-				is_array( $container['attr'] ) &&
-				array_key_exists( 'required', $container['attr'] )
-			) {
-				$container['attr']['required'] = 'required';
-			}
+			$container['attr']['required'] = 'required';
 		}
 
 		// Add a class for Choices.js initialization.
 		if ( $is_modern ) {
 			if (
-				is_array( $container ) &&
 				array_key_exists( 'class', $container )
 			) {
 				$container['class'][] = 'choicesjs-select';
@@ -564,7 +560,7 @@ class GCMI_WPForms_Field_Stato extends WPForms_Field {
 
 		// Check to see if any of the options were selected by default.
 		foreach ( $choices as $choice ) {
-			if ( ! empty( $choice['default'] ) ) {
+			if ( array_key_exists( 'default', $choice ) && ! empty( $choice['default'] ) ) {
 				$has_default = true;
 				break;
 			}
@@ -573,10 +569,13 @@ class GCMI_WPForms_Field_Stato extends WPForms_Field {
 		// Fake placeholder for Modern style.
 		if ( $is_modern && empty( $field_placeholder ) ) {
 			$first_choices     = reset( $choices );
-			$field_placeholder = $first_choices['label']['text'];
+			$field_placeholder = ! empty( $first_choices['label']['text'] ) ? $first_choices['label']['text'] : '';
 		}
 
 		// Preselect default if no other choices were marked as default.
+		if ( ! array_key_exists( 'class', $container ) ) {
+			$container['class'] = array();
+		}
 		printf(
 			'<select %s>',
 			wpforms_html_attributes( $container['id'], $container['class'], $container['data'], $container['attr'] ) // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
@@ -595,7 +594,7 @@ class GCMI_WPForms_Field_Stato extends WPForms_Field {
 
 		$opt_tag_open = false;
 
-		foreach ( $choices as $key => $choice ) {
+		foreach ( $choices as $choice ) {
 			if ( '' === $choice['attr']['value'] ) {
 				if ( false === $opt_tag_open ) {
 					printf( '<optgroup label="%s">', esc_html( $choice['label']['text'] ) );
@@ -633,11 +632,13 @@ class GCMI_WPForms_Field_Stato extends WPForms_Field {
 	public function gcmi_wpf_stato_modify_email_value( $fields, $entry, $form_data ): void {
 		global $wpdb;
 		foreach ( $fields as $key => $field ) {
-			if ( is_array( $field ) &&
+			if (
+				is_array( $field ) &&
 				array_key_exists( 'type', $field ) &&
 				$this->type === $field['type']
 			) {
-				if ( array_key_exists( 'value', $field ) &&
+				if (
+					array_key_exists( 'value', $field ) &&
 					'' !== $field['value'] &&
 					is_numeric( $field['value'] )
 				) {
@@ -647,11 +648,11 @@ class GCMI_WPForms_Field_Stato extends WPForms_Field {
 						$stato = $wpdb->get_row(
 							$wpdb->prepare(
 								'SELECT `i_denominazione_ita` FROM ' .
-								'( ' .
-								'SELECT `i_cod_istat`, `i_denominazione_ita` FROM `%1$s` ' .
-								'SELECT `i_cod_istat`, `i_denominazione_ita` FROM `%2$s` ' .
-								') as subQuery ' .
-								'WHERE `i_cod_istat` = \'%3$s\' LIMIT 1',
+									'( ' .
+									'SELECT `i_cod_istat`, `i_denominazione_ita` FROM `%1$s` ' .
+									'SELECT `i_cod_istat`, `i_denominazione_ita` FROM `%2$s` ' .
+									') as subQuery ' .
+									'WHERE `i_cod_istat` = \'%3$s\' LIMIT 1',
 								GCMI_SVIEW_PREFIX . 'stati',
 								GCMI_SVIEW_PREFIX . 'stati_cessati',
 								$field['value']
@@ -676,7 +677,8 @@ class GCMI_WPForms_Field_Stato extends WPForms_Field {
 	 * @return string
 	 */
 	public function gcmi_wpf_country_add_class_select( $new_class, $field ) {
-		if ( array_key_exists( 'type', $field ) &&
+		if (
+			array_key_exists( 'type', $field ) &&
 			'country' === $field['type']
 		) {
 			$new_class .= ' wpforms-field-select';
@@ -694,7 +696,8 @@ class GCMI_WPForms_Field_Stato extends WPForms_Field {
 	 * @return string
 	 */
 	public function gcmi_wpf_country_preview_class_select( $css, $field ) {
-		if ( array_key_exists( 'type', $field ) &&
+		if (
+			array_key_exists( 'type', $field ) &&
 			'country' === $field['type']
 		) {
 			$css .= ' wpforms-field-select';
@@ -711,7 +714,8 @@ class GCMI_WPForms_Field_Stato extends WPForms_Field {
 	 * @return array<mixed>
 	 */
 	public function gcmi_wpf_country_apply_default( $field ) {
-		if ( array_key_exists( 'type', $field ) &&
+		if (
+			array_key_exists( 'type', $field ) &&
 			'country' === $field['type']
 		) {
 			$field['use_continent'] = true;
@@ -719,7 +723,7 @@ class GCMI_WPForms_Field_Stato extends WPForms_Field {
 			$field['show_values']   = true;
 			$field['placeholder']   = __( 'Select a Country', 'campi-moduli-italiani' );
 		}
-			return $field;
+		return $field;
 	}
 
 	/**
@@ -825,15 +829,15 @@ class GCMI_WPForms_Field_Stato extends WPForms_Field {
 	 *
 	 * @since 2.0.0
 	 *
-	 * @param string       $name  Field name for error triggered.
-	 * @param array<mixed> $field Field settings.
-	 * @param array<mixed> $props List of properties.
-	 * @param string       $error Error message.
+	 * @param string                     $name  Field name for error triggered.
+	 * @param T_wpforms_field_stato      $field Field settings.
+	 * @param T_wpforms_field_properties $props List of properties.
+	 * @param string                     $error Error message.
 	 *
 	 * @return string
 	 */
 	public function ajax_error_field_name( $name, $field, $props, $error ) {
-		if ( ! isset( $field['type'] ) || 'select' !== $field['type'] ) {
+		if ( 'select' !== $field['type'] ) {
 			return $name;
 		}
 		if ( ! empty( $field['multiple'] ) ) {

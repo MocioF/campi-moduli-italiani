@@ -70,13 +70,15 @@ class GCMI_CF_WPCF7_FormTag {
 			 * Calcolo la prima parte del codice fiscale e la confronto con i primi tre caratteri del CF.
 			 * CODICE PER IL COGNOME (consonanti n°1-2-3 + eventuali vocali)
 			 */
-			$campo_cognome = sanitize_text_field( wp_unslash( $_POST[ $name . '-surname-field' ] ) );
+			$campo_cognome = sanitize_text_field( gcmi_safe_strval( wp_unslash( $_POST[ $name . '-surname-field' ] ) ) );
 			$parte_cognome = '';
 			if ( isset( $_POST[ $campo_cognome ] ) ) {
 				$cognome = strtoupper(
 					sanitize_text_field(
-						wp_unslash(
-							$_POST[ $campo_cognome ]
+						gcmi_safe_strval(
+							wp_unslash(
+								$_POST[ $campo_cognome ]
+							)
 						)
 					)
 				);
@@ -130,13 +132,15 @@ class GCMI_CF_WPCF7_FormTag {
 	private static function cf_validate_name( $name, $cfstring ) {
 		if ( isset( $_POST[ $name . '-name-field' ] ) ) {
 			// CODICE PER IL NOME (consonanti n°1-3-4, oppure 1-2-3 se sono 3; se sono meno di 3: vocali).
-			$campo_nome = sanitize_text_field( wp_unslash( $_POST[ $name . '-name-field' ] ) );
+			$campo_nome = sanitize_text_field( gcmi_safe_strval( wp_unslash( $_POST[ $name . '-name-field' ] ) ) );
 			$parte_nome = '';
 			if ( isset( $_POST[ $campo_nome ] ) ) {
 				$nome = strtoupper(
 					sanitize_text_field(
-						wp_unslash(
-							$_POST[ $campo_nome ]
+						gcmi_safe_strval(
+							wp_unslash(
+								$_POST[ $campo_nome ]
+							)
 						)
 					)
 				);
@@ -185,12 +189,14 @@ class GCMI_CF_WPCF7_FormTag {
 	 */
 	private static function cf_validate_gender( $name, $gender ) {
 		if ( isset( $_POST[ $name . '-gender-field' ] ) ) {
-			$campo_gender = sanitize_text_field( wp_unslash( $_POST[ $name . '-gender-field' ] ) );
+			$campo_gender = sanitize_text_field( gcmi_safe_strval( wp_unslash( $_POST[ $name . '-gender-field' ] ) ) );
 			if ( isset( $_POST[ $campo_gender ] ) ) {
 				$posted_gender = strtoupper(
 					sanitize_text_field(
-						wp_unslash(
-							$_POST[ $campo_gender ]
+						gcmi_safe_strval(
+							wp_unslash(
+								$_POST[ $campo_gender ]
+							)
 						)
 					)
 				);
@@ -245,12 +251,14 @@ class GCMI_CF_WPCF7_FormTag {
 		 * devo annullare le prime due cifre, perche' il codice fiscale non tiene conto del secolo
 		 */
 		if ( isset( $_POST[ $name . '-birthdate-field' ] ) ) {
-			$campo_nascita = sanitize_text_field( wp_unslash( $_POST[ $name . '-birthdate-field' ] ) );
+			$campo_nascita = sanitize_text_field( gcmi_safe_strval( wp_unslash( $_POST[ $name . '-birthdate-field' ] ) ) );
 			if ( isset( $_POST[ $campo_nascita ] ) ) {
 				$posted_date = strtoupper(
 					sanitize_text_field(
-						wp_unslash(
-							$_POST[ $campo_nascita ]
+						gcmi_safe_strval(
+							wp_unslash(
+								$_POST[ $campo_nascita ]
+							)
 						)
 					)
 				);
@@ -278,12 +286,14 @@ class GCMI_CF_WPCF7_FormTag {
 	 */
 	private static function cf_validate_birthyear( $name, $aa ) {
 		if ( isset( $_POST[ $name . '-birthyear-field' ] ) ) {
-			$campo_anno = sanitize_text_field( wp_unslash( $_POST[ $name . '-birthyear-field' ] ) );
+			$campo_anno = sanitize_text_field( gcmi_safe_strval( wp_unslash( $_POST[ $name . '-birthyear-field' ] ) ) );
 			if ( isset( $_POST[ $campo_anno ] ) ) {
 				$posted_year = strtoupper(
 					sanitize_text_field(
-						wp_unslash(
-							$_POST[ $campo_anno ]
+						gcmi_safe_strval(
+							wp_unslash(
+								$_POST[ $campo_anno ]
+							)
 						)
 					)
 				);
@@ -311,12 +321,14 @@ class GCMI_CF_WPCF7_FormTag {
 	 */
 	private static function cf_validate_birthmonth( $name, $mm ) {
 		if ( isset( $_POST[ $name . '-birthmonth-field' ] ) ) {
-			$campo_mese = sanitize_text_field( wp_unslash( $_POST[ $name . '-birthmonth-field' ] ) );
+			$campo_mese = sanitize_text_field( gcmi_safe_strval( wp_unslash( $_POST[ $name . '-birthmonth-field' ] ) ) );
 			if ( isset( $_POST[ $campo_mese ] ) ) {
 				$posted_month = strtoupper(
 					sanitize_text_field(
-						wp_unslash(
-							$_POST[ $campo_mese ]
+						gcmi_safe_strval(
+							wp_unslash(
+								$_POST[ $campo_mese ]
+							)
 						)
 					)
 				);
@@ -344,12 +356,14 @@ class GCMI_CF_WPCF7_FormTag {
 	 */
 	private static function cf_validate_birthday( $name, $gg ) {
 		if ( isset( $_POST[ $name . '-birthday-field' ] ) ) {
-			$campo_giorno = sanitize_text_field( wp_unslash( $_POST[ $name . '-birthday-field' ] ) );
+			$campo_giorno = sanitize_text_field( gcmi_safe_strval( wp_unslash( $_POST[ $name . '-birthday-field' ] ) ) );
 			if ( isset( $_POST[ $campo_giorno ] ) ) {
 				$posted_day = strtoupper(
 					sanitize_text_field(
-						wp_unslash(
-							$_POST[ $campo_giorno ]
+						gcmi_safe_strval(
+							wp_unslash(
+								$_POST[ $campo_giorno ]
+							)
 						)
 					)
 				);
@@ -379,12 +393,14 @@ class GCMI_CF_WPCF7_FormTag {
 	private static function cf_validate_birthnation( $name, $luogo ) {
 		global $wpdb;
 		if ( isset( $_POST[ $name . '-birthnation-field' ] ) ) {
-			$campo_stato = sanitize_text_field( wp_unslash( $_POST[ $name . '-birthnation-field' ] ) );
+			$campo_stato = sanitize_text_field( gcmi_safe_strval( wp_unslash( $_POST[ $name . '-birthnation-field' ] ) ) );
 			if ( isset( $_POST[ $campo_stato ] ) ) {
 				$codice_stato = strtoupper(
 					sanitize_text_field(
-						wp_unslash(
-							$_POST[ $campo_stato ]
+						gcmi_safe_strval(
+							wp_unslash(
+								$_POST[ $campo_stato ]
+							)
 						)
 					)
 				);
@@ -445,12 +461,14 @@ class GCMI_CF_WPCF7_FormTag {
 	private static function cf_validate_birthmunicipality( $name, $luogo ) {
 		global $wpdb;
 		if ( isset( $_POST[ $name . '-birthmunicipality-field' ] ) ) {
-			$campo_comune = sanitize_text_field( wp_unslash( $_POST[ $name . '-birthmunicipality-field' ] ) );
+			$campo_comune = sanitize_text_field( gcmi_safe_strval( wp_unslash( $_POST[ $name . '-birthmunicipality-field' ] ) ) );
 			if ( isset( $_POST[ $campo_comune ] ) ) {
 				$cod_comune = strtoupper(
 					sanitize_text_field(
-						wp_unslash(
-							$_POST[ $campo_comune ]
+						gcmi_safe_strval(
+							wp_unslash(
+								$_POST[ $campo_comune ]
+							)
 						)
 					)
 				);
@@ -543,7 +561,7 @@ class GCMI_CF_WPCF7_FormTag {
 		$name = $tag->name;
 		if ( $name ) {
 			$is_required = $tag->is_required();
-			$value       = isset( $_POST[ $name ] ) ? sanitize_text_field( wp_unslash( $_POST[ $name ] ) ) : '';
+			$value       = isset( $_POST[ $name ] ) ? sanitize_text_field( gcmi_safe_strval( wp_unslash( $_POST[ $name ] ) ) ) : '';
 			if ( $is_required && empty( $value ) ) {
 				$result->invalidate( $tag, wpcf7_get_message( 'invalid_required' ) );
 				return $result;

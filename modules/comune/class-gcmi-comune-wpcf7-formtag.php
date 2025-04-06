@@ -32,7 +32,7 @@ class GCMI_COMUNE_WPCF7_FormTag extends GCMI_COMUNE {
 	/**
 	 * Tag attributes
 	 *
-	 * @var array<string> Tag attributes.
+	 * @var array{'class': string|bool, 'aria-invalid': string, 'aria-required'?: string, 'id': false|string} Tag attributes.
 	 * @access private
 	 */
 	private $atts;
@@ -83,7 +83,7 @@ class GCMI_COMUNE_WPCF7_FormTag extends GCMI_COMUNE {
 	 * Class constructor
 	 *
 	 * @param string                                                                                                                                     $name HTML name attribute.
-	 * @param array<string>                                                                                                                              $atts form-tag attributes.
+	 * @param array{'class': string|bool, 'aria-invalid': string, 'aria-required'?: string, 'id': false|string}                                          $atts form-tag attributes.
 	 * @param array{'wr_class'?: array<string>, 'comu_details': boolean, 'use_label_element': boolean, 'kind': string|false, 'filtername': string|false} $options form-tag options.
 	 * @param string                                                                                                                                     $validation_error The validation error showed.
 	 * @param string                                                                                                                                     $preset_value The ISTAT municipality code set as selected.
@@ -97,8 +97,7 @@ class GCMI_COMUNE_WPCF7_FormTag extends GCMI_COMUNE {
 		$this->use_label_element = $options['use_label_element'];
 		$this->validation_error  = $validation_error;
 		$this->wr_class          = '';
-
-		if ( array_key_exists( 'wr_class', $options ) && is_array( $options['wr_class'] ) ) {
+		if ( array_key_exists( 'wr_class', $options ) ) {
 			$sanitized_classes = array_map( 'sanitize_html_class', $options['wr_class'] );
 			$this->wr_class    = ' ';
 			$this->wr_class   .= implode( ' ', $sanitized_classes );
@@ -192,7 +191,6 @@ class GCMI_COMUNE_WPCF7_FormTag extends GCMI_COMUNE {
 		 * Read:
 		 * https://contactform7.com/2022/05/20/contact-form-7-56-beta/#markup-changes-in-form-controls
 		 */
-		/* @phpstan-ignore-next-line */
 		if ( version_compare( WPCF7_VERSION, '5.6', '>=' ) ) {
 			$html = '<span class="wpcf7-form-control-wrap" data-name="' . $this->name . '">';
 		} else {
@@ -247,7 +245,7 @@ class GCMI_COMUNE_WPCF7_FormTag extends GCMI_COMUNE {
 				// phpcs:ignore WordPress.Security.NonceVerification.Missing
 				if ( isset( $_POST[ $nome_campo_formattato ] ) ) {
 					// phpcs:ignore WordPress.Security.NonceVerification.Missing
-					$replaced = sanitize_text_field( wp_unslash( $_POST[ $nome_campo_formattato ] ) );
+					$replaced = sanitize_text_field( gcmi_safe_strval( wp_unslash( $_POST[ $nome_campo_formattato ] ) ) );
 				} else {
 					$replaced = '';
 				}
@@ -264,7 +262,7 @@ class GCMI_COMUNE_WPCF7_FormTag extends GCMI_COMUNE {
 				// phpcs:ignore WordPress.Security.NonceVerification.Missing
 				if ( isset( $_POST[ $nome_campo_formattato ] ) ) {
 					// phpcs:ignore WordPress.Security.NonceVerification.Missing
-					$replaced = sanitize_text_field( wp_unslash( $_POST[ $nome_campo_formattato ] ) );
+					$replaced = sanitize_text_field( gcmi_safe_strval( wp_unslash( $_POST[ $nome_campo_formattato ] ) ) );
 				} else {
 					$replaced = '';
 				}

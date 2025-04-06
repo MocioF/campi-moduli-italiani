@@ -165,7 +165,6 @@ function gcmi_wpcf7_stato_formtag_handler( $tag ) {
 	 * Read:
 	 * https://contactform7.com/2022/05/20/contact-form-7-56-beta/#markup-changes-in-form-controls
 	 */
-	/* @phpstan-ignore-next-line */
 	if ( version_compare( WPCF7_VERSION, '5.6', '>=' ) ) {
 		$html = sprintf(
 			'<span class="wpcf7-form-control-wrap" data-name="%1$s"><select %2$s>%3$s</select>%4$s</span>',
@@ -412,7 +411,7 @@ function gcmi_wpcf7_tg_pane_stato( $contact_form, $args = '' ): void {
 					<td>
 						<fieldset>
 						<legend class="screen-reader-text"><?php echo esc_html__( 'Options', 'contact-form-7' ); ?></legend>
-						<label><input type="checkbox" name="first_as_label" class="option" /> 
+						<label><input type="checkbox" name="first_as_label" class="option" />
 						<?php
 						echo esc_html__( 'Add a first element as label saying: ', 'campi-moduli-italiani' );
 						echo esc_html__( 'Select a Country', 'campi-moduli-italiani' );

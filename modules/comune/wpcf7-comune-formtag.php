@@ -1,6 +1,6 @@
 <?php
 /**
- * Adds the comune formtag to contact form 7 modules.
+ * Adds the comune formtag to contact form 7 modules
  *
  * @package campi-moduli-italiani
  * @subpackage campi-moduli-italiani/modules/comune
@@ -169,7 +169,7 @@ function gcmi_wpcf7_tg_pane_comune( $contact_form, $args = '' ): void {
 					<tr>
 						<th scope="row"><?php echo esc_html__( 'Type (default "Every: current and deleted")', 'campi-moduli-italiani' ); ?></th>
 						<td>
-							<fieldset>	
+							<fieldset>
 								<legend class="screen-reader-text"><?php echo esc_html__( 'Type (default "Every: current and deleted")', 'campi-moduli-italiani' ); ?></legend>
 								<input type="radio" class="option" id="<?php echo esc_attr( $args['content'] . '-tutti' ); ?>" name="kind" value="tutti"><label for="<?php echo esc_attr( $args['content'] . '-tutti' ); ?>"><?php esc_html_e( 'every', 'campi-moduli-italiani' ); ?></label><br/>
 								<input type="radio" class="option" id="<?php echo esc_attr( $args['content'] . '-attuali' ); ?>" name="kind" value="attuali"><label for="<?php echo esc_attr( $args['content'] . '-attuali' ); ?>"><?php esc_html_e( 'only current', 'campi-moduli-italiani' ); ?></label><br/>
@@ -236,4 +236,53 @@ function gcmi_wpcf7_tg_pane_comune( $contact_form, $args = '' ): void {
 		<p class="description mail-tag"><label for="<?php echo esc_attr( $args['content'] . '-mailtag' ); ?>"><?php printf( esc_html__( 'To use the value input through this field in a mail field, you need to insert the corresponding mail-tag (%s) into the field on the Mail tab.', 'contact-form-7' ), '<strong><span class="mail-tag"></span></strong>' ); //phpcs:ignore WordPress.WP.I18n.MissingTranslatorsComment ?><input type="text" class="mail-tag code hidden" readonly="readonly" id="<?php echo esc_attr( $args['content'] . '-mailtag' ); ?>" /></label></p>
 	</div>
 	<?php
+}
+
+
+/**
+ * Callback function to add rules to validate the comune form tag
+ *
+ * @param WPCF7_SWV_Schema  $schema The SWV schema object.
+ * @param WPCF7_ContactForm $contact_form The contact form object.
+ * @return void
+ */
+function gcmi_wpcf7_swv_add_comune_rules( $schema, $contact_form ) {
+	$tags = $contact_form->scan_form_tags(
+		array(
+			'basetype' => array( 'comune' ),
+		)
+	);
+
+	foreach ( $tags as $tag ) {
+		$schema->add_rule(
+			/**
+			 * Method add_rule() expects Contactable\SWV\Rule, Contactable\SWV\Rule|null returned by wpcf7_swv_create_rule.
+			 *
+			 * @phpstan-ignore argument.type
+			 */
+			wpcf7_swv_create_rule(
+				'required',
+				array(
+					'field' => $tag->name,
+					'error' => wpcf7_get_message( 'invalid_required' ),
+				)
+			)
+		);
+		$schema->add_rule(
+			/**
+			 * Method add_rule() expects Contactable\SWV\Rule, Contactable\SWV\Rule|null returned by wpcf7_swv_create_rule.
+			 *
+			 * @phpstan-ignore argument.type
+			 */
+			wpcf7_swv_create_rule(
+				'comune',
+				array(
+					'field' => $tag->name,
+					'error' => $contact_form->filter_message(
+						__( 'Invalid municipality code sent.', 'campi-moduli-italiani' )
+					),
+				)
+			)
+		);
+	}
 }

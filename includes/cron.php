@@ -57,7 +57,7 @@ function gcmi_check_update(): void {
  * @return int | false
  */
 function gcmi_get_remote_update_timestamp( $myfile_info ) {
-	if ( is_array( $myfile_info ) && array_key_exists( 'remoteUpd_method', $myfile_info ) ) {
+	if ( array_key_exists( 'remoteUpd_method', $myfile_info ) ) {
 		switch ( $myfile_info['remoteUpd_method'] ) {
 			case 'get_headers_by_head':
 				$result = gcmi_get_remote_file_timestamp_by_head( $myfile_info['remote_URL'] );

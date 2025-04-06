@@ -10,6 +10,11 @@
  */
 
 if ( ! class_exists( 'WP_List_Table' ) ) {
+	/**
+	 * This is a wp core file
+	 *
+	 * @phpstan-ignore requireOnce.fileNotFound
+	 */
 	require_once ABSPATH . 'wp-admin/includes/class-wp-list-table.php';
 }
 
@@ -90,9 +95,9 @@ class Gcmi_Remote_Files_List extends WP_List_Table {
 	 */
 	protected function usort_reorder( $a, $b ) {
 		// If no sort, default to title.
-		$orderby = ( ! empty( $_GET['orderby'] ) ) ? sanitize_text_field( wp_unslash( $_GET['orderby'] ) ) : 'gcmi-dataname';
+		$orderby = ( ! empty( $_GET['orderby'] ) ) ? sanitize_text_field( gcmi_safe_strval( wp_unslash( $_GET['orderby'] ) ) ) : 'gcmi-dataname';
 		// If no order, default to asc.
-		$order = ( ! empty( $_GET['order'] ) ) ? sanitize_text_field( wp_unslash( $_GET['order'] ) ) : 'asc';
+		$order = ( ! empty( $_GET['order'] ) ) ? sanitize_text_field( gcmi_safe_strval( wp_unslash( $_GET['order'] ) ) ) : 'asc';
 		// Determine sort order.
 		switch ( $orderby ) {
 			case 'gcmi-dataname':
@@ -234,9 +239,9 @@ class Gcmi_Remote_Files_List extends WP_List_Table {
 		$action = $this->current_action();
 		switch ( $action ) {
 			case 'update':
-				if ( is_array( $_POST ) ) {
+				if ( $_SERVER['REQUEST_METHOD'] === 'POST' && is_iterable( $_POST[ $this->_args['singular'] ] ) ) {
 					foreach ( $_POST[ $this->_args['singular'] ] as $fname ) {
-						gcmi_update_table( sanitize_text_field( wp_unslash( $fname ) ) );
+						gcmi_update_table( sanitize_text_field( gcmi_safe_strval( wp_unslash( $fname ) ) ) );
 					}
 				}
 				break;

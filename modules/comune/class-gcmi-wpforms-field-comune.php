@@ -13,7 +13,15 @@
  * It returns the Istat's municipality code (useful to check Italian fiscal code for people born in Italy),
  * but it sends an email with the municipality's name followed by its province abbreviation
  *
- * @link https://wordpress.org/plugins/search/campi+moduli+italiani/
+ * @link https://wordpress.org/plugins/campi-moduli-italiani/
+ * @phpstan-type T_container array{'attr': T_attr, 'class': array{int: string}, 'data': array{int: string}, 'id': string}
+ * @phpstan-type T_attr array{'name': string, 'value': string, 'style'?: string, 'readonly'?: string, 'aria-errormessage'?: string}
+ * @phpstan-type T_input array{'container': T_container, 'label': array{'id': string, 'text': string}, 'attr': T_attr, 'class': array{int: string}, 'data': array{'id': string, 'text': string}, 'id': string, 'required'?: string, 'default'?: bool }
+ * @phpstan-type T_label array{'attr': T_attr, 'class': array{int: string}, 'data': array{int: string}, 'disabled': bool, 'hidden': bool, 'id': string, 'required': bool, 'value': string}
+ * @phpstan-type T_wpforms_field_comune array{'id': string, 'type': string, 'label': string, 'description': string, 'size': string, 'default_value': string, 'kind': string, 'css': string, 'required'?: string, 'kind': string, 'filtername': string, 'comu_details'?: string, 'style': string, 'use_label_element'?: string, 'label_hide'?: string, 'wrcss': string, 'properties': array{'container': T_container, 'input_container': T_container, 'label': T_label, 'inputs': array{int: T_input}}}
+ * @phpstan-type T_wpforms_field_ajax_error array{ 'attr': array{ 'for': string }, 'class': array{ 'wpforms-error': string }, 'data': array{ int: string }, 'id': string, 'value': string }
+ * @phpstan-type T_wpforms_field_ajax_error_description array{ 'attr': T_attr, 'class': string, 'data': array{ int: string }, 'id': string, 'position': string, 'value': string }
+ * @phpstan-type T_wpforms_field_properties array{ 'container': T_container, 'label': T_label, 'inputs'?: string | array{ 'primary': array{ 'attr': array{ 'name': string, 'value': string, 'placeholder': string }, 'class': array{ int: string }, 'data': array{ int: string }, 'id': string, 'required': string }, error: T_wpforms_field_ajax_error, description: T_wpforms_field_ajax_error_description }}
  *
  * @package campi-moduli-italiani
  * @subpackage campi-moduli-italiani/modules/comune
@@ -561,9 +569,9 @@ class GCMI_WPForms_Field_Comune extends WPForms_Field {
 	 *
 	 * @since 2.0.0
 	 *
-	 * @param array $field      Field data and settings.
-	 * @param array $deprecated Deprecated array of field attributes.
-	 * @param array $form_data  Form data and settings.
+	 * @param T_wpforms_field_comune $field      Field data and settings.
+	 * @param array                  $deprecated Deprecated array of field attributes.
+	 * @param array                  $form_data  Form data and settings.
 	 * @return void
 	 */
 	public function field_display( $field, $deprecated, $form_data ): void {
@@ -658,17 +666,15 @@ class GCMI_WPForms_Field_Comune extends WPForms_Field {
 		$container['attr']['name'] = $container_name . '[IDCom]';
 
 		// è impostato il valore predefinito.
-		if ( isset( $field['default_value'] ) && '' !== strval( $field['default_value'] ) ) {
+		if ( '' !== strval( $field['default_value'] ) ) {
 			$default_value = strval( $field['default_value'] );
 			if ( $obj_comune->is_valid_cod_comune( $default_value ) ) {
 				$container['attr']['data-prval'] = $obj_comune->gcmi_get_data_from_comune( $default_value );
 			} else {
 				$got_cod_comune = $obj_comune->get_cod_comune_from_denominazione( $default_value );
 				if ( $obj_comune->is_valid_cod_comune( strval( $got_cod_comune ) ) ) {
-					$prval = $obj_comune->gcmi_get_data_from_comune( strval( $got_cod_comune ) );
-					if ( false !== $prval ) {
-						$container['attr']['data-prval'] = $prval;
-					}
+					$prval                           = $obj_comune->gcmi_get_data_from_comune( strval( $got_cod_comune ) );
+					$container['attr']['data-prval'] = $prval;
 				}
 			}
 		}
