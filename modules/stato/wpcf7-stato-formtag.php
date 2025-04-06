@@ -187,17 +187,61 @@ function gcmi_wpcf7_stato_formtag_handler( $tag ) {
 	return $html;
 }
 
+/**
+ * Validates the stato form tag.
+ *
+ * @param string $countrycode Stringa da controllare.
+ * @return bool true se la stringa rappresenta un codice stato valido, false altrimenti.
+ * @since 2.2.6
+ */
+function gcmi_is_valid_stato( $countrycode ) {
+	if ( empty( $countrycode ) || 3 !== strlen( $countrycode ) ) {
+		return false;
+	}
+
+	global $wpdb;
+	$sql  = 'SELECT `i_cod_istat` FROM  ';
+	$sql .= '( ';
+	$sql .= 'SELECT `i_cod_istat` FROM `' . GCMI_SVIEW_PREFIX . 'stati` ';
+	$sql .= 'WHERE `i_cod_istat` = %s';
+	$sql .= 'UNION ';
+	$sql .= 'SELECT `i_cod_istat` FROM `' . GCMI_SVIEW_PREFIX . 'stati_cessati` ';
+	$sql .= 'WHERE `i_cod_istat` = %s';
+	$sql .= ') as subQuery ';
+	// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+	if ( $wpdb->get_var( $wpdb->prepare( $sql, $countrycode, $countrycode ) ) ) {
+		return true;
+	} else {
+		return false;
+	}
+}
+
+/**
+ * Filter to add the stato rule to the list of available rules.
+ *
+ * @param array<string, string> $rules Available rules.
+ * @return array<string, string>
+ */
+function gcmi_swv_stato_available_rule( array $rules ) {
+	$rules['stato'] = 'Contactable\SWV\StatoRule';
+	return $rules;
+}
+
 
 /* validation filter */
-if ( ! function_exists( 'wpcf7_select_validation_filter' ) ) {
-	require_once GCMI_PLUGIN_DIR . '/integrations/contact-form-7/contact-form-7-legacy.php';
-	add_filter( 'wpcf7_validate_stato', 'gcmi_wpcf7_select_validation_filter', 10, 2 );
-	add_filter( 'wpcf7_validate_stato*', 'gcmi_wpcf7_select_validation_filter', 10, 2 );
-} else {
+if ( function_exists( 'wpcf7_select_validation_filter' ) ) {
 	/* @phpstan-ignore-next-line */
 	add_filter( 'wpcf7_validate_stato', 'wpcf7_select_validation_filter', 10, 2 );
 	/* @phpstan-ignore-next-line */
 	add_filter( 'wpcf7_validate_stato*', 'wpcf7_select_validation_filter', 10, 2 );
+} else {
+	add_filter( 'wpcf7_swv_available_rules', 'gcmi_swv_stato_available_rule' );
+	add_action(
+		'wpcf7_swv_create_schema',
+		'gcmi_wpcf7_swv_add_stato_rules',
+		10,
+		2
+	);
 }
 
 // mail tag filter.
@@ -271,6 +315,54 @@ function gcmi_wpcf7_add_tag_generator_stato(): void {
 		$tag_generator->add( 'gcmi-stato', __( 'countries selection', 'campi-moduli-italiani' ), 'gcmi_wpcf7_tg_pane_stato' );
 	} elseif ( function_exists( 'wpcf7_add_tag_generator' ) ) {
 		wpcf7_add_tag_generator( 'gcmi-stato', __( 'Insert a select for Countries', 'campi-moduli-italiani' ), 'gcmi_wpcf7_tg_pane_stato', 'gcmi_wpcf7_tg_pane_stato' );
+	}
+}
+
+/**
+ * Callback function to add rules to validate the stato form tag.
+ *
+ * @param WPCF7_SWV_Schema  $schema The SWV schema object.
+ * @param WPCF7_ContactForm $contact_form The contact form object.
+ * @return void
+ */
+function gcmi_wpcf7_swv_add_stato_rules( $schema, $contact_form ) {
+	$tags = $contact_form->scan_form_tags(
+		array(
+			'basetype' => array( 'stato' ),
+		)
+	);
+
+	foreach ( $tags as $tag ) {
+		$schema->add_rule(
+			/**
+			 * Method add_rule() expects Contactable\SWV\Rule, Contactable\SWV\Rule|null returned by wpcf7_swv_create_rule.
+			 *
+			 * @phpstan-ignore argument.type
+			 */
+			wpcf7_swv_create_rule(
+				'required',
+				array(
+					'field' => $tag->name,
+					'error' => wpcf7_get_message( 'invalid_required' ),
+				)
+			)
+		);
+		$schema->add_rule(
+			/**
+			 * Method add_rule() expects Contactable\SWV\Rule, Contactable\SWV\Rule|null returned by wpcf7_swv_create_rule.
+			 *
+			 * @phpstan-ignore argument.type
+			 */
+			wpcf7_swv_create_rule(
+				'stato',
+				array(
+					'field' => $tag->name,
+					'error' => $contact_form->filter_message(
+						__( 'Invalid country code sent.', 'campi-moduli-italiani' )
+					),
+				)
+			)
+		);
 	}
 }
 

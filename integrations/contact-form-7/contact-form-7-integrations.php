@@ -13,6 +13,7 @@ if ( defined( 'WPCF7_VERSION' ) && version_compare( WPCF7_VERSION, GCMI_MINIMUM_
 	if ( GCMI_USE_COMUNE === true ) {
 		require_once plugin_dir_path( GCMI_PLUGIN ) . 'modules/comune/class-gcmi-comune-wpcf7-formtag.php';
 		require_once plugin_dir_path( GCMI_PLUGIN ) . 'modules/comune/wpcf7-comune-formtag.php';
+		require_once plugin_dir_path( GCMI_PLUGIN ) . 'integrations/contact-form-7/swv/rules/swv_comune_rule.php';
 	}
 
 	if ( GCMI_USE_CF === true ) {
@@ -23,6 +24,7 @@ if ( defined( 'WPCF7_VERSION' ) && version_compare( WPCF7_VERSION, GCMI_MINIMUM_
 
 	if ( GCMI_USE_STATO === true ) {
 		require_once plugin_dir_path( GCMI_PLUGIN ) . 'modules/stato/wpcf7-stato-formtag.php';
+		require_once plugin_dir_path( GCMI_PLUGIN ) . 'integrations/contact-form-7/swv/rules/swv_stato_rule.php';
 	}
 
 	if ( GCMI_USE_FORMSIGN === true ) {

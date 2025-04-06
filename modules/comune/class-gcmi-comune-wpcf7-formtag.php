@@ -206,25 +206,36 @@ class GCMI_COMUNE_WPCF7_FormTag extends GCMI_COMUNE {
 	}
 
 	/**
+	 * Filter to add the comune rule to the list of available rules.
+	 *
+	 * @param array<string, string> $rules Available rules.
+	 * @return array<string, string>
+	 */
+	public static function gcmi_swv_comune_available_rule( array $rules ) {
+		$rules['comune'] = 'Contactable\SWV\ComuneRule';
+		return $rules;
+	}
+
+	/**
 	 * Aggiunge i filtri di validazione per comune e i filtri di sostituzione per il mail-tag
 	 *
 	 * @return void
 	 */
 	public static function gcmi_comune_WPCF7_addfilter() {
-		/* validation filter */
-		if ( ! function_exists( 'wpcf7_select_validation_filter' ) ) {
-			require_once GCMI_PLUGIN_DIR . '/integrations/contact-form-7/contact-form-7-legacy.php';
-			add_filter( 'wpcf7_validate_comune', 'gcmi_wpcf7_select_validation_filter', 10, 2 );
-			add_filter( 'wpcf7_validate_comune*', 'gcmi_wpcf7_select_validation_filter', 10, 2 );
+		/*  validation filter */
+		if ( function_exists( 'wpcf7_select_validation_filter' ) ) {
+			/* @phpstan-ignore-next-line */
+			add_filter( 'wpcf7_validate_comune', 'wpcf7_select_validation_filter', 10, 2 );
+			/* @phpstan-ignore-next-line */
+			add_filter( 'wpcf7_validate_comune*', 'wpcf7_select_validation_filter', 10, 2 );
 		} else {
-			/**
-			 * This is the wpcf7_select_validation_filter from CF7
-			 *
-			 * @var callable $callback
-			 */
-			$callback = 'wpcf7_select_validation_filter';
-			add_filter( 'wpcf7_validate_comune', $callback, 10, 2 );
-			add_filter( 'wpcf7_validate_comune*', $callback, 10, 2 );
+			add_filter( 'wpcf7_swv_available_rules', array( __CLASS__, 'gcmi_swv_comune_available_rule' ) );
+			add_action(
+				'wpcf7_swv_create_schema',
+				'gcmi_wpcf7_swv_add_comune_rules',
+				10,
+				2
+			);
 		}
 
 		// mail tag filter.
