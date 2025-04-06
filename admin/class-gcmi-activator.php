@@ -339,26 +339,13 @@ class GCMI_Activator {
 	 * @return array<WP_Site>
 	 */
 	public static function get_sites_array() {
+		$sites = array();
 		if ( function_exists( 'get_sites' ) && class_exists( 'WP_Site_Query' ) ) {
 			$args  = array(
 				'orderby' => 'id',
 				'order'   => 'asc',
 			);
 			$sites = get_sites( $args );
-		} else {
-			// WP < 4.6; however it is unsupported.
-			$sites_arr = wp_get_sites(); // phpcs:ignore WordPress.WP.DeprecatedFunctions.wp_get_sitesFound
-			$sites     = array();
-			foreach ( $sites_arr as $site_vars ) {
-				$encoded = wp_json_encode( $site_vars );
-				if ( false !== $encoded ) {
-					$obj = json_decode( $encoded, false );
-					if ( is_object( $obj ) ) {
-						$site    = new \WP_Site( $obj );
-						$sites[] = $site;
-					}
-				}
-			}
 		}
 		return $sites;
 	}
