@@ -154,9 +154,23 @@ function gcmi_admin_update_db() {
 	echo '</div>';
 	echo '</form>';
 
-	$last_check  = gcmi_safe_intval( get_site_option( 'gcmi_last_update_check' ) );
-	$date_format = get_site_option( 'date_format' ) ? gcmi_safe_strval( get_site_option( 'date_format' ) ) : 'j F Y';
-	$time_format = get_site_option( 'time_format' ) ? gcmi_safe_strval( get_site_option( 'time_format' ) ) : 'H:i';
+	$last_check   = gcmi_safe_intval( get_site_option( 'gcmi_last_update_check' ) );
+	$date_format  = get_site_option( 'date_format' ) ? gcmi_safe_strval( get_site_option( 'date_format' ) ) : 'j F Y';
+	$time_format  = get_site_option( 'time_format' ) ? gcmi_safe_strval( get_site_option( 'time_format' ) ) : 'H:i';
+	$requirements = GCMI_Activator::gcmi_is_requirements_met();
+	if ( is_wp_error( $requirements ) ) {
+		// translators: %s is the error message.
+		$allowed_html = array(
+			'a'      => array(
+				'href'   => array(),
+				'target' => array(),
+				'rel'    => array(),
+			),
+			'strong' => array(),
+
+		);
+		echo '<p id="gcmi_update_table_warning" class="notice notice-warning"><span id="gcmi_requirements_met">' . wp_kses( $requirements->get_error_message(), $allowed_html, array( 'https' ) ) . '</span></p>';
+	}
 	if ( 0 !== $last_check && function_exists( 'wp_date' ) ) {
 		$last_check_string = sprintf(
 			// translators: %1$s is a date string; %2$s is a time string.
@@ -164,7 +178,7 @@ function gcmi_admin_update_db() {
 			wp_date( $date_format, $last_check ),
 			wp_date( $time_format, $last_check )
 		);
-		echo '<p id="gcmi_table_footer" class="alignleft"><span id="gcmi_last_check">' . esc_html( $last_check_string ) . '</span></p>';
+		echo '<p id="gcmi_table_footer" class="notice notice-info"><span id="gcmi_last_check">' . esc_html( $last_check_string ) . '</span></p>';
 	}
 }
 

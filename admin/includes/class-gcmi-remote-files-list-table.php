@@ -168,9 +168,13 @@ class Gcmi_Remote_Files_List extends WP_List_Table {
 	 * @return array<string>
 	 */
 	protected function get_bulk_actions() {
-		$actions = array(
-			'update' => __( 'Update selected tables', 'campi-moduli-italiani' ),
-		);
+		if ( true === GCMI_Activator::gcmi_is_requirements_met() ) {
+			$actions = array(
+				'update' => __( 'Update selected tables', 'campi-moduli-italiani' ),
+			);
+		} else {
+			$actions = array();
+		}
 		return $actions;
 	}
 

@@ -1917,7 +1917,7 @@ class GCMI_Activator {
 	 * @since 2.1.0
 	 * @return WP_Error | true
 	 */
-	private static function gcmi_is_requirements_met() {
+	public static function gcmi_is_requirements_met() {
 		$min_wp  = GCMI_MINIMUM_WP_VERSION;
 		$min_php = GCMI_MINIMUM_PHP_VERSION;
 		$exts    = array( 'ctype', 'date', 'dom', 'filter', 'json', 'libxml', 'pcre', 'reflection', 'spl', 'zip' );
@@ -1944,8 +1944,12 @@ class GCMI_Activator {
 		foreach ( $exts as $ext ) {
 			if ( ! extension_loaded( $ext ) ) {
 				$err_code = 'gcmi_extension_required';
+				$link     = '<a href="https://www.php.net/manual/en/book.' .
+				( 'date' === $ext ? 'datetime' : strtolower( $ext ) ) .
+				'.php" target="_blank" rel="noopener noreferrer"><strong>' . $ext . '</strong></a>';
+
 				// translators: %s is the name of the needed PHP extension.
-				$err_message = sprintf( esc_html__( 'Campi Moduli Italiani requires PHP extension %s. Enable it on your server and then try plugin\'s acrivation again.', 'campi-moduli-italiani' ), $ext );
+				$err_message = sprintf( esc_html__( 'Campi Moduli Italiani requires PHP extension %s. Enable it on your server before plugin activation or tables update.', 'campi-moduli-italiani' ), $link );
 				$my_error    = new WP_Error( $err_code, $err_message, $err_data = '' );
 				return $my_error;
 			}
