@@ -132,7 +132,7 @@ class GCMI_Activator {
 	/**
 	 * Contains the values of the options set in the database at the time of activation.
 	 *
-	 * @var array<string, array{'value': string|int, 'autoload': bool}> $activator_options
+	 * @var array<string, array{'value': string|int, 'autoload'?: bool}> $activator_options
 	 */
 	private static $activator_options = array(
 		'gcmi_plugin_version'                     => array(
@@ -781,11 +781,6 @@ class GCMI_Activator {
 		global $gcmi_error;
 
 		if ( ! function_exists( 'download_url' ) && file_exists( ABSPATH . '/wp-admin/includes/file.php' ) ) {
-			/**
-			 * This is a wp core file
-			 *
-			 * @phpstan-ignore includeOnce.fileNotFound
-			 */
 			include_once ABSPATH . '/wp-admin/includes/file.php';
 		}
 		$path = wp_parse_url( $remoteurl, PHP_URL_PATH );
@@ -893,6 +888,7 @@ class GCMI_Activator {
 	private static function set_gcmi_options(): void {
 		foreach ( self::$activator_options as $key => $value ) {
 			if ( false === is_multisite() ) {
+				$value['autoload'] = $value['autoload'] ?? false;
 				update_option( $key, $value['value'], $value['autoload'] );
 			} else {
 				// opzione settata per tutta la rete.

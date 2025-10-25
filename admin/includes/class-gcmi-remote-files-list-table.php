@@ -10,11 +10,6 @@
  */
 
 if ( ! class_exists( 'WP_List_Table' ) ) {
-	/**
-	 * This is a wp core file
-	 *
-	 * @phpstan-ignore requireOnce.fileNotFound
-	 */
 	require_once ABSPATH . 'wp-admin/includes/class-wp-list-table.php';
 }
 

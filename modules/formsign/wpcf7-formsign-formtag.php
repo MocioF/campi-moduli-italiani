@@ -376,11 +376,6 @@ add_filter(
 );
 
 /* flamingo ADMIN stuff */
-/**
- * This is a wp core file
- *
- * @phpstan-ignore requireOnce.fileNotFound
- */
 require_once ABSPATH . 'wp-admin/includes/plugin.php';
 if ( is_plugin_active( 'flamingo/flamingo.php' ) && extension_loaded( 'openssl' ) ) {
 	add_action( 'load-flamingo_page_flamingo_inbound', 'gcmi_flamingo_check_sign' );
