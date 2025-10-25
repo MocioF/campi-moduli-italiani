@@ -8,8 +8,8 @@ on:
 name: Tests
 
 env:
-  coverage-php-version: 8.1
-  coverage-wp-version: 6.4
+  coverage-php-version: 8.2
+  coverage-wp-version: 6.8
 
 # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
 permissions:
@@ -26,7 +26,7 @@ jobs:
     strategy:
       matrix:
         # See: https://make.wordpress.org/core/handbook/references/php-compatibility-and-wordpress-versions/
-        wordpress-version: ['5.9', '6.0', '6.1', '6.2', '6.3', '6.4', '6.5', '6.6', '6.7']
+        wordpress-version: ['5.9', '6.0', '6.1', '6.2', '6.3', '6.4', '6.5', '6.6', '6.7', '6.8']
         php-versions: ['7.4', '8.0', '8.1', '8.2', '8.3']
         exclude:
           - php-versions: '8.0'
