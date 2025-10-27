@@ -340,20 +340,22 @@ function gcmi_wpcf7_swv_add_stato_rules( $schema, $contact_form ) {
 	);
 
 	foreach ( $tags as $tag ) {
-		$schema->add_rule(
-			/**
-			 * Method add_rule() expects Contactable\SWV\Rule, Contactable\SWV\Rule|null returned by wpcf7_swv_create_rule.
-			 *
-			 * @phpstan-ignore argument.type
-			 */
-			wpcf7_swv_create_rule(
-				'required',
-				array(
-					'field' => $tag->name,
-					'error' => wpcf7_get_message( 'invalid_required' ),
+		if ( $tag['type'] === 'stato*' ) {
+			$schema->add_rule(
+				/**
+				 * Method add_rule() expects Contactable\SWV\Rule, Contactable\SWV\Rule|null returned by wpcf7_swv_create_rule.
+				 *
+				 * @phpstan-ignore argument.type
+				 */
+				wpcf7_swv_create_rule(
+					'required',
+					array(
+						'field' => $tag->name,
+						'error' => wpcf7_get_message( 'invalid_required' ),
+					)
 				)
-			)
-		);
+			);
+		}
 		$schema->add_rule(
 			/**
 			 * Method add_rule() expects Contactable\SWV\Rule, Contactable\SWV\Rule|null returned by wpcf7_swv_create_rule.
