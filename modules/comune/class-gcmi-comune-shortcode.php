@@ -1,6 +1,6 @@
 <?php
 /**
- * WordPress shortcode for italian municipality seect cascade
+ * WordPress shortcode for italian municipality select cascade
  *
  * Adds a shortcode that generates a cascade of select to choose an Italian municipality
  *
