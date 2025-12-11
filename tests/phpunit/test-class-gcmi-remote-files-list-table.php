@@ -18,23 +18,23 @@ final class RemoteListTableTest extends WP_UnitTestCase {
 	 * @group table
 	 */
 	public function test_table() {
-		$this->assertSame(7, $this->table->get_column_count());
+		$this->assertSame( 7, $this->table->get_column_count() );
 
 		$column_info = $this->table->get_column_info();
 
 		// all columns
-		$this->assertCount(7, $column_info[0]);
+		$this->assertCount( 7, $column_info[0] );
 
 		// no hidden columns
-		$this->assertCount(0, $column_info[1]);
+		$this->assertCount( 0, $column_info[1] );
 
 		// sortable columns
-		$this->assertCount(3, $column_info[2]);
+		$this->assertCount( 3, $column_info[2] );
 
-		$this->assertArrayHasKey('gcmi-dataname', $column_info[2]);
-		$this->assertArrayHasKey('gcmi-remotedate', $column_info[2]);
-		$this->assertArrayHasKey('gcmi-localdate', $column_info[2]);
+		$this->assertArrayHasKey( 'gcmi-dataname', $column_info[2] );
+		$this->assertArrayHasKey( 'gcmi-remotedate', $column_info[2] );
+		$this->assertArrayHasKey( 'gcmi-localdate', $column_info[2] );
 
-		$this->assertArrayHasKey('update', $this->table->get_bulk_actions());
+		$this->assertArrayHasKey( 'update', $this->table->get_bulk_actions() );
 	}
 }

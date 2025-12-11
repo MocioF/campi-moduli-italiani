@@ -140,7 +140,7 @@ final class FormsignFormtagTest extends WP_UnitTestCase {
 
 		$input = $header . $echoed_output . $footer;
 
-		$doc                  = new DOMDocument();
+		$doc = new DOMDocument();
 		libxml_use_internal_errors( true );
 		$doc->validateOnParse = true;
 		$doc->loadHTML( $input, LIBXML_HTML_NODEFDTD );

@@ -78,70 +78,70 @@ final class GCMI_COMUNETest extends WP_Ajax_UnitTestCase {
 				'filtername' => 'bologna_e_prov',
 				'includi'    => 'true',
 				'codici'     => array(
-					'037001',
-					'037002',
-					'037003',
-					'037005',
-					'037006',
-					'037007',
-					'037008',
-					'037009',
-					'037010',
-					'037011',
-					'037012',
-					'037013',
-					'037014',
-					'037015',
-					'037016',
-					'037017',
-					'037019',
-					'037020',
-					'037021',
-					'037022',
-					'037024',
-					'037025',
-					'037026',
-					'037027',
-					'037028',
-					'037030',
-					'037031',
-					'037032',
-					'037033',
-					'037034',
-					'037035',
-					'037036',
-					'037037',
-					'037038',
-					'037039',
-					'037040',
-					'037041',
-					'037042',
-					'037044',
-					'037045',
-					'037046',
-					'037047',
-					'037048',
-					'037050',
-					'037051',
-					'037052',
-					'037053',
-					'037054',
-					'037055',
-					'037056',
-					'037057',
-					'037059',
-					'037060',
-					'037061',
-					'037062',
-					'037004',
-					'037018',
-					'037023',
-					'037029',
-					'037043',
-					'037049',
-					'037058',
-					'037801',
-					'037802',
+					'C037001',
+					'C037002',
+					'C037003',
+					'C037005',
+					'C037006',
+					'C037007',
+					'C037008',
+					'C037009',
+					'C037010',
+					'C037011',
+					'C037012',
+					'C037013',
+					'C037014',
+					'C037015',
+					'C037016',
+					'C037017',
+					'C037019',
+					'C037020',
+					'C037021',
+					'C037022',
+					'C037024',
+					'C037025',
+					'C037026',
+					'C037027',
+					'C037028',
+					'C037030',
+					'C037031',
+					'C037032',
+					'C037033',
+					'C037034',
+					'C037035',
+					'C037036',
+					'C037037',
+					'C037038',
+					'C037039',
+					'C037040',
+					'C037041',
+					'C037042',
+					'C037044',
+					'C037045',
+					'C037046',
+					'C037047',
+					'C037048',
+					'C037050',
+					'C037051',
+					'C037052',
+					'C037053',
+					'C037054',
+					'C037055',
+					'C037056',
+					'C037057',
+					'C037059',
+					'C037060',
+					'C037061',
+					'C037062',
+					'C037004',
+					'C037018',
+					'C037023',
+					'C037029',
+					'C037043',
+					'C037049',
+					'C037058',
+					'C037801',
+					'C037802',
 				),
 			),
 		);
@@ -980,8 +980,8 @@ final class GCMI_COMUNETest extends WP_Ajax_UnitTestCase {
 		wp_dequeue_style( 'gcmi_comune_css' );
 		wp_deregister_style( 'gcmi_comune_css' );
 
-		wp_dequeue_style( 'gcmi_jquery-ui-dialog' );
-		wp_deregister_style( 'gcmi_jquery-ui-dialog' );
+		wp_dequeue_style( 'gcmi_jquery-ui-theme' );
+		wp_deregister_style( 'gcmi_jquery-ui-theme' );
 
 		wp_dequeue_style( 'dashicons' );
 		wp_deregister_style( 'dashicons' );
@@ -994,7 +994,7 @@ final class GCMI_COMUNETest extends WP_Ajax_UnitTestCase {
 		$this->assertArrayHasKey( 'gcmi_comune_js', $scripts_array );
 		$this->assertArrayHasKey( 'gcmi_comune_css', $styles_array );
 		$this->assertArrayHasKey( 'dashicons', $styles_array );
-		$this->assertArrayHasKey( 'gcmi_jquery-ui-dialog', $styles_array );
+		$this->assertArrayHasKey( 'gcmi_jquery-ui-theme', $styles_array );
 	}
 
 	/**
@@ -1101,7 +1101,7 @@ final class GCMI_COMUNETest extends WP_Ajax_UnitTestCase {
 		$elenco_comuni_attuali = $this->gcmi_comune->get_list_comuni( false );
 
 		$elenco_comuni_restituiti = array_map(
-			function ( $obj ) use( $SFX_SOPPRESSI_CEDUTI ) {
+			function ( $obj ) use ( $SFX_SOPPRESSI_CEDUTI ) {
 				$current_den               = $obj->i_denominazione_full;
 				$real_den                  = str_replace( $SFX_SOPPRESSI_CEDUTI, '', $current_den );
 				$obj->i_denominazione_full = $real_den;
