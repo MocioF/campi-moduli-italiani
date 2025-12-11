@@ -488,7 +488,7 @@ class GCMI_Comune_Filter_Builder {
 						'FROM `%3$s` ' .
 						') AS union_comuni ORDER BY `i_denominazione_full`;',
 						GCMI_SVIEW_PREFIX . 'comuni_attuali',
-						' - (' . esc_html__( 'sopp.', 'campi-moduli-italiani' ) . ')',
+						' (' . esc_html__( 'sopp.', 'campi-moduli-italiani' ) . ')',
 						GCMI_SVIEW_PREFIX . 'comuni_soppressi'
 					),
 					OBJECT_K

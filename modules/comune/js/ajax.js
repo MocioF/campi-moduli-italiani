@@ -281,8 +281,8 @@ jQuery(document).ready(function ($) {
               "input#" + window.MyPrefix + targaString).val() + ")";
           } else {
             gcmi_comu_form_value = $(
-              "select#" + window.MyPrefix + comString + " option:selected")
-              .text() + " - (" + __("sopp.", "campi-moduli-italiani") + ")" +
+                "select#" + window.MyPrefix + comString + " option:selected")
+              .text() + " (" + __("sopp.", "campi-moduli-italiani") + ")" +
               " (" + $("input#" + window.MyPrefix + targaString).val() + ")";
           }
           $("input#" + window.MyPrefix + "gcmi_formatted")

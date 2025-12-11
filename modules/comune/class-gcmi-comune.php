@@ -64,7 +64,7 @@ class GCMI_COMUNE {
 	 */
 	public function __construct( $kind = 'tutti', $filtername = '' ) {
 		// translators: is the abbreviation for ceased or suppressed municipalities.
-		$this->def_strings['SFX_SOPPRESSI_CEDUTI'] = ' - (' . esc_html__( 'sopp.', 'campi-moduli-italiani' ) . ')';
+		$this->def_strings['SFX_SOPPRESSI_CEDUTI'] = ' (' . esc_html__( 'sopp.', 'campi-moduli-italiani' ) . ')';
 		$this->def_strings['COD_REG_SOPP']         = '00';
 		$this->def_strings['COD_REG_ISDA']         = '70';
 		$this->def_strings['DEF_REG_SOPP']         = esc_html__( '_ Abolished municipalities', 'campi-moduli-italiani' ); /* _ Comuni soppressi/ceduti */
