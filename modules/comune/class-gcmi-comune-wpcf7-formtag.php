@@ -210,7 +210,7 @@ class GCMI_COMUNE_WPCF7_FormTag extends GCMI_COMUNE {
 	 * @return array<string, string>
 	 */
 	public static function gcmi_swv_comune_available_rule( array $rules ) {
-		$rules['comune'] = 'Contactable\SWV\ComuneRule';
+		$rules['comune'] = class_exists( 'GCMI_Swv_Comune_Rule', false ) ? 'GCMI_Swv_Comune_Rule' : 'Contactable\SWV\ComuneRule';
 		return $rules;
 	}
 

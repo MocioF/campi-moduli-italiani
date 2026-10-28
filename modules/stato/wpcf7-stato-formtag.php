@@ -222,7 +222,7 @@ function gcmi_is_valid_stato( $countrycode ) {
  * @return array<string, string>
  */
 function gcmi_swv_stato_available_rule( array $rules ) {
-	$rules['stato'] = 'Contactable\SWV\StatoRule';
+	$rules['stato'] = class_exists( 'GCMI_Swv_Stato_Rule', false ) ? 'GCMI_Swv_Stato_Rule' : 'Contactable\SWV\StatoRule';
 	return $rules;
 }
 

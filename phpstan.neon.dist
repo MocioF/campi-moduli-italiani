@@ -10,6 +10,7 @@ parameters:
 		- modules
 	scanFiles:
 		- campi-moduli-italiani.php
+		- tests/phpstan/stubs/contact-form-7-swv.php
 	scanDirectories:
 		- vendor
 		- ../contact-form-7

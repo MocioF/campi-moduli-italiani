@@ -46,7 +46,7 @@ class ComuneRule extends Rule {
 	 * Validates with this rule's logic.
 	 *
 	 * @param array<string, mixed> $context Context.
-	 * @return bool
+	 * @return true|\WP_Error
 	 */
 	public function validate( $context ) {
 		$input = $this->get_default_input();
