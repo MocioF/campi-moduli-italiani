@@ -478,7 +478,15 @@ final class GCMI_SituasTest extends WP_UnitTestCase {
 		$this->assertSame( '312', $mapped['data']['i_cod_unita_territoriale_nuovo'] );
 		$this->assertSame( '112001', $mapped['data']['i_cod_comune_nuovo'] );
 		$this->assertSame( '2026-01-01', $mapped['data']['i_data_decorrenza'] );
+		$this->assertSame( 'A192', $mapped['data']['i_cod_catastale'] );
+		$this->assertSame( 'A192', $mapped['data']['i_cod_catastale_nuovo'] );
 		$this->assertCount( count( $mapped['data'] ), $mapped['format'] );
+
+		$row                    = $this->variazioni_row();
+		$row['COD_CATASTO_REL'] = 'ND';
+		$mapped                 = GCMI_Situas::map_comuni_variazioni( $row );
+		$this->assertIsArray( $mapped );
+		$this->assertNull( $mapped['data']['i_cod_catastale_nuovo'] );
 
 		$this->assertWPError( GCMI_Situas::map_comuni_variazioni( $this->variazioni_row( 'Senza codice' ) ) );
 	}
@@ -500,6 +508,7 @@ final class GCMI_SituasTest extends WP_UnitTestCase {
 			$wpdb->get_var( 'SELECT i_contenuto FROM `' . $info['table_name'] . '` WHERE i_tipo_var = \'RN\'' )
 		);
 		$this->assertNull( $wpdb->get_var( 'SELECT i_cod_flag_note FROM `' . $info['table_name'] . '` LIMIT 1' ) );
+		$this->assertSame( 'A192', $wpdb->get_var( 'SELECT i_cod_catastale_nuovo FROM `' . $info['table_name'] . '` LIMIT 1' ) );
 		$query = array();
 		parse_str( (string) wp_parse_url( $this->requests[0]['url'], PHP_URL_QUERY ), $query );
 		$this->assertSame( '01/01/1991', $query['pdata'] );

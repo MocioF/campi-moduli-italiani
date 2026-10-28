@@ -1180,6 +1180,8 @@ class GCMI_Activator {
 						'i_data_decorrenza DATE NULL, ' .
 						// Deprecated since 2.3.3: not published by SITUAS, always NULL.
 						'i_cod_flag_note char(1) NULL, ' .
+						'i_cod_catastale char(4) NULL, ' .
+						'i_cod_catastale_nuovo char(4) NULL, ' .
 						'PRIMARY KEY (id) ' .
 						') %2$s',
 						$table,

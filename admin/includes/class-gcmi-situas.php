@@ -437,6 +437,8 @@ class GCMI_Situas {
 						'PROVVEDIMENTO',
 						'TESTO_PROVVEDIMENTO',
 						'DATA_INIZIO_AMMINISTRATIVA',
+						'COD_CATASTO',
+						'COD_CATASTO_REL',
 					),
 				);
 			case 'comuni_soppressi':
@@ -582,8 +584,10 @@ class GCMI_Situas {
 				'i_documento'                    => self::text( $row, 'PROVVEDIMENTO' ),
 				'i_contenuto'                    => self::text( $row, 'TESTO_PROVVEDIMENTO' ),
 				'i_data_decorrenza'              => self::iso_to_date( self::text( $row, 'DATA_INIZIO_AMMINISTRATIVA' ) ),
+				'i_cod_catastale'                => self::cod_catastale( $row, 'COD_CATASTO' ),
+				'i_cod_catastale_nuovo'          => self::cod_catastale( $row, 'COD_CATASTO_REL' ),
 			),
-			'format' => array( '%d', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s' ),
+			'format' => array( '%d', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s' ),
 		);
 	}
 
