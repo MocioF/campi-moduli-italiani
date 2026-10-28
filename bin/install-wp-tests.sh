@@ -19,6 +19,8 @@ WP_CORE_DIR=${WP_CORE_DIR-$TMPDIR/wordpress/}
 WP_PLUGINS_DIR=${WP_PLUGINS_DIR-$WP_CORE_DIR/wp-content/plugins/}
 WP_PLUGINS_DIR=$(echo $WP_PLUGINS_DIR | sed -e "s/\/$//")
 WP_CF7_DIR=${WP_CF7_DIR-$WP_PLUGINS_DIR/contact-form-7/}
+# Contact Form 7 version to install: "latest" or a release number (e.g. 6.1.7).
+CF7_VERSION=${CF7_VERSION-latest}
 
 download() {
     #if [ `which curl` ]; then
@@ -160,7 +162,12 @@ install_cf7() {
 
 	mkdir -p $WP_CF7_DIR
         mkdir -p $TMPDIR/contact-form-7-trunk
-        download https://downloads.wordpress.org/plugin/contact-form-7.zip $TMPDIR/contact-form-7-trunk/contact-form-7.zip
+	if [ "$CF7_VERSION" == 'latest' ]; then
+		local CF7_ARCHIVE="contact-form-7.zip"
+	else
+		local CF7_ARCHIVE="contact-form-7.$CF7_VERSION.zip"
+	fi
+        download https://downloads.wordpress.org/plugin/$CF7_ARCHIVE $TMPDIR/contact-form-7-trunk/contact-form-7.zip
         unzip -q $TMPDIR/contact-form-7-trunk/contact-form-7.zip -d $TMPDIR/contact-form-7-trunk/
         mv $TMPDIR/contact-form-7-trunk/contact-form-7 $WP_PLUGINS_DIR
 }
