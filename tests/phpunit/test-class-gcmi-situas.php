@@ -320,12 +320,17 @@ final class GCMI_SituasTest extends WP_UnitTestCase {
 		$this->assertSame( '1', $mapped['data']['i_cod_scorporo'] );
 		$this->assertSame( '1970-03-17', $mapped['data']['i_data_variazione'] );
 		$this->assertSame( '016251', $mapped['data']['i_cod_comune_nuovo'] );
+		$this->assertSame( 'H351', $mapped['data']['i_cod_catastale'] );
+		$this->assertSame( 'I813', $mapped['data']['i_cod_catastale_nuovo'] );
 		$this->assertCount( count( $mapped['data'] ), $mapped['format'] );
 
 		unset( $row['FLAG_ES_SCORPORO'] );
-		$mapped = GCMI_Situas::map_comuni_soppressi( $row );
+		// Segnaposto usato da SITUAS per i codici catastali mancanti.
+		$row['COD_CATASTO'] = 'ND';
+		$mapped             = GCMI_Situas::map_comuni_soppressi( $row );
 		$this->assertIsArray( $mapped );
 		$this->assertNull( $mapped['data']['i_cod_scorporo'] );
+		$this->assertNull( $mapped['data']['i_cod_catastale'] );
 	}
 
 	/**
@@ -528,6 +533,7 @@ final class GCMI_SituasTest extends WP_UnitTestCase {
 				'PRO_COM_T'                  => '028900',
 				'COMUNE'                     => 'Comune di prova',
 				'DATA_INIZIO_AMMINISTRATIVA' => '1866-10-01T00:00:00Z',
+				'COD_CATASTO'                => 'Z999',
 			),
 		);
 		$this->set_report( array( 'ANNO', 'SIGLA_UTS', 'COD_UTS', 'PRO_COM_T', 'COMUNE', 'DATA_INIZIO_AMMINISTRATIVA' ), $rows );
@@ -535,6 +541,7 @@ final class GCMI_SituasTest extends WP_UnitTestCase {
 		$this->assertSame( '"etag-1"', GCMI_Situas::import( $info, $info['table_name'] ) );
 		// A year before 1901 must be stored as is.
 		$this->assertSame( '1866', $wpdb->get_var( 'SELECT i_anno_var FROM `' . $info['table_name'] . '`' ) );
+		$this->assertSame( 'Z999', $wpdb->get_var( 'SELECT i_cod_catastale FROM `' . $info['table_name'] . '`' ) );
 		$query = array();
 		parse_str( (string) wp_parse_url( $this->requests[0]['url'], PHP_URL_QUERY ), $query );
 		$this->assertSame( '17/03/1861', $query['pdatada'] );

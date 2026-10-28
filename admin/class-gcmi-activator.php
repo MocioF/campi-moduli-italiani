@@ -1145,6 +1145,8 @@ class GCMI_Activator {
 						'i_denominazione_nuovo varchar(255) NULL, ' .
 						'i_cod_unita_territoriale_nuovo char(3) NULL, ' .
 						'i_sigla_automobilistica_nuovo varchar(10) NULL, ' .
+						'i_cod_catastale char(4) NULL, ' .
+						'i_cod_catastale_nuovo char(4) NULL, ' .
 						'PRIMARY KEY (`id`), ' .
 						'INDEX `i_cod_comune` (`i_cod_comune`), ' .
 						'INDEX `i_cod_unita_territoriale` (`i_cod_unita_territoriale`), ' .

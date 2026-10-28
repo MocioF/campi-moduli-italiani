@@ -545,8 +545,10 @@ class GCMI_Situas {
 				'i_denominazione_nuovo'          => self::text( $row, 'COMUNE_REL' ),
 				'i_cod_unita_territoriale_nuovo' => self::code( $row, 'COD_UTS_REL', 3 ),
 				'i_sigla_automobilistica_nuovo'  => self::text( $row, 'SIGLA_UTS_REL' ),
+				'i_cod_catastale'                => self::cod_catastale( $row, 'COD_CATASTO' ),
+				'i_cod_catastale_nuovo'          => self::cod_catastale( $row, 'COD_CATASTO_REL' ),
 			),
-			'format' => array( '%d', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s' ),
+			'format' => array( '%d', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s' ),
 		);
 	}
 
