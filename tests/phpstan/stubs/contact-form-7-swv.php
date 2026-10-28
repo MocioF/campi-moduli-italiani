@@ -1,14 +1,14 @@
 <?php
 /**
- * PHPStan stubs for the Contact Form 7 SWV APIs.
+ * Stub PHPStan per le API SWV di Contact Form 7.
  *
- * The plugin supports both the SWV API of Contact Form 7 < 6.2
- * (Contactable\SWV\Rule) and the one of Contact Form 7 >= 6.2
- * (RockLobsterInc\Swv\AbstractRule), but a local copy of Contact Form 7
- * only provides one of them: these stubs declare both.
- * Signatures are copied from Contact Form 7 6.1.7 and 6.2.3.
+ * Il plugin supporta sia l'API SWV di Contact Form 7 < 6.2
+ * (Contactable\SWV\Rule) sia quella di Contact Form 7 >= 6.2
+ * (RockLobsterInc\Swv\AbstractRule), ma una copia locale di Contact Form 7
+ * ne fornisce solo una: questi stub le dichiarano entrambe.
+ * Le firme sono copiate da Contact Form 7 6.1.7 e 6.2.3.
  *
- * This file is only read by PHPStan and is never loaded at runtime.
+ * Questo file è letto solo da PHPStan e non viene mai caricato a runtime.
  *
  * @package campi-moduli-italiani
  */
@@ -18,71 +18,71 @@
 namespace Contactable\SWV {
 
 	/**
-	 * The base class of SWV rules (Contact Form 7 < 6.2).
+	 * Classe base delle regole SWV (Contact Form 7 < 6.2).
 	 */
 	abstract class Rule {
 
 		/**
-		 * Rule properties.
+		 * Proprietà della regola.
 		 *
 		 * @var array<string, mixed>
 		 */
 		protected $properties = array();
 
 		/**
-		 * Constructor.
+		 * Costruttore.
 		 *
-		 * @param string|array<string, mixed> $properties Rule properties.
+		 * @param string|array<string, mixed> $properties Proprietà della regola.
 		 */
 		public function __construct( $properties = '' ) {}
 
 		/**
-		 * Returns true if this rule matches the given context.
+		 * Restituisce true se la regola si applica al contesto indicato.
 		 *
-		 * @param array<string, mixed> $context Context.
+		 * @param array<string, mixed> $context Contesto.
 		 * @return bool
 		 */
 		public function matches( $context ) {}
 
 		/**
-		 * Validates with this rule's logic.
+		 * Valida secondo la logica di questa regola.
 		 *
-		 * @param array<string, mixed> $context Context.
+		 * @param array<string, mixed> $context Contesto.
 		 * @return true|\WP_Error|false
 		 */
 		public function validate( $context ) {}
 
 		/**
-		 * Converts the properties to an array.
+		 * Converte le proprietà in un array.
 		 *
 		 * @return array<string, mixed>
 		 */
 		public function to_array() {}
 
 		/**
-		 * Returns the property value specified by the given property name.
+		 * Restituisce il valore della proprietà indicata.
 		 *
-		 * @param string $name Property name.
+		 * @param string $name Nome della proprietà.
 		 * @return mixed
 		 */
 		public function get_property( $name ) {}
 
 		/**
-		 * Returns the default user input value from $_POST.
+		 * Restituisce il valore inserito dall'utente, letto da $_POST.
 		 *
 		 * @return mixed
 		 */
 		public function get_default_input() {}
 
 		/**
-		 * Returns the default user upload file from $_FILES.
+		 * Restituisce il file caricato dall'utente, letto da $_FILES.
 		 *
 		 * @return object
 		 */
 		public function get_default_upload() {}
 
 		/**
-		 * Creates an error object.
+		 * Crea un oggetto errore.
 		 *
 		 * @return \WP_Error
 		 */
@@ -93,22 +93,22 @@ namespace Contactable\SWV {
 namespace RockLobsterInc\FormDataTree {
 
 	/**
-	 * Form submission data (Contact Form 7 >= 6.2).
+	 * Dati inviati con il form (Contact Form 7 >= 6.2).
 	 */
 	interface FormDataTreeInterface {
 
 		/**
-		 * Returns the values associated with a given field name.
+		 * Restituisce i valori associati al nome di campo indicato.
 		 *
-		 * @param string $name Field name.
+		 * @param string $name Nome del campo.
 		 * @return iterable<mixed>
 		 */
 		public function getAll( string $name ): iterable;
 
 		/**
-		 * Returns the file objects associated with a given field name.
+		 * Restituisce i file associati al nome di campo indicato.
 		 *
-		 * @param string $name Field name.
+		 * @param string $name Nome del campo.
 		 * @return iterable<mixed>
 		 */
 		public function getAllFiles( string $name ): iterable;
@@ -120,29 +120,29 @@ namespace RockLobsterInc\Swv {
 	use RockLobsterInc\FormDataTree\FormDataTreeInterface as FormDataTree;
 
 	/**
-	 * The base class of SWV rules (Contact Form 7 >= 6.2).
+	 * Classe base delle regole SWV (Contact Form 7 >= 6.2).
 	 */
 	abstract class AbstractRule {
 
 		/**
-		 * Returns true if this rule matches the given context.
+		 * Restituisce true se la regola si applica al contesto indicato.
 		 *
-		 * @param array<string, mixed> $context Context.
+		 * @param array<string, mixed> $context Contesto.
 		 */
 		public function matches( array $context ): bool {}
 
 		/**
-		 * Validates the form data according to the logic defined by this rule.
+		 * Valida i dati del form secondo la logica di questa regola.
 		 *
-		 * @param FormDataTree         $form_data Form data.
-		 * @param array<string, mixed> $context   Optional context.
+		 * @param FormDataTree         $form_data Dati del form.
+		 * @param array<string, mixed> $context   Contesto (facoltativo).
 		 * @return mixed
-		 * @throws InvalidityException If the form data is not valid.
+		 * @throws InvalidityException Se i dati del form non sono validi.
 		 */
 		public function validate( FormDataTree $form_data, array $context = array() ) {}
 
 		/**
-		 * Returns an array that represents the rule properties.
+		 * Restituisce un array con le proprietà della regola.
 		 *
 		 * @return array<string, mixed>
 		 */
@@ -150,34 +150,34 @@ namespace RockLobsterInc\Swv {
 	}
 
 	/**
-	 * Exception that represents a validation error (Contact Form 7 >= 6.2).
+	 * Eccezione che rappresenta un errore di validazione (Contact Form 7 >= 6.2).
 	 */
 	final class InvalidityException extends \Exception {
 
 		/**
-		 * The SWV rule who has thrown this error.
+		 * La regola SWV che ha generato l'errore.
 		 *
 		 * @var AbstractRule
 		 */
 		public $rule;
 
 		/**
-		 * The specific cause of this exception.
+		 * La causa specifica dell'eccezione.
 		 *
 		 * @var mixed
 		 */
 		public $cause;
 
 		/**
-		 * Constructor.
+		 * Costruttore.
 		 *
-		 * @param AbstractRule         $rule    SWV rule.
-		 * @param array<string, mixed> $options Options.
+		 * @param AbstractRule         $rule    Regola SWV.
+		 * @param array<string, mixed> $options Opzioni.
 		 */
 		public function __construct( AbstractRule $rule, array $options = array() ) {}
 
 		/**
-		 * Retrieves the field name where the validation error occurs.
+		 * Restituisce il nome del campo in cui si è verificato l'errore di validazione.
 		 */
 		public function getField(): string {}
 	}

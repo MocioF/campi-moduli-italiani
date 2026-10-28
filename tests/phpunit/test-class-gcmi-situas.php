@@ -1,9 +1,9 @@
 <?php
 /**
- * Tests for GCMI_Situas
+ * Test per GCMI_Situas
  *
- * The HTTP requests to SITUAS are answered by the pre_http_request filter with
- * fixtures shaped as the real responses: no network access is needed.
+ * Alle richieste HTTP verso SITUAS risponde il filtro pre_http_request con dati
+ * di prova strutturati come le risposte reali: non serve accesso alla rete.
  *
  * @package campi-moduli-italiani
  */
@@ -11,21 +11,21 @@
 final class GCMI_SituasTest extends WP_UnitTestCase {
 
 	/**
-	 * Responses served to the requests, by endpoint.
+	 * Risposte restituite alle richieste, per endpoint.
 	 *
 	 * @var array<string, array{'code': int, 'body': string, 'etag'?: string}>
 	 */
 	private $responses = array();
 
 	/**
-	 * The requests received, as URL => arguments.
+	 * Le richieste ricevute, come URL => argomenti.
 	 *
 	 * @var array<int, array{'url': string, 'args': array<string, mixed>}>
 	 */
 	private $requests = array();
 
 	/**
-	 * Dataset descriptions used in the tests.
+	 * Descrizioni dei dataset usate nei test.
 	 *
 	 * @var array<string, array<string, mixed>>
 	 */
@@ -68,11 +68,11 @@ final class GCMI_SituasTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Answers the HTTP requests with the fixtures.
+	 * Risponde alle richieste HTTP con i dati di prova.
 	 *
-	 * @param false|array|WP_Error $preempt Whether to preempt the request.
-	 * @param array                $args    Request arguments.
-	 * @param string               $url     The request URL.
+	 * @param false|array|WP_Error $preempt Se intercettare la richiesta.
+	 * @param array                $args    Argomenti della richiesta.
+	 * @param string               $url     L'URL della richiesta.
 	 * @return array|WP_Error
 	 */
 	public function fake_http( $preempt, $args, $url ) {
@@ -112,12 +112,12 @@ final class GCMI_SituasTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Sets the fixtures of a report.
+	 * Imposta i dati di prova di un report.
 	 *
-	 * @param array<int, string>               $columns Column names in the metadata.
-	 * @param array<int, array<string, mixed>> $rows    The rows.
-	 * @param int|null                         $count   NUM_ROWS; the number of rows if null.
-	 * @param string                           $etag    The ETag of the data.
+	 * @param array<int, string>               $columns Nomi delle colonne nei metadati.
+	 * @param array<int, array<string, mixed>> $rows    Le righe.
+	 * @param int|null                         $count   NUM_ROWS; se null, il numero di righe.
+	 * @param string                           $etag    L'ETag dei dati.
 	 */
 	private function set_report( $columns, $rows, $count = null, $etag = '"etag-1"' ) {
 		$col_details = array();
@@ -542,8 +542,8 @@ final class GCMI_SituasTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * The update replaces a table with the old schema (2.3.2) without breaking
-	 * the views created on it with SELECT *, as the comuni filters are.
+	 * L'aggiornamento sostituisce una tabella con il vecchio schema (2.3.2) senza
+	 * invalidare le viste create su di essa con SELECT *, come quelle dei filtri.
 	 *
 	 * @group situas
 	 */
@@ -593,7 +593,7 @@ final class GCMI_SituasTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * A failed update leaves the existing table untouched.
+	 * Un aggiornamento fallito lascia intatta la tabella esistente.
 	 *
 	 * @group situas
 	 */
@@ -648,7 +648,7 @@ final class GCMI_SituasTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * The upgrade to 2.3.3 marks the SITUAS datasets as to be updated.
+	 * L'aggiornamento alla 2.3.3 segnala come da aggiornare i dataset SITUAS.
 	 *
 	 * @group situas
 	 */
@@ -674,7 +674,7 @@ final class GCMI_SituasTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Datasets never downloaded (no download time) are not marked as to be updated.
+	 * I dataset mai scaricati (senza data di scaricamento) non vengono segnalati come da aggiornare.
 	 *
 	 * @group situas
 	 */

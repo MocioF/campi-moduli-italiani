@@ -1,6 +1,6 @@
 <?php
 /**
- * Schema-Woven Validation rule for stato (Contact Form 7 >= 6.2)
+ * Regola Schema-Woven Validation per stato (Contact Form 7 >= 6.2)
  *
  * @package campi-moduli-italiani
  * @author       Giuseppe Foti
@@ -11,7 +11,7 @@
  */
 
 /**
- * Schema-Woven Validation rule for stato, based on RockLobsterInc\Swv.
+ * Regola Schema-Woven Validation per stato, basata su RockLobsterInc\Swv.
  *
  * @since 2.3.3
  */
@@ -20,27 +20,27 @@ class GCMI_Swv_Stato_Rule extends \RockLobsterInc\Swv\AbstractRule {
 	const RULE_NAME = 'stato';
 
 	/**
-	 * Field name.
+	 * Nome del campo.
 	 *
-	 * Read by WPCF7_SWV_SchemaHolder and by InvalidityException.
+	 * Letto da WPCF7_SWV_SchemaHolder e da InvalidityException.
 	 *
 	 * @var string
 	 */
 	public $field;
 
 	/**
-	 * Error message.
+	 * Messaggio di errore.
 	 *
-	 * Read by InvalidityException.
+	 * Letto da InvalidityException.
 	 *
 	 * @var string
 	 */
 	public $error;
 
 	/**
-	 * Constructor.
+	 * Costruttore.
 	 *
-	 * @param array<string, mixed> $properties Rule properties.
+	 * @param array<string, mixed> $properties Proprietà della regola.
 	 */
 	public function __construct( array $properties = array() ) {
 		$this->field = isset( $properties['field'] ) && is_string( $properties['field'] ) ? $properties['field'] : '';
@@ -48,9 +48,9 @@ class GCMI_Swv_Stato_Rule extends \RockLobsterInc\Swv\AbstractRule {
 	}
 
 	/**
-	 * Returns true if this rule matches the given context.
+	 * Restituisce true se la regola si applica al contesto indicato.
 	 *
-	 * @param array<string, mixed> $context Context.
+	 * @param array<string, mixed> $context Contesto.
 	 * @return bool
 	 */
 	public function matches( array $context ): bool {
@@ -66,12 +66,12 @@ class GCMI_Swv_Stato_Rule extends \RockLobsterInc\Swv\AbstractRule {
 	}
 
 	/**
-	 * Validates the form data according to the logic defined by this rule.
+	 * Valida i dati del form secondo la logica di questa regola.
 	 *
-	 * @param \RockLobsterInc\FormDataTree\FormDataTreeInterface $form_data Form data.
-	 * @param array<string, mixed>                               $context   Optional context.
+	 * @param \RockLobsterInc\FormDataTree\FormDataTreeInterface $form_data Dati del form.
+	 * @param array<string, mixed>                               $context   Contesto (facoltativo).
 	 * @return bool
-	 * @throws \RockLobsterInc\Swv\InvalidityException If a value is not a valid country code.
+	 * @throws \RockLobsterInc\Swv\InvalidityException Se un valore non è un codice stato valido.
 	 */
 	public function validate( \RockLobsterInc\FormDataTree\FormDataTreeInterface $form_data, array $context = array() ) {
 		// getAll() already strips whitespaces and excludes blank values.
@@ -92,7 +92,7 @@ class GCMI_Swv_Stato_Rule extends \RockLobsterInc\Swv\AbstractRule {
 	}
 
 	/**
-	 * Returns an array that represents the rule properties.
+	 * Restituisce un array con le proprietà della regola.
 	 *
 	 * @return array<string, string>
 	 */

@@ -807,7 +807,7 @@ class GCMI_COMUNE {
 			wp_register_style( 'gcmi_jquery-ui-dialog', plugins_url( "css/jquery-ui-dialog$suffix.css", GCMI_PLUGIN ), array(), GCMI_VERSION );
 		}
 		/**
-		 * The URL of the script: plugins_url() always returns an absolute URL here.
+		 * L'URL dello script: qui plugins_url() restituisce sempre un URL assoluto.
 		 *
 		 * @var non-empty-string $comune_js_src
 		 */

@@ -534,7 +534,7 @@ function gcmi_update_table( $fname ) {
  * esistente resta intatta.
  *
  * @since 2.3.3
- * @param array{'name': string, 'table_name': string, 'optN_dwdtime': string, 'optN_etag'?: string} $info Dataset description from GCMI_Activator::$database_file_info.
+ * @param array{'name': string, 'table_name': string, 'optN_dwdtime': string, 'optN_etag'?: string} $info Descrizione del dataset da GCMI_Activator::$database_file_info.
  * @return void
  */
 function gcmi_update_situas_table( $info ) {

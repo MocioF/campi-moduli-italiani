@@ -1,17 +1,18 @@
 <?php
 /**
- * Access to the ISTAT SITUAS JSON services
+ * Accesso ai servizi JSON del portale ISTAT SITUAS
  *
- * Downloads the datasets published by ISTAT on the SITUAS portal and imports
- * them into the plugin's tables.
+ * Scarica i dataset pubblicati da ISTAT sul portale SITUAS e li importa
+ * nelle tabelle del plugin.
  *
- * Every SITUAS report exposes three endpoints:
- * - reportspooljson: the data, as {"resultset":[...]};
- * - reportspooljsoncount: the number of rows, as {"resultset":[{"NUM_ROWS":n}]};
- * - anagrafica_report_metadato_web: the description of the columns (COL_DETAILS).
+ * Ogni report SITUAS espone tre endpoint:
+ * - reportspooljson: i dati, nella forma {"resultset":[...]};
+ * - reportspooljsoncount: il numero di righe, nella forma {"resultset":[{"NUM_ROWS":n}]};
+ * - anagrafica_report_metadato_web: la descrizione delle colonne (COL_DETAILS).
  *
- * Output format declared by ISTAT: dates are UTC ISO 8601 strings, numbers use
- * the dot as decimal separator, fields without value are not extracted at all.
+ * Formato di output dichiarato da ISTAT: le date sono stringhe UTC ISO 8601, i
+ * numeri usano il punto come separatore decimale, i campi senza valore non
+ * vengono estratti affatto.
  *
  * @package campi-moduli-italiani
  * @since   2.3.3
@@ -20,7 +21,7 @@
 defined( 'ABSPATH' ) || die( 'you do not have access to this page!' );
 
 /**
- * Downloads and imports SITUAS datasets.
+ * Scarica e importa i dataset SITUAS.
  *
  * @phpstan-type SituasInfo array{'name': string, 'table_name': string, 'situas_pfun'?: int, 'situas_period_from'?: string, 'situas_date'?: string}
  * @phpstan-type SituasRow array<mixed>
@@ -31,32 +32,32 @@ defined( 'ABSPATH' ) || die( 'you do not have access to this page!' );
 class GCMI_Situas {
 
 	/**
-	 * Base URL of the SITUAS publishing services.
+	 * URL di base dei servizi di pubblicazione SITUAS.
 	 *
 	 * @var string
 	 */
 	const BASE_URL = 'https://situas-servizi.istat.it/publish/';
 
 	/**
-	 * Timeout, in seconds, of every HTTP request.
+	 * Timeout, in secondi, di ogni richiesta HTTP.
 	 *
 	 * @var int
 	 */
 	const TIMEOUT = 300;
 
 	/**
-	 * Time zone used to compute the reference date of the requests.
+	 * Fuso orario usato per calcolare la data di riferimento delle richieste.
 	 *
-	 * The administrative changes are dated in Italian time: using the server
-	 * or the site time zone could ask SITUAS for a day outside the validity
-	 * range of the report.
+	 * Le variazioni amministrative sono datate in ora italiana: usando il fuso
+	 * del server o del sito si potrebbe chiedere a SITUAS un giorno fuori
+	 * dall'intervallo di validità del report.
 	 *
 	 * @var string
 	 */
 	const TIME_ZONE = 'Europe/Rome';
 
 	/**
-	 * Returns the reference date for the requests (today in Italy), as d/m/Y.
+	 * Restituisce la data di riferimento delle richieste (oggi in Italia), nel formato d/m/Y.
 	 *
 	 * @return string
 	 */
@@ -66,16 +67,16 @@ class GCMI_Situas {
 	}
 
 	/**
-	 * Returns the query arguments for a SITUAS report.
+	 * Restituisce i parametri della richiesta per un report SITUAS.
 	 *
-	 * Reports of type DATA take 'pdata'; reports of type PERIODO take 'pdatada'
-	 * and 'pdataa'. A dataset with 'situas_period_from' is a PERIODO report from
-	 * that date to today; a dataset with 'situas_date' is a DATA report for that
-	 * fixed date (for some reports pdata is the start of the period); otherwise
-	 * it is a DATA report for today.
+	 * I report di tipo DATA richiedono 'pdata'; quelli di tipo PERIODO 'pdatada'
+	 * e 'pdataa'. Un dataset con 'situas_period_from' è un report PERIODO da
+	 * quella data a oggi; un dataset con 'situas_date' è un report DATA per
+	 * quella data fissa (in alcuni report pdata è l'inizio del periodo); negli
+	 * altri casi è un report DATA per la data di oggi.
 	 *
-	 * @param array<string, mixed> $info Dataset description from GCMI_Activator::$database_file_info.
-	 * @param string               $reference_date The date of the request, as d/m/Y.
+	 * @param array<string, mixed> $info Descrizione del dataset da GCMI_Activator::$database_file_info.
+	 * @param string               $reference_date La data della richiesta, nel formato d/m/Y.
 	 * @return array<string, string>|WP_Error
 	 */
 	public static function get_query_args( $info, $reference_date = '' ) {
@@ -98,11 +99,11 @@ class GCMI_Situas {
 	}
 
 	/**
-	 * Returns the URL of a SITUAS endpoint for a dataset.
+	 * Restituisce l'URL di un endpoint SITUAS per un dataset.
 	 *
-	 * @param string               $endpoint One of reportspooljson, reportspooljsoncount, anagrafica_report_metadato_web.
-	 * @param array<string, mixed> $info     Dataset description.
-	 * @param string               $reference_date The date of the request, as d/m/Y.
+	 * @param string               $endpoint Uno tra reportspooljson, reportspooljsoncount, anagrafica_report_metadato_web.
+	 * @param array<string, mixed> $info     Descrizione del dataset.
+	 * @param string               $reference_date La data della richiesta, nel formato d/m/Y.
 	 * @return string|WP_Error
 	 */
 	public static function get_url( $endpoint, $info, $reference_date = '' ) {
@@ -114,10 +115,10 @@ class GCMI_Situas {
 	}
 
 	/**
-	 * Performs a GET request.
+	 * Esegue una richiesta GET.
 	 *
-	 * @param string $url  The URL.
-	 * @param string $etag The ETag of the data already imported, sent as If-None-Match.
+	 * @param string $url  L'URL.
+	 * @param string $etag L'ETag dei dati già importati, inviato come If-None-Match.
 	 * @return array{'code': int, 'etag': string, 'body': string}|WP_Error
 	 */
 	private static function request( $url, $etag = '' ) {
@@ -150,10 +151,10 @@ class GCMI_Situas {
 	}
 
 	/**
-	 * Decodes a JSON body.
+	 * Decodifica un corpo di risposta JSON.
 	 *
-	 * @param string $body The response body.
-	 * @param string $url  The URL, used in error messages.
+	 * @param string $body Il corpo della risposta.
+	 * @param string $url  L'URL, usato nei messaggi di errore.
 	 * @return array<mixed>|WP_Error
 	 */
 	private static function decode( $body, $url ) {
@@ -165,10 +166,10 @@ class GCMI_Situas {
 	}
 
 	/**
-	 * Extracts the resultset from a decoded response.
+	 * Estrae il resultset da una risposta decodificata.
 	 *
-	 * @param array<mixed> $data The decoded response.
-	 * @param string       $url  The URL, used in error messages.
+	 * @param array<mixed> $data La risposta decodificata.
+	 * @param string       $url  L'URL, usato nei messaggi di errore.
 	 * @return array<int, SituasRow>|WP_Error
 	 */
 	private static function get_resultset( $data, $url ) {
@@ -186,10 +187,10 @@ class GCMI_Situas {
 	}
 
 	/**
-	 * Returns the column names declared in the metadata of a report.
+	 * Restituisce i nomi delle colonne dichiarati nei metadati di un report.
 	 *
-	 * @param array<string, mixed> $info Dataset description.
-	 * @param string               $reference_date The date of the request, as d/m/Y.
+	 * @param array<string, mixed> $info Descrizione del dataset.
+	 * @param string               $reference_date La data della richiesta, nel formato d/m/Y.
 	 * @return array<int, string>|WP_Error
 	 */
 	public static function get_columns( $info, $reference_date = '' ) {
@@ -218,10 +219,10 @@ class GCMI_Situas {
 	}
 
 	/**
-	 * Returns the number of rows of a report.
+	 * Restituisce il numero di righe di un report.
 	 *
-	 * @param array<string, mixed> $info Dataset description.
-	 * @param string               $reference_date The date of the request, as d/m/Y.
+	 * @param array<string, mixed> $info Descrizione del dataset.
+	 * @param string               $reference_date La data della richiesta, nel formato d/m/Y.
 	 * @return int|WP_Error
 	 */
 	public static function get_count( $info, $reference_date = '' ) {
@@ -248,12 +249,12 @@ class GCMI_Situas {
 	}
 
 	/**
-	 * Downloads the rows of a report.
+	 * Scarica le righe di un report.
 	 *
-	 * @param array<string, mixed> $info Dataset description.
-	 * @param string               $etag The ETag of the data already imported; when the data
-	 *                                   did not change SITUAS answers 304 and no row is returned.
-	 * @param string               $reference_date The date of the request, as d/m/Y.
+	 * @param array<string, mixed> $info Descrizione del dataset.
+	 * @param string               $etag L'ETag dei dati già importati; se i dati non sono
+	 *                                   cambiati SITUAS risponde 304 e non viene restituita nessuna riga.
+	 * @param string               $reference_date La data della richiesta, nel formato d/m/Y.
 	 * @return array{'code': int, 'etag': string, 'rows': array<int, SituasRow>}|WP_Error
 	 */
 	public static function fetch( $info, $etag = '', $reference_date = '' ) {
@@ -288,10 +289,10 @@ class GCMI_Situas {
 	}
 
 	/**
-	 * Tells if the remote data changed since the import identified by the ETag.
+	 * Indica se i dati remoti sono cambiati rispetto all'importazione identificata dall'ETag.
 	 *
-	 * @param array<string, mixed> $info Dataset description.
-	 * @param string               $etag The ETag stored at the last import.
+	 * @param array<string, mixed> $info Descrizione del dataset.
+	 * @param string               $etag L'ETag salvato all'ultima importazione.
 	 * @return bool|WP_Error
 	 */
 	public static function has_changed( $info, $etag ) {
@@ -312,16 +313,17 @@ class GCMI_Situas {
 	}
 
 	/**
-	 * Imports a dataset into a table.
+	 * Importa un dataset in una tabella.
 	 *
-	 * The table must exist and be empty. The import fails, leaving the table
-	 * partially filled, if the report lacks a required column, if a row lacks a
-	 * required field or if the rows do not match the count declared by SITUAS:
-	 * the caller has to drop the table in that case.
+	 * La tabella deve esistere ed essere vuota. L'importazione fallisce, lasciando
+	 * la tabella parzialmente riempita, se nel report manca una colonna richiesta,
+	 * se in una riga manca un campo obbligatorio o se le righe non corrispondono
+	 * al conteggio dichiarato da SITUAS: in quel caso il chiamante deve eliminare
+	 * la tabella.
 	 *
-	 * @param array<string, mixed> $info  Dataset description.
-	 * @param string               $table The table to fill.
-	 * @return string|WP_Error The ETag of the imported data.
+	 * @param array<string, mixed> $info  Descrizione del dataset.
+	 * @param string               $table La tabella da riempire.
+	 * @return string|WP_Error L'ETag dei dati importati.
 	 */
 	public static function import( $info, $table ) {
 		global $wpdb;
@@ -389,9 +391,9 @@ class GCMI_Situas {
 	}
 
 	/**
-	 * Returns the mapper of a dataset and the columns it requires.
+	 * Restituisce la funzione di mappatura di un dataset e le colonne richieste.
 	 *
-	 * @param string $name The dataset name.
+	 * @param string $name Il nome del dataset.
 	 * @return array{'callback': callable, 'required': array<int, string>}|WP_Error
 	 */
 	private static function get_mapper( $name ) {
@@ -458,13 +460,13 @@ class GCMI_Situas {
 	}
 
 	/**
-	 * Maps a row of the report "Elenco dei codici e delle denominazioni delle unità territoriali" (pfun 61).
+	 * Mappa una riga del report "Elenco dei codici e delle denominazioni delle unità territoriali" (pfun 61).
 	 *
-	 * The deprecated columns i_cod_comune_num_2010_2016, i_cod_comune_num_2006_2009,
-	 * i_cod_comune_num_1995_2005 and i_nuts*_2021 are not filled: SITUAS does not
-	 * publish them.
+	 * Le colonne deprecate i_cod_comune_num_2010_2016, i_cod_comune_num_2006_2009,
+	 * i_cod_comune_num_1995_2005 e i_nuts*_2021 non vengono valorizzate: SITUAS
+	 * non le pubblica.
 	 *
-	 * @param SituasRow $row A row of the resultset.
+	 * @param SituasRow $row Una riga del resultset.
 	 * @return MappedRow|WP_Error
 	 */
 	public static function map_comuni_attuali( $row ) {
@@ -518,9 +520,9 @@ class GCMI_Situas {
 	}
 
 	/**
-	 * Maps a row of the report "Comuni soppressi o ceduti" (pfun 98).
+	 * Mappa una riga del report "Comuni soppressi o ceduti" (pfun 98).
 	 *
-	 * @param SituasRow $row A row of the resultset.
+	 * @param SituasRow $row Una riga del resultset.
 	 * @return MappedRow|WP_Error
 	 */
 	public static function map_comuni_soppressi( $row ) {
@@ -549,12 +551,12 @@ class GCMI_Situas {
 	}
 
 	/**
-	 * Maps a row of the report of administrative and territorial changes (pfun 129).
+	 * Mappa una riga del report delle variazioni amministrative e territoriali (pfun 129).
 	 *
-	 * The deprecated columns i_cod_regione, i_cod_regione_nuovo and i_cod_flag_note
-	 * are not filled: SITUAS does not publish them.
+	 * Le colonne deprecate i_cod_regione, i_cod_regione_nuovo e i_cod_flag_note
+	 * non vengono valorizzate: SITUAS non le pubblica.
 	 *
-	 * @param SituasRow $row A row of the resultset.
+	 * @param SituasRow $row Una riga del resultset.
 	 * @return MappedRow|WP_Error
 	 */
 	public static function map_comuni_variazioni( $row ) {
@@ -592,10 +594,10 @@ class GCMI_Situas {
 	}
 
 	/**
-	 * Returns the code of a change type from its description ("CD-Cambio denominazione" => "CD").
+	 * Restituisce il codice del tipo di variazione dalla sua descrizione ("CD-Cambio denominazione" => "CD").
 	 *
-	 * @param SituasRow $row   A row of the resultset.
-	 * @param string    $field The field name.
+	 * @param SituasRow $row   Una riga del resultset.
+	 * @param string    $field Il nome del campo.
 	 * @return string|null
 	 */
 	public static function cod_variazione( $row, $field ) {
@@ -607,10 +609,10 @@ class GCMI_Situas {
 	}
 
 	/**
-	 * Checks that a row contains all the required fields.
+	 * Verifica che una riga contenga tutti i campi obbligatori.
 	 *
-	 * @param SituasRow          $row      A row of the resultset.
-	 * @param array<int, string> $required The required fields.
+	 * @param SituasRow          $row      Una riga del resultset.
+	 * @param array<int, string> $required I campi obbligatori.
 	 * @return true|WP_Error
 	 */
 	private static function missing_fields( $row, $required ) {
@@ -631,10 +633,10 @@ class GCMI_Situas {
 	}
 
 	/**
-	 * Returns a field as trimmed text; null if the field is absent or empty.
+	 * Restituisce un campo come testo senza spazi iniziali e finali; null se il campo è assente o vuoto.
 	 *
-	 * @param SituasRow $row   A row of the resultset.
-	 * @param string    $field The field name.
+	 * @param SituasRow $row   Una riga del resultset.
+	 * @param string    $field Il nome del campo.
 	 * @return string|null
 	 */
 	public static function text( $row, $field ) {
@@ -651,13 +653,13 @@ class GCMI_Situas {
 	}
 
 	/**
-	 * Returns a numeric code as text of fixed length, restoring the leading zeros.
+	 * Restituisce un codice numerico come testo di lunghezza fissa, ripristinando gli zeri iniziali.
 	 *
-	 * Fields of type NUMBER lose the leading zeros in JSON (1001 instead of 001001).
+	 * Nel JSON i campi di tipo NUMBER perdono gli zeri iniziali (1001 invece di 001001).
 	 *
-	 * @param SituasRow $row    A row of the resultset.
-	 * @param string    $field  The field name.
-	 * @param int       $length The length of the code.
+	 * @param SituasRow $row    Una riga del resultset.
+	 * @param string    $field  Il nome del campo.
+	 * @param int       $length La lunghezza del codice.
 	 * @return string|null
 	 */
 	public static function code( $row, $field, $length ) {
@@ -669,10 +671,10 @@ class GCMI_Situas {
 	}
 
 	/**
-	 * Returns a field as integer; null if absent or not numeric.
+	 * Restituisce un campo come intero; null se assente o non numerico.
 	 *
-	 * @param SituasRow $row   A row of the resultset.
-	 * @param string    $field The field name.
+	 * @param SituasRow $row   Una riga del resultset.
+	 * @param string    $field Il nome del campo.
 	 * @return int|null
 	 */
 	public static function integer( $row, $field ) {
@@ -684,10 +686,10 @@ class GCMI_Situas {
 	}
 
 	/**
-	 * Returns a cadastral code; null for the placeholders of missing codes ("N.d.", "ND").
+	 * Restituisce un codice catastale; null per i segnaposto dei codici mancanti ("N.d.", "ND").
 	 *
-	 * @param SituasRow $row   A row of the resultset.
-	 * @param string    $field The field name.
+	 * @param SituasRow $row   Una riga del resultset.
+	 * @param string    $field Il nome del campo.
 	 * @return string|null
 	 */
 	public static function cod_catastale( $row, $field ) {
@@ -699,12 +701,12 @@ class GCMI_Situas {
 	}
 
 	/**
-	 * Converts a SITUAS date (UTC ISO 8601) into a MySQL DATE (Y-m-d).
+	 * Converte una data SITUAS (UTC ISO 8601) in una DATE MySQL (Y-m-d).
 	 *
-	 * The conversion is done in UTC: using the site time zone could move a
-	 * midnight to the previous day.
+	 * La conversione avviene in UTC: usando il fuso orario del sito una
+	 * mezzanotte potrebbe diventare il giorno precedente.
 	 *
-	 * @param string|null $value The date, as 2026-02-21T00:00:00Z.
+	 * @param string|null $value La data, nel formato 2026-02-21T00:00:00Z.
 	 * @return string|null
 	 */
 	public static function iso_to_date( $value ) {

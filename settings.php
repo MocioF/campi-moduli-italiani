@@ -377,13 +377,14 @@ function gcmi_update_db_2024_2() {
 	dbDelta( $queries, true );
 }
 /**
- * Marks the datasets now downloaded from SITUAS as to be updated
+ * Segnala come da aggiornare i dataset ora scaricati da SITUAS
  *
- * From 2.3.3 comuni_attuali and comuni_soppressi are downloaded as JSON from
- * the ISTAT SITUAS services. The tables are not rebuilt here, during an admin
- * page load: the datasets are shown as outdated in the database management
- * page, and are rebuilt with the new schema when the administrator updates them.
- * Datasets never downloaded are left alone: there is nothing to rebuild.
+ * Dalla 2.3.3 comuni_attuali, comuni_soppressi e comuni_variazioni sono scaricati
+ * in JSON dai servizi ISTAT SITUAS. Le tabelle non vengono ricostruite qui,
+ * durante il caricamento di una pagina di amministrazione: i dataset compaiono
+ * come da aggiornare nella pagina di gestione del database e vengono ricostruiti
+ * con il nuovo schema quando l'amministratore li aggiorna.
+ * I dataset mai scaricati non vengono toccati: non c'è nulla da ricostruire.
  *
  * @since 2.3.3
  * @return void

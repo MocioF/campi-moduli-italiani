@@ -652,12 +652,12 @@ class GCMI_Activator {
 	}
 
 	/**
-	 * Creates and fills the table of a dataset published as JSON on SITUAS.
+	 * Crea e popola la tabella di un dataset pubblicato in JSON su SITUAS.
 	 *
-	 * Stops the activation with an error message if the import fails.
+	 * Se l'importazione fallisce, interrompe l'attivazione con un messaggio di errore.
 	 *
 	 * @since 2.3.3
-	 * @param int $i Index of the dataset in $database_file_info.
+	 * @param int $i Indice del dataset in $database_file_info.
 	 * @return void
 	 */
 	private static function create_situas_table( $i ): void {
@@ -693,12 +693,12 @@ class GCMI_Activator {
 	}
 
 	/**
-	 * Stops the execution showing an error message.
+	 * Interrompe l'esecuzione mostrando un messaggio di errore.
 	 *
 	 * @since 2.3.3
-	 * @param string $code    The error code.
-	 * @param string $title   The error title.
-	 * @param string $message The error message.
+	 * @param string $code    Il codice dell'errore.
+	 * @param string $title   Il titolo dell'errore.
+	 * @param string $message Il messaggio di errore.
 	 * @return never
 	 */
 	private static function die_with_error( $code, $title, $message ) {

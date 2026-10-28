@@ -90,7 +90,7 @@ function gcmi_get_remote_update_timestamp( $myfile_info ) {
  * aggiornare, usando come data quella del controllo.
  *
  * @since 2.3.3
- * @param array<string, mixed> $myfile_info Associative array of data in file.
+ * @param array<string, mixed> $myfile_info Descrizione del dataset da GCMI_Activator::$database_file_info.
  * @return int | false
  */
 function gcmi_get_remote_update_timestamp_by_etag( $myfile_info ) {
