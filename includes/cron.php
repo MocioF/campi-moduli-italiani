@@ -53,7 +53,7 @@ function gcmi_check_update(): void {
 /**
  * Wrapper funzioni per ottenere la data di aggiornamento file remoto - restituisce un timestamp
  *
- * @param array{'name': string, 'downd_name': string, 'featured_csv': string, 'remote_file': string, 'remote_URL': string, 'table_name': string, 'optN_dwdtime': string, 'optN_remoteUpd': string, 'remoteUpd_method'?: string, 'file_type': string, 'orig_encoding': string} $myfile_info Associative array of data in file.
+ * @param array{'name': string, 'downd_name': string, 'featured_csv': string, 'remote_file': string, 'remote_URL': string, 'table_name': string, 'optN_dwdtime': string, 'optN_remoteUpd': string, 'remoteUpd_method'?: string, 'file_type': string, 'orig_encoding': string, 'situas_pfun'?: int, 'situas_period_from'?: string, 'optN_etag'?: string} $myfile_info Associative array of data in file.
  * @return int | false
  */
 function gcmi_get_remote_update_timestamp( $myfile_info ) {
@@ -64,6 +64,9 @@ function gcmi_get_remote_update_timestamp( $myfile_info ) {
 				break;
 			case 'get_headers_by_get':
 				$result = gcmi_get_remote_file_timestamp_by_get( $myfile_info['remote_URL'] );
+				break;
+			case 'etag':
+				$result = gcmi_get_remote_update_timestamp_by_etag( $myfile_info );
 				break;
 			case 'unknown':
 				$result = false;
@@ -76,6 +79,30 @@ function gcmi_get_remote_update_timestamp( $myfile_info ) {
 		$result = false;
 	}
 	return $result;
+}
+
+/**
+ * Controlla l'aggiornamento di un dataset SITUAS tramite ETag
+ *
+ * SITUAS non fornisce 'Last-Modified': la richiesta viene fatta con
+ * 'If-None-Match' e l'ETag salvato all'ultima importazione. Con 304 i dati
+ * non sono cambiati; con un ETag diverso il dataset viene segnalato come da
+ * aggiornare, usando come data quella del controllo.
+ *
+ * @since 2.3.3
+ * @param array<string, mixed> $myfile_info Associative array of data in file.
+ * @return int | false
+ */
+function gcmi_get_remote_update_timestamp_by_etag( $myfile_info ) {
+	if ( ! isset( $myfile_info['optN_etag'] ) || ! is_string( $myfile_info['optN_etag'] ) ) {
+		return false;
+	}
+	$etag    = gcmi_safe_strval( get_site_option( $myfile_info['optN_etag'], '' ) );
+	$changed = GCMI_Situas::has_changed( $myfile_info, $etag );
+	if ( true === $changed ) {
+		return time();
+	}
+	return false;
 }
 
 /**

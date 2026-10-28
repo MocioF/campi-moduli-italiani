@@ -37,34 +37,41 @@ class GCMI_Activator {
 	/**
 	 * Contains data relating to individual imported public databases.
 	 *
-	 * @var array<int, array{'name': string, 'downd_name': string, 'featured_csv': string, 'remote_file': string, 'remote_URL': string, 'table_name': string, 'optN_dwdtime': string, 'optN_remoteUpd': string, 'remoteUpd_method': string, 'file_type': string, 'orig_encoding': string}> $database_file_info
+	 * @var array<int, array{'name': string, 'downd_name': string, 'featured_csv': string, 'remote_file': string, 'remote_URL': string, 'table_name': string, 'optN_dwdtime': string, 'optN_remoteUpd': string, 'remoteUpd_method': string, 'file_type': string, 'orig_encoding': string, 'situas_pfun'?: int, 'situas_period_from'?: string, 'optN_etag'?: string}> $database_file_info
 	 */
 	public static $database_file_info = array(
 		array(
 			'name'             => 'comuni_attuali',
-			'downd_name'       => 'comuni.csv',
-			'featured_csv'     => 'comuni.csv',
-			'remote_file'      => 'Elenco-comuni-italiani.csv',
-			'remote_URL'       => 'https://www.istat.it/storage/codici-unita-amministrative/Elenco-comuni-italiani.csv',
+			'downd_name'       => '',
+			'featured_csv'     => '',
+			'remote_file'      => 'reportspooljson?pfun=61',
+			'remote_URL'       => 'https://situas-servizi.istat.it/publish/reportspooljson?pfun=61',
 			'table_name'       => GCMI_TABLE_PREFIX . 'comuni_attuali',
 			'optN_dwdtime'     => 'gcmi_comuni_attuali_downloaded_time',
 			'optN_remoteUpd'   => 'gcmi_comuni_attuali_remote_file_time',
-			'remoteUpd_method' => 'get_headers_by_get',
-			'file_type'        => 'csv',
-			'orig_encoding'    => 'ISO-8859-1',
+			'remoteUpd_method' => 'etag',
+			'file_type'        => 'json',
+			'orig_encoding'    => 'UTF-8',
+			// SITUAS: "Elenco dei codici e delle denominazioni delle unità territoriali", at today's date.
+			'situas_pfun'      => 61,
+			'optN_etag'        => 'gcmi_comuni_attuali_etag',
 		),
 		array(
-			'name'             => 'comuni_soppressi',
-			'downd_name'       => 'soppressi.zip',
-			'featured_csv'     => 'soppressi.csv',
-			'remote_file'      => 'Elenco-comuni-soppressi.zip',
-			'remote_URL'       => 'https://www.istat.it/storage/codici-unita-amministrative/Elenco-comuni-soppressi.zip',
-			'table_name'       => GCMI_TABLE_PREFIX . 'comuni_soppressi',
-			'optN_dwdtime'     => 'gcmi_comuni_soppressi_downloaded_time',
-			'optN_remoteUpd'   => 'gcmi_comuni_soppressi_remote_file_time',
-			'remoteUpd_method' => 'get_headers_by_get',
-			'file_type'        => 'zip',
-			'orig_encoding'    => 'ISO-8859-1',
+			'name'               => 'comuni_soppressi',
+			'downd_name'         => '',
+			'featured_csv'       => '',
+			'remote_file'        => 'reportspooljson?pfun=98',
+			'remote_URL'         => 'https://situas-servizi.istat.it/publish/reportspooljson?pfun=98',
+			'table_name'         => GCMI_TABLE_PREFIX . 'comuni_soppressi',
+			'optN_dwdtime'       => 'gcmi_comuni_soppressi_downloaded_time',
+			'optN_remoteUpd'     => 'gcmi_comuni_soppressi_remote_file_time',
+			'remoteUpd_method'   => 'etag',
+			'file_type'          => 'json',
+			'orig_encoding'      => 'UTF-8',
+			// SITUAS: "Comuni soppressi o ceduti", from the Unification of Italy to today.
+			'situas_pfun'        => 98,
+			'situas_period_from' => '17/03/1861',
+			'optN_etag'          => 'gcmi_comuni_soppressi_etag',
 		),
 		array(
 			'name'             => 'comuni_variazioni',
@@ -189,6 +196,14 @@ class GCMI_Activator {
 		),
 		'gcmi_stati_cessati_remote_file_time'     => array(
 			'value'    => 0,
+			'autoload' => false,
+		),
+		'gcmi_comuni_attuali_etag'                => array(
+			'value'    => '',
+			'autoload' => false,
+		),
+		'gcmi_comuni_soppressi_etag'              => array(
+			'value'    => '',
 			'autoload' => false,
 		),
 	);
@@ -434,6 +449,11 @@ class GCMI_Activator {
 		 */
 		$count_lines = count( self::$database_file_info );
 		for ( $i = 0; $i < $count_lines; $i++ ) {
+			// Datasets published as JSON on SITUAS are imported directly, without temporary files.
+			if ( 'json' === self::$database_file_info[ $i ]['file_type'] ) {
+				self::create_situas_table( $i );
+				continue;
+			}
 			if ( 'zip' === self::$database_file_info[ $i ]['file_type']
 				|| 'csv' === self::$database_file_info[ $i ]['file_type']
 			) {
@@ -621,6 +641,79 @@ class GCMI_Activator {
 
 		// Remove temporary directory.
 		self::delete_dir( $download_temp_dir );
+	}
+
+	/**
+	 * Creates and fills the table of a dataset published as JSON on SITUAS.
+	 *
+	 * Stops the activation with an error message if the import fails.
+	 *
+	 * @since 2.3.3
+	 * @param int $i Index of the dataset in $database_file_info.
+	 * @return void
+	 */
+	private static function create_situas_table( $i ): void {
+		$info = self::$database_file_info[ $i ];
+
+		if ( ! self::create_db_table( $info['name'], $info['table_name'] ) ) {
+			self::die_with_error(
+				'gcmi_create_tables_error',
+				__( 'Errore creating table', 'campi-moduli-italiani' ),
+				/* translators: %1$s: the local name of the table it attempted to create in the database */
+				sprintf( __( 'Unable to create table %1$s', 'campi-moduli-italiani' ), $info['table_name'] )
+			);
+		}
+
+		$etag = GCMI_Situas::import( $info, $info['table_name'] );
+		if ( is_wp_error( $etag ) ) {
+			// Never leave a partially filled table.
+			self::drop_table( $info['name'], $info['table_name'] );
+			self::die_with_error(
+				'gcmi_data_import_error',
+				__( 'Error importing data into database', 'campi-moduli-italiani' ),
+				/* translators: %1$s: the data name; %2$s: the error message. */
+				sprintf( __( 'Unable to import %1$s: %2$s', 'campi-moduli-italiani' ), $info['name'], $etag->get_error_message() )
+			);
+		}
+
+		$now = time();
+		self::$activator_options[ $info['optN_dwdtime'] ]['value']   = $now;
+		self::$activator_options[ $info['optN_remoteUpd'] ]['value'] = $now;
+		if ( isset( $info['optN_etag'] ) ) {
+			self::$activator_options[ $info['optN_etag'] ]['value'] = $etag;
+		}
+	}
+
+	/**
+	 * Stops the execution showing an error message.
+	 *
+	 * @since 2.3.3
+	 * @param string $code    The error code.
+	 * @param string $title   The error title.
+	 * @param string $message The error message.
+	 * @return never
+	 */
+	private static function die_with_error( $code, $title, $message ) {
+		$gcmi_error = new WP_Error();
+		$gcmi_error->add( $code, '<p><strong>' . esc_html( $title ) . '</strong></p>' . esc_html( $message ) );
+		wp_die(
+			wp_kses(
+				gcmi_show_error( $gcmi_error ),
+				array(
+					'div'    => array(
+						'class' => array(),
+					),
+					'strong' => array(),
+					'br'     => array(),
+					'p'      => array(),
+				)
+			),
+			esc_html__( 'Campi Moduli Italiani activation error', 'campi-moduli-italiani' ),
+			array(
+				'response'  => 200,
+				'back_link' => true,
+			)
+		);
 	}
 
 	/**
@@ -987,7 +1080,7 @@ class GCMI_Activator {
 						'id INT(11) NOT NULL AUTO_INCREMENT, ' .
 						'i_cod_regione char(2) NOT NULL, ' .
 						'i_cod_unita_territoriale char(3) NOT NULL, ' .
-						'i_cod_provincia_storico char(3) NOT NULL, ' .
+						'i_cod_provincia_storico char(3) NULL, ' .
 						'i_prog_comune char(3) NOT NULL, ' .
 						'i_cod_comune char(6) NOT NULL, ' .
 						'i_denominazione_full varchar(255) NOT NULL, ' .
@@ -1001,16 +1094,21 @@ class GCMI_Activator {
 						'i_flag_capoluogo TINYINT(1) NOT NULL, ' .
 						'i_sigla_automobilistica char(2) NOT NULL, ' .
 						'i_cod_comune_num int(6) NOT NULL, ' .
-						'i_cod_comune_num_2010_2016 int(6) NOT NULL, ' .
-						'i_cod_comune_num_2006_2009 int(6) NOT NULL, ' .
-						'i_cod_comune_num_1995_2005 int(6) NOT NULL, ' .
-						'i_cod_catastale char(4) NOT NULL, ' .
-						'i_nuts1_2021 char(3) NOT NULL, ' .
-						'i_nuts2_2021 char(4) NOT NULL, ' .
-						'i_nuts3_2021 char(5) NOT NULL, ' .
-						'i_nuts1_2024 char(3) NOT NULL, ' .
-						'i_nuts2_2024 char(4) NOT NULL, ' .
-						'i_nuts3_2024 char(5) NOT NULL, ' .
+						// Deprecated since 2.3.3: not published by SITUAS, always NULL.
+						// Kept because the views created with SELECT * list them.
+						'i_cod_comune_num_2010_2016 int(6) NULL, ' .
+						'i_cod_comune_num_2006_2009 int(6) NULL, ' .
+						'i_cod_comune_num_1995_2005 int(6) NULL, ' .
+						'i_cod_catastale char(4) NULL, ' .
+						// Deprecated since 2.3.3: not published by SITUAS, always NULL.
+						'i_nuts1_2021 char(3) NULL, ' .
+						'i_nuts2_2021 char(4) NULL, ' .
+						'i_nuts3_2021 char(5) NULL, ' .
+						// NULL for the Sardinian provinces established in 2025, not classified in NUTS 2024.
+						'i_nuts1_2024 char(3) NULL, ' .
+						'i_nuts2_2024 char(4) NULL, ' .
+						'i_nuts3_2024 char(5) NULL, ' .
+						'i_cod_comune_fiscale char(11) NULL, ' .
 						'PRIMARY KEY (`id`), ' .
 						'INDEX `i_cod_comune` (`i_cod_comune`), ' .
 						'INDEX `i_cod_unita_territoriale` (`i_cod_unita_territoriale`), ' .
@@ -1027,9 +1125,10 @@ class GCMI_Activator {
 					$wpdb->prepare(
 						'CREATE TABLE IF NOT EXISTS %1$s ( ' .
 						'id INT(11) NOT NULL AUTO_INCREMENT, ' .
-						'i_anno_var YEAR(4) NOT NULL, ' .
-						'i_sigla_automobilistica char(2) NOT NULL, ' .
-						'i_cod_unita_territoriale char(3) NOT NULL, ' .
+						// SMALLINT: the MySQL type YEAR does not accept years before 1901.
+						'i_anno_var SMALLINT(4) UNSIGNED NOT NULL, ' .
+						'i_sigla_automobilistica char(2) NULL, ' .
+						'i_cod_unita_territoriale char(3) NULL, ' .
 						'i_cod_comune char(6) NOT NULL, ' .
 						'i_denominazione_full varchar(255) NOT NULL, ' .
 						'i_cod_scorporo char(1) NULL, ' .
@@ -1236,37 +1335,6 @@ class GCMI_Activator {
 	}
 
 	/**
-	 * Aggiunge degli zeri iniziali, fino al numero di caratteri della lunghezza prevista
-	 *
-	 * @param string $string Una stringa numerica.
-	 * @param int    $len il numero di caratteri della stringa restituita.
-	 * @return string
-	 */
-	private static function add_trailing_zeroes( $string, $len ) {
-		if ( ! is_numeric( $string ) ) {
-			return $string;
-		}
-		if ( strlen( $string ) === $len ) {
-			return $string;
-		}
-		return sprintf( '%0' . strval( $len ) . 's', $string );
-	}
-
-	/**
-	 * Tronca le stringhe ad un numero massimo di caratteri
-	 *
-	 * @param string $string La stringa.
-	 * @param int    $len Numero massimo di caratteri ammesso.
-	 * @return string
-	 */
-	private static function truncate( $string, $len ) {
-		if ( $len < strlen( $string ) ) {
-			return substr( $string, 0, $len );
-		}
-		return $string;
-	}
-
-	/**
 	 * Populates a db table.
 	 *
 	 * Populates a db table, using data in csv file.
@@ -1330,116 +1398,6 @@ class GCMI_Activator {
 
 				$gcmi_dati_line = esc_sql( $gcmi_dati_line );
 				switch ( $name ) {
-					case 'comuni_attuali':
-						// inserisco la riga nel database.
-						if ( ! ( $wpdb->insert(
-							$table,
-							array(
-								'i_cod_regione'            => self::add_trailing_zeroes( trim( gcmi_safe_strval( $gcmi_dati_line[0] ) ), 2 ),
-								'i_cod_unita_territoriale' => self::add_trailing_zeroes( trim( gcmi_safe_strval( $gcmi_dati_line[1] ) ), 3 ),
-								'i_cod_provincia_storico'  => self::add_trailing_zeroes( trim( gcmi_safe_strval( $gcmi_dati_line[2] ) ), 3 ),
-								'i_prog_comune'            => self::add_trailing_zeroes( trim( gcmi_safe_strval( $gcmi_dati_line[3] ) ), 3 ),
-								'i_cod_comune'             => self::add_trailing_zeroes( trim( gcmi_safe_strval( $gcmi_dati_line[4] ) ), 6 ),
-								'i_denominazione_full'     => trim( gcmi_safe_strval( $gcmi_dati_line[5] ) ),
-								'i_denominazione_ita'      => trim( gcmi_safe_strval( $gcmi_dati_line[6] ) ),
-								'i_denominazione_altralingua' => $gcmi_dati_line[7],
-								'i_cod_ripartizione_geo'   => $gcmi_dati_line[8],
-								'i_ripartizione_geo'       => trim( gcmi_safe_strval( $gcmi_dati_line[9] ) ),
-								'i_den_regione'            => trim( gcmi_safe_strval( $gcmi_dati_line[10] ) ),
-								'i_den_unita_territoriale' => trim( gcmi_safe_strval( $gcmi_dati_line[11] ) ),
-								'i_cod_tipo_unita_territoriale' => $gcmi_dati_line[12],
-								'i_flag_capoluogo'         => $gcmi_dati_line[13],
-								'i_sigla_automobilistica'  => self::truncate( trim( gcmi_safe_strval( $gcmi_dati_line[14] ) ), 2 ),
-								'i_cod_comune_num'         => $gcmi_dati_line[15],
-								'i_cod_comune_num_2010_2016' => $gcmi_dati_line[16],
-								'i_cod_comune_num_2006_2009' => $gcmi_dati_line[17],
-								'i_cod_comune_num_1995_2005' => $gcmi_dati_line[18],
-								'i_cod_catastale'          => self::truncate( gcmi_safe_strval( $gcmi_dati_line[19] ), 4 ),
-								'i_nuts1_2021'             => self::truncate( gcmi_safe_strval( $gcmi_dati_line[20] ), 3 ),
-								'i_nuts2_2021'             => self::truncate( gcmi_safe_strval( $gcmi_dati_line[21] ), 4 ),
-								'i_nuts3_2021'             => self::truncate( gcmi_safe_strval( $gcmi_dati_line[22] ), 5 ),
-								'i_nuts1_2024'             => self::truncate( gcmi_safe_strval( $gcmi_dati_line[23] ), 3 ),
-								'i_nuts2_2024'             => self::truncate( gcmi_safe_strval( $gcmi_dati_line[24] ), 4 ),
-								'i_nuts3_2024'             => self::truncate( gcmi_safe_strval( $gcmi_dati_line[25] ), 5 ),
-							),
-							array(
-								'%s',
-								'%s',
-								'%s',
-								'%s',
-								'%s',
-								'%s',
-								'%s',
-								'%s',
-								'%d',
-								'%s',
-								'%s',
-								'%s',
-								'%d',
-								'%d',
-								'%s',
-								'%d',
-								'%d',
-								'%d',
-								'%d',
-								'%s',
-								'%s',
-								'%s',
-								'%s',
-								'%s',
-								'%s',
-								'%s',
-							)
-						) )
-						) {
-							return false;
-						}
-						break;
-					case 'comuni_soppressi':
-						// phpcs:ignore Universal.Operators.StrictComparisons.LooseNotEqual
-						if ( null != $gcmi_dati_line[6] ) {
-							$date = DateTime::createFromFormat( 'd/m/Y', $gcmi_dati_line[6] );
-							if ( false === $date ) {
-								$formatted_date = null;
-							} else {
-								$formatted_date = $date->format( 'Y-m-d' );
-							}
-						} else {
-							$formatted_date = null;
-						}
-						if ( ! ( $wpdb->insert(
-							$table,
-							array(
-								'i_anno_var'               => $gcmi_dati_line[0],
-								'i_sigla_automobilistica'  => $gcmi_dati_line[1],
-								'i_cod_unita_territoriale' => $gcmi_dati_line[2],
-								'i_cod_comune'             => $gcmi_dati_line[3],
-								'i_denominazione_full'     => $gcmi_dati_line[4],
-								'i_cod_scorporo'           => $gcmi_dati_line[5],
-								'i_data_variazione'        => $formatted_date,
-								'i_cod_comune_nuovo'       => $gcmi_dati_line[7],
-								'i_denominazione_nuovo'    => $gcmi_dati_line[8],
-								'i_cod_unita_territoriale_nuovo' => $gcmi_dati_line[9],
-								'i_sigla_automobilistica_nuovo' => $gcmi_dati_line[10],
-							),
-							array(
-								'%d',
-								'%s',
-								'%s',
-								'%s',
-								'%s',
-								'%s',
-								'%s',
-								'%s',
-								'%s',
-								'%s',
-								'%s',
-							)
-						) )
-						) {
-							return false;
-						}
-						break;
 					case 'comuni_variazioni':
 						// phpcs:ignore Universal.Operators.StrictComparisons.LooseNotEqual
 						if ( null != $gcmi_dati_line[12] ) {

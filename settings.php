@@ -56,6 +56,11 @@ require_once plugin_dir_path( GCMI_PLUGIN ) . 'includes/gcmi-custom-lib.php';
 require_once plugin_dir_path( GCMI_PLUGIN ) . 'admin/class-gcmi-activator.php';
 
 /**
+ * Requires the class used to download data from the ISTAT SITUAS services
+ */
+require_once plugin_dir_path( GCMI_PLUGIN ) . 'admin/includes/class-gcmi-situas.php';
+
+/**
  * Requires file used to run the cron job to check remote files update
  */
 require_once plugin_dir_path( GCMI_PLUGIN ) . 'includes/cron.php';
@@ -169,6 +174,9 @@ function gcmi_upgrade() {
 		gcmi_update_db_2024_2();
 		gcmi_add_index_on_tables();
 		gcmi_create_unfiltered_views_on_plugin_update();
+	}
+	if ( version_compare( $old_ver, '2.3.3', '<' ) ) {
+		gcmi_flag_situas_datasets_for_update();
 	}
 
 	// Calls the callback functions that have been added to the gcmi_upgrade action hook.
@@ -368,6 +376,40 @@ function gcmi_update_db_2024_2() {
 	);
 	dbDelta( $queries, true );
 }
+/**
+ * Marks the datasets now downloaded from SITUAS as to be updated
+ *
+ * From 2.3.3 comuni_attuali and comuni_soppressi are downloaded as JSON from
+ * the ISTAT SITUAS services. The tables are not rebuilt here, during an admin
+ * page load: the datasets are shown as outdated in the database management
+ * page, and are rebuilt with the new schema when the administrator updates them.
+ * Datasets never downloaded are left alone: there is nothing to rebuild.
+ *
+ * @since 2.3.3
+ * @return void
+ */
+function gcmi_flag_situas_datasets_for_update(): void {
+	foreach ( GCMI_Activator::$database_file_info as $info ) {
+		if ( 'json' !== $info['file_type'] ) {
+			continue;
+		}
+		if ( 0 === gcmi_safe_intval( get_site_option( $info['optN_dwdtime'], 0 ) ) ) {
+			continue;
+		}
+		if ( false === is_multisite() ) {
+			update_option( $info['optN_remoteUpd'], time(), false );
+			if ( isset( $info['optN_etag'] ) ) {
+				update_option( $info['optN_etag'], '', false );
+			}
+		} else {
+			update_site_option( $info['optN_remoteUpd'], time() );
+			if ( isset( $info['optN_etag'] ) ) {
+				update_site_option( $info['optN_etag'], '' );
+			}
+		}
+	}
+}
+
 /**
  * Adds extra links to the plugin activation page
  *

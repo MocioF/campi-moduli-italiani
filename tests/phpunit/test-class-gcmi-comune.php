@@ -980,8 +980,8 @@ final class GCMI_COMUNETest extends WP_Ajax_UnitTestCase {
 		wp_dequeue_style( 'gcmi_comune_css' );
 		wp_deregister_style( 'gcmi_comune_css' );
 
-		wp_dequeue_style( 'gcmi_jquery-ui-theme' );
-		wp_deregister_style( 'gcmi_jquery-ui-theme' );
+		wp_dequeue_style( 'gcmi_jquery-ui-dialog' );
+		wp_deregister_style( 'gcmi_jquery-ui-dialog' );
 
 		wp_dequeue_style( 'dashicons' );
 		wp_deregister_style( 'dashicons' );
@@ -994,7 +994,7 @@ final class GCMI_COMUNETest extends WP_Ajax_UnitTestCase {
 		$this->assertArrayHasKey( 'gcmi_comune_js', $scripts_array );
 		$this->assertArrayHasKey( 'gcmi_comune_css', $styles_array );
 		$this->assertArrayHasKey( 'dashicons', $styles_array );
-		$this->assertArrayHasKey( 'gcmi_jquery-ui-theme', $styles_array );
+		$this->assertArrayHasKey( 'gcmi_jquery-ui-dialog', $styles_array );
 	}
 
 	/**

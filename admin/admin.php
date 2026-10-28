@@ -357,7 +357,14 @@ function gcmi_update_table( $fname ) {
 			)
 		);
 	}
-	$i                 = null;
+	$i = null;
+
+	// Datasets published as JSON on SITUAS are imported directly, without temporary files.
+	if ( 'json' === $database_file_info[ $id ]['file_type'] ) {
+		gcmi_update_situas_table( $database_file_info[ $id ] );
+		return;
+	}
+
 	$download_temp_dir = GCMI_Activator::make_tmp_dwld_dir();
 	if ( false === $download_temp_dir ) {
 		$error_code    = ( 'gcmi_mkdir_fail' );
@@ -516,6 +523,83 @@ function gcmi_update_table( $fname ) {
 
 		// elimino la cartella temporanea.
 		GCMI_Activator::delete_dir( $download_temp_dir );
+	}
+}
+
+/**
+ * Aggiorna la tabella di un dataset pubblicato in JSON su SITUAS
+ *
+ * I dati vengono importati in una tabella temporanea, che sostituisce quella
+ * esistente solo se l'importazione è completa: in caso di errore la tabella
+ * esistente resta intatta.
+ *
+ * @since 2.3.3
+ * @param array{'name': string, 'table_name': string, 'optN_dwdtime': string, 'optN_etag'?: string} $info Dataset description from GCMI_Activator::$database_file_info.
+ * @return void
+ */
+function gcmi_update_situas_table( $info ) {
+	global $wpdb;
+	$allowed_html = array(
+		'div'    => array(
+			'class' => array(),
+		),
+		'strong' => array(),
+		'br'     => array(),
+		'p'      => array(),
+	);
+
+	$tmp_table_name = $info['table_name'] . '_tmp';
+	$etag           = GCMI_Activator::create_db_table( $info['name'], $tmp_table_name )
+		? GCMI_Situas::import( $info, $tmp_table_name )
+		: new WP_Error( 'gcmi_create_tables_error', $tmp_table_name );
+
+	if ( is_wp_error( $etag ) ) {
+		$wpdb->query(
+			$wpdb->prepare(
+				'DROP TABLE IF EXISTS `%1$s`',
+				$tmp_table_name
+			)
+		);
+		$gcmi_error    = new WP_Error();
+		$error_title   = esc_html__( 'Error importing data into database', 'campi-moduli-italiani' );
+		$error_message = '<p><strong>' . $error_title . '</strong></p>';
+		/* translators: %1$s: the data name; %2$s: the error message. */
+		$error_message .= esc_html( sprintf( __( 'Unable to import %1$s: %2$s', 'campi-moduli-italiani' ), $info['name'], $etag->get_error_message() ) );
+		$gcmi_error->add( 'gcmi_data_import_error', $error_message );
+		wp_die(
+			wp_kses( gcmi_show_error( $gcmi_error ), $allowed_html ),
+			esc_html__( 'Campi Moduli Italiani activation error', 'campi-moduli-italiani' ),
+			array(
+				'response'  => 200,
+				'back_link' => true,
+			)
+		);
+	}
+
+	$wpdb->query(
+		$wpdb->prepare(
+			'DROP TABLE IF EXISTS `%1$s`',
+			$info['table_name']
+		)
+	);
+	$wpdb->query(
+		$wpdb->prepare(
+			'RENAME TABLE `%1$s` TO `%2$s`',
+			$tmp_table_name,
+			$info['table_name']
+		)
+	);
+
+	if ( false === is_multisite() ) {
+		update_option( $info['optN_dwdtime'], time(), false );
+		if ( isset( $info['optN_etag'] ) ) {
+			update_option( $info['optN_etag'], $etag, false );
+		}
+	} else {
+		update_site_option( $info['optN_dwdtime'], time() );
+		if ( isset( $info['optN_etag'] ) ) {
+			update_site_option( $info['optN_etag'], $etag );
+		}
 	}
 }
 

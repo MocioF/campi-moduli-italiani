@@ -128,7 +128,8 @@ final class GCMI_ActivatorTest extends WP_UnitTestCase {
 		$main_array     = GCMI_Activator::$database_file_info;
 		$download_array = array();
 		foreach ( $main_array as $item ) {
-			if ( 'html' !== $item['file_type'] ) {
+			// html and json (SITUAS) datasets are not downloaded as files.
+			if ( 'html' !== $item['file_type'] && 'json' !== $item['file_type'] ) {
 				$download_array[] = $item;
 			}
 		}
