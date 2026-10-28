@@ -917,7 +917,7 @@ class GCMI_COMUNE {
 	 *
 	 * @global wpdb $wpdb
 	 * @param string $i_cod_comune Codice del comune.
-	 * @return array<int, object{'i_anno_var': string, 'i_tipo_var': string, 'i_cod_comune': string, 'i_denominazione_full': string, 'i_cod_comune_nuovo': string, 'i_denominazione_nuovo': string, 'i_documento': string, 'i_contenuto': string, 'i_cod_flag_note': string, 'i_data_decorrenza': string}>
+	 * @return array<int, object{'i_anno_var': string, 'i_tipo_var': string, 'i_cod_comune': string, 'i_denominazione_full': string, 'i_cod_comune_nuovo': string, 'i_denominazione_nuovo': string, 'i_documento': string|null, 'i_contenuto': string|null, 'i_cod_flag_note': string|null, 'i_data_decorrenza': string|null}>
 	 */
 	private static function get_variazioni_comune( $i_cod_comune ) {
 		global $wpdb;
@@ -1126,13 +1126,20 @@ class GCMI_COMUNE {
 					case 'AP':
 						$tooltip = esc_html__( 'AP: Change of belonging to the hierarchically superior administrative unit (typically, a change of province and or region).', 'campi-moduli-italiani' );
 						break;
+					case 'RN':
+						$tooltip = esc_html__( 'RN: Renumbering of the statistical code of the municipality', 'campi-moduli-italiani' );
+						break;
 					default:
 						$tooltip = '';
 				}
 
+				// Notes are no longer published by ISTAT (SITUAS): the note row is shown only when there is one.
+				$has_note = null !== $result->i_cod_flag_note && '' !== $result->i_cod_flag_note;
+				$rowspan  = $has_note ? '15' : '14';
+
 				$table .= '<tr>';
-				$table .= '<td class="tg-5cz4" rowspan="15">' . esc_html( $result->i_anno_var ) . '</td>';
-				$table .= '<td class="tg-5cz4" rowspan="15"><span id="' . esc_html( uniqid( 'TTVar', true ) ) . '" title="' . esc_html( $tooltip ) . '">' . esc_html( $result->i_tipo_var ) . '</span></td>';
+				$table .= '<td class="tg-5cz4" rowspan="' . $rowspan . '">' . esc_html( $result->i_anno_var ) . '</td>';
+				$table .= '<td class="tg-5cz4" rowspan="' . $rowspan . '"><span id="' . esc_html( uniqid( 'TTVar', true ) ) . '" title="' . esc_html( $tooltip ) . '">' . esc_html( $result->i_tipo_var ) . '</span></td>';
 				$table .= '<td class="tg-4ynh">' . esc_html__( 'Istat code of the municipality. For changes of province and / or region (AP) membership, the code is the one prior to the validity date of the provision:', 'campi-moduli-italiani' ) . '</td>';
 				$table .= '</tr>';
 				$table .= '<tr>';
@@ -1172,9 +1179,12 @@ class GCMI_COMUNE {
 				$table .= '<td class="tg-4ynh">' . esc_html__( 'Administrative validity effective date:', 'campi-moduli-italiani' ) . '</td>';
 				$table .= '</tr>';
 				$table .= '<tr>';
-				$table .= '<td class="tg-lboi">' . esc_html( $result->i_data_decorrenza ) . '</td>';
+				$table .= '<td class="tg-lboi">' . esc_html( gcmi_safe_strval( $result->i_data_decorrenza ) ) . '</td>';
 				$table .= '</tr>';
 
+				if ( ! $has_note ) {
+					continue;
+				}
 				$table .= '<tr>';
 				$table .= '<td class="tg-4ynh">' . esc_html__( 'Note: ', 'campi-moduli-italiani' );
 				switch ( $result->i_cod_flag_note ) {

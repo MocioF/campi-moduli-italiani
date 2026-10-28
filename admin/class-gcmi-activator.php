@@ -37,7 +37,7 @@ class GCMI_Activator {
 	/**
 	 * Contains data relating to individual imported public databases.
 	 *
-	 * @var array<int, array{'name': string, 'downd_name': string, 'featured_csv': string, 'remote_file': string, 'remote_URL': string, 'table_name': string, 'optN_dwdtime': string, 'optN_remoteUpd': string, 'remoteUpd_method': string, 'file_type': string, 'orig_encoding': string, 'situas_pfun'?: int, 'situas_period_from'?: string, 'optN_etag'?: string}> $database_file_info
+	 * @var array<int, array{'name': string, 'downd_name': string, 'featured_csv': string, 'remote_file': string, 'remote_URL': string, 'table_name': string, 'optN_dwdtime': string, 'optN_remoteUpd': string, 'remoteUpd_method': string, 'file_type': string, 'orig_encoding': string, 'situas_pfun'?: int, 'situas_period_from'?: string, 'situas_date'?: string, 'optN_etag'?: string}> $database_file_info
 	 */
 	public static $database_file_info = array(
 		array(
@@ -75,16 +75,20 @@ class GCMI_Activator {
 		),
 		array(
 			'name'             => 'comuni_variazioni',
-			'downd_name'       => 'variazioni.zip',
-			'featured_csv'     => 'variazioni.csv',
-			'remote_file'      => 'Variazioni-amministrative-e-territoriali-dal-1991.zip',
-			'remote_URL'       => 'https://www.istat.it/storage/codici-unita-amministrative/Variazioni-amministrative-e-territoriali-dal-1991.zip',
+			'downd_name'       => '',
+			'featured_csv'     => '',
+			'remote_file'      => 'reportspooljson?pfun=129',
+			'remote_URL'       => 'https://situas-servizi.istat.it/publish/reportspooljson?pfun=129',
 			'table_name'       => GCMI_TABLE_PREFIX . 'comuni_variazioni',
 			'optN_dwdtime'     => 'gcmi_comuni_variazioni_downloaded_time',
 			'optN_remoteUpd'   => 'gcmi_comuni_variazioni_remote_file_time',
-			'remoteUpd_method' => 'get_headers_by_get',
-			'file_type'        => 'zip',
-			'orig_encoding'    => 'ISO-8859-1',
+			'remoteUpd_method' => 'etag',
+			'file_type'        => 'json',
+			'orig_encoding'    => 'UTF-8',
+			// SITUAS: administrative and territorial changes; pdata is the start of the period.
+			'situas_pfun'      => 129,
+			'situas_date'      => '01/01/1991',
+			'optN_etag'        => 'gcmi_comuni_variazioni_etag',
 		),
 		array(
 			'name'             => 'codici_catastali',
@@ -203,6 +207,10 @@ class GCMI_Activator {
 			'autoload' => false,
 		),
 		'gcmi_comuni_soppressi_etag'              => array(
+			'value'    => '',
+			'autoload' => false,
+		),
+		'gcmi_comuni_variazioni_etag'             => array(
 			'value'    => '',
 			'autoload' => false,
 		),
@@ -1155,17 +1163,22 @@ class GCMI_Activator {
 						'id INT(11) NOT NULL AUTO_INCREMENT, ' .
 						'i_anno_var YEAR(4) NOT NULL, ' .
 						'i_tipo_var varchar(4) NOT NULL, ' .
-						'i_cod_regione char(2) NOT NULL, ' .
+						// Deprecated since 2.3.3: not published by SITUAS, always NULL.
+						// Kept because the views created with SELECT * list them.
+						'i_cod_regione char(2) NULL, ' .
 						'i_cod_unita_territoriale char(3) NOT NULL, ' .
 						'i_cod_comune char(6) NOT NULL, ' .
 						'i_denominazione_full varchar(255) NOT NULL, ' .
-						'i_cod_regione_nuovo char(2) NOT NULL, ' .
+						// Deprecated since 2.3.3: not published by SITUAS, always NULL.
+						'i_cod_regione_nuovo char(2) NULL, ' .
 						'i_cod_unita_territoriale_nuovo char(3) NOT NULL, ' .
 						'i_cod_comune_nuovo char(6) NOT NULL, ' .
 						'i_denominazione_nuovo varchar(255) NOT NULL, ' .
-						'i_documento TINYTEXT NULL, ' .
-						'i_contenuto TINYTEXT NULL, ' .
+						// TEXT: some acts are longer than the 255 bytes of TINYTEXT.
+						'i_documento TEXT NULL, ' .
+						'i_contenuto TEXT NULL, ' .
 						'i_data_decorrenza DATE NULL, ' .
+						// Deprecated since 2.3.3: not published by SITUAS, always NULL.
 						'i_cod_flag_note char(1) NULL, ' .
 						'PRIMARY KEY (id) ' .
 						') %2$s',
@@ -1398,57 +1411,6 @@ class GCMI_Activator {
 
 				$gcmi_dati_line = esc_sql( $gcmi_dati_line );
 				switch ( $name ) {
-					case 'comuni_variazioni':
-						// phpcs:ignore Universal.Operators.StrictComparisons.LooseNotEqual
-						if ( null != $gcmi_dati_line[12] ) {
-							$date = DateTime::createFromFormat( 'd/m/Y', $gcmi_dati_line[12] );
-							if ( false === $date ) {
-								$formatted_date = null;
-							} else {
-								$formatted_date = $date->format( 'Y-m-d' );
-							}
-						} else {
-							$formatted_date = null;
-						}
-						if ( ! ( $wpdb->insert(
-							$table,
-							array(
-								'i_anno_var'               => $gcmi_dati_line[0],
-								'i_tipo_var'               => $gcmi_dati_line[1],
-								'i_cod_regione'            => $gcmi_dati_line[2],
-								'i_cod_unita_territoriale' => $gcmi_dati_line[3],
-								'i_cod_comune'             => $gcmi_dati_line[4],
-								'i_denominazione_full'     => $gcmi_dati_line[5],
-								'i_cod_regione_nuovo'      => $gcmi_dati_line[6],
-								'i_cod_unita_territoriale_nuovo' => $gcmi_dati_line[7],
-								'i_cod_comune_nuovo'       => $gcmi_dati_line[8],
-								'i_denominazione_nuovo'    => $gcmi_dati_line[9],
-								'i_documento'              => $gcmi_dati_line[10],
-								'i_contenuto'              => $gcmi_dati_line[11],
-								'i_data_decorrenza'        => $formatted_date,
-								'i_cod_flag_note'          => $gcmi_dati_line[13],
-							),
-							array(
-								'%d',
-								'%s',
-								'%s',
-								'%s',
-								'%s',
-								'%s',
-								'%s',
-								'%s',
-								'%s',
-								'%s',
-								'%s',
-								'%s',
-								'%s',
-								'%s',
-							)
-						) )
-						) {
-							return false;
-						}
-						break;
 					case 'codici_catastali':
 						if ( ! ( $wpdb->insert(
 							$table,

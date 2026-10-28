@@ -35,6 +35,12 @@ final class GCMI_SituasTest extends WP_UnitTestCase {
 			'table_name'  => 'wptests_gcmi_test_situas_attuali',
 			'situas_pfun' => 61,
 		),
+		'comuni_variazioni' => array(
+			'name'        => 'comuni_variazioni',
+			'table_name'  => 'wptests_gcmi_test_situas_variazioni',
+			'situas_pfun' => 129,
+			'situas_date' => '01/01/1991',
+		),
 		'comuni_soppressi' => array(
 			'name'               => 'comuni_soppressi',
 			'table_name'         => 'wptests_gcmi_test_situas_soppressi',
@@ -404,6 +410,101 @@ final class GCMI_SituasTest extends WP_UnitTestCase {
 		$this->assertWPError( GCMI_Situas::import( $info, $info['table_name'] ) );
 	}
 
+	private function variazioni_columns() {
+		return array( 'ANNO', 'DESC_COD_VARIAZIONE', 'SIGLA_AUTOMOBILISTICA', 'COD_UTS', 'PRO_COM_T', 'COMUNE', 'COD_CATASTO', 'COD_UTS_REL', 'SIGLA_AUTOMOBILISTICA_REL', 'PRO_COM_T_REL', 'COMUNE_REL', 'COD_CATASTO_REL', 'PROVVEDIMENTO', 'TESTO_PROVVEDIMENTO', 'DATA_INIZIO_AMMINISTRATIVA' );
+	}
+
+	private function variazioni_row( $desc = 'RN-Rinumerazione del codice statistico' ) {
+		return array(
+			'ANNO'                       => '2026',
+			'DESC_COD_VARIAZIONE'        => $desc,
+			'SIGLA_AUTOMOBILISTICA'      => 'SS',
+			'COD_UTS'                    => '090',
+			'PRO_COM_T'                  => '090003',
+			'COMUNE'                     => 'Alghero',
+			'COD_CATASTO'                => 'A192',
+			'COD_UTS_REL'                => '312',
+			'SIGLA_AUTOMOBILISTICA_REL'  => 'SS',
+			'PRO_COM_T_REL'              => '112001',
+			'COMUNE_REL'                 => 'Alghero',
+			'COD_CATASTO_REL'            => 'A192',
+			'PROVVEDIMENTO'              => 'L. R. N. 7 del 12/04/2021',
+			// Longer than the 255 bytes of TINYTEXT, as the acts on the Sardinian provinces.
+			'TESTO_PROVVEDIMENTO'        => str_repeat( 'ISTITUITE LA CITTA\' METROPOLITANA DI SASSARI E LA PROVINCIA GALLURA NORD-EST SARDEGNA. ', 8 ),
+			'DATA_INIZIO_AMMINISTRATIVA' => '2026-01-01T00:00:00Z',
+		);
+	}
+
+	/**
+	 * @group situas
+	 */
+	public function test_query_args_fixed_date() {
+		$this->assertSame(
+			array(
+				'pfun'  => '129',
+				'pdata' => '01/01/1991',
+			),
+			GCMI_Situas::get_query_args( $this->info['comuni_variazioni'], '28/10/2026' )
+		);
+	}
+
+	/**
+	 * @group situas
+	 * @dataProvider provide_desc_variazioni
+	 */
+	public function test_cod_variazione( $input, $expected ) {
+		$this->assertSame( $expected, GCMI_Situas::cod_variazione( array( 'D' => $input ), 'D' ) );
+	}
+
+	public function provide_desc_variazioni() {
+		return array(
+			array( 'CD-Cambio denominazione', 'CD' ),
+			array( 'AQES-Acquisizione per estinzione', 'AQES' ),
+			array( 'CECS-Cessione territorio per costituzione nuova unità', 'CECS' ),
+			array( 'RN-Rinumerazione del codice statistico', 'RN' ),
+			array( 'Cambio denominazione', null ),
+			array( null, null ),
+		);
+	}
+
+	/**
+	 * @group situas
+	 */
+	public function test_map_comuni_variazioni() {
+		$mapped = GCMI_Situas::map_comuni_variazioni( $this->variazioni_row() );
+		$this->assertIsArray( $mapped );
+		$this->assertSame( 2026, $mapped['data']['i_anno_var'] );
+		$this->assertSame( 'RN', $mapped['data']['i_tipo_var'] );
+		$this->assertSame( '312', $mapped['data']['i_cod_unita_territoriale_nuovo'] );
+		$this->assertSame( '112001', $mapped['data']['i_cod_comune_nuovo'] );
+		$this->assertSame( '2026-01-01', $mapped['data']['i_data_decorrenza'] );
+		$this->assertCount( count( $mapped['data'] ), $mapped['format'] );
+
+		$this->assertWPError( GCMI_Situas::map_comuni_variazioni( $this->variazioni_row( 'Senza codice' ) ) );
+	}
+
+	/**
+	 * @group situas
+	 */
+	public function test_import_comuni_variazioni() {
+		global $wpdb;
+		$info = $this->info['comuni_variazioni'];
+		$this->assertTrue( GCMI_Activator::create_db_table( 'comuni_variazioni', $info['table_name'] ) );
+		$row  = $this->variazioni_row();
+		$this->set_report( $this->variazioni_columns(), array( $row, $this->variazioni_row( 'AP-Cambio appartenenza Provincia' ) ) );
+
+		$this->assertSame( '"etag-1"', GCMI_Situas::import( $info, $info['table_name'] ) );
+		$this->assertSame( '2', $wpdb->get_var( 'SELECT COUNT(*) FROM `' . $info['table_name'] . '`' ) );
+		$this->assertSame(
+			trim( $row['TESTO_PROVVEDIMENTO'] ),
+			$wpdb->get_var( 'SELECT i_contenuto FROM `' . $info['table_name'] . '` WHERE i_tipo_var = \'RN\'' )
+		);
+		$this->assertNull( $wpdb->get_var( 'SELECT i_cod_flag_note FROM `' . $info['table_name'] . '` LIMIT 1' ) );
+		$query = array();
+		parse_str( (string) wp_parse_url( $this->requests[0]['url'], PHP_URL_QUERY ), $query );
+		$this->assertSame( '01/01/1991', $query['pdata'] );
+	}
+
 	/**
 	 * @group situas
 	 */
@@ -550,8 +651,12 @@ final class GCMI_SituasTest extends WP_UnitTestCase {
 		update_option( 'gcmi_comuni_soppressi_downloaded_time', 2 );
 		update_option( 'gcmi_stati_remote_file_time', 1 );
 
+		update_option( 'gcmi_comuni_variazioni_remote_file_time', 1 );
+		update_option( 'gcmi_comuni_variazioni_downloaded_time', 2 );
+
 		gcmi_flag_situas_datasets_for_update();
 
+		$this->assertGreaterThan( 2, get_option( 'gcmi_comuni_variazioni_remote_file_time' ) );
 		$this->assertGreaterThan( get_option( 'gcmi_comuni_attuali_downloaded_time' ), get_option( 'gcmi_comuni_attuali_remote_file_time' ) );
 		$this->assertGreaterThan( 2, get_option( 'gcmi_comuni_soppressi_remote_file_time' ) );
 		$this->assertSame( '', get_option( 'gcmi_comuni_attuali_etag' ) );

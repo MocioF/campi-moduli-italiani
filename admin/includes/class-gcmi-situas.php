@@ -22,7 +22,7 @@ defined( 'ABSPATH' ) || die( 'you do not have access to this page!' );
 /**
  * Downloads and imports SITUAS datasets.
  *
- * @phpstan-type SituasInfo array{'name': string, 'table_name': string, 'situas_pfun'?: int, 'situas_period_from'?: string}
+ * @phpstan-type SituasInfo array{'name': string, 'table_name': string, 'situas_pfun'?: int, 'situas_period_from'?: string, 'situas_date'?: string}
  * @phpstan-type SituasRow array<mixed>
  * @phpstan-type MappedRow array{'data': array<string, string|int|null>, 'format': array<int, string>}
  *
@@ -70,7 +70,9 @@ class GCMI_Situas {
 	 *
 	 * Reports of type DATA take 'pdata'; reports of type PERIODO take 'pdatada'
 	 * and 'pdataa'. A dataset with 'situas_period_from' is a PERIODO report from
-	 * that date to today; otherwise it is a DATA report for today.
+	 * that date to today; a dataset with 'situas_date' is a DATA report for that
+	 * fixed date (for some reports pdata is the start of the period); otherwise
+	 * it is a DATA report for today.
 	 *
 	 * @param array<string, mixed> $info Dataset description from GCMI_Activator::$database_file_info.
 	 * @param string               $reference_date The date of the request, as d/m/Y.
@@ -87,6 +89,8 @@ class GCMI_Situas {
 		if ( isset( $info['situas_period_from'] ) && is_string( $info['situas_period_from'] ) && '' !== $info['situas_period_from'] ) {
 			$args['pdatada'] = $info['situas_period_from'];
 			$args['pdataa']  = $reference_date;
+		} elseif ( isset( $info['situas_date'] ) && is_string( $info['situas_date'] ) && '' !== $info['situas_date'] ) {
+			$args['pdata'] = $info['situas_date'];
 		} else {
 			$args['pdata'] = $reference_date;
 		}
@@ -418,6 +422,23 @@ class GCMI_Situas {
 						'COM_NUTS3_2024',
 					),
 				);
+			case 'comuni_variazioni':
+				return array(
+					'callback' => array( __CLASS__, 'map_comuni_variazioni' ),
+					'required' => array(
+						'ANNO',
+						'DESC_COD_VARIAZIONE',
+						'COD_UTS',
+						'PRO_COM_T',
+						'COMUNE',
+						'COD_UTS_REL',
+						'PRO_COM_T_REL',
+						'COMUNE_REL',
+						'PROVVEDIMENTO',
+						'TESTO_PROVVEDIMENTO',
+						'DATA_INIZIO_AMMINISTRATIVA',
+					),
+				);
 			case 'comuni_soppressi':
 				return array(
 					'callback' => array( __CLASS__, 'map_comuni_soppressi' ),
@@ -523,6 +544,62 @@ class GCMI_Situas {
 			),
 			'format' => array( '%d', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s' ),
 		);
+	}
+
+	/**
+	 * Maps a row of the report of administrative and territorial changes (pfun 129).
+	 *
+	 * The deprecated columns i_cod_regione, i_cod_regione_nuovo and i_cod_flag_note
+	 * are not filled: SITUAS does not publish them.
+	 *
+	 * @param SituasRow $row A row of the resultset.
+	 * @return MappedRow|WP_Error
+	 */
+	public static function map_comuni_variazioni( $row ) {
+		$required = array( 'ANNO', 'DESC_COD_VARIAZIONE', 'COD_UTS', 'PRO_COM_T', 'COMUNE', 'COD_UTS_REL', 'PRO_COM_T_REL', 'COMUNE_REL' );
+		$missing  = self::missing_fields( $row, $required );
+		if ( is_wp_error( $missing ) ) {
+			return $missing;
+		}
+		$tipo = self::cod_variazione( $row, 'DESC_COD_VARIAZIONE' );
+		if ( null === $tipo ) {
+			return new WP_Error(
+				'gcmi_situas_invalid_field',
+				sprintf( 'Row %1$s: unknown DESC_COD_VARIAZIONE "%2$s"', gcmi_safe_strval( self::text( $row, 'PRO_COM_T' ) ), gcmi_safe_strval( self::text( $row, 'DESC_COD_VARIAZIONE' ) ) )
+			);
+		}
+
+		return array(
+			'data'   => array(
+				'i_anno_var'                     => self::integer( $row, 'ANNO' ),
+				'i_tipo_var'                     => $tipo,
+				'i_cod_unita_territoriale'       => self::code( $row, 'COD_UTS', 3 ),
+				'i_cod_comune'                   => self::code( $row, 'PRO_COM_T', 6 ),
+				'i_denominazione_full'           => self::text( $row, 'COMUNE' ),
+				'i_cod_unita_territoriale_nuovo' => self::code( $row, 'COD_UTS_REL', 3 ),
+				'i_cod_comune_nuovo'             => self::code( $row, 'PRO_COM_T_REL', 6 ),
+				'i_denominazione_nuovo'          => self::text( $row, 'COMUNE_REL' ),
+				'i_documento'                    => self::text( $row, 'PROVVEDIMENTO' ),
+				'i_contenuto'                    => self::text( $row, 'TESTO_PROVVEDIMENTO' ),
+				'i_data_decorrenza'              => self::iso_to_date( self::text( $row, 'DATA_INIZIO_AMMINISTRATIVA' ) ),
+			),
+			'format' => array( '%d', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s' ),
+		);
+	}
+
+	/**
+	 * Returns the code of a change type from its description ("CD-Cambio denominazione" => "CD").
+	 *
+	 * @param SituasRow $row   A row of the resultset.
+	 * @param string    $field The field name.
+	 * @return string|null
+	 */
+	public static function cod_variazione( $row, $field ) {
+		$value = self::text( $row, $field );
+		if ( null === $value || 1 !== preg_match( '/^([A-Z]{2,4})\s*-/', $value, $matches ) ) {
+			return null;
+		}
+		return $matches[1];
 	}
 
 	/**
