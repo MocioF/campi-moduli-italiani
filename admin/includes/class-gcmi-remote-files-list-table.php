@@ -150,7 +150,7 @@ class Gcmi_Remote_Files_List extends WP_List_Table {
 	protected function column_cb( $item ) {
 		return sprintf(
 			'<input type="checkbox" name="%1$s[]" value="%2$s" id="gcmi-%3$s"/>',
-			$this->_args['singular'],
+			gcmi_safe_strval( $this->_args['singular'] ),
 			$item['gcmi-dataname'],
 			$item['gcmi-dataname']
 		);
@@ -228,18 +228,19 @@ class Gcmi_Remote_Files_List extends WP_List_Table {
 			if ( ! is_string( $nonce ) ) {
 				wp_die( 'Nope! Security check failed!' );
 			}
-			$action = 'bulk-' . $this->_args['plural'];
+			$action = 'bulk-' . gcmi_safe_strval( $this->_args['plural'] );
 
 			if ( ! wp_verify_nonce( $nonce, $action ) ) {
 				wp_die( 'Nope! Security check failed!' );
 			}
 		}
 
-		$action = $this->current_action();
+		$singular = gcmi_safe_strval( $this->_args['singular'] );
+		$action   = $this->current_action();
 		switch ( $action ) {
 			case 'update':
-				if ( $_SERVER['REQUEST_METHOD'] === 'POST' && is_iterable( $_POST[ $this->_args['singular'] ] ) ) {
-					foreach ( $_POST[ $this->_args['singular'] ] as $fname ) {
+				if ( $_SERVER['REQUEST_METHOD'] === 'POST' && is_iterable( $_POST[ $singular ] ) ) {
+					foreach ( $_POST[ $singular ] as $fname ) {
 						gcmi_update_table( sanitize_text_field( gcmi_safe_strval( wp_unslash( $fname ) ) ) );
 					}
 				}

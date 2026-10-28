@@ -83,6 +83,7 @@ class GCMI_Swv_Stato_Rule extends \RockLobsterInc\Swv\AbstractRule {
 
 		foreach ( $values as $value ) {
 			if ( ! is_string( $value ) || ! gcmi_is_valid_stato( $value ) ) {
+				// phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Not output here: Contact Form 7 turns it into a validation error.
 				throw new \RockLobsterInc\Swv\InvalidityException( $this, array( 'cause' => $value ) );
 			}
 		}

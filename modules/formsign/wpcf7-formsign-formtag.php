@@ -478,7 +478,7 @@ function gcmi_flamingo_formsig_meta_box( $post ) {
  */
 function gcmi_get_form_post_id( $post ) {
 	$flamingo_inbound_channel_slug = $post->channel;
-	$myform                        = get_page_by_path( $flamingo_inbound_channel_slug, '', 'wpcf7_contact_form' );
+	$myform                        = get_page_by_path( $flamingo_inbound_channel_slug, OBJECT, 'wpcf7_contact_form' );
 	if ( ! is_null( $myform ) ) {
 		return $myform->ID;
 	} else {
@@ -501,13 +501,17 @@ function gcmi_ajax_flamingo_meta_box_handler(): void {
 	} else {
 		die( 'Permission Denied.' );
 	}
-	if ( isset( $_POST['hash_input'] ) && isset( $_POST['hash_calc'] ) && isset( $_POST['formID_input'] ) ) {
-		if ( sanitize_text_field( wp_unslash( $_POST['hash_input'] ) ) !== sanitize_text_field( wp_unslash( $_POST['hash_calc'] ) ) ) {
+	$hash_input = isset( $_POST['hash_input'] ) && is_string( $_POST['hash_input'] ) ? sanitize_text_field( wp_unslash( $_POST['hash_input'] ) ) : null;
+	$hash_calc  = isset( $_POST['hash_calc'] ) && is_string( $_POST['hash_calc'] ) ? sanitize_text_field( wp_unslash( $_POST['hash_calc'] ) ) : null;
+	$form_id    = isset( $_POST['formID_input'] ) && is_string( $_POST['formID_input'] ) ? intval( sanitize_text_field( wp_unslash( $_POST['formID_input'] ) ) ) : null;
+	$sign_input = isset( $_POST['sign_input'] ) && is_string( $_POST['sign_input'] ) ? sanitize_text_field( wp_unslash( $_POST['sign_input'] ) ) : null;
+	if ( null !== $hash_input && null !== $hash_calc && null !== $form_id ) {
+		if ( $hash_input !== $hash_calc ) {
 			echo 'hash_mismatch';
 			die;
 		}
 		// hash match.
-		$public_key_string = get_post_meta( intval( sanitize_text_field( wp_unslash( $_POST['formID_input'] ) ) ), '_gcmi_wpcf7_enc_pubKey', true );
+		$public_key_string = get_post_meta( $form_id, '_gcmi_wpcf7_enc_pubKey', true );
 		if ( is_string( $public_key_string ) && ( '' !== $public_key_string ) ) {
 			$public_key = openssl_pkey_get_public( $public_key_string );
 		} else {
@@ -519,11 +523,11 @@ function gcmi_ajax_flamingo_meta_box_handler(): void {
 			die;
 		}
 
-		if ( isset( $_POST['sign_input'] ) ) {
-			if ( preg_match( '%^[a-zA-Z0-9/+]*={0,2}$%', sanitize_text_field( wp_unslash( $_POST['sign_input'] ) ) ) ) {
+		if ( null !== $sign_input ) {
+			if ( preg_match( '%^[a-zA-Z0-9/+]*={0,2}$%', $sign_input ) ) {
 				$r = openssl_verify(
-					sanitize_text_field( wp_unslash( $_POST['hash_input'] ) ),
-					base64_decode( sanitize_text_field( wp_unslash( $_POST['sign_input'] ) ) ),
+					$hash_input,
+					base64_decode( $sign_input ),
 					$public_key,
 					OPENSSL_ALGO_SHA256
 				);

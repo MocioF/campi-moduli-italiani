@@ -169,8 +169,8 @@ class GCMI_WPForms_Field_Stato extends WPForms_Field {
 					}
 					if ( isset( $field['default_value'] ) && ( '' !== $field['default_value'] ) ) {
 						if (
-							sanitize_text_field( strval( $field['default_value'] ) ) === stripslashes( $stato->i_denominazione_ita ) ||
-							sanitize_text_field( strval( $field['default_value'] ) ) === $stato->i_cod_istat
+							sanitize_text_field( gcmi_safe_strval( $field['default_value'] ) ) === stripslashes( $stato->i_denominazione_ita ) ||
+							sanitize_text_field( gcmi_safe_strval( $field['default_value'] ) ) === $stato->i_cod_istat
 						) {
 							$key                        = array_key_last( $choices );
 							$choices[ $key ]['default'] = 'default';
@@ -187,8 +187,8 @@ class GCMI_WPForms_Field_Stato extends WPForms_Field {
 				);
 				if ( isset( $field['default_value'] ) && ( '' !== $field['default_value'] ) ) {
 					if (
-						sanitize_text_field( strval( $field['default_value'] ) ) === stripslashes( $stato->i_denominazione_ita ) ||
-						sanitize_text_field( strval( $field['default_value'] ) ) === $stato->i_cod_istat
+						sanitize_text_field( gcmi_safe_strval( $field['default_value'] ) ) === stripslashes( $stato->i_denominazione_ita ) ||
+						sanitize_text_field( gcmi_safe_strval( $field['default_value'] ) ) === $stato->i_cod_istat
 					) {
 						$key                        = array_key_last( $choices );
 						$choices[ $key ]['default'] = 'default';
@@ -210,6 +210,9 @@ class GCMI_WPForms_Field_Stato extends WPForms_Field {
 		);
 
 		// Set properties.
+		if ( ! isset( $properties['inputs'] ) || ! is_array( $properties['inputs'] ) ) {
+			$properties['inputs'] = array();
+		}
 		foreach ( $choices as $key => $choice ) {
 
 			// Used for dynamic choices.
@@ -246,7 +249,7 @@ class GCMI_WPForms_Field_Stato extends WPForms_Field {
 
 		// Add class that changes the field size.
 		if ( ! empty( $field['size'] ) ) {
-			$properties['input_container']['class'][] = 'wpforms-field-' . esc_attr( $field['size'] );
+			$properties['input_container']['class'][] = 'wpforms-field-' . esc_attr( gcmi_safe_strval( $field['size'] ) );
 		}
 
 		// Required class for pagebreak validation.
@@ -259,6 +262,12 @@ class GCMI_WPForms_Field_Stato extends WPForms_Field {
 			! empty( $field['style'] ) &&
 			in_array( $field['style'], array( self::STYLE_CLASSIC, self::STYLE_MODERN ), true )
 		) {
+			if ( ! isset( $properties['container'] ) || ! is_array( $properties['container'] ) ) {
+				$properties['container'] = array();
+			}
+			if ( ! isset( $properties['container']['class'] ) || ! is_array( $properties['container']['class'] ) ) {
+				$properties['container']['class'] = array();
+			}
 			$properties['container']['class'][] = "wpforms-field-select-style-{$field['style']}";
 		}
 		return $properties;

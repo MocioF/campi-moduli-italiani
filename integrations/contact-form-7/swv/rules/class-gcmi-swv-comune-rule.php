@@ -84,6 +84,7 @@ class GCMI_Swv_Comune_Rule extends \RockLobsterInc\Swv\AbstractRule {
 		$comune = new \GCMI_COMUNE();
 		foreach ( $values as $value ) {
 			if ( ! is_string( $value ) || ! $comune->is_valid_cod_comune( $value ) ) {
+				// phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Not output here: Contact Form 7 turns it into a validation error.
 				throw new \RockLobsterInc\Swv\InvalidityException( $this, array( 'cause' => $value ) );
 			}
 		}
