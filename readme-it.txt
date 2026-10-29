@@ -296,6 +296,15 @@ Puoi inviare una richiesta nel nostro repository Github:
 * Prima versione del plugin.
 
 == Upgrade Notice ==
+= 2.3.3 =
+I dati sono ora scaricati dai servizi SITUAS dell'ISTAT. Dopo l'aggiornamento tutte le tabelle risultano da aggiornare: aggiornale dalla pagina di gestione del database. La tabella codici_catastali viene eliminata. È richiesta l'estensione PHP mbstring.
+
+= 2.3.0 =
+Aumentato il numero minimo di versione di CF7 supportato a 6.0
+
+= 2.1.0 =
+Corretti problemi di sicurezza e implementata la cache per le query
+
 = 2.0.0 =
 Integrato anche con WPForms
 
@@ -306,14 +315,3 @@ Dopo questo aggiornamento è necessario aggiornare la tabella relativa ai comuni
 
 = 1.0.0 =
 Prima installazione
-
-== Upgrade Notice ==
-= 2.3.3 =
-I dati sono ora scaricati dai servizi SITUAS dell'ISTAT. Dopo l'aggiornamento tutte le tabelle risultano da aggiornare: aggiornale dalla pagina di gestione del database. La tabella codici_catastali viene eliminata. È richiesta l'estensione PHP mbstring.
-
-= 2.3.0 =
-Aumentato il numero minimo di versione di CF7 supportato a 6.0
-
-= 2.1.0 =
-Corretti problemi di sicurezza e implementata la cache per le query
-

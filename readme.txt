@@ -299,6 +299,15 @@ You can create an issue in our Github repo:
 * First release of the plugin.
 
 == Upgrade Notice ==
+= 2.3.3 =
+Data are now downloaded from the ISTAT SITUAS services. After the update, all the tables are marked as to be updated: update them from the database management page. The codici_catastali table is removed. The PHP extension mbstring is required.
+
+= 2.3.0 =
+Increased minimum CF7 supported version to 6.0
+
+= 2.1.0 =
+Security fixes and object cache implementation.
+
 = 2.0.0 =
 Integrated with WPForms
 
@@ -309,13 +318,3 @@ It is also recommended to update the tables relating to the municipalities suppr
 
 = 1.0.0 =
 First installation
-
-== Upgrade Notice ==
-= 2.3.3 =
-Data are now downloaded from the ISTAT SITUAS services. After the update, all the tables are marked as to be updated: update them from the database management page. The codici_catastali table is removed. The PHP extension mbstring is required.
-
-= 2.3.0 =
-Increased minimum CF7 supported version to 6.0
-
-= 2.1.0 =
-Security fixes and object cache implementation.
