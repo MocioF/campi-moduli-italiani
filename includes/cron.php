@@ -48,18 +48,12 @@ function gcmi_check_update(): void {
 /**
  * Wrapper funzioni per ottenere la data di aggiornamento file remoto - restituisce un timestamp
  *
- * @param array{'name': string, 'downd_name': string, 'featured_csv': string, 'remote_file': string, 'remote_URL': string, 'table_name': string, 'optN_dwdtime': string, 'optN_remoteUpd': string, 'remoteUpd_method'?: string, 'file_type': string, 'orig_encoding': string, 'situas_pfun'?: int, 'situas_period_from'?: string, 'optN_etag'?: string} $myfile_info Associative array of data in file.
+ * @param array{'name': string, 'featured_csv': string, 'remote_file': string, 'remote_URL': string, 'table_name': string, 'optN_dwdtime': string, 'optN_remoteUpd': string, 'remoteUpd_method'?: string, 'file_type': string, 'orig_encoding': string, 'situas_pfun'?: int, 'situas_period_from'?: string, 'optN_etag'?: string} $myfile_info Associative array of data in file.
  * @return int | false
  */
 function gcmi_get_remote_update_timestamp( $myfile_info ) {
 	if ( array_key_exists( 'remoteUpd_method', $myfile_info ) ) {
 		switch ( $myfile_info['remoteUpd_method'] ) {
-			case 'get_headers_by_head':
-				$result = gcmi_get_remote_file_timestamp_by_head( $myfile_info['remote_URL'] );
-				break;
-			case 'get_headers_by_get':
-				$result = gcmi_get_remote_file_timestamp_by_get( $myfile_info['remote_URL'] );
-				break;
 			case 'etag':
 				$result = gcmi_get_remote_update_timestamp_by_etag( $myfile_info );
 				break;
@@ -96,112 +90,6 @@ function gcmi_get_remote_update_timestamp_by_etag( $myfile_info ) {
 	$changed = GCMI_Situas::has_changed( $myfile_info, $etag );
 	if ( true === $changed ) {
 		return time();
-	}
-	return false;
-}
-
-/**
- * Ottiene il timestamp del file remoto dall'header HTTP 'Last-Modified' utilizzando una richiesta HEAD
- *
- * @param string $remote_file_url The remote URL of data stored in GCMI_Activator $database_file_info['remote_URL'].
- * @return int | false
- */
-function gcmi_get_remote_file_timestamp_by_head( $remote_file_url ) {
-	$args = array(
-		'timeout'         => 300,
-		'stream'          => true,
-		'sslverify'       => true,
-		'sslcertificates' => GCMI_PLUGIN_DIR . '/admin/assets/istat-it-catena.pem',
-		'blocking'        => true,
-	);
-
-	$headers = wp_remote_head( $remote_file_url, $args );
-	if ( ! is_wp_error( $headers ) ) {
-		$lm_date_formatted = wp_remote_retrieve_header( $headers, 'last-modified' );
-
-		if ( is_string( $lm_date_formatted ) && '' !== $lm_date_formatted ) {
-
-			// Last-Modified: Wed, 19 Feb 2020 14:49:18 GMT .
-			$fmt      = 'D, d M Y H:i:s O+';
-			$datetime = DateTime::createFromFormat( $fmt, $lm_date_formatted );
-			if ( false !== $datetime ) {
-				return $datetime->getTimestamp();
-			}
-		}
-	}
-	return false;
-}
-
-/**
- * Ottiene il timestamp del file remoto dall'header HTTP 'Last-Modified' utilizzando una richiesta GET
- *
- * @param string $remote_file_url the remote URL of data stored in GCMI_Activator $database_file_info['remote_URL'].
- * @return int | false
- */
-function gcmi_get_remote_file_timestamp_by_get( $remote_file_url ) {
-	$args = array(
-		'timeout'         => 300,
-		'stream'          => false,
-		'sslverify'       => true,
-		'sslcertificates' => GCMI_PLUGIN_DIR . '/admin/assets/istat-it-catena.pem',
-		'blocking'        => true,
-	);
-
-	$response = wp_remote_get( $remote_file_url, $args );
-
-	if ( ! is_wp_error( $response ) ) {
-		$lm_date_formatted = wp_remote_retrieve_header( $response, 'last-modified' );
-
-		if ( is_string( $lm_date_formatted ) && '' !== $lm_date_formatted ) {
-
-			// Last-Modified: Wed, 19 Feb 2020 14:49:18 GMT .
-			$fmt      = 'D, d M Y H:i:s O+';
-			$datetime = DateTime::createFromFormat( $fmt, $lm_date_formatted );
-			if ( false !== $datetime ) {
-				return $datetime->getTimestamp();
-			} else {
-				return gcmi_get_remote_file_timestamp_by_wget( $remote_file_url );
-			}
-		}
-	}
-	return false;
-}
-
-/**
- * Ottiene il timestamp del file remoto dall'header HTTP 'Last-Modified' utilizzando il comando wget
- *
- * @param string $remote_file_url the remote URL of data stored in GCMI_Activator $database_file_info['remote_URL'].
- * @return int | false
- */
-function gcmi_get_remote_file_timestamp_by_wget( $remote_file_url ) {
-	$wget_command = exec( 'which wget' );
-	if ( false !== $wget_command && 'which:' !== substr( $wget_command, 0, 6 ) ) {
-		$dwl_command = "$wget_command --server-response -qO /dev/null $remote_file_url 2>&1";
-		exec( $dwl_command, $wget_res );
-		$status = explode( ' ', $wget_res[0] )[1];
-		if ( '200' !== $status ) {
-			return false;
-		} else {
-			$headers_array = array_map( 'strtolower', $wget_res );
-			foreach ( $headers_array as $line ) {
-				if ( false !== strpos( $line, 'last-modified' ) ) {
-					$exploded          = explode( ':', $line, 2 );
-					$lm_date_formatted = trim( $exploded[1] );
-					break;
-				}
-			}
-
-			if ( isset( $lm_date_formatted ) && '' !== $lm_date_formatted ) {
-				// Last-Modified: Wed, 19 Feb 2020 14:49:18 GMT .
-				$fmt      = 'D, d M Y H:i:s O+';
-				$datetime = DateTime::createFromFormat( $fmt, $lm_date_formatted );
-				if ( false !== $datetime ) {
-					return $datetime->getTimestamp();
-				}
-			}
-		}
-	} else {
-		return false;
 	}
 	return false;
 }

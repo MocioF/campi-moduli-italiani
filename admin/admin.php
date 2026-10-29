@@ -395,74 +395,13 @@ function gcmi_update_table( $fname ) {
 			)
 		);
 	}
-	if (
-		'zip' === $database_file_info[ $id ]['file_type'] ||
-		'csv' === $database_file_info[ $id ]['file_type']
-		) {
-		if ( is_wp_error(
-			GCMI_Activator::download_file(
-				$database_file_info[ $id ]['remote_URL'],
-				$download_temp_dir,
-				$database_file_info[ $id ]['downd_name']
-			)
-		)
-			) {
-			$error_code  = ( 'gcmi_download_error' );
-			$error_title = __( 'Remote file download error', 'campi-moduli-italiani' );
-
-			/* translators: %s is the URL of the file it attempted to download */
-			$error_message = '<p><strong>' . $error_title . '</strong></p>' . sprintf( __( 'Unable to download %s', 'campi-moduli-italiani' ), $database_file_info[ $id ]['remote_URL'] );
-			$gcmi_error->add( $error_code, $error_message );
-			wp_die(
-				wp_kses( gcmi_show_error( $gcmi_error ), $allowed_html ),
-				esc_html__( 'Campi Moduli Italiani activation error', 'campi-moduli-italiani' ),
-				array(
-					'response'  => 200,
-					'back_link' => true,
-				)
-			);
-		}
-	}
-
-	// orario di acquisizione del file remoto.
+	// Orario di acquisizione dei dati.
 	$download_time = time();
 
-	/*
-	 * Decomprimo gli zip
-	 */
-	if ( 'zip' === $database_file_info[ $id ]['file_type'] ) {
-		$pathtozip = $download_temp_dir . $database_file_info[ $id ]['downd_name'];
-		if ( ! GCMI_Activator::extract_csv_from_zip(
-			$pathtozip,
-			$download_temp_dir,
-			$database_file_info[ $id ]['featured_csv']
-		)
-			) {
-			$error_code  = ( 'gcmi_zip_extract_error' );
-			$error_title = __( 'Zip archive extraction error', 'campi-moduli-italiani' );
-
-			/* translators: %1$s: the local csv file name; %2$s: the zip archive file name */
-			$error_message = '<p><strong>' . $error_title . '</strong></p>' . sprintf( __( 'Unable to extract %1$s from %2$s', 'campi-moduli-italiani' ), $database_file_info[ $id ]['featured_csv'], $pathtozip );
-			$gcmi_error->add( $error_code, $error_message );
-			wp_die(
-				wp_kses( gcmi_show_error( $gcmi_error ), $allowed_html ),
-				esc_html__( 'Campi Moduli Italiani activation error', 'campi-moduli-italiani' ),
-				array(
-					'response'  => 200,
-					'back_link' => true,
-				)
-			);
-		}
-	}
 	$tmp_table_name = $database_file_info[ $id ]['table_name'] . '_tmp';
 	GCMI_Activator::create_db_table( $database_file_info[ $id ]['name'], $tmp_table_name );
 	$csv_file_path = $download_temp_dir . $database_file_info[ $id ]['featured_csv'];
 	GCMI_Activator::convert_file_charset( $csv_file_path, $database_file_info[ $id ]['orig_encoding'] );
-	// I file distribuiti con il plugin hanno terminatori LF e nessuna cella su più righe:
-	// prepare_file() eliminerebbe tutti gli a capo, riducendo il file a una sola riga.
-	if ( 'local' !== $database_file_info[ $id ]['file_type'] ) {
-		GCMI_Activator::prepare_file( $csv_file_path );
-	}
 	GCMI_Activator::populate_db_table(
 		$database_file_info[ $id ]['name'],
 		$csv_file_path,

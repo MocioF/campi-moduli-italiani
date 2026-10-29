@@ -822,8 +822,6 @@ final class GCMI_SituasTest extends WP_UnitTestCase {
 	 * Il file degli Stati cessati è in UTF-8 con terminatori LF, senza righe vuote né
 	 * spazi finali, con 10 colonne per riga.
 	 *
-	 * I terminatori CR non devono comparire: il file non passa da prepare_file().
-	 *
 	 * @group situas
 	 */
 	public function test_stati_cessati_csv() {
@@ -880,7 +878,6 @@ final class GCMI_SituasTest extends WP_UnitTestCase {
 		$this->assertTrue( GCMI_Activator::create_db_table( 'stati_cessati', $table ) );
 		$this->assertTrue( GCMI_Activator::copy_local_file( $info, $dir ) );
 		$this->assertTrue( GCMI_Activator::convert_file_charset( $dir . 'stati_cessati.csv', 'UTF-8' ) );
-		// Come nell'attivazione: i file locali non passano da prepare_file().
 		$this->assertTrue( GCMI_Activator::populate_db_table( 'stati_cessati', $dir . 'stati_cessati.csv', $table ) );
 
 		$this->assertSame( '30', $wpdb->get_var( 'SELECT COUNT(*) FROM `' . $table . '`' ) );

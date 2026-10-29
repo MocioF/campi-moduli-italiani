@@ -37,12 +37,11 @@ class GCMI_Activator {
 	/**
 	 * Contains data relating to individual imported public databases.
 	 *
-	 * @var array<int, array{'name': string, 'downd_name': string, 'featured_csv': string, 'remote_file': string, 'remote_URL': string, 'table_name': string, 'optN_dwdtime': string, 'optN_remoteUpd': string, 'remoteUpd_method': string, 'file_type': string, 'orig_encoding': string, 'situas_pfun'?: int, 'situas_period_from'?: string, 'situas_date'?: string, 'optN_etag'?: string, 'local_path'?: string}> $database_file_info
+	 * @var array<int, array{'name': string, 'featured_csv': string, 'remote_file': string, 'remote_URL': string, 'table_name': string, 'optN_dwdtime': string, 'optN_remoteUpd': string, 'remoteUpd_method': string, 'file_type': string, 'orig_encoding': string, 'situas_pfun'?: int, 'situas_period_from'?: string, 'situas_date'?: string, 'optN_etag'?: string, 'local_path'?: string}> $database_file_info
 	 */
 	public static $database_file_info = array(
 		array(
 			'name'             => 'comuni_attuali',
-			'downd_name'       => '',
 			'featured_csv'     => '',
 			'remote_file'      => 'reportspooljson?pfun=61',
 			'remote_URL'       => 'https://situas-servizi.istat.it/publish/reportspooljson?pfun=61',
@@ -58,7 +57,6 @@ class GCMI_Activator {
 		),
 		array(
 			'name'               => 'comuni_soppressi',
-			'downd_name'         => '',
 			'featured_csv'       => '',
 			'remote_file'        => 'reportspooljson?pfun=98',
 			'remote_URL'         => 'https://situas-servizi.istat.it/publish/reportspooljson?pfun=98',
@@ -75,7 +73,6 @@ class GCMI_Activator {
 		),
 		array(
 			'name'             => 'comuni_variazioni',
-			'downd_name'       => '',
 			'featured_csv'     => '',
 			'remote_file'      => 'reportspooljson?pfun=129',
 			'remote_URL'       => 'https://situas-servizi.istat.it/publish/reportspooljson?pfun=129',
@@ -92,7 +89,6 @@ class GCMI_Activator {
 		),
 		array(
 			'name'             => 'stati',
-			'downd_name'       => '',
 			'featured_csv'     => '',
 			'remote_file'      => 'reportspooljson?pfun=466',
 			'remote_URL'       => 'https://situas-servizi.istat.it/publish/reportspooljson?pfun=466',
@@ -108,7 +104,6 @@ class GCMI_Activator {
 		),
 		array(
 			'name'             => 'stati_cessati',
-			'downd_name'       => 'stati_cessati.csv',
 			'featured_csv'     => 'stati_cessati.csv',
 			'remote_file'      => 'admin/data/stati-cessati.csv',
 			'remote_URL'       => '',
@@ -403,86 +398,6 @@ class GCMI_Activator {
 				self::$activator_options[ self::$database_file_info[ $i ]['optN_dwdtime'] ]['value']   = $now;
 				self::$activator_options[ self::$database_file_info[ $i ]['optN_remoteUpd'] ]['value'] = $now;
 			}
-			if ( 'zip' === self::$database_file_info[ $i ]['file_type']
-				|| 'csv' === self::$database_file_info[ $i ]['file_type']
-			) {
-				// I download remote files if it's not an html table.
-				$response = self::download_file(
-					self::$database_file_info[ $i ]['remote_URL'],
-					$download_temp_dir,
-					self::$database_file_info[ $i ]['downd_name']
-				);
-				if ( is_wp_error( $response ) ) {
-					$error_code = 'gcmi_download_error';
-					/* translators: %s: the remote URL of the file to be downloaded */
-					$error_message = esc_html( sprintf( __( 'Could not download %s', 'campi-moduli-italiani' ), self::$database_file_info[ $i ]['remote_URL'] ) );
-					$response->add( $error_code, $error_message );
-					wp_die(
-						wp_kses( gcmi_show_error( $gcmi_error ), $allowed_html ),
-						esc_html__( 'Campi Moduli Italiani activation error', 'campi-moduli-italiani' ),
-						array(
-							'response'  => 200,
-							'back_link' => true,
-						)
-					);
-				} else {
-					$option_name = self::$database_file_info[ $i ]['optN_dwdtime'];
-					// acquisition time of the remote file.
-					self::$activator_options[ $option_name ]['value'] = time();
-
-					// update time of the remote file on the server.
-					$lm_date_formatted = wp_remote_retrieve_header( $response, 'last-modified' );
-
-					// nel caso in cui $response sia un array contenente lo sterr di wget.
-					if ( '' === $lm_date_formatted && gcmi_is_one_dimensional_string_array( $response ) ) {
-						$headers_array = array_map( 'strtolower', $response );
-						foreach ( $headers_array as $line ) {
-							if ( strpos( $line, 'last-modified' ) !== false ) {
-								$exploded          = explode( ':', $line, 2 );
-								$lm_date_formatted = trim( $exploded[1] );
-								break;
-							}
-						}
-					}
-
-					if ( '' !== $lm_date_formatted && is_string( $lm_date_formatted ) ) {
-						$fmt      = 'D, d M Y H:i:s O+'; // Last-Modified: Wed, 19 Feb 2020 14:49:18 GMT .
-						$datetime = DateTime::createFromFormat( $fmt, $lm_date_formatted );
-						if ( false !== $datetime ) {
-							$option_name                                      = self::$database_file_info[ $i ]['optN_remoteUpd'];
-							self::$activator_options[ $option_name ]['value'] = $datetime->getTimestamp();
-						}
-					}
-				}
-			}
-
-			/**
-			 * I unzip the zips
-			 */
-			if ( 'zip' === self::$database_file_info[ $i ]['file_type'] ) {
-				$pathtozip = $download_temp_dir . self::$database_file_info[ $i ]['downd_name'];
-				if ( false === self::extract_csv_from_zip(
-					$pathtozip,
-					$download_temp_dir,
-					self::$database_file_info[ $i ]['featured_csv']
-				)
-				) {
-					$error_code  = ( 'gcmi_zip_extract_error' );
-					$error_title = __( 'Zip archive extraction error', 'campi-moduli-italiani' );
-					/* translators: %1$s: the local csv file name; %2$s: the zip archive file name */
-					$error_message = '<p><strong>' . $error_title . '</strong></p>' . sprintf( __( 'Unable to extract %1$s from %2$s', 'campi-moduli-italiani' ), self::$database_file_info[ $i ]['featured_csv'], $pathtozip );
-					$gcmi_error->add( $error_code, $error_message );
-					wp_die(
-						wp_kses( gcmi_show_error( $gcmi_error ), $allowed_html ),
-						esc_html__( 'gcmi activation error', 'campi-moduli-italiani' ),
-						array(
-							'response'  => 200,
-							'back_link' => true,
-						)
-					);
-				}
-			}
-
 			if ( ! self::create_db_table( self::$database_file_info[ $i ]['name'], self::$database_file_info[ $i ]['table_name'] ) ) {
 				$error_code  = ( 'gcmi_create_tables_error' );
 				$error_title = __( 'Errore creating table', 'campi-moduli-italiani' );
@@ -506,24 +421,6 @@ class GCMI_Activator {
 				$error_title = __( 'Error UTF-8 encoding csv file', 'campi-moduli-italiani' );
 				/* translators: %1$s: the full path of the csv file it tryed to prepare for import */
 				$error_message = '<p><strong>' . $error_title . '</strong></p>' . sprintf( __( 'Unable to encode %1$s into UTF-8', 'campi-moduli-italiani' ), $csv_file_path );
-				$gcmi_error->add( $error_code, $error_message );
-				wp_die(
-					wp_kses( gcmi_show_error( $gcmi_error ), $allowed_html ),
-					esc_html__( 'Campi Moduli Italiani activation error', 'campi-moduli-italiani' ),
-					array(
-						'response'  => 200,
-						'back_link' => true,
-					)
-				);
-			}
-
-			// I file distribuiti con il plugin hanno terminatori LF e nessuna cella su più righe:
-			// prepare_file() eliminerebbe tutti gli a capo, riducendo il file a una sola riga.
-			if ( 'local' !== self::$database_file_info[ $i ]['file_type'] && ! self::prepare_file( $csv_file_path ) ) {
-				$error_code  = ( 'gcmi_csv_prepare_error' );
-				$error_title = __( 'Error preparing csv file', 'campi-moduli-italiani' );
-				/* translators: %1$s: the full path of the csv file it tryed to prepare for import */
-				$error_message = '<p><strong>' . $error_title . '</strong></p>' . sprintf( __( 'Unable to prepare %1$s for import', 'campi-moduli-italiani' ), $csv_file_path );
 				$gcmi_error->add( $error_code, $error_message );
 				wp_die(
 					wp_kses( gcmi_show_error( $gcmi_error ), $allowed_html ),
@@ -803,118 +700,6 @@ class GCMI_Activator {
 	}
 
 	/**
-	 * Downloads remote files.
-	 *
-	 * Download the remote data to the temporary folder.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @param string $remoteurl    Remote URL of the data file.
-	 * @param string $tmp_dwld_dir URL of local created tmp directory.
-	 * @param string $filename     Local file name for downloaded file.
-	 * @return array<string>|array{headers: \WpOrg\Requests\Utility\CaseInsensitiveDictionary, body: string, response: array{code: int,message: string}, cookies: array<int, \WP_Http_Cookie>, filename: string|null, http_response: \WP_HTTP_Requests_Response}|\WP_Error
-	 */
-	public static function download_file( $remoteurl, $tmp_dwld_dir, $filename ) {
-		global $gcmi_error;
-
-		if ( ! function_exists( 'download_url' ) && file_exists( ABSPATH . '/wp-admin/includes/file.php' ) ) {
-			include_once ABSPATH . '/wp-admin/includes/file.php';
-		}
-		$path = wp_parse_url( $remoteurl, PHP_URL_PATH );
-
-		if ( ! is_string( $path ) ) {
-			$gcmi_error = new WP_Error();
-			$error_code = 'gcmi_wrong_url';
-			// translators: %s is a path to a file.
-			$error_message = esc_html( sprintf( __( 'Invalid path: %s', 'campi-moduli-italiani' ), $remoteurl ) );
-			$gcmi_error->add( $error_code, $error_message );
-			return $gcmi_error;
-		}
-
-		$url_filename = basename( $path );
-		$tmpfname     = $tmp_dwld_dir . '/' . $url_filename;
-		$args         = array(
-			'timeout'   => 300,
-			'stream'    => true,
-			'sslverify' => true,
-			'filename'  => $tmpfname,
-		);
-		if ( strpos( $remoteurl, 'istat.it' ) !== false ) {
-			$args['sslcertificates'] = GCMI_PLUGIN_DIR . '/admin/assets/istat-it-catena.pem';
-		}
-		if ( strpos( $remoteurl, 'raw.githubusercontent.com' ) !== false ) {
-			$args['sslcertificates'] = GCMI_PLUGIN_DIR . '/admin/assets/github.pem';
-		}
-
-		$response = wp_remote_get( $remoteurl, $args );
-
-		if ( is_wp_error( $response ) ) {
-			wp_delete_file( $tmpfname );
-			$wget_attempt = self::download_via_wget( $remoteurl, $tmp_dwld_dir, $filename );
-			return $wget_attempt; // o WP_Error o un array di stringhe.
-		} else {
-			$dest_file = $tmp_dwld_dir . '/' . $filename;
-			copy( $tmpfname, $dest_file );
-			wp_delete_file( $tmpfname );
-			return $response;
-		}
-	}
-
-	/**
-	 * Get wget command line
-	 *
-	 * @return string|\WP_Error
-	 */
-	private static function get_wget_command() {
-		$wget_command = exec( 'which wget' );
-		if ( false !== $wget_command && 'which:' !== substr( $wget_command, 0, 6 ) ) {
-			return $wget_command;
-		}
-		$error = new WP_Error();
-		$error->add( 'wget', esc_html( sprintf( __( 'Unable to find wget command', 'campi-moduli-italiani' ) ) ) );
-		return $error;
-	}
-
-	/**
-	 * Attemtps to download file using system wget
-	 *
-	 * @param string $remoteurl The remote url.
-	 * @param string $tmp_dwld_dir The temporary download dir.
-	 * @param string $filename The file name.
-	 * @return \WP_Error|array<string>
-	 */
-	private static function download_via_wget( $remoteurl, $tmp_dwld_dir, $filename ) {
-		// tentativo di scaricare i file tramite wget.
-		$wget_command = self::get_wget_command();
-		$dwd_file     = $tmp_dwld_dir . $filename;
-		if ( ! is_wp_error( $wget_command ) ) {
-			$dwl_command = "$wget_command $remoteurl -O $dwd_file";
-			$wget_res    = exec( $dwl_command );
-			$size        = filesize( $dwd_file );
-			if ( 0 === $size ) {
-				$error = new WP_Error();
-				// translators: %s is the remote url of a file.
-				$error->add( 'wget', esc_html( sprintf( __( 'Unable to download %s via wget', 'campi-moduli-italiani' ), $remoteurl ) ) );
-				wp_delete_file( $dwd_file );
-				return $error;
-			} else {
-				$dwl_command = "$wget_command --server-response -qO /dev/null $remoteurl 2>&1";
-				exec( $dwl_command, $wget_res );
-				$status = explode( ' ', $wget_res[0] )[1];
-				if ( '200' !== $status ) {
-					$error = new WP_Error();
-					$error->add( 'wget status:' . $status, esc_html( sprintf( __( 'Unable to download via wget', 'campi-moduli-italiani' ) ) ) );
-					return $error;
-				} else {
-					return $wget_res;
-				}
-			}
-		} else {
-			return $wget_command;
-		}
-	}
-
-	/**
 	 * Sets plugin options.
 	 *
 	 * Register all plugin's options in _options table.
@@ -952,34 +737,6 @@ class GCMI_Activator {
 			foreach ( $keys as $key ) {
 				delete_site_option( $key );
 			}
-		}
-	}
-
-	/**
-	 * Extracts csv files from zip archives.
-	 *
-	 * Estracts csv data files from zip archives, and put output in the tmp dir.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @param string $pathtozip Local path to zip file.
-	 * @param string $outputdir Local path of $tmp_dwld_dir.
-	 * @param string $csv_name  Local name of csv file extracted from zip archive.
-	 * @return boolean
-	 */
-	public static function extract_csv_from_zip( $pathtozip, $outputdir, $csv_name ) {
-		$zip = new ZipArchive();
-		if ( true === $zip->open( $pathtozip ) ) {
-			for ( $i = 0; $i < $zip->numFiles; $i++ ) {
-				$stat = $zip->statIndex( $i );
-				if ( is_array( $stat ) && substr( strtolower( $stat['name'] ), -4 ) === '.csv' ) {
-					file_put_contents( $outputdir . '/' . $csv_name, $zip->getFromName( $stat['name'] ) );
-				}
-			}
-			$zip->close();
-			return true;
-		} else {
-			return false;
 		}
 	}
 
@@ -1184,46 +941,6 @@ class GCMI_Activator {
 		}
 
 		return $res;
-	}
-
-	/**
-	 * Prepares csv files for import.
-	 *
-	 * Prepares csv files for import into database.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @param string $filepath local csv file path .
-	 * @return boolean
-	 */
-	public static function prepare_file( $filepath ) {
-		/**
-		 * I csv dell'INPS utilizzano come newline il formato DOS (CR + LF o chr(13) chr(10)
-		 * tuttavia nella riga di intestazione contengono degli LF
-		 * probabilmente si tratta di file creati in excel e poi convertiti in csv che avevano degli LF nella riga di intestazione
-		 * Per prepararli prima converto tutti i CR non seguiti da LF in caratteri spazio
-		 */
-		$string = file_get_contents( $filepath ); // reads all file in a string.
-		if ( false === $string ) {
-			return false;
-		}
-
-		/**
-		 * The regexp explained:
-		 * \n        'newline'
-		 * (?<!      look behind to see if there is not:
-		 * \r        'carriage return'
-		 * )         end of look-ahead
-		 */
-		$replaced_string = preg_replace( '/(?<!\r)\n/', '', $string );
-
-		if ( ! ( file_put_contents( dirname( $filepath ) . '/tmp.csv', $replaced_string ) ) ) {
-			return false;
-		}
-		if ( ! ( rename( dirname( $filepath ) . '/tmp.csv', $filepath ) ) ) {
-			return false;
-		}
-		return true;
 	}
 
 	/**
@@ -1489,7 +1206,7 @@ class GCMI_Activator {
 	public static function gcmi_is_requirements_met() {
 		$min_wp  = GCMI_MINIMUM_WP_VERSION;
 		$min_php = GCMI_MINIMUM_PHP_VERSION;
-		$exts    = array( 'ctype', 'date', 'dom', 'filter', 'json', 'libxml', 'pcre', 'reflection', 'spl', 'zip' );
+		$exts    = array( 'ctype', 'date', 'filter', 'json', 'pcre', 'reflection', 'spl' );
 
 		// Check for WordPress version.
 		if ( version_compare( get_bloginfo( 'version' ), $min_wp, '<' ) ) {
