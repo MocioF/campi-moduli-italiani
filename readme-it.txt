@@ -27,23 +27,25 @@ Sono disponibili 2 tipi di campi
 * Un campo per selezionare uno stato (restituisce il codice paese ISTAT come valore)
 
 == Dati utilizzati ==
-Il plugin al momento dell'attivazione scarica i dati che utilizza dal sito web dell'Istat e da quello dell'Agenzia delle entrate. Questi dati sono aggiornabili dalla console di amministrazione.
-Il download dei dati e l'inserimento degli stessi nel database richiede diversi minuti: pazientate durante la fase di attivazione.
+Il plugin al momento dell'attivazione scarica i dati che utilizza dai servizi SITUAS dell'ISTAT (https://situas.istat.it). Questi dati sono aggiornabili dalla console di amministrazione, che indica anche quando l'ISTAT ha pubblicato delle modifiche.
+Il download dei dati e l'inserimento degli stessi nel database richiede alcuni minuti: pazientate durante la fase di attivazione.
 La selezione dei comuni è stata creata partendo dal codice di https://wordpress.org/plugins/regione-provincia-comune/
 
-Questo plugin utilizza dati resi disponibili dall'ISTAT e dall'Agenzia delle entrate.
-In particolare, vengono acquisiti e memorizzati dati messi a disposizione a queste URL:
+Questo plugin utilizza dati resi disponibili dall'ISTAT tramite il portale SITUAS.
+In particolare, vengono acquisiti e memorizzati i dati di questi report SITUAS:
 
-* https://www.istat.it/it/archivio/6789
-* https://www.istat.it/it/archivio/6747
-* https://www1.agenziaentrate.gov.it/servizi/codici/ricerca/VisualizzaTabella.php?ArcName=00T4
+* Elenco dei codici e delle denominazioni delle unità territoriali (comuni attuali)
+* Comuni soppressi o ceduti
+* Variazioni amministrative e territoriali dal 1991
+* Elenco dei codici e delle denominazioni delle unità territoriali estere (paesi esteri)
 
-I dati pubblicati sul sito dell'ISTAT sono coperti da licenza Creative Commons - Attribuzione (CC-by) (https://creativecommons.org/licenses/by/3.0/it/), come indicato qui: https://www.istat.it/it/note-legali
-I dati prelevati dal sito web dell'Agenzia delle entrate sono di pubblico dominio e costituiscono una banca dati pubblica resa disponibile per consentire gli adempimenti tributari e, più in generale, per consentire l'identificazione delle persone fisiche presso le pubbliche amministrazioni italiane, tramite il codice fiscale.
-I dati sono gestiti dall'Ufficio Archivio anagrafico dell'Agenzia delle entrate.
+L'elenco dei paesi esteri cessati dal 1990 è distribuito con il plugin; un test automatico lo confronta con il report SITUAS dello storico dei paesi esteri.
+
+I dati pubblicati dall'ISTAT sono coperti da licenza Creative Commons - Attribuzione (CC-by) (https://creativecommons.org/licenses/by/3.0/it/), come indicato qui: https://www.istat.it/it/note-legali
+I codici catastali dei comuni, usati per verificare il luogo di nascita nel codice fiscale, sono pubblicati dall'ISTAT come elaborazione su dati dell'Agenzia delle entrate.
 Ai sensi della legge italiana (art. 52 d.lgs. 82/2005) tutti i dati, diversi dai dati personali, pubblicati da una pubblica amministrazione italiana senza esplicito riferimento ad una licenza sono open data (CC0).
-Questo plugin utilizza i dati prelevati dal sito internet dell'Agenzia delle entrate esclusivamente al fine di effettuare un controllo di regolarità formale del codice fiscale.
-Questo plugin non riporta nelle pagine esterne del sito internet su cui è utilizzato, nessun collegamento né al sito dell'Agenzia delle entrate, né al sito dell'ISTAT; in particolare non viene effettuata alcuna forma di link diretto, né di deep linking.
+Questo plugin utilizza i codici catastali esclusivamente al fine di effettuare un controllo di regolarità formale del codice fiscale.
+Questo plugin non riporta nelle pagine esterne del sito internet su cui è utilizzato alcun collegamento al sito dell'ISTAT; in particolare non viene effettuata alcuna forma di link diretto, né di deep linking.
 
 == Come utilizzare i form-tag in Contact Form 7 ==
 [comune]
@@ -92,7 +94,7 @@ Vuoi controllare il codice?  [https://github.com/MocioF/campi-moduli-italiani](h
 2. Ricerca nella casella di testo `campi moduli italiani`.
 3. Posizionati sulla descrizione di questo plugin e seleziona installa.
 4. Attiva il plugin dal pannello di amministrazione di WordPress.
-NOTA: l'attivazione richiede diversi minuti, perché vengono scaricate le tabelle di dati aggiornati dai siti ufficiali (Istat e Agenzia delle entrate e poi i dati vengono importati nel database)
+NOTA: l'attivazione richiede diversi minuti, perché vengono scaricate le tabelle di dati aggiornati dai siti ufficiali (ISTAT) e poi i dati vengono importati nel database
 
 = Installazione manuale file ZIP =
 
@@ -100,7 +102,7 @@ NOTA: l'attivazione richiede diversi minuti, perché vengono scaricate le tabell
 2. Seleziona opzione aggiungi plugin dal pannello di amministrazione.
 3. Seleziona opzione in alto `upload` e seleziona il file che hai scaricato.
 4. Conferma installazione e attivazione plugin dal pannello di amministrazione.
-NOTA: l'attivazione richiede diversi minuti, perché vengono scaricate le tabelle di dati aggiornati dai siti ufficiali (Istat e Agenzia delle entrate e poi i dati vengono importati nel database)
+NOTA: l'attivazione richiede diversi minuti, perché vengono scaricate le tabelle di dati aggiornati dai siti ufficiali (ISTAT) e poi i dati vengono importati nel database
 
 = Installazione manuale FTP =
 
@@ -108,7 +110,7 @@ NOTA: l'attivazione richiede diversi minuti, perché vengono scaricate le tabell
 2. Accedi in FTP alla tua cartella presente sul server web.
 3. Copia tutta la cartella `campi-moduli-italiani` nella directory `/wp-content/plugins/`
 4. Attiva il plugin dal pannello di amministrazione di WordPress.
-NOTA: l'attivazione richiede diversi minuti, perché vengono scaricate le tabelle di dati aggiornati dai siti ufficiali (Istat e Agenzia delle entrate e poi i dati vengono importati nel database)
+NOTA: l'attivazione richiede diversi minuti, perché vengono scaricate le tabelle di dati aggiornati dai siti ufficiali (ISTAT) e poi i dati vengono importati nel database
 
 == Frequently Asked Questions ==
 
@@ -132,6 +134,17 @@ Puoi inviare una richiesta nel nostro repository Github:
 5. Immagine della schermata di admin, da cui è possibile effettuare l'aggiornamento dei dati
 
 == Changelog ==
+= 2.3.3 =
+* I dati dei comuni attuali, soppressi e delle variazioni e quelli dei paesi esteri sono scaricati dai servizi SITUAS dell'ISTAT; gli aggiornamenti sono rilevati tramite ETag
+* L'elenco dei paesi esteri cessati è distribuito con il plugin
+* [cf]: il luogo di nascita è verificato sui codici catastali associati al codice ISTAT del comune (corregge i comuni omonimi); è stata eliminata la tabella scaricata dal sito dell'Agenzia delle entrate
+* Nuovi dati: codice fiscale del comune, codici catastali dei comuni soppressi e delle variazioni, denominazioni alternative e codice ISO numerico dei paesi
+* Aggiunto il tipo di variazione "RN" (rinumerazione del codice statistico)
+* La pagina di amministrazione mostra lo stato della fonte remota e il collegamento ai metadati dei report SITUAS
+* Supporto alla Schema-Woven Validation di Contact Form 7 6.2
+* Rimossi il download di file zip, il fallback con wget e i certificati distribuiti con il plugin
+* È ora richiesta l'estensione PHP mbstring; non sono più richieste zip, dom e libxml
+
 = 2.3.2 =
 * Corregge problema #14
 
@@ -295,6 +308,9 @@ Dopo questo aggiornamento è necessario aggiornare la tabella relativa ai comuni
 Prima installazione
 
 == Upgrade Notice ==
+= 2.3.3 =
+I dati sono ora scaricati dai servizi SITUAS dell'ISTAT. Dopo l'aggiornamento tutte le tabelle risultano da aggiornare: aggiornale dalla pagina di gestione del database. La tabella codici_catastali viene eliminata. È richiesta l'estensione PHP mbstring.
+
 = 2.3.0 =
 Aumentato il numero minimo di versione di CF7 supportato a 6.0
 

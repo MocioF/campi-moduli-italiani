@@ -1206,7 +1206,7 @@ class GCMI_Activator {
 	public static function gcmi_is_requirements_met() {
 		$min_wp  = GCMI_MINIMUM_WP_VERSION;
 		$min_php = GCMI_MINIMUM_PHP_VERSION;
-		$exts    = array( 'ctype', 'date', 'filter', 'json', 'pcre', 'reflection', 'spl' );
+		$exts    = array( 'ctype', 'date', 'filter', 'json', 'mbstring', 'pcre', 'reflection', 'spl' );
 
 		// Check for WordPress version.
 		if ( version_compare( get_bloginfo( 'version' ), $min_wp, '<' ) ) {

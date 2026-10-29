@@ -175,7 +175,9 @@ function gcmi_upgrade() {
 		gcmi_add_index_on_tables();
 		gcmi_create_unfiltered_views_on_plugin_update();
 	}
-	if ( version_compare( $old_ver, '2.3.3', '<' ) ) {
+	// Soglia '2.3.3-dev' e non '2.3.3': version_compare() considera 2.3.3-dev minore di 2.3.3,
+	// quindi passando dalla versione di sviluppo alla 2.3.3 la migrazione verrebbe ripetuta.
+	if ( version_compare( $old_ver, '2.3.3-dev', '<' ) ) {
 		gcmi_flag_situas_datasets_for_update();
 		gcmi_remove_codici_catastali();
 	}

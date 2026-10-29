@@ -30,23 +30,25 @@ This plugin creates form tags for Contact Form 7 and form fields for WPForms.
 * A field to select a state (returning Istat's country code as value)
 
 ## Data used ##
-At the time of activation, the plugin downloads the data it uses from the Istat and from the Italian Revenue Agency websites. This data can be updated from the administration console.
-Downloading and entering data into the database takes several minutes: be patient during the activation phase.
+At the time of activation, the plugin downloads the data it uses from the ISTAT SITUAS services (https://situas.istat.it). This data can be updated from the administration console, which also shows when ISTAT has published changes.
+Downloading and entering data into the database takes a few minutes: be patient during the activation phase.
 The selection of the municipalities was created starting from the code of https://wordpress.org/plugins/regione-provincia-comune/
 
-This plugin uses data made available by ISTAT and the Agenzia delle entrate (Italian revenue agency).
-In particular, data made available at these URLs are acquired and stored:
+This plugin uses data made available by ISTAT through the SITUAS portal.
+In particular, data from these SITUAS reports are acquired and stored:
 
-* https://www.istat.it/it/archivio/6789
-* https://www.istat.it/it/archivio/6747
-* https://www1.agenziaentrate.gov.it/servizi/codici/ricerca/VisualizzaTabella.php?ArcName=00T4
+* List of codes and names of the territorial units (current municipalities)
+* Suppressed or ceded municipalities
+* Administrative and territorial changes since 1991
+* List of codes and names of the foreign territorial units (countries)
 
-The data published on the ISTAT website are covered by a Creative Commons license - Attribution (CC-by) (https://creativecommons.org/licenses/by/3.0/it/), as indicated here: https://www.istat.it/it/note-legali
-The data taken from the website of the Agenzia delle entrate are in the public domain and constitute a public database made available to allow tax compliance and, more generally, to allow the identification of physical persons with the Italian public administrations, through the personal fiscal code.
-The data are managed by the Ufficio Archivio of the Agenzia delle entrate.
+The list of foreign countries ceased since 1990 is distributed with the plugin; an automated test checks it against the SITUAS report of historical foreign countries.
+
+The data published by ISTAT are covered by a Creative Commons license - Attribution (CC-by) (https://creativecommons.org/licenses/by/3.0/it/), as indicated here: https://www.istat.it/it/note-legali
+The cadastral codes of the municipalities, used to check the place of birth in the tax code, are published by ISTAT as an elaboration on data of the Agenzia delle entrate (Italian revenue agency).
 By Italian law (art. 52 d.lgs. 82/2005) all data, that are not personal data, published by an Italian administration without an explicit license are open data (CC0).
-This plugin uses the data taken from the website of the Agenzia delle entrate exclusively for the purpose of carrying out a formal regularity check of the pesonal tax code.
-This plugin does not include any links on the external pages of the website on which it is used, neither to the Agenzia delle entrate's site nor to the ISTAT's website; in particular, no kind of direct link is made, nor of deep linking.
+This plugin uses the cadastral codes exclusively for the purpose of carrying out a formal regularity check of the personal tax code.
+This plugin does not include any links to the ISTAT's website on the external pages of the website on which it is used; in particular, no kind of direct link is made, nor of deep linking.
 
 ## How to use form tags in Contact Form 7 ##
 
@@ -93,7 +95,7 @@ Want to check the code? [https://github.com/MocioF/campi-moduli-italiani](https:
 2. Search in the text box `campi-moduli-italiani`.
 3. Position yourself on the description of this plugin and select install.
 4. Activate the plugin from the WordPress admin panel.
-NOTE: activation takes several minutes, because the updated data tables are downloaded from the official sites (Istat and Agenzia delle entrate and then the data is imported into the database)
+NOTE: activation takes several minutes, because the updated data tables are downloaded from the official sites (ISTAT) and then the data is imported into the database
 
 ### Manual installation of ZIP files ###
 
@@ -101,7 +103,7 @@ NOTE: activation takes several minutes, because the updated data tables are down
 2. Select add plugin option from the admin panel.
 3. Select `upload` option at the top and select the file you downloaded.
 4. Confirm installation and activation of plugins from the administration panel.
-NOTE: activation takes several minutes, because the updated data tables are downloaded from the official sites (Istat and Agenzia delle entrate and then the data is imported into the database)
+NOTE: activation takes several minutes, because the updated data tables are downloaded from the official sites (ISTAT) and then the data is imported into the database
 
 ### Manual FTP installation ###
 
@@ -109,7 +111,7 @@ NOTE: activation takes several minutes, because the updated data tables are down
 2. FTP access to your folder on the web server.
 3. Copy the whole `campi-moduli-italiani` folder to the `/wp-content/plugins/` directory
 4. Activate the plugin from the WordPress admin panel.
-NOTE: activation takes several minutes, because the updated data tables are downloaded from the official sites (Istat and Agenzia delle entrate and then the data is imported into the database)
+NOTE: activation takes several minutes, because the updated data tables are downloaded from the official sites (ISTAT) and then the data is imported into the database
 
 ## Frequently Asked Questions ##
 

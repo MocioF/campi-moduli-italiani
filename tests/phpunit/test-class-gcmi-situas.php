@@ -948,6 +948,44 @@ final class GCMI_SituasTest extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Aggiornando da una versione precedente la migrazione della 2.3.3 viene eseguita.
+	 *
+	 * @group situas
+	 */
+	public function test_upgrade_da_versione_precedente() {
+		update_option( 'gcmi_plugin_version', '2.3.2' );
+		update_option( 'gcmi_comuni_attuali_downloaded_time', 2 );
+		update_option( 'gcmi_comuni_attuali_remote_file_time', 1 );
+		update_option( 'gcmi_codici_catastali_downloaded_time', 1 );
+
+		gcmi_upgrade();
+
+		$this->assertSame( GCMI_VERSION, get_option( 'gcmi_plugin_version' ) );
+		$this->assertGreaterThan( 2, get_option( 'gcmi_comuni_attuali_remote_file_time' ) );
+		$this->assertFalse( get_option( 'gcmi_codici_catastali_downloaded_time' ) );
+	}
+
+	/**
+	 * La migrazione non viene ripetuta dalla versione di sviluppo alla 2.3.3, né con la stessa versione.
+	 *
+	 * @group situas
+	 */
+	public function test_upgrade_non_ripetuto() {
+		// version_compare() considera 2.3.3-dev minore di 2.3.3: la soglia deve essere '2.3.3-dev'.
+		$this->assertTrue( version_compare( '2.3.3-dev', '2.3.3', '<' ) );
+		$this->assertFalse( version_compare( '2.3.3-dev', '2.3.3-dev', '<' ) );
+		$this->assertFalse( version_compare( '2.3.3', '2.3.3-dev', '<' ) );
+
+		update_option( 'gcmi_plugin_version', GCMI_VERSION );
+		update_option( 'gcmi_comuni_attuali_downloaded_time', 2 );
+		update_option( 'gcmi_comuni_attuali_remote_file_time', 1 );
+
+		gcmi_upgrade();
+
+		$this->assertSame( 1, get_option( 'gcmi_comuni_attuali_remote_file_time' ) );
+	}
+
+	/**
 	 * @group situas
 	 */
 	public function test_has_changed() {
