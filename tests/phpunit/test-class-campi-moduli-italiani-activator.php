@@ -95,10 +95,6 @@ final class GCMI_ActivatorTest extends WP_UnitTestCase {
 				$gcmi_now,
 			),
 			array(
-				get_option( 'gcmi_codici_catastali_downloaded_time' ),
-				$gcmi_now,
-			),
-			array(
 				get_option( 'gcmi_stati_downloaded_time' ),
 				$gcmi_now,
 			),
@@ -111,28 +107,5 @@ final class GCMI_ActivatorTest extends WP_UnitTestCase {
 				$gcmi_now,
 			),
 		);
-	}
-
-	/**
-	 * @dataProvider remoteFileArray
-	 * @group downloadf
-	 */
-	public function test_download_file( $name, $downd_name, $featured_csv, $remote_file, $remote_URL ) {
-		$tmp_dir = $this->gcmi_activator::make_tmp_dwld_dir();
-		$this->gcmi_activator->download_file( $remote_URL, $tmp_dir, $downd_name );
-		$tmpfname = $tmp_dir . $downd_name;
-		$this->assertFileExists( $tmpfname );
-	}
-
-	public function remoteFileArray() {
-		$main_array     = GCMI_Activator::$database_file_info;
-		$download_array = array();
-		foreach ( $main_array as $item ) {
-			// I dataset html, json (SITUAS) e locali non vengono scaricati come file.
-			if ( 'html' !== $item['file_type'] && 'json' !== $item['file_type'] && 'local' !== $item['file_type'] ) {
-				$download_array[] = $item;
-			}
-		}
-		return $download_array;
 	}
 }

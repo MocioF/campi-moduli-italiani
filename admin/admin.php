@@ -203,10 +203,6 @@ function gcmi_ajax_admin_menu_change_notice(): void {
 			'optN_remoteUpd' => 'gcmi_comuni_variazioni_remote_file_time',
 		),
 		array(
-			'optN_dwdtime'   => 'gcmi_codici_catastali_downloaded_time',
-			'optN_remoteUpd' => 'gcmi_codici_catastali_remote_file_time',
-		),
-		array(
 			'optN_dwdtime'   => 'gcmi_stati_downloaded_time',
 			'optN_remoteUpd' => 'gcmi_stati_remote_file_time',
 		),
@@ -447,27 +443,6 @@ function gcmi_update_table( $fname ) {
 
 			/* translators: %1$s: the local csv file name; %2$s: the zip archive file name */
 			$error_message = '<p><strong>' . $error_title . '</strong></p>' . sprintf( __( 'Unable to extract %1$s from %2$s', 'campi-moduli-italiani' ), $database_file_info[ $id ]['featured_csv'], $pathtozip );
-			$gcmi_error->add( $error_code, $error_message );
-			wp_die(
-				wp_kses( gcmi_show_error( $gcmi_error ), $allowed_html ),
-				esc_html__( 'Campi Moduli Italiani activation error', 'campi-moduli-italiani' ),
-				array(
-					'response'  => 200,
-					'back_link' => true,
-				)
-			);
-		}
-	}
-	if ( 'html' === $database_file_info[ $id ]['file_type'] ) {
-		if ( ! GCMI_Activator::download_html_data(
-			$download_temp_dir,
-			$database_file_info[ $id ]['name']
-		)
-			) {
-			$error_code  = ( 'gcmi_grab_html_error' );
-			$error_title = __( 'Grab html data error', 'campi-moduli-italiani' );
-			/* translators: remote URL of the table from where it grabs data */
-			$error_message = '<p><strong>' . $error_title . '</strong></p>' . sprintf( __( 'Unable to grab data from %s', 'campi-moduli-italiani' ), $database_file_info[ $id ]['remote_URL'] );
 			$gcmi_error->add( $error_code, $error_message );
 			wp_die(
 				wp_kses( gcmi_show_error( $gcmi_error ), $allowed_html ),

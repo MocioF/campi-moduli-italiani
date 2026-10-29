@@ -177,6 +177,7 @@ function gcmi_upgrade() {
 	}
 	if ( version_compare( $old_ver, '2.3.3', '<' ) ) {
 		gcmi_flag_situas_datasets_for_update();
+		gcmi_remove_codici_catastali();
 	}
 
 	// Calls the callback functions that have been added to the gcmi_upgrade action hook.
@@ -408,6 +409,49 @@ function gcmi_flag_situas_datasets_for_update(): void {
 			if ( isset( $info['optN_etag'] ) ) {
 				update_site_option( $info['optN_etag'], '' );
 			}
+		}
+	}
+}
+
+/**
+ * Elimina la tabella dei codici catastali e le sue viste
+ *
+ * Dalla 2.3.3 il codice catastale si legge direttamente da comuni_attuali e
+ * comuni_soppressi: la tabella codici_catastali, scaricata dal sito dell'Agenzia
+ * delle Entrate, non è più usata. Nei siti secondari di un multisite vengono
+ * eliminate prima le viste non filtrate, poi la tabella e le opzioni.
+ *
+ * @since 2.3.3
+ * @return void
+ */
+function gcmi_remove_codici_catastali(): void {
+	global $wpdb;
+	if ( is_multisite() ) {
+		foreach ( GCMI_Activator::get_sites_array() as $site ) {
+			switch_to_blog( intval( $site->blog_id ) );
+			// Nel sito principale lo stesso nome è quello della tabella, non di una vista.
+			if ( false === is_main_site() ) {
+				$wpdb->query(
+					$wpdb->prepare(
+						'DROP VIEW IF EXISTS `%1$s`',
+						$wpdb->prefix . 'gcmi_codici_catastali'
+					)
+				);
+			}
+			restore_current_blog();
+		}
+	}
+	$wpdb->query(
+		$wpdb->prepare(
+			'DROP TABLE IF EXISTS `%1$s`',
+			GCMI_TABLE_PREFIX . 'codici_catastali'
+		)
+	);
+	foreach ( array( 'gcmi_codici_catastali_downloaded_time', 'gcmi_codici_catastali_remote_file_time' ) as $option ) {
+		if ( is_multisite() ) {
+			delete_site_option( $option );
+		} else {
+			delete_option( $option );
 		}
 	}
 }

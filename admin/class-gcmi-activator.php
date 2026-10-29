@@ -91,19 +91,6 @@ class GCMI_Activator {
 			'optN_etag'        => 'gcmi_comuni_variazioni_etag',
 		),
 		array(
-			'name'             => 'codici_catastali',
-			'downd_name'       => 'index.html',
-			'featured_csv'     => 'codici_catastali.csv',
-			'remote_file'      => 'index.html',
-			'remote_URL'       => 'https://www1.agenziaentrate.gov.it/servizi/codici/ricerca/VisualizzaTabella.php?ArcName=00T4',
-			'table_name'       => GCMI_TABLE_PREFIX . 'codici_catastali',
-			'optN_dwdtime'     => 'gcmi_codici_catastali_downloaded_time',
-			'optN_remoteUpd'   => 'gcmi_codici_catastali_remote_file_time',
-			'remoteUpd_method' => 'unknown',
-			'file_type'        => 'html',
-			'orig_encoding'    => 'UTF-8',
-		),
-		array(
 			'name'             => 'stati',
 			'downd_name'       => '',
 			'featured_csv'     => '',
@@ -163,10 +150,6 @@ class GCMI_Activator {
 			'value'    => 0,
 			'autoload' => false,
 		),
-		'gcmi_codici_catastali_downloaded_time'   => array(
-			'value'    => 0,
-			'autoload' => false,
-		),
 		'gcmi_stati_downloaded_time'              => array(
 			'value'    => 0,
 			'autoload' => false,
@@ -184,10 +167,6 @@ class GCMI_Activator {
 			'autoload' => false,
 		),
 		'gcmi_comuni_variazioni_remote_file_time' => array(
-			'value'    => 0,
-			'autoload' => false,
-		),
-		'gcmi_codici_catastali_remote_file_time'  => array(
 			'value'    => 0,
 			'autoload' => false,
 		),
@@ -215,59 +194,6 @@ class GCMI_Activator {
 			'value'    => '',
 			'autoload' => false,
 		),
-	);
-
-	/**
-	 * Elenco lettere utilizzato per il download codici catastali dal sito Agenzia delle entrate
-	 *
-	 * @var array<string> $alphas
-	 */
-	private static $alphas = array(
-		'A',
-		'B',
-		'C',
-		'D',
-		'E',
-		'F',
-		'G',
-		'H',
-		'I',
-		'J',
-		'K',
-		'L',
-		'M',
-		'N',
-		'O',
-		'P',
-		'Q',
-		'R',
-		'S',
-		'T',
-		'U',
-		'V',
-		'W',
-		'X',
-		'Y',
-		'Z',
-	);
-
-	/**
-	 * Elenco lettere utilizzato per il download codici catastali dal sito Agenzia delle entrate
-	 *
-	 * @var array<string> $alphas_codes
-	 */
-	private static $alphas_codes = array(
-		'A',
-		'B',
-		'C',
-		'D',
-		'E',
-		'F',
-		'G',
-		'H',
-		'I',
-		'L',
-		'M',
 	);
 
 	/**
@@ -549,32 +475,6 @@ class GCMI_Activator {
 					wp_die(
 						wp_kses( gcmi_show_error( $gcmi_error ), $allowed_html ),
 						esc_html__( 'gcmi activation error', 'campi-moduli-italiani' ),
-						array(
-							'response'  => 200,
-							'back_link' => true,
-						)
-					);
-				}
-			}
-
-			/**
-			 * I generate the csv file from the html table
-			 */
-			if ( 'html' === self::$database_file_info[ $i ]['file_type'] ) {
-				$downloaded_html = self::download_html_data( $download_temp_dir, self::$database_file_info[ $i ]['name'] );
-				if ( true === $downloaded_html ) {
-					$option_name = self::$database_file_info[ $i ]['optN_dwdtime'];
-					// acquisition time of the remote file.
-					self::$activator_options[ $option_name ]['value'] = time();
-				} else {
-					$error_code  = ( 'gcmi_html_download_error' );
-					$error_title = __( 'Error retrieving html data', 'campi-moduli-italiani' );
-					/* translators: %s: The name of attempted downloaded data */
-					$error_message = '<p><strong>' . $error_title . '</strong></p>' . sprintf( __( 'Unable to download html data: %s', 'campi-moduli-italiani' ), self::$database_file_info[ $i ]['name'] );
-					$gcmi_error->add( $error_code, $error_message );
-					wp_die(
-						wp_kses( gcmi_show_error( $gcmi_error ), $allowed_html ),
-						esc_html__( 'Campi Moduli Italiani activation error', 'campi-moduli-italiani' ),
 						array(
 							'response'  => 200,
 							'back_link' => true,
@@ -1228,21 +1128,6 @@ class GCMI_Activator {
 				);
 				break;
 
-			case 'codici_catastali':
-				$res = $wpdb->query(
-					$wpdb->prepare(
-						'CREATE TABLE IF NOT EXISTS %1$s ( ' .
-						'id INT(11) NOT NULL AUTO_INCREMENT, ' .
-						'i_cod_catastale char(4) NOT NULL, ' .
-						'i_denominazione_ita varchar(255) NOT NULL, ' .
-						'PRIMARY KEY (id) ' .
-						') %2$s',
-						$table,
-						$charset_collate
-					)
-				);
-				break;
-
 			case 'stati':
 				$res = $wpdb->query(
 					$wpdb->prepare(
@@ -1454,22 +1339,6 @@ class GCMI_Activator {
 
 				$gcmi_dati_line = esc_sql( $gcmi_dati_line );
 				switch ( $name ) {
-					case 'codici_catastali':
-						if ( ! ( $wpdb->insert(
-							$table,
-							array(
-								'i_cod_catastale'     => $gcmi_dati_line[0],
-								'i_denominazione_ita' => $gcmi_dati_line[1],
-							),
-							array(
-								'%s',
-								'%s',
-							)
-						) )
-						) {
-							return false;
-						}
-						break;
 					case 'stati_cessati':
 						if ( 'n.d.' === $gcmi_dati_line[4] || 'n.d' === $gcmi_dati_line[4] ) {
 							$gcmi_dati_line[4] = null;
@@ -1609,206 +1478,6 @@ class GCMI_Activator {
 		if ( false !== $timestamp ) {
 			wp_unschedule_event( $timestamp, 'gcmi_check_for_remote_data_updates' );
 		}
-	}
-
-	/**
-	 * Downloads html data.
-	 *
-	 * This is a wrapper for functions downloading data from html tables.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @param string $tmp_dwld_dir temporary download directory.
-	 * @param string $name         from $database_file_info .
-	 * @return boolean
-	 */
-	public static function download_html_data( $tmp_dwld_dir, $name ) {
-		// wrapper per le funzioni specifiche per ogni singolo file.
-		switch ( $name ) {
-			case 'codici_catastali':
-				return ( self::get_csvdata_codici_catastali_new( $tmp_dwld_dir ) );
-			default:
-				return false;
-		}
-	}
-
-	/**
-	 * Downloads html data for codici_catastali.
-	 *
-	 * Downloads to a csv files data for codici_catastali
-	 * La funzione è ricorsiva dalla versione 2.1.0
-	 *
-	 * @since 1.0.0
-	 *
-	 * @deprecated 2.1.4 L'agenzia delle entrate non mette più a disposizione l'elenco completo dei codici catastali.
-	 * @see GCMI_Activator::get_csvdata_codici_catastali_new()
-	 * @param string $tmp_dwld_dir temporary download directory.
-	 * @param int    $max_retry Number of time, it will try to download data, on failure.
-	 * @return boolean
-	 */
-	public static function get_csvdata_codici_catastali( $tmp_dwld_dir, $max_retry = 3 ) {
-		/**
-		 * L'Agenzia delle entrate mette a disposizione i dati relativi ai codici catastali dei comuni in una tabella HTML
-		 * che puo' essere interrogata solo chiedendo l'elenco per iniziale del comune.
-		 * Questa funzione richiede le tabelle per tutte le lettere e inserisce i dati in un file csv, che successivamente
-		 * verrà importato nel database.
-		 * Il file e' necessario per ottenere l'informazione sul codice catastale dei comuni cessati, in quanto i dati ISTAT
-		 * contengono il valore del codice catastale solo per i comuni attuali (questo dato è funzionale al riscontro del codice fiscale)
-		 */
-		$alphas = self::$alphas;
-
-		// Evito che nei test automatici, i server (GitHub) richiedano nella stessa sequenza e più volte la stessa pagina.
-		shuffle( $alphas );
-		// inserisco riga intestazione.
-		if ( 3 === $max_retry ) {
-			file_put_contents( $tmp_dwld_dir . '/codici_catastali.csv', "Codice Ente;Denominazione\r\n", FILE_APPEND | LOCK_EX );
-		}
-
-		$args = array(
-			'sslverify'       => true,
-			'sslcertificates' => GCMI_PLUGIN_DIR . '/admin/assets/www1-Ade.pem',
-		);
-
-		$num_letters = count( $alphas );
-		for ( $i = 0; $i < $num_letters; $i++ ) {
-			$remote_url = 'https://www1.agenziaentrate.gov.it/servizi/codici/ricerca/VisualizzaTabella.php?iniz=' . $alphas[ $i ] . '&ArcName=COM-ICI';
-			/**
-			 * Il server Agenzia al momento è mal configurato perchè non serve tutta la catena di certificati intermedi, ma solo quello del server;
-			 * utilizzo una copia locale del certificato (ambiente impostato prima della routine).
-			 */
-			$response = wp_remote_get( $remote_url, $args );
-
-			if ( is_wp_error( $response ) ) {
-				$failed_letters[] = $alphas[ $i ];
-			} else {
-				$file_content = self::get_data_from_response( $response );
-				if ( '' !== $file_content ) {
-					file_put_contents( $tmp_dwld_dir . '/codici_catastali.csv', $file_content, FILE_APPEND | LOCK_EX );
-				}
-			}
-		}
-		--$max_retry;
-
-		if ( $max_retry > 0 && false === empty( $failed_letters ) ) {
-			self::$alphas = $failed_letters;
-			self::get_csvdata_codici_catastali( $tmp_dwld_dir, $max_retry );
-		}
-		if ( empty( $failed_letters ) ) {
-			return true;
-		} else {
-			return false;
-		}
-	}
-
-	/**
-	 * Downloads html data for codici_catastali.
-	 *
-	 * Downloads to a csv files data for codici_catastali
-	 *
-	 * @param string $tmp_dwld_dir temporary download directory.
-	 * @param int    $max_retry Number of time, it will try to download data, on failure.
-	 * @return bool
-	 */
-	public static function get_csvdata_codici_catastali_new( $tmp_dwld_dir, $max_retry = 3 ) {
-		/**
-		 * L'Agenzia delle entrate mette a disposizione i dati relativi ai codici catastali dei comuni in una tabella HTML
-		 * che puo' essere interrogata solo chiedendo l'elenco per iniziale del codice.
-		 * Questa funzione richiede le tabelle per tutte le lettere con cui iniziano i codici catastali
-		 * e inserisce i dati in un file csv, che successivamente verrà importato nel database.
-		 * Il file e' necessario per ottenere l'informazione sul codice catastale dei comuni cessati, in quanto i dati ISTAT
-		 * contengono il valore del codice catastale solo per i comuni attuali (questo dato è funzionale al riscontro del codice fiscale)
-		 */
-		$alphas = self::$alphas_codes;
-
-		// Evito che nei test automatici, i server (GitHub) richiedano nella stessa sequenza e più volte la stessa pagina.
-		shuffle( $alphas );
-		// inserisco riga intestazione.
-		if ( 3 === $max_retry ) {
-			file_put_contents( $tmp_dwld_dir . '/codici_catastali.csv', "Codice Ente;Denominazione\r\n", FILE_APPEND | LOCK_EX );
-		}
-
-		$remote_url = 'https://www1.agenziaentrate.gov.it/servizi/codici/ricerca/VisualizzaTabella.php';
-
-		$args = array(
-			'sslverify'       => true,
-			'sslcertificates' => GCMI_PLUGIN_DIR . '/admin/assets/www1-Ade.pem',
-			'method'          => 'POST',
-			'headers'         => array( 'Content-Type' => 'application/x-www-form-urlencoded' ),
-			'body'            => array(
-				'ArcName' => '00T4',
-				'lettera' => '',
-			),
-		);
-
-		$num_letters = count( $alphas );
-		for ( $i = 0; $i < $num_letters; $i++ ) {
-			$args['body']['lettera'] = $alphas[ $i ];
-
-			/**
-			 * Il server Agenzia al momento è mal configurato perchè non serve tutta la catena di certificati intermedi, ma solo quello del server;
-			 * utilizzo una copia locale del certificato (ambiente impostato prima della routine).
-			 */
-			$response = wp_remote_post( $remote_url, $args );
-
-			if ( is_wp_error( $response ) ) {
-				$failed_letters[] = $alphas[ $i ];
-			} else {
-				$file_content = self::get_data_from_response( $response );
-				if ( '' !== $file_content ) {
-					file_put_contents( $tmp_dwld_dir . '/codici_catastali.csv', $file_content, FILE_APPEND | LOCK_EX );
-				}
-			}
-		}
-		--$max_retry;
-
-		if ( $max_retry > 0 && false === empty( $failed_letters ) ) {
-			self::$alphas = $failed_letters;
-			self::get_csvdata_codici_catastali_new( $tmp_dwld_dir, $max_retry );
-		}
-		if ( empty( $failed_letters ) ) {
-			return true;
-		} else {
-			return false;
-		}
-	}
-
-	/**
-	 * Scarica i dati da una singola tabella / lettera del sito Agenzia entrate
-	 *
-	 * @param array{headers: \WpOrg\Requests\Utility\CaseInsensitiveDictionary, body: string, response: array{code: int,message: string}, cookies: array<int, \WP_Http_Cookie>, filename: string|null, http_response: \WP_HTTP_Requests_Response}|\WP_Error $response Array returned by wp_remote_get if success.
-	 * @return string
-	 */
-	public static function get_data_from_response( $response ) {
-		$html_content = wp_remote_retrieve_body( $response );
-		$dom_document = new DOMDocument();
-		libxml_use_internal_errors( true );
-		$dom_document->loadHTML( $html_content );
-		libxml_use_internal_errors( false );
-
-		$file_content = '';
-
-		$tables = $dom_document->getElementsByTagName( 'table' );
-		/* individuo nel codice la tabella di interesse */
-		$table = $tables->item( 0 );
-		if ( null !== $table ) {
-			$rows = $table->getElementsByTagName( 'tr' );
-			foreach ( $rows as $row ) {
-				$cols      = $row->getElementsByTagName( 'td' );
-				$file_line = '';
-				foreach ( $cols as $t ) {
-					$file_line .= trim( strval( $t->nodeValue ) );
-					$file_line .= ';';
-				}
-				if ( '' !== $file_line ) {
-					/* rimuovo l'ultimo ";" */
-					$file_line  = substr( $file_line, 0, -1 );
-					$file_line .= "\r\n";
-
-					$file_content .= $file_line;
-				}
-			}
-		}
-		return $file_content;
 	}
 
 	/**

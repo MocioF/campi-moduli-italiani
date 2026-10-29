@@ -45,9 +45,6 @@ final class adminFunctionsTest extends WP_Ajax_UnitTestCase {
 				'comuni_soppressi',
 			),
 			array(
-				'codici_catastali',
-			),
-			array(
 				'comuni_variazioni',
 			),
 			array(

@@ -665,8 +665,6 @@ final class GCMI_SituasTest extends WP_UnitTestCase {
 		update_option( 'gcmi_comuni_attuali_etag', '"old"' );
 		update_option( 'gcmi_comuni_soppressi_remote_file_time', 1 );
 		update_option( 'gcmi_comuni_soppressi_downloaded_time', 2 );
-		update_option( 'gcmi_codici_catastali_remote_file_time', 1 );
-		update_option( 'gcmi_codici_catastali_downloaded_time', 2 );
 		update_option( 'gcmi_stati_cessati_remote_file_time', 1 );
 		update_option( 'gcmi_stati_cessati_downloaded_time', 2 );
 
@@ -681,8 +679,6 @@ final class GCMI_SituasTest extends WP_UnitTestCase {
 		$this->assertSame( '', get_option( 'gcmi_comuni_attuali_etag' ) );
 		// Anche il dataset letto dal file distribuito con il plugin viene segnalato.
 		$this->assertGreaterThan( 2, get_option( 'gcmi_stati_cessati_remote_file_time' ) );
-		// I dataset ancora scaricati da remote non vengono toccati.
-		$this->assertSame( 1, get_option( 'gcmi_codici_catastali_remote_file_time' ) );
 	}
 
 	/**

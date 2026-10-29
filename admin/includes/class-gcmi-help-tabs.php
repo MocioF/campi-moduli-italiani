@@ -94,18 +94,18 @@ class GCMI_Help_Tabs {
 	private function content( $name ) {
 		$content                  = array();
 		$content['gcmi_overview'] = '<p>' . sprintf(
-		/* translators: %1$s: Contact Form 7, plugin page link; %2$s: link to the page where ISTAT publishes used data; %3$s: link to the page where Agenzia delle entrate publishes used data */
+		/* translators: %1$s: Contact Form 7, plugin page link; %2$s: link to the ISTAT website; %3$s: link to the ISTAT SITUAS portal, where the used data are published */
 			esc_html__( '"Campi Moduli Italiani" creates shortcodes and, if %1$s is activated, form-tags, useful into Italian forms. The first module written is used to select an Italian municipality. Optionally it can show details of selected municipality. The data used are retrivied from %2$s and from %3$s.', 'campi-moduli-italiani' ),
 			'<a href="https://contactform7.com" target="_blank">Contact Form 7</a>',
 			'<a href="https://www.istat.it/it/archivio/6789" target="_blank">https://www.istat.it/it/archivio/6789</a>',
-			'<a href="https://www1.agenziaentrate.gov.it/servizi/codici/ricerca/VisualizzaTabella.php?ArcName=00T4" target="_blank">https://www1.agenziaentrate.gov.it/servizi/codici/ricerca/VisualizzaTabella.php?ArcName=00T4</a>'
+			'<a href="https://situas.istat.it" target="_blank">https://situas.istat.it</a>'
 		) . '</p>';
 
 		$content['update_tables_overview'] = '<p>' . sprintf(
-			/* translators: %1$s: link to ISTAT website; %2$s: link to the page where ISTAT publishes used data */
+			/* translators: %1$s: link to ISTAT website; %2$s: link to the ISTAT SITUAS services; %3$s: link to the page where ISTAT publishes used data */
 			esc_html__( 'On this screen, you can update tables by direct data download from %1$s and %2$s. For details about downloaded data, visit %3$s.', 'campi-moduli-italiani' ),
 			'<a href="https://www.istat.it" target="_blank">https://www.istat.it</a>',
-			'<a href="https://www.agenziaentrate.gov.it" target="_blank">https://www.agenziaentrate.gov.it</a>',
+			'<a href="https://situas.istat.it" target="_blank">https://situas.istat.it</a>',
 			'<a href="https://www.istat.it/it/archivio/6789" target="_blank">https://www.istat.it/it/archivio/6789</a>'
 		) . '</p>';
 		$content['update_tables_overview'] .= '<p>' . esc_html__( 'Check the update dates of your data and the update dates of the online files, pick tables to update, select the "Update tables" bulk action and click on "Apply".', 'campi-moduli-italiani' ) . '</p>';

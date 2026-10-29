@@ -447,6 +447,57 @@ class GCMI_CF_WPCF7_FormTag {
 	}
 
 	/**
+	 * Restituisce i codici catastali associati a un codice ISTAT di comune
+	 *
+	 * Il codice catastale si legge dalle tabelle dei comuni per codice ISTAT, senza
+	 * passare dalla denominazione (che ha omonimi in province diverse). Un comune può
+	 * comparire sia tra gli attuali sia tra i soppressi: vengono restituiti tutti i codici.
+	 * Si usano le tabelle e non le viste: le viste create prima della 2.3.3 non contengono
+	 * il codice catastale dei comuni soppressi.
+	 *
+	 * @since 2.3.3
+	 * @param string $cod_comune       Codice ISTAT del comune (6 cifre).
+	 * @param string $table_attuali    Tabella dei comuni attuali (per i test).
+	 * @param string $table_soppressi  Tabella dei comuni soppressi (per i test).
+	 * @return array<int, string>
+	 */
+	public static function get_codici_catastali( $cod_comune, $table_attuali = '', $table_soppressi = '' ) {
+		global $wpdb;
+		if ( '' === $table_attuali ) {
+			$table_attuali = GCMI_TABLE_PREFIX . 'comuni_attuali';
+		}
+		if ( '' === $table_soppressi ) {
+			$table_soppressi = GCMI_TABLE_PREFIX . 'comuni_soppressi';
+		}
+		$cache_key = 'gcmi_cod_catastale_' . $table_attuali . '_' . $cod_comune;
+		$a_results = wp_cache_get( $cache_key, GCMI_CACHE_GROUP );
+		if ( is_array( $a_results ) ) {
+			return array_map( 'gcmi_safe_strval', array_values( $a_results ) );
+		}
+		// Finché le tabelle non sono aggiornate allo schema 2.3.3 la colonna può mancare:
+		// la query fallisce, nessun codice viene restituito e l'errore non viene mostrato.
+		$suppress  = $wpdb->suppress_errors();
+		$a_results = $wpdb->get_col(
+			$wpdb->prepare(
+				'SELECT `i_cod_catastale` FROM `%1$s` ' .
+				'WHERE `i_cod_comune` = \'%3$s\' AND `i_cod_catastale` IS NOT NULL ' .
+				'UNION ' .
+				'SELECT `i_cod_catastale` FROM `%2$s` ' .
+				'WHERE `i_cod_comune` = \'%4$s\' AND `i_cod_catastale` IS NOT NULL',
+				$table_attuali,
+				$table_soppressi,
+				esc_sql( $cod_comune ),
+				esc_sql( $cod_comune )
+			),
+			0
+		);
+		$wpdb->suppress_errors( $suppress );
+		$a_results = array_map( 'gcmi_safe_strval', $a_results );
+		wp_cache_set( $cache_key, $a_results, GCMI_CACHE_GROUP, GCMI_CACHE_EXPIRE_SECS );
+		return $a_results;
+	}
+
+	/**
 	 * Controlla la corrispondenza di una stringa luogo al comune di nascita
 	 *
 	 * Restituisce falso se il CF deve essere verificato per il comune
@@ -489,60 +540,10 @@ class GCMI_CF_WPCF7_FormTag {
 				return true;
 			}
 
-			$cache_key = 'gcmi_comune_cf_' . strval( $cod_comune );
-			$a_results = wp_cache_get( $cache_key, GCMI_CACHE_GROUP );
-			if ( false === $a_results ) {
-				$a_results = $wpdb->get_col(
-					$wpdb->prepare(
-						'SELECT (`i_denominazione_full`) FROM ( ' .
-						'SELECT `i_cod_comune`, `i_denominazione_full` FROM `%1$s` ' .
-						'UNION ' .
-						'SELECT `i_cod_comune`, `i_denominazione_full` FROM `%2$s` ' .
-						') as subQuery WHERE `i_cod_comune` = \'%3$s\'',
-						GCMI_SVIEW_PREFIX . 'comuni_attuali',
-						GCMI_SVIEW_PREFIX . 'comuni_soppressi',
-						esc_sql( $cod_comune )
-					),
-					0
-				);
-				wp_cache_set( $cache_key, $a_results, GCMI_CACHE_GROUP, GCMI_CACHE_EXPIRE_SECS );
-			}
-			$den_str_1 = $a_results[0];
-
-			// elimino la doppia denominazione usando solo quello che c'è prima del carattere / .
-			$arr       = explode( '/', $den_str_1, 2 );
-			$den_str_2 = $arr[0];
-
-			// converto lettere accentate in lettera seguita da apostrofo.
-			$den_str_21 = str_replace( 'è', 'e\'', $den_str_2 );
-			$den_str_22 = str_replace( 'é', 'e\'', $den_str_21 );
-			$den_str_23 = str_replace( 'ò', 'o\'', $den_str_22 );
-			$den_str_24 = str_replace( 'à', 'a\'', $den_str_23 );
-			$den_str_25 = str_replace( 'ì', 'i\'', $den_str_24 );
-			$den_str_26 = str_replace( 'ù', 'u\'', $den_str_25 );
-			// trim e maiuscolo.
-			$den_str_3 = trim( strtoupper( $den_str_26 ) );
-			$escaped   = esc_sql( $den_str_3 );
-
-			$cache_key = 'gcmi_cod_catastale_cf_' . strval( $escaped );
-			$a_results = wp_cache_get( $cache_key, GCMI_CACHE_GROUP );
-			if ( false === $a_results ) {
-				$a_results = $wpdb->get_col(
-					$wpdb->prepare(
-						'SELECT `i_cod_catastale` FROM `%1$s` ' .
-						'WHERE `i_denominazione_ita` = \'%2$s\'',
-						GCMI_SVIEW_PREFIX . 'codici_catastali',
-						$escaped
-					),
-					0
-				);
-				wp_cache_set( $cache_key, $a_results, GCMI_CACHE_GROUP, GCMI_CACHE_EXPIRE_SECS );
-			}
-			if ( count( $a_results ) > 0 ) { // vecchi comuni cessati non hanno codice catastale o comunque non è stato usato per rilascio codici fiscali.
-				$cod_catastale = strval( $a_results[0] );
-				if ( $cod_catastale !== $luogo ) {
-					return false;
-				}
+			$a_results = self::get_codici_catastali( $cod_comune );
+			// Senza codice catastale (alcuni comuni soppressi in epoca remota) il controllo non è possibile.
+			if ( count( $a_results ) > 0 && ! in_array( $luogo, $a_results, true ) ) {
+				return false;
 			}
 		}
 		return true;
