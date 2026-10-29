@@ -443,6 +443,28 @@ class GCMI_Situas {
 						'COD_CATASTO_REL',
 					),
 				);
+			case 'stati':
+				return array(
+					'callback' => array( __CLASS__, 'map_stati' ),
+					'required' => array(
+						'TIPOLOGIA_PAESE_ESTERO',
+						'COD_CONT',
+						'DESC_CONT_IT',
+						'COD_SUB_CONT',
+						'DESC_COD_SUB_CONT_IT',
+						'CODICE_ISTAT',
+						'DENOMINAZIONE_IT',
+						'DENOMINAZIONE_EN',
+						'ALTRA_DESCRIZIONE_IT',
+						'COD_AT',
+						'ISO_3166_N',
+						'ISO_3166_ALPHA2',
+						'ISO_3166_ALPHA3',
+						'UNSD_M49',
+						'COD_ISTAT_PADRE',
+						'ISO_3166_ALPHA3_PADRE',
+					),
+				);
 			case 'comuni_soppressi':
 				return array(
 					'callback' => array( __CLASS__, 'map_comuni_soppressi' ),
@@ -592,6 +614,46 @@ class GCMI_Situas {
 				'i_cod_catastale_nuovo'          => self::cod_catastale( $row, 'COD_CATASTO_REL' ),
 			),
 			'format' => array( '%d', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s' ),
+		);
+	}
+
+	/**
+	 * Mappa una riga del report "Elenco codici e denominazioni delle unità territoriali estere" (pfun 466).
+	 *
+	 * La colonna deprecata i_cod_minint_ANPR non viene valorizzata: SITUAS non la pubblica.
+	 *
+	 * @param SituasRow $row Una riga del resultset.
+	 * @return MappedRow|WP_Error
+	 */
+	public static function map_stati( $row ) {
+		$required = array( 'TIPOLOGIA_PAESE_ESTERO', 'COD_CONT', 'DESC_CONT_IT', 'COD_SUB_CONT', 'DESC_COD_SUB_CONT_IT', 'CODICE_ISTAT', 'DENOMINAZIONE_IT', 'DENOMINAZIONE_EN' );
+		$missing  = self::missing_fields( $row, $required );
+		if ( is_wp_error( $missing ) ) {
+			return $missing;
+		}
+		// "Stato" => S; "Territorio" e "Territorio/Altro" => T.
+		$tipo = 0 === strpos( gcmi_safe_strval( self::text( $row, 'TIPOLOGIA_PAESE_ESTERO' ) ), 'Stato' ) ? 'S' : 'T';
+
+		return array(
+			'data'   => array(
+				'i_ST'                            => $tipo,
+				'i_cod_continente'                => self::integer( $row, 'COD_CONT' ),
+				'i_den_continente'                => self::text( $row, 'DESC_CONT_IT' ),
+				'i_cod_area'                      => self::integer( $row, 'COD_SUB_CONT' ),
+				'i_den_area'                      => self::text( $row, 'DESC_COD_SUB_CONT_IT' ),
+				'i_cod_istat'                     => self::code( $row, 'CODICE_ISTAT', 3 ),
+				'i_denominazione_ita'             => self::text( $row, 'DENOMINAZIONE_IT' ),
+				'i_denominazione_altralingua'     => self::text( $row, 'DENOMINAZIONE_EN' ),
+				'i_cod_AT'                        => self::cod_catastale( $row, 'COD_AT' ),
+				'i_cod_UNSD_M49'                  => self::code( $row, 'UNSD_M49', 3 ),
+				'i_cod_ISO3166_alpha2'            => self::text( $row, 'ISO_3166_ALPHA2' ),
+				'i_cod_ISO3166_alpha3'            => self::text( $row, 'ISO_3166_ALPHA3' ),
+				'i_cod_istat_StatoPadre'          => self::code( $row, 'COD_ISTAT_PADRE', 3 ),
+				'i_cod_ISO3166_alpha3_StatoPadre' => self::text( $row, 'ISO_3166_ALPHA3_PADRE' ),
+				'i_altra_denominazione_ita'       => self::text( $row, 'ALTRA_DESCRIZIONE_IT' ),
+				'i_cod_ISO3166_N'                 => self::code( $row, 'ISO_3166_N', 3 ),
+			),
+			'format' => array( '%s', '%d', '%s', '%d', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s' ),
 		);
 	}
 

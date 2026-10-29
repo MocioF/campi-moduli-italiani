@@ -379,8 +379,9 @@ function gcmi_update_db_2024_2() {
 /**
  * Segnala come da aggiornare i dataset ora scaricati da SITUAS
  *
- * Dalla 2.3.3 comuni_attuali, comuni_soppressi e comuni_variazioni sono scaricati
- * in JSON dai servizi ISTAT SITUAS. Le tabelle non vengono ricostruite qui,
+ * Dalla 2.3.3 comuni_attuali, comuni_soppressi, comuni_variazioni e stati sono
+ * scaricati in JSON dai servizi ISTAT SITUAS, e stati_cessati è letto da un file
+ * distribuito con il plugin. Le tabelle non vengono ricostruite qui,
  * durante il caricamento di una pagina di amministrazione: i dataset compaiono
  * come da aggiornare nella pagina di gestione del database e vengono ricostruiti
  * con il nuovo schema quando l'amministratore li aggiorna.
@@ -391,7 +392,7 @@ function gcmi_update_db_2024_2() {
  */
 function gcmi_flag_situas_datasets_for_update(): void {
 	foreach ( GCMI_Activator::$database_file_info as $info ) {
-		if ( 'json' !== $info['file_type'] ) {
+		if ( 'json' !== $info['file_type'] && 'local' !== $info['file_type'] ) {
 			continue;
 		}
 		if ( 0 === gcmi_safe_intval( get_site_option( $info['optN_dwdtime'], 0 ) ) ) {

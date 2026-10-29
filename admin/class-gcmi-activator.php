@@ -37,7 +37,7 @@ class GCMI_Activator {
 	/**
 	 * Contains data relating to individual imported public databases.
 	 *
-	 * @var array<int, array{'name': string, 'downd_name': string, 'featured_csv': string, 'remote_file': string, 'remote_URL': string, 'table_name': string, 'optN_dwdtime': string, 'optN_remoteUpd': string, 'remoteUpd_method': string, 'file_type': string, 'orig_encoding': string, 'situas_pfun'?: int, 'situas_period_from'?: string, 'situas_date'?: string, 'optN_etag'?: string}> $database_file_info
+	 * @var array<int, array{'name': string, 'downd_name': string, 'featured_csv': string, 'remote_file': string, 'remote_URL': string, 'table_name': string, 'optN_dwdtime': string, 'optN_remoteUpd': string, 'remoteUpd_method': string, 'file_type': string, 'orig_encoding': string, 'situas_pfun'?: int, 'situas_period_from'?: string, 'situas_date'?: string, 'optN_etag'?: string, 'local_path'?: string}> $database_file_info
 	 */
 	public static $database_file_info = array(
 		array(
@@ -105,38 +105,35 @@ class GCMI_Activator {
 		),
 		array(
 			'name'             => 'stati',
-			'downd_name'       => 'stati.csv',
-			'featured_csv'     => 'stati.csv',
-			'remote_file'      => 'Elenco-codici-e-denominazioni-al-31_12_2023.csv',
-			'remote_URL'       => 'https://raw.githubusercontent.com/MocioF/campi-moduli-italiani/main/assets/data/Elenco-codici-e-denominazioni-al-31_12_2023.csv',
+			'downd_name'       => '',
+			'featured_csv'     => '',
+			'remote_file'      => 'reportspooljson?pfun=466',
+			'remote_URL'       => 'https://situas-servizi.istat.it/publish/reportspooljson?pfun=466',
 			'table_name'       => GCMI_TABLE_PREFIX . 'stati',
 			'optN_dwdtime'     => 'gcmi_stati_downloaded_time',
 			'optN_remoteUpd'   => 'gcmi_stati_remote_file_time',
-			'remoteUpd_method' => 'get_headers_by_get',
-			'file_type'        => 'csv',
-			'orig_encoding'    => 'ISO-8859-1',
-
-			/**
-			 * Valori utilizzati per scaricare il file da istat
-			 *
-			 * 'downd_name'       => 'stati.zip',
-			 * 'remote_file'      => 'Elenco-codici-e-denominazioni-unita-territoriali-estere.zip',
-			 * 'remote_URL'       => 'https://www.istat.it/it/files//2011/01/Elenco-codici-e-denominazioni-unita-territoriali-estere.zip',
-			 * 'file_type'        => 'zip',
-			 */
+			'remoteUpd_method' => 'etag',
+			'file_type'        => 'json',
+			'orig_encoding'    => 'UTF-8',
+			// SITUAS: "Elenco codici e denominazioni delle unità territoriali estere", alla data di oggi.
+			'situas_pfun'      => 466,
+			'optN_etag'        => 'gcmi_stati_etag',
 		),
 		array(
 			'name'             => 'stati_cessati',
-			'downd_name'       => 'stati_cessati.zip',
+			'downd_name'       => 'stati_cessati.csv',
 			'featured_csv'     => 'stati_cessati.csv',
-			'remote_file'      => 'Elenco-Paesi-esteri-cessati.zip',
-			'remote_URL'       => 'https://www.istat.it/it/files//2011/01/Elenco-Paesi-esteri-cessati.zip',
+			'remote_file'      => 'admin/data/stati-cessati.csv',
+			'remote_URL'       => '',
 			'table_name'       => GCMI_TABLE_PREFIX . 'stati_cessati',
 			'optN_dwdtime'     => 'gcmi_stati_cessati_downloaded_time',
 			'optN_remoteUpd'   => 'gcmi_stati_cessati_remote_file_time',
-			'remoteUpd_method' => 'get_headers_by_get',
-			'file_type'        => 'zip',
-			'orig_encoding'    => 'ISO-8859-1',
+			// File distribuito con il plugin: non c'è una fonte remota da controllare.
+			'remoteUpd_method' => 'unknown',
+			'file_type'        => 'local',
+			'orig_encoding'    => 'UTF-8',
+			// Percorso relativo alla cartella del plugin.
+			'local_path'       => 'admin/data/stati-cessati.csv',
 		),
 	);
 
@@ -211,6 +208,10 @@ class GCMI_Activator {
 			'autoload' => false,
 		),
 		'gcmi_comuni_variazioni_etag'             => array(
+			'value'    => '',
+			'autoload' => false,
+		),
+		'gcmi_stati_etag'                         => array(
 			'value'    => '',
 			'autoload' => false,
 		),
@@ -462,6 +463,20 @@ class GCMI_Activator {
 				self::create_situas_table( $i );
 				continue;
 			}
+			// I dataset distribuiti con il plugin vengono copiati nella cartella temporanea.
+			if ( 'local' === self::$database_file_info[ $i ]['file_type'] ) {
+				if ( ! self::copy_local_file( self::$database_file_info[ $i ], $download_temp_dir ) ) {
+					self::die_with_error(
+						'gcmi_local_file_error',
+						__( 'Error copying data file', 'campi-moduli-italiani' ),
+						/* translators: %s: the path of the data file distributed with the plugin */
+						sprintf( __( 'Unable to copy %s', 'campi-moduli-italiani' ), self::$database_file_info[ $i ]['remote_file'] )
+					);
+				}
+				$now = time();
+				self::$activator_options[ self::$database_file_info[ $i ]['optN_dwdtime'] ]['value']   = $now;
+				self::$activator_options[ self::$database_file_info[ $i ]['optN_remoteUpd'] ]['value'] = $now;
+			}
 			if ( 'zip' === self::$database_file_info[ $i ]['file_type']
 				|| 'csv' === self::$database_file_info[ $i ]['file_type']
 			) {
@@ -602,7 +617,9 @@ class GCMI_Activator {
 				);
 			}
 
-			if ( ! self::prepare_file( $csv_file_path ) ) {
+			// I file distribuiti con il plugin hanno terminatori LF e nessuna cella su più righe:
+			// prepare_file() eliminerebbe tutti gli a capo, riducendo il file a una sola riga.
+			if ( 'local' !== self::$database_file_info[ $i ]['file_type'] && ! self::prepare_file( $csv_file_path ) ) {
 				$error_code  = ( 'gcmi_csv_prepare_error' );
 				$error_title = __( 'Error preparing csv file', 'campi-moduli-italiani' );
 				/* translators: %1$s: the full path of the csv file it tryed to prepare for import */
@@ -690,6 +707,25 @@ class GCMI_Activator {
 		if ( isset( $info['optN_etag'] ) ) {
 			self::$activator_options[ $info['optN_etag'] ]['value'] = $etag;
 		}
+	}
+
+	/**
+	 * Copia nella cartella temporanea il file di un dataset distribuito con il plugin.
+	 *
+	 * @since 2.3.3
+	 * @param array<string, mixed> $info Descrizione del dataset da $database_file_info.
+	 * @param string               $dir  La cartella temporanea, con la barra finale.
+	 * @return bool
+	 */
+	public static function copy_local_file( $info, $dir ) {
+		if ( ! isset( $info['local_path'], $info['featured_csv'] ) || ! is_string( $info['local_path'] ) || ! is_string( $info['featured_csv'] ) ) {
+			return false;
+		}
+		$source = plugin_dir_path( GCMI_PLUGIN ) . $info['local_path'];
+		if ( ! is_readable( $source ) ) {
+			return false;
+		}
+		return copy( $source, $dir . $info['featured_csv'] );
 	}
 
 	/**
@@ -1220,6 +1256,7 @@ class GCMI_Activator {
 						'i_cod_istat char(3) NOT NULL, ' .
 						'i_denominazione_ita varchar(255) NOT NULL, ' .
 						'i_denominazione_altralingua varchar(255) NOT NULL, ' .
+						// Deprecata dalla 2.3.3: non pubblicata da SITUAS, sempre NULL.
 						'i_cod_minint_ANPR char(3) NULL, ' .
 						'i_cod_AT char(4) NULL, ' .
 						'i_cod_UNSD_M49 char(3) NULL, ' .
@@ -1227,6 +1264,8 @@ class GCMI_Activator {
 						'i_cod_ISO3166_alpha3 char(3) NULL, ' .
 						'i_cod_istat_StatoPadre char(3) NULL, ' .
 						'i_cod_ISO3166_alpha3_StatoPadre char(3) NULL, ' .
+						'i_altra_denominazione_ita varchar(255) NULL, ' .
+						'i_cod_ISO3166_N char(3) NULL, ' .
 						'PRIMARY KEY (id) ' .
 						') %2$s',
 						$table,
@@ -1431,65 +1470,6 @@ class GCMI_Activator {
 							return false;
 						}
 						break;
-					case 'stati':
-						// n.d. to empty string.
-						if ( 'n.d.' === $gcmi_dati_line[8] || 'n.d' === $gcmi_dati_line[8] ) {
-							$gcmi_dati_line[8] = null;
-						}
-						if ( 'n.d.' === $gcmi_dati_line[9] || 'n.d' === $gcmi_dati_line[9] ) {
-							$gcmi_dati_line[9] = null;
-						}
-						if ( 'n.d.' === $gcmi_dati_line[10] || 'n.d' === $gcmi_dati_line[10] ) {
-							$gcmi_dati_line[10] = null;
-						}
-						if ( 'n.d.' === $gcmi_dati_line[11] || 'n.d' === $gcmi_dati_line[11] ) {
-							$gcmi_dati_line[11] = null;
-						}
-						if ( 'n.d.' === $gcmi_dati_line[12] || 'n.d' === $gcmi_dati_line[12] ) {
-							$gcmi_dati_line[12] = null;
-						}
-						if ( ! ( $wpdb->insert(
-							$table,
-							array(
-								'i_ST'                   => $gcmi_dati_line[0],
-								'i_cod_continente'       => $gcmi_dati_line[1],
-								'i_den_continente'       => $gcmi_dati_line[2],
-								'i_cod_area'             => $gcmi_dati_line[3],
-								'i_den_area'             => $gcmi_dati_line[4],
-								'i_cod_istat'            => $gcmi_dati_line[5],
-								'i_denominazione_ita'    => $gcmi_dati_line[6],
-								'i_denominazione_altralingua' => $gcmi_dati_line[7],
-								'i_cod_minint_ANPR'      => $gcmi_dati_line[8],
-								'i_cod_AT'               => $gcmi_dati_line[9],
-								'i_cod_UNSD_M49'         => $gcmi_dati_line[10],
-								'i_cod_ISO3166_alpha2'   => $gcmi_dati_line[11],
-								'i_cod_ISO3166_alpha3'   => $gcmi_dati_line[12],
-								'i_cod_istat_StatoPadre' => $gcmi_dati_line[13],
-								'i_cod_ISO3166_alpha3_StatoPadre' => $gcmi_dati_line[14],
-							),
-							array(
-								'%s',
-								'%d',
-								'%s',
-								'%d',
-								'%s',
-								'%s',
-								'%s',
-								'%s',
-								'%s',
-								'%s',
-								'%s',
-								'%s',
-								'%s',
-								'%s',
-								'%s',
-							)
-						) )
-						) {
-							return false;
-						}
-						break;
-
 					case 'stati_cessati':
 						if ( 'n.d.' === $gcmi_dati_line[4] || 'n.d' === $gcmi_dati_line[4] ) {
 							$gcmi_dati_line[4] = null;

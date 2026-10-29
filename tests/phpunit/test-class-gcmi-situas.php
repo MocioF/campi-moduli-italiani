@@ -665,7 +665,10 @@ final class GCMI_SituasTest extends WP_UnitTestCase {
 		update_option( 'gcmi_comuni_attuali_etag', '"old"' );
 		update_option( 'gcmi_comuni_soppressi_remote_file_time', 1 );
 		update_option( 'gcmi_comuni_soppressi_downloaded_time', 2 );
-		update_option( 'gcmi_stati_remote_file_time', 1 );
+		update_option( 'gcmi_codici_catastali_remote_file_time', 1 );
+		update_option( 'gcmi_codici_catastali_downloaded_time', 2 );
+		update_option( 'gcmi_stati_cessati_remote_file_time', 1 );
+		update_option( 'gcmi_stati_cessati_downloaded_time', 2 );
 
 		update_option( 'gcmi_comuni_variazioni_remote_file_time', 1 );
 		update_option( 'gcmi_comuni_variazioni_downloaded_time', 2 );
@@ -676,8 +679,10 @@ final class GCMI_SituasTest extends WP_UnitTestCase {
 		$this->assertGreaterThan( get_option( 'gcmi_comuni_attuali_downloaded_time' ), get_option( 'gcmi_comuni_attuali_remote_file_time' ) );
 		$this->assertGreaterThan( 2, get_option( 'gcmi_comuni_soppressi_remote_file_time' ) );
 		$this->assertSame( '', get_option( 'gcmi_comuni_attuali_etag' ) );
-		// I dataset ancora scaricati come file non vengono toccati.
-		$this->assertSame( 1, get_option( 'gcmi_stati_remote_file_time' ) );
+		// Anche il dataset letto dal file distribuito con il plugin viene segnalato.
+		$this->assertGreaterThan( 2, get_option( 'gcmi_stati_cessati_remote_file_time' ) );
+		// I dataset ancora scaricati da remote non vengono toccati.
+		$this->assertSame( 1, get_option( 'gcmi_codici_catastali_remote_file_time' ) );
 	}
 
 	/**
@@ -695,6 +700,233 @@ final class GCMI_SituasTest extends WP_UnitTestCase {
 
 		$this->assertFalse( get_option( 'gcmi_comuni_attuali_remote_file_time' ) );
 		$this->assertSame( 0, get_option( 'gcmi_comuni_soppressi_remote_file_time' ) );
+	}
+
+	private function stati_rows() {
+		return array(
+			array(
+				'TIPOLOGIA_PAESE_ESTERO' => 'Stato',
+				'COD_CONT'               => 1,
+				'DESC_CONT_IT'           => 'Europa',
+				'COD_SUB_CONT'           => 12,
+				'DESC_COD_SUB_CONT_IT'   => 'Europa centro orientale',
+				'CODICE_ISTAT'           => 254,
+				'DENOMINAZIONE_IT'       => 'Moldova',
+				'DENOMINAZIONE_EN'       => 'Moldova',
+				'ALTRA_DESCRIZIONE_IT'   => 'Moldavia',
+				'COD_AT'                 => 'Z140',
+				'ISO_3166_N'             => '498',
+				'ISO_3166_ALPHA2'        => 'MD',
+				'ISO_3166_ALPHA3'        => 'MDA',
+				'UNSD_M49'               => '498',
+			),
+			// Territorio con Stato padre, spazio non separabile nel codice AT e a capo nel nome inglese.
+			array(
+				'TIPOLOGIA_PAESE_ESTERO' => 'Territorio',
+				'COD_CONT'               => 4,
+				'DESC_CONT_IT'           => 'America',
+				'COD_SUB_CONT'           => 42,
+				'DESC_COD_SUB_CONT_IT'   => 'America centro meridionale',
+				'CODICE_ISTAT'           => 907,
+				'DENOMINAZIONE_IT'       => 'Antille olandesi',
+				'DENOMINAZIONE_EN'       => "Netherlands Antilles\n",
+				'COD_AT'                 => "Z501\u{00A0}",
+				'ISO_3166_ALPHA2'        => 'AN',
+				'ISO_3166_ALPHA3'        => 'ANT',
+				'COD_ISTAT_PADRE'        => 232,
+				'ISO_3166_ALPHA3_PADRE'  => 'NLD',
+			),
+			array(
+				'TIPOLOGIA_PAESE_ESTERO' => 'Stato',
+				'COD_CONT'               => 1,
+				'DESC_CONT_IT'           => 'Europa',
+				'COD_SUB_CONT'           => 11,
+				'DESC_COD_SUB_CONT_IT'   => 'Unione europea',
+				'CODICE_ISTAT'           => 100,
+				'DENOMINAZIONE_IT'       => 'Italia',
+				'DENOMINAZIONE_EN'       => 'Italy',
+				'ISO_3166_N'             => '380',
+				'ISO_3166_ALPHA2'        => 'IT',
+				'ISO_3166_ALPHA3'        => 'ITA',
+				'UNSD_M49'               => '380',
+			),
+		);
+	}
+
+	/**
+	 * @group situas
+	 */
+	public function test_map_stati() {
+		$rows = $this->stati_rows();
+
+		$mapped = GCMI_Situas::map_stati( $rows[0] );
+		$this->assertIsArray( $mapped );
+		$this->assertSame( 'S', $mapped['data']['i_ST'] );
+		$this->assertSame( '254', $mapped['data']['i_cod_istat'] );
+		$this->assertSame( 1, $mapped['data']['i_cod_continente'] );
+		$this->assertSame( 12, $mapped['data']['i_cod_area'] );
+		$this->assertSame( 'Moldavia', $mapped['data']['i_altra_denominazione_ita'] );
+		$this->assertSame( '498', $mapped['data']['i_cod_ISO3166_N'] );
+		$this->assertNull( $mapped['data']['i_cod_istat_StatoPadre'] );
+		$this->assertCount( count( $mapped['data'] ), $mapped['format'] );
+
+		$mapped = GCMI_Situas::map_stati( $rows[1] );
+		$this->assertIsArray( $mapped );
+		$this->assertSame( 'T', $mapped['data']['i_ST'] );
+		$this->assertSame( 'Z501', $mapped['data']['i_cod_AT'] );
+		$this->assertSame( 'Netherlands Antilles', $mapped['data']['i_denominazione_altralingua'] );
+		$this->assertSame( '232', $mapped['data']['i_cod_istat_StatoPadre'] );
+
+		$mapped = GCMI_Situas::map_stati( $rows[2] );
+		$this->assertIsArray( $mapped );
+		$this->assertSame( '100', $mapped['data']['i_cod_istat'] );
+		$this->assertNull( $mapped['data']['i_cod_AT'] );
+
+		unset( $rows[0]['COD_CONT'] );
+		$this->assertWPError( GCMI_Situas::map_stati( $rows[0] ) );
+	}
+
+	/**
+	 * @group situas
+	 */
+	public function test_import_stati() {
+		global $wpdb;
+		$info = array(
+			'name'        => 'stati',
+			'table_name'  => 'wptests_gcmi_test_situas_stati',
+			'situas_pfun' => 466,
+		);
+		$this->assertTrue( GCMI_Activator::create_db_table( 'stati', $info['table_name'] ) );
+		$columns = array( 'TIPOLOGIA_PAESE_ESTERO', 'COD_CONT', 'DESC_CONT_IT', 'COD_SUB_CONT', 'DESC_COD_SUB_CONT_IT', 'CODICE_ISTAT', 'DENOMINAZIONE_IT', 'DENOMINAZIONE_EN', 'ALTRA_DESCRIZIONE_IT', 'COD_AT', 'ISO_3166_N', 'ISO_3166_ALPHA2', 'ISO_3166_ALPHA3', 'UNSD_M49', 'COD_ISTAT_PADRE', 'ISO_3166_ALPHA3_PADRE' );
+		$this->set_report( $columns, $this->stati_rows() );
+
+		$this->assertSame( '"etag-1"', GCMI_Situas::import( $info, $info['table_name'] ) );
+		$this->assertSame( '3', $wpdb->get_var( 'SELECT COUNT(*) FROM `' . $info['table_name'] . '`' ) );
+		$this->assertSame( 'Z501', $wpdb->get_var( 'SELECT i_cod_AT FROM `' . $info['table_name'] . '` WHERE i_cod_istat = \'907\'' ) );
+		$this->assertNull( $wpdb->get_var( 'SELECT i_cod_minint_ANPR FROM `' . $info['table_name'] . '` LIMIT 1' ) );
+		$wpdb->query( 'DROP TABLE IF EXISTS `' . $info['table_name'] . '`' );
+	}
+
+	/**
+	 * Codici ISTAT degli Stati cessati nel file distribuito con il plugin.
+	 *
+	 * @return array<int, string>
+	 */
+	private function codici_stati_cessati_csv() {
+		$lines  = file( 'admin/data/stati-cessati.csv', FILE_IGNORE_NEW_LINES );
+		$codici = array();
+		foreach ( array_slice( (array) $lines, 1 ) as $line ) {
+			$fields   = str_getcsv( $line, ';', '"', '\\' );
+			$codici[] = (string) $fields[3];
+		}
+		return array_values( array_unique( $codici ) );
+	}
+
+	/**
+	 * Il file degli Stati cessati è in UTF-8 con terminatori LF, senza righe vuote né
+	 * spazi finali, con 10 colonne per riga.
+	 *
+	 * I terminatori CR non devono comparire: il file non passa da prepare_file().
+	 *
+	 * @group situas
+	 */
+	public function test_stati_cessati_csv() {
+		$content = (string) file_get_contents( 'admin/data/stati-cessati.csv' );
+		$this->assertTrue( mb_check_encoding( $content, 'UTF-8' ) );
+		$this->assertStringNotContainsString( "\r", $content );
+		$lines = explode( "\n", rtrim( $content, "\n" ) );
+		$this->assertCount( 31, $lines );
+		foreach ( $lines as $line ) {
+			$this->assertSame( rtrim( $line ), $line, 'Spazi finali nella riga: ' . $line );
+		}
+		foreach ( array_slice( $lines, 1 ) as $line ) {
+			$this->assertCount( 10, str_getcsv( $line, ';', '"', '\\' ), $line );
+		}
+		$this->assertEqualsCanonicalizing(
+			array( '224', '801', '802', '804', '805', '820', '824', '825', '907' ),
+			$this->codici_stati_cessati_csv()
+		);
+	}
+
+	/**
+	 * @group situas
+	 */
+	public function test_copy_local_file() {
+		$dir = trailingslashit( get_temp_dir() ) . 'gcmi-test-' . wp_generate_password( 6, false ) . '/';
+		wp_mkdir_p( $dir );
+		$info = array(
+			'local_path'   => 'admin/data/stati-cessati.csv',
+			'featured_csv' => 'stati_cessati.csv',
+		);
+		$this->assertTrue( GCMI_Activator::copy_local_file( $info, $dir ) );
+		$this->assertFileEquals( 'admin/data/stati-cessati.csv', $dir . 'stati_cessati.csv' );
+
+		$info['local_path'] = 'admin/data/non-esiste.csv';
+		$this->assertFalse( GCMI_Activator::copy_local_file( $info, $dir ) );
+		unlink( $dir . 'stati_cessati.csv' );
+		rmdir( $dir );
+	}
+
+	/**
+	 * Il file degli Stati cessati si importa con la procedura CSV esistente.
+	 *
+	 * @group situas
+	 */
+	public function test_import_stati_cessati_locale() {
+		global $wpdb;
+		$table = 'wptests_gcmi_test_stati_cessati';
+		$dir   = trailingslashit( get_temp_dir() ) . 'gcmi-test-' . wp_generate_password( 6, false ) . '/';
+		wp_mkdir_p( $dir );
+		$info = array(
+			'local_path'   => 'admin/data/stati-cessati.csv',
+			'featured_csv' => 'stati_cessati.csv',
+		);
+		$this->assertTrue( GCMI_Activator::create_db_table( 'stati_cessati', $table ) );
+		$this->assertTrue( GCMI_Activator::copy_local_file( $info, $dir ) );
+		$this->assertTrue( GCMI_Activator::convert_file_charset( $dir . 'stati_cessati.csv', 'UTF-8' ) );
+		// Come nell'attivazione: i file locali non passano da prepare_file().
+		$this->assertTrue( GCMI_Activator::populate_db_table( 'stati_cessati', $dir . 'stati_cessati.csv', $table ) );
+
+		$this->assertSame( '30', $wpdb->get_var( 'SELECT COUNT(*) FROM `' . $table . '`' ) );
+		$this->assertSame( 'Curaçao', $wpdb->get_var( 'SELECT i_denominazione_ita_StatoFiglio FROM `' . $table . '` WHERE i_cod_istat_StatoFiglio = \'966\'' ) );
+		$this->assertNull( $wpdb->get_var( 'SELECT i_cod_AT FROM `' . $table . '` WHERE i_cod_istat = \'804\' LIMIT 1' ) );
+		$this->assertSame( '1', $wpdb->get_var( 'SELECT i_cod_continente FROM `' . $table . '` WHERE i_cod_istat = \'802\' LIMIT 1' ) );
+
+		$wpdb->query( 'DROP TABLE IF EXISTS `' . $table . '`' );
+		array_map( 'unlink', (array) glob( $dir . '*' ) );
+		rmdir( $dir );
+	}
+
+	/**
+	 * Segnala uno Stato storico pubblicato da SITUAS (pfun 469) che manca nel file
+	 * degli Stati cessati distribuito con il plugin: va aggiunto a admin/data/stati-cessati.csv.
+	 *
+	 * Interroga il servizio reale: richiede l'accesso alla rete.
+	 *
+	 * @group download
+	 * @group situas-remote
+	 */
+	public function test_stati_cessati_csv_allineato_a_situas() {
+		remove_filter( 'pre_http_request', array( $this, 'fake_http' ), 10 );
+		$info   = array(
+			'name'        => 'stati_storici',
+			'table_name'  => '',
+			'situas_pfun' => 469,
+			'situas_date' => '01/01/1990',
+		);
+		$result = GCMI_Situas::fetch( $info );
+		if ( is_wp_error( $result ) ) {
+			$this->markTestSkipped( 'SITUAS non raggiungibile: ' . $result->get_error_message() );
+		}
+		$storici = array();
+		foreach ( $result['rows'] as $row ) {
+			if ( false !== strpos( gcmi_safe_strval( GCMI_Situas::text( $row, 'TIPO_PAESE' ) ), 'storico' ) ) {
+				$storici[ gcmi_safe_strval( GCMI_Situas::code( $row, 'CODICE_ISTAT', 3 ) ) ] = GCMI_Situas::text( $row, 'DENOMINAZIONE_IT' );
+			}
+		}
+		$this->assertNotEmpty( $storici, 'Nessuno Stato storico nella risposta di SITUAS' );
+		$mancanti = array_diff_key( $storici, array_flip( $this->codici_stati_cessati_csv() ) );
+		$this->assertSame( array(), $mancanti, 'Stati storici pubblicati da SITUAS ma assenti da admin/data/stati-cessati.csv' );
 	}
 
 	/**
