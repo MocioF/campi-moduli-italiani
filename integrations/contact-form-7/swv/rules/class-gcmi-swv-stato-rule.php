@@ -74,7 +74,7 @@ class GCMI_Swv_Stato_Rule extends \RockLobsterInc\Swv\AbstractRule {
 	 * @throws \RockLobsterInc\Swv\InvalidityException Se un valore non è un codice stato valido.
 	 */
 	public function validate( \RockLobsterInc\FormDataTree\FormDataTreeInterface $form_data, array $context = array() ) {
-		// getAll() already strips whitespaces and excludes blank values.
+		// getAll() rimuove già gli spazi ed esclude i valori vuoti.
 		$values = wpcf7_array_flatten( $form_data->getAll( $this->field ) );
 
 		if ( empty( $values ) ) {
@@ -83,7 +83,7 @@ class GCMI_Swv_Stato_Rule extends \RockLobsterInc\Swv\AbstractRule {
 
 		foreach ( $values as $value ) {
 			if ( ! is_string( $value ) || ! gcmi_is_valid_stato( $value ) ) {
-				// phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Not output here: Contact Form 7 turns it into a validation error.
+				// phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Non viene stampato qui: Contact Form 7 lo trasforma in un errore di validazione.
 				throw new \RockLobsterInc\Swv\InvalidityException( $this, array( 'cause' => $value ) );
 			}
 		}

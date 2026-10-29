@@ -11,8 +11,8 @@
 
 if ( defined( 'WPCF7_VERSION' ) && version_compare( WPCF7_VERSION, GCMI_MINIMUM_CF7_VERSION, '>=' ) ) {
 	/*
-	 * Contact Form 7 6.2 replaced Contactable\SWV\Rule with RockLobsterInc\Swv\AbstractRule,
-	 * which has a different API: load the rule classes matching the installed version.
+	 * Contact Form 7 6.2 ha sostituito Contactable\SWV\Rule con RockLobsterInc\Swv\AbstractRule,
+	 * che ha un'API diversa: carica le classi delle regole adatte alla versione installata.
 	 */
 	$gcmi_swv_rules_dir = plugin_dir_path( GCMI_PLUGIN ) . 'integrations/contact-form-7/swv/rules/';
 	$gcmi_swv_is_new    = class_exists( 'RockLobsterInc\\Swv\\AbstractRule' );

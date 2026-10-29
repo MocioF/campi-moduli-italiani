@@ -805,7 +805,7 @@ class GCMI_Comune_Filter_Builder {
 		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotValidated
 		$filtername  = self::sanitize_table_name( sanitize_key( gcmi_safe_strval( wp_unslash( $_POST['filtername'] ) ) ) );
 		$option_name = 'gcmi-fb-com-' . $filtername . '-' . $response;
-		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotValidated, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Sanitized below with sanitize_text_field().
+		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotValidated, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Sanificato più sotto con sanitize_text_field().
 		$codici = wp_unslash( $_POST['codici'] );
 		if ( ! gcmi_is_one_dimensional_string_array( $codici ) ) {
 			$error->add( '-10', esc_html__( 'Received an invalid slice of codes.', 'campi-moduli-italiani' ) );

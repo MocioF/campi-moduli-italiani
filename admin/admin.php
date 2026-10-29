@@ -359,7 +359,7 @@ function gcmi_update_table( $fname ) {
 	}
 	$i = null;
 
-	// Datasets published as JSON on SITUAS are imported directly, without temporary files.
+	// I dataset pubblicati in JSON su SITUAS vengono importati direttamente, senza file temporanei.
 	if ( 'json' === $database_file_info[ $id ]['file_type'] ) {
 		gcmi_update_situas_table( $database_file_info[ $id ] );
 		return;

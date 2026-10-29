@@ -300,7 +300,7 @@ class GCMI_Situas {
 		if ( is_wp_error( $url ) ) {
 			return $url;
 		}
-		// The body is not decoded: this runs in WP-Cron, often with a low memory limit.
+		// Il corpo non viene decodificato: questo codice gira in WP-Cron, spesso con poca memoria.
 		$response = self::request( $url, $etag );
 		if ( is_wp_error( $response ) ) {
 			return $response;
@@ -308,7 +308,7 @@ class GCMI_Situas {
 		if ( 304 === $response['code'] ) {
 			return false;
 		}
-		// Without an ETag a 200 response cannot be told apart from an unchanged dataset.
+		// Senza ETag una risposta 200 non si distingue da un dataset invariato.
 		return '' === $etag || $response['etag'] !== $etag;
 	}
 
@@ -334,7 +334,7 @@ class GCMI_Situas {
 			return $mapper;
 		}
 
-		// The same date for all the requests, so that they describe the same data.
+		// La stessa data per tutte le richieste, perché descrivano gli stessi dati.
 		$reference_date = self::get_reference_date();
 
 		$columns = self::get_columns( $info, $reference_date );
@@ -645,8 +645,8 @@ class GCMI_Situas {
 		if ( ! isset( $row[ $field ] ) || ! is_scalar( $row[ $field ] ) ) {
 			return null;
 		}
-		// Some values carry stray line breaks or non-breaking spaces: trim() works on
-		// bytes and would also cut the last byte of characters such as "à" (C3 A0).
+		// Alcuni valori contengono a capo o spazi non separabili: trim() lavora sui
+		// byte e taglierebbe anche l'ultimo byte di caratteri come "à" (C3 A0).
 		$value = preg_replace( '/^[\s\x{00A0}]+|[\s\x{00A0}]+$/u', '', strval( $row[ $field ] ) );
 		if ( null === $value ) {
 			return null;

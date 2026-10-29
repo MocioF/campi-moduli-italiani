@@ -19,7 +19,7 @@ WP_CORE_DIR=${WP_CORE_DIR-$TMPDIR/wordpress/}
 WP_PLUGINS_DIR=${WP_PLUGINS_DIR-$WP_CORE_DIR/wp-content/plugins/}
 WP_PLUGINS_DIR=$(echo $WP_PLUGINS_DIR | sed -e "s/\/$//")
 WP_CF7_DIR=${WP_CF7_DIR-$WP_PLUGINS_DIR/contact-form-7/}
-# Contact Form 7 version to install: "latest" or a release number (e.g. 6.1.7).
+# Versione di Contact Form 7 da installare: "latest" o un numero di versione (es. 6.1.7).
 CF7_VERSION=${CF7_VERSION-latest}
 
 download() {

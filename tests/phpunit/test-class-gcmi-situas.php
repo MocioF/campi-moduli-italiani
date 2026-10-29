@@ -172,7 +172,7 @@ final class GCMI_SituasTest extends WP_UnitTestCase {
 				'COM_NUTS2_2024'        => 'ITC1',
 				'COM_NUTS3_2024'        => 'ITC11',
 			),
-			// Optional fields absent, as SITUAS does for fields without value.
+			// Campi facoltativi assenti, come fa SITUAS per i campi senza valore.
 			array(
 				'COD_RIP'               => 2,
 				'COD_REG'               => '04',
@@ -353,7 +353,7 @@ final class GCMI_SituasTest extends WP_UnitTestCase {
 		$this->assertNull(
 			$wpdb->get_var( 'SELECT i_cod_catastale FROM `' . $info['table_name'] . '` WHERE i_cod_comune = \'021118\'' )
 		);
-		// All the requests share the same reference date.
+		// Tutte le richieste usano la stessa data di riferimento.
 		$dates = array();
 		foreach ( $this->requests as $request ) {
 			parse_str( (string) wp_parse_url( $request['url'], PHP_URL_QUERY ), $query );
@@ -434,7 +434,7 @@ final class GCMI_SituasTest extends WP_UnitTestCase {
 			'COMUNE_REL'                 => 'Alghero',
 			'COD_CATASTO_REL'            => 'A192',
 			'PROVVEDIMENTO'              => 'L. R. N. 7 del 12/04/2021',
-			// Longer than the 255 bytes of TINYTEXT, as the acts on the Sardinian provinces.
+			// Più lungo dei 255 byte di TINYTEXT, come i provvedimenti sulle province sarde.
 			'TESTO_PROVVEDIMENTO'        => str_repeat( 'ISTITUITE LA CITTA\' METROPOLITANA DI SASSARI E LA PROVINCIA GALLURA NORD-EST SARDEGNA. ', 8 ),
 			'DATA_INIZIO_AMMINISTRATIVA' => '2026-01-01T00:00:00Z',
 		);
@@ -539,7 +539,7 @@ final class GCMI_SituasTest extends WP_UnitTestCase {
 		$this->set_report( array( 'ANNO', 'SIGLA_UTS', 'COD_UTS', 'PRO_COM_T', 'COMUNE', 'DATA_INIZIO_AMMINISTRATIVA' ), $rows );
 
 		$this->assertSame( '"etag-1"', GCMI_Situas::import( $info, $info['table_name'] ) );
-		// A year before 1901 must be stored as is.
+		// Un anno precedente al 1901 deve essere salvato così com'è.
 		$this->assertSame( '1866', $wpdb->get_var( 'SELECT i_anno_var FROM `' . $info['table_name'] . '`' ) );
 		$this->assertSame( 'Z999', $wpdb->get_var( 'SELECT i_cod_catastale FROM `' . $info['table_name'] . '`' ) );
 		$query = array();
@@ -557,7 +557,7 @@ final class GCMI_SituasTest extends WP_UnitTestCase {
 	public function test_update_keeps_views_valid() {
 		global $wpdb;
 		require_once 'admin/admin.php';
-		// Views cannot be created on temporary tables.
+		// Non si possono creare viste su tabelle temporanee.
 		remove_filter( 'query', array( $this, '_create_temporary_tables' ) );
 		remove_filter( 'query', array( $this, '_drop_temporary_tables' ) );
 
@@ -570,7 +570,7 @@ final class GCMI_SituasTest extends WP_UnitTestCase {
 		);
 		$view = $info['table_name'] . '_view';
 
-		// Schema of comuni_attuali up to 2.3.2.
+		// Schema di comuni_attuali fino alla 2.3.2.
 		$wpdb->query( 'DROP TABLE IF EXISTS `' . $info['table_name'] . '`' );
 		$wpdb->query(
 			'CREATE TABLE `' . $info['table_name'] . '` ( id INT(11) NOT NULL AUTO_INCREMENT, ' .
@@ -676,7 +676,7 @@ final class GCMI_SituasTest extends WP_UnitTestCase {
 		$this->assertGreaterThan( get_option( 'gcmi_comuni_attuali_downloaded_time' ), get_option( 'gcmi_comuni_attuali_remote_file_time' ) );
 		$this->assertGreaterThan( 2, get_option( 'gcmi_comuni_soppressi_remote_file_time' ) );
 		$this->assertSame( '', get_option( 'gcmi_comuni_attuali_etag' ) );
-		// Datasets still downloaded as files are not touched.
+		// I dataset ancora scaricati come file non vengono toccati.
 		$this->assertSame( 1, get_option( 'gcmi_stati_remote_file_time' ) );
 	}
 

@@ -1133,7 +1133,7 @@ class GCMI_COMUNE {
 						$tooltip = '';
 				}
 
-				// Notes are no longer published by ISTAT (SITUAS): the note row is shown only when there is one.
+				// ISTAT (SITUAS) non pubblica più le note: la riga delle note compare solo se ce n'è una.
 				$has_note = null !== $result->i_cod_flag_note && '' !== $result->i_cod_flag_note;
 				$rowspan  = $has_note ? '15' : '14';
 

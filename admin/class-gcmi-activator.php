@@ -52,7 +52,7 @@ class GCMI_Activator {
 			'remoteUpd_method' => 'etag',
 			'file_type'        => 'json',
 			'orig_encoding'    => 'UTF-8',
-			// SITUAS: "Elenco dei codici e delle denominazioni delle unità territoriali", at today's date.
+			// SITUAS: "Elenco dei codici e delle denominazioni delle unità territoriali", alla data di oggi.
 			'situas_pfun'      => 61,
 			'optN_etag'        => 'gcmi_comuni_attuali_etag',
 		),
@@ -68,7 +68,7 @@ class GCMI_Activator {
 			'remoteUpd_method'   => 'etag',
 			'file_type'          => 'json',
 			'orig_encoding'      => 'UTF-8',
-			// SITUAS: "Comuni soppressi o ceduti", from the Unification of Italy to today.
+			// SITUAS: "Comuni soppressi o ceduti", dall'Unità d'Italia a oggi.
 			'situas_pfun'        => 98,
 			'situas_period_from' => '17/03/1861',
 			'optN_etag'          => 'gcmi_comuni_soppressi_etag',
@@ -85,7 +85,7 @@ class GCMI_Activator {
 			'remoteUpd_method' => 'etag',
 			'file_type'        => 'json',
 			'orig_encoding'    => 'UTF-8',
-			// SITUAS: administrative and territorial changes; pdata is the start of the period.
+			// SITUAS: variazioni amministrative e territoriali; pdata è l'inizio del periodo.
 			'situas_pfun'      => 129,
 			'situas_date'      => '01/01/1991',
 			'optN_etag'        => 'gcmi_comuni_variazioni_etag',
@@ -457,7 +457,7 @@ class GCMI_Activator {
 		 */
 		$count_lines = count( self::$database_file_info );
 		for ( $i = 0; $i < $count_lines; $i++ ) {
-			// Datasets published as JSON on SITUAS are imported directly, without temporary files.
+			// I dataset pubblicati in JSON su SITUAS vengono importati direttamente, senza file temporanei.
 			if ( 'json' === self::$database_file_info[ $i ]['file_type'] ) {
 				self::create_situas_table( $i );
 				continue;
@@ -674,7 +674,7 @@ class GCMI_Activator {
 
 		$etag = GCMI_Situas::import( $info, $info['table_name'] );
 		if ( is_wp_error( $etag ) ) {
-			// Never leave a partially filled table.
+			// Non lasciare mai una tabella riempita solo in parte.
 			self::drop_table( $info['name'], $info['table_name'] );
 			self::die_with_error(
 				'gcmi_data_import_error',
@@ -1102,17 +1102,17 @@ class GCMI_Activator {
 						'i_flag_capoluogo TINYINT(1) NOT NULL, ' .
 						'i_sigla_automobilistica char(2) NOT NULL, ' .
 						'i_cod_comune_num int(6) NOT NULL, ' .
-						// Deprecated since 2.3.3: not published by SITUAS, always NULL.
-						// Kept because the views created with SELECT * list them.
+						// Deprecata dalla 2.3.3: non pubblicata da SITUAS, sempre NULL.
+						// Mantenuta perché le viste create con SELECT * la elencano.
 						'i_cod_comune_num_2010_2016 int(6) NULL, ' .
 						'i_cod_comune_num_2006_2009 int(6) NULL, ' .
 						'i_cod_comune_num_1995_2005 int(6) NULL, ' .
 						'i_cod_catastale char(4) NULL, ' .
-						// Deprecated since 2.3.3: not published by SITUAS, always NULL.
+						// Deprecata dalla 2.3.3: non pubblicata da SITUAS, sempre NULL.
 						'i_nuts1_2021 char(3) NULL, ' .
 						'i_nuts2_2021 char(4) NULL, ' .
 						'i_nuts3_2021 char(5) NULL, ' .
-						// NULL for the Sardinian provinces established in 2025, not classified in NUTS 2024.
+						// NULL per le province sarde istituite nel 2025, non classificate nella NUTS 2024.
 						'i_nuts1_2024 char(3) NULL, ' .
 						'i_nuts2_2024 char(4) NULL, ' .
 						'i_nuts3_2024 char(5) NULL, ' .
@@ -1133,7 +1133,7 @@ class GCMI_Activator {
 					$wpdb->prepare(
 						'CREATE TABLE IF NOT EXISTS %1$s ( ' .
 						'id INT(11) NOT NULL AUTO_INCREMENT, ' .
-						// SMALLINT: the MySQL type YEAR does not accept years before 1901.
+						// SMALLINT: il tipo MySQL YEAR non accetta anni precedenti al 1901.
 						'i_anno_var SMALLINT(4) UNSIGNED NOT NULL, ' .
 						'i_sigla_automobilistica char(2) NULL, ' .
 						'i_cod_unita_territoriale char(3) NULL, ' .
@@ -1165,22 +1165,22 @@ class GCMI_Activator {
 						'id INT(11) NOT NULL AUTO_INCREMENT, ' .
 						'i_anno_var YEAR(4) NOT NULL, ' .
 						'i_tipo_var varchar(4) NOT NULL, ' .
-						// Deprecated since 2.3.3: not published by SITUAS, always NULL.
-						// Kept because the views created with SELECT * list them.
+						// Deprecata dalla 2.3.3: non pubblicata da SITUAS, sempre NULL.
+						// Mantenuta perché le viste create con SELECT * la elencano.
 						'i_cod_regione char(2) NULL, ' .
 						'i_cod_unita_territoriale char(3) NOT NULL, ' .
 						'i_cod_comune char(6) NOT NULL, ' .
 						'i_denominazione_full varchar(255) NOT NULL, ' .
-						// Deprecated since 2.3.3: not published by SITUAS, always NULL.
+						// Deprecata dalla 2.3.3: non pubblicata da SITUAS, sempre NULL.
 						'i_cod_regione_nuovo char(2) NULL, ' .
 						'i_cod_unita_territoriale_nuovo char(3) NOT NULL, ' .
 						'i_cod_comune_nuovo char(6) NOT NULL, ' .
 						'i_denominazione_nuovo varchar(255) NOT NULL, ' .
-						// TEXT: some acts are longer than the 255 bytes of TINYTEXT.
+						// TEXT: alcuni provvedimenti superano i 255 byte di TINYTEXT.
 						'i_documento TEXT NULL, ' .
 						'i_contenuto TEXT NULL, ' .
 						'i_data_decorrenza DATE NULL, ' .
-						// Deprecated since 2.3.3: not published by SITUAS, always NULL.
+						// Deprecata dalla 2.3.3: non pubblicata da SITUAS, sempre NULL.
 						'i_cod_flag_note char(1) NULL, ' .
 						'i_cod_catastale char(4) NULL, ' .
 						'i_cod_catastale_nuovo char(4) NULL, ' .

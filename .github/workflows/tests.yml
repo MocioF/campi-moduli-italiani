@@ -10,7 +10,7 @@ name: Tests
 env:
   coverage-php-version: 8.4
   coverage-wp-version: 7.1
-  # Contact Form 7 6.2+ requires WP 7.1 and PHP 8.3: everywhere else the tests use the last 6.1 release.
+  # Contact Form 7 6.2+ richiede WP 7.1 e PHP 8.3: altrove i test usano l'ultima versione 6.1.
   cf7-legacy-version: 6.1.7
 
 # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
@@ -96,7 +96,7 @@ jobs:
             wordpress-version: '6.7'
           - php-versions: '8.5'
             wordpress-version: '6.8'
-        # Contact Form 7 6.2+ (latest) only where it can run: WP >= 7.1 and PHP >= 8.3.
+        # Contact Form 7 6.2+ (latest) solo dove può girare: WP >= 7.1 e PHP >= 8.3.
         include:
           - php-versions: '8.3'
             wordpress-version: '7.1'
