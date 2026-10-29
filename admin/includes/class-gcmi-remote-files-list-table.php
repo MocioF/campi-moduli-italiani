@@ -56,13 +56,13 @@ class Gcmi_Remote_Files_List extends WP_List_Table {
 	 */
 	public function get_columns() {
 		$columns = array(
-			'cb'              => '<input type="checkbox" />',
-			'gcmi-dataname'   => __( 'Data', 'campi-moduli-italiani' ),
-			'gcmi-icon'       => __( 'Status', 'campi-moduli-italiani' ),
-			'gcmi-rows'       => __( 'Num.', 'campi-moduli-italiani' ),
-			'gcmi-remotedate' => __( 'Last modified date of remote file', 'campi-moduli-italiani' ),
-			'gcmi-localdate'  => __( 'Database update date', 'campi-moduli-italiani' ),
-			'gcmi-dataURL'    => __( 'URL', 'campi-moduli-italiani' ),
+			'cb'                => '<input type="checkbox" />',
+			'gcmi-dataname'     => __( 'Data', 'campi-moduli-italiani' ),
+			'gcmi-icon'         => __( 'Status', 'campi-moduli-italiani' ),
+			'gcmi-rows'         => __( 'Num.', 'campi-moduli-italiani' ),
+			'gcmi-remotestatus' => __( 'Remote source status', 'campi-moduli-italiani' ),
+			'gcmi-localdate'    => __( 'Database update date', 'campi-moduli-italiani' ),
+			'gcmi-dataURL'      => __( 'Source', 'campi-moduli-italiani' ),
 		);
 		return $columns;
 	}
@@ -74,9 +74,8 @@ class Gcmi_Remote_Files_List extends WP_List_Table {
 	 */
 	protected function get_sortable_columns() {
 		$sortable_columns = array(
-			'gcmi-dataname'   => array( 'gcmi-dataname', false ),
-			'gcmi-remotedate' => array( 'gcmi-remotedate', false ),
-			'gcmi-localdate'  => array( 'gcmi-localdate', false ),
+			'gcmi-dataname'  => array( 'gcmi-dataname', false ),
+			'gcmi-localdate' => array( 'gcmi-localdate', false ),
 		);
 		return $sortable_columns;
 	}
@@ -98,7 +97,6 @@ class Gcmi_Remote_Files_List extends WP_List_Table {
 			case 'gcmi-dataname':
 				$result = strnatcmp( $a[ $orderby ], $b[ $orderby ] );
 				break;
-			case 'gcmi-remotedate':
 			case 'gcmi-localdate':
 				$datetime_a = gcmi_convert_datestring( $a[ $orderby ] );
 				$datetime_b = gcmi_convert_datestring( $b[ $orderby ] );
@@ -130,15 +128,74 @@ class Gcmi_Remote_Files_List extends WP_List_Table {
 			}
 
 			$data[ $i ] = array(
-				'gcmi-dataname'   => $database_file_info[ $i ]['name'],
-				'gcmi-icon'       => $icon,
-				'gcmi-rows'       => number_format( gcmi_count_table_rows( $database_file_info[ $i ]['table_name'] ), 0, ',', '.' ),
-				'gcmi-remotedate' => gcmi_convert_timestamp( gcmi_safe_intval( get_site_option( $database_file_info[ $i ]['optN_remoteUpd'] ) ) ),
-				'gcmi-localdate'  => gcmi_convert_timestamp( gcmi_safe_intval( get_site_option( $database_file_info[ $i ]['optN_dwdtime'] ) ) ),
-				'gcmi-dataURL'    => $database_file_info[ $i ]['remote_URL'],
+				'gcmi-dataname'     => $database_file_info[ $i ]['name'],
+				'gcmi-icon'         => $icon,
+				'gcmi-rows'         => number_format( gcmi_count_table_rows( $database_file_info[ $i ]['table_name'] ), 0, ',', '.' ),
+				'gcmi-remotestatus' => self::remote_status( $database_file_info[ $i ] ),
+				'gcmi-localdate'    => gcmi_convert_timestamp( gcmi_safe_intval( get_site_option( $database_file_info[ $i ]['optN_dwdtime'] ) ) ),
+				'gcmi-dataURL'      => self::source_link( $database_file_info[ $i ] ),
 			);
 		}
 		return $data;
+	}
+
+	/**
+	 * Restituisce lo stato della fonte remota di un dataset
+	 *
+	 * SITUAS non comunica la data di modifica dei dati: per i dataset JSON si indica
+	 * se una modifica è stata rilevata (tramite ETag) e quando. I file distribuiti con
+	 * il plugin non hanno una fonte remota.
+	 *
+	 * @since 2.3.3
+	 * @param array<string, mixed> $info Descrizione del dataset da GCMI_Activator::$database_file_info.
+	 * @return string HTML già sanificato.
+	 */
+	public static function remote_status( $info ) {
+		$remote_upd = gcmi_safe_intval( get_site_option( gcmi_safe_strval( $info['optN_remoteUpd'] ) ) );
+		$downloaded = gcmi_safe_intval( get_site_option( gcmi_safe_strval( $info['optN_dwdtime'] ) ) );
+		switch ( $info['file_type'] ) {
+			case 'json':
+				if ( $remote_upd > $downloaded ) {
+					/* translators: %s: date and time when the change of the remote data was detected */
+					return esc_html( sprintf( __( 'Change detected on %s', 'campi-moduli-italiani' ), gcmi_safe_strval( gcmi_convert_timestamp( $remote_upd ) ) ) );
+				}
+				return esc_html__( 'No changes', 'campi-moduli-italiani' );
+			case 'local':
+				return esc_html__( 'File distributed with the plugin', 'campi-moduli-italiani' );
+			default:
+				return esc_html( gcmi_safe_strval( gcmi_convert_timestamp( $remote_upd ) ) );
+		}
+	}
+
+	/**
+	 * Restituisce il riferimento alla fonte di un dataset
+	 *
+	 * Per i report SITUAS il link punta ai metadati, leggibili anche senza parametri
+	 * aggiuntivi; per i file distribuiti con il plugin si mostra il percorso.
+	 *
+	 * @since 2.3.3
+	 * @param array<string, mixed> $info Descrizione del dataset da GCMI_Activator::$database_file_info.
+	 * @return string HTML già sanificato.
+	 */
+	public static function source_link( $info ) {
+		switch ( $info['file_type'] ) {
+			case 'json':
+				$url = GCMI_Situas::get_url( 'anagrafica_report_metadato_web', $info );
+				if ( is_wp_error( $url ) ) {
+					return '';
+				}
+				return sprintf(
+					'<a href="%1$s" target="_blank" rel="noopener noreferrer">%2$s</a>',
+					esc_url( $url ),
+					/* translators: %d: number of the ISTAT SITUAS report */
+					esc_html( sprintf( __( 'SITUAS report %d', 'campi-moduli-italiani' ), gcmi_safe_intval( $info['situas_pfun'] ?? 0 ) ) )
+				);
+			case 'local':
+				return esc_html( gcmi_safe_strval( $info['remote_file'] ) );
+			default:
+				$url = gcmi_safe_strval( $info['remote_URL'] );
+				return sprintf( '<a href="%1$s" target="_blank" rel="noopener noreferrer">%2$s</a>', esc_url( $url ), esc_html( $url ) );
+		}
 	}
 
 	/**
@@ -205,7 +262,7 @@ class Gcmi_Remote_Files_List extends WP_List_Table {
 			case 'gcmi-dataname':
 			case 'gcmi-icon':
 			case 'gcmi-rows':
-			case 'gcmi-remotedate':
+			case 'gcmi-remotestatus':
 			case 'gcmi-localdate':
 			case 'gcmi-dataURL':
 				return $item[ $column_name ];

@@ -1033,6 +1033,54 @@ msgstr "Assistenza"
 msgid "Leave a review"
 msgstr "Scrivi una recensione"
 
+#: admin/includes/class-gcmi-remote-files-list-table.php
+msgid "Remote source status"
+msgstr "Stato della fonte remota"
+
+#: admin/includes/class-gcmi-remote-files-list-table.php
+msgid "Source"
+msgstr "Fonte"
+
+#. translators: %s: date and time when the change of the remote data was detected
+#: admin/includes/class-gcmi-remote-files-list-table.php
+#, php-format
+msgid "Change detected on %s"
+msgstr "Modifica rilevata il %s"
+
+#: admin/includes/class-gcmi-remote-files-list-table.php
+msgid "No changes"
+msgstr "Nessuna modifica"
+
+#: admin/includes/class-gcmi-remote-files-list-table.php
+msgid "File distributed with the plugin"
+msgstr "File distribuito con il plugin"
+
+#. translators: %d: number of the ISTAT SITUAS report
+#: admin/includes/class-gcmi-remote-files-list-table.php
+#, php-format
+msgid "SITUAS report %d"
+msgstr "Report SITUAS %d"
+
+#: admin/admin.php admin/class-gcmi-activator.php
+msgid "Error copying data file"
+msgstr "Errore nella copia del file di dati"
+
+#. translators: %s: the path of the data file distributed with the plugin
+#: admin/admin.php admin/class-gcmi-activator.php
+#, php-format
+msgid "Unable to copy %s"
+msgstr "Impossibile copiare %s"
+
+#. translators: %1$s: the data name; %2$s: the error message.
+#: admin/admin.php admin/class-gcmi-activator.php
+#, php-format
+msgid "Unable to import %1$s: %2$s"
+msgstr "Impossibile importare %1$s: %2$s"
+
+#: modules/comune/class-gcmi-comune.php
+msgid "RN: Renumbering of the statistical code of the municipality"
+msgstr "RN: Rinumerazione del codice statistico del comune"
+
 #~ msgid "Error in inserting data into the database"
 #~ msgstr "Errore nell'inserimento di dati nel database"
 

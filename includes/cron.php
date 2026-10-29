@@ -23,7 +23,12 @@ function gcmi_check_update(): void {
 	$database_file_info = GCMI_Activator::$database_file_info;
 	$num_items          = count( $database_file_info );
 	for ( $i = 0; $i < $num_items; $i++ ) {
-		$file_opt  = $database_file_info[ $i ]['optN_remoteUpd'];
+		$file_opt = $database_file_info[ $i ]['optN_remoteUpd'];
+		// Una modifica già rilevata e non ancora importata conserva la data del primo rilevamento.
+		$pending = gcmi_safe_intval( get_site_option( $file_opt ) ) > gcmi_safe_intval( get_site_option( $database_file_info[ $i ]['optN_dwdtime'] ) );
+		if ( $pending ) {
+			continue;
+		}
 		$timestamp = gcmi_get_remote_update_timestamp( $database_file_info[ $i ] );
 		if ( false !== $timestamp ) {
 			if ( false === is_multisite() ) {

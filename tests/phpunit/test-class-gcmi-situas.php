@@ -926,6 +926,31 @@ final class GCMI_SituasTest extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Il cron conserva la data del primo rilevamento finché la modifica non viene importata.
+	 *
+	 * @group situas
+	 */
+	public function test_cron_conserva_data_rilevamento() {
+		$this->set_report( $this->attuali_columns(), $this->attuali_rows() );
+		update_option( 'gcmi_comuni_attuali_etag', '"etag-0"' );
+		update_option( 'gcmi_comuni_attuali_downloaded_time', 100 );
+		update_option( 'gcmi_comuni_attuali_remote_file_time', 100 );
+
+		gcmi_check_update();
+		$rilevato = gcmi_safe_intval( get_option( 'gcmi_comuni_attuali_remote_file_time' ) );
+		$this->assertGreaterThan( 100, $rilevato );
+
+		// Un secondo controllo non sposta la data e non interroga di nuovo SITUAS per quel dataset.
+		update_option( 'gcmi_comuni_attuali_remote_file_time', 150 );
+		$richieste = count( $this->requests );
+		gcmi_check_update();
+		$this->assertSame( 150, gcmi_safe_intval( get_option( 'gcmi_comuni_attuali_remote_file_time' ) ) );
+		foreach ( array_slice( $this->requests, $richieste ) as $request ) {
+			$this->assertStringNotContainsString( 'pfun=61&', $request['url'] );
+		}
+	}
+
+	/**
 	 * @group situas
 	 */
 	public function test_has_changed() {
