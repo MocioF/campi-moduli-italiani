@@ -996,7 +996,8 @@ class GCMI_COMUNE {
 				$table .= '<td class="tg-yla0">' . esc_html( stripslashes( $results['i_denominazione_ita'] ) ) . '</td>';
 				$table .= '</tr>';
 			}
-			if ( array_key_exists( 'i_denominazione_altralingua', $results ) ) {
+			// Con i dati SITUAS il campo è NULL per i comuni senza denominazione in altra lingua.
+			if ( array_key_exists( 'i_denominazione_altralingua', $results ) && ! empty( $results['i_denominazione_altralingua'] ) ) {
 				$table .= '<tr>';
 				$table .= '<td class="tg-5lax">' . esc_html__( 'Other language Municipality name:', 'campi-moduli-italiani' ) . '</td>';
 				$table .= '<td class="tg-qw54">' . esc_html( stripslashes( $results['i_denominazione_altralingua'] ) ) . '</td>';

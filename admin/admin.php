@@ -527,6 +527,11 @@ function gcmi_update_situas_table( $info ) {
 		)
 	);
 
+	// Un comune ricostituito dopo l'ultima importazione dei soppressi non deve restare tra i soppressi.
+	if ( 'comuni_attuali' === $info['name'] ) {
+		GCMI_Situas::remove_current_from_soppressi( $info['table_name'], GCMI_TABLE_PREFIX . 'comuni_soppressi' );
+	}
+
 	if ( false === is_multisite() ) {
 		update_option( $info['optN_dwdtime'], time(), false );
 		if ( isset( $info['optN_etag'] ) ) {

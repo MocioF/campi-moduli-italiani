@@ -82,10 +82,17 @@ final class GCMI_SituasTest extends WP_UnitTestCase {
 		);
 		$endpoint = (string) wp_parse_url( $url, PHP_URL_PATH );
 		$endpoint = basename( $endpoint );
-		if ( ! isset( $this->responses[ $endpoint ] ) ) {
+		$query    = array();
+		parse_str( (string) wp_parse_url( $url, PHP_URL_QUERY ), $query );
+		// Una risposta specifica per report (endpoint|pfun) ha la precedenza su quella generica.
+		$key = $endpoint . '|' . ( isset( $query['pfun'] ) ? gcmi_safe_strval( $query['pfun'] ) : '' );
+		if ( ! isset( $this->responses[ $key ] ) ) {
+			$key = $endpoint;
+		}
+		if ( ! isset( $this->responses[ $key ] ) ) {
 			return new WP_Error( 'test_no_fixture', $url );
 		}
-		$response = $this->responses[ $endpoint ];
+		$response = $this->responses[ $key ];
 		$etag     = $response['etag'] ?? '';
 		if ( '' !== $etag && isset( $args['headers']['If-None-Match'] ) && $args['headers']['If-None-Match'] === $etag ) {
 			return array(
@@ -141,6 +148,22 @@ final class GCMI_SituasTest extends WP_UnitTestCase {
 				'body' => wp_json_encode( array( 'resultset' => $rows ) ),
 				'etag' => $etag,
 			),
+		);
+	}
+
+	/**
+	 * Imposta l'elenco dei comuni attuali restituito da SITUAS (pfun 61).
+	 *
+	 * @param array<int, string> $codici Codici ISTAT dei comuni attuali.
+	 */
+	private function set_comuni_attuali_situas( $codici ) {
+		$rows = array();
+		foreach ( $codici as $codice ) {
+			$rows[] = array( 'PRO_COM_T' => $codice );
+		}
+		$this->responses['reportspooljson|61'] = array(
+			'code' => 200,
+			'body' => wp_json_encode( array( 'resultset' => $rows ) ),
 		);
 	}
 
@@ -537,6 +560,7 @@ final class GCMI_SituasTest extends WP_UnitTestCase {
 			),
 		);
 		$this->set_report( array( 'ANNO', 'SIGLA_UTS', 'COD_UTS', 'PRO_COM_T', 'COMUNE', 'DATA_INIZIO_AMMINISTRATIVA' ), $rows );
+		$this->set_comuni_attuali_situas( array( '001272' ) );
 
 		$this->assertSame( '"etag-1"', GCMI_Situas::import( $info, $info['table_name'] ) );
 		// Un anno precedente al 1901 deve essere salvato così com'è.
@@ -920,6 +944,210 @@ final class GCMI_SituasTest extends WP_UnitTestCase {
 		$this->assertNotEmpty( $storici, 'Nessuno Stato storico nella risposta di SITUAS' );
 		$mancanti = array_diff_key( $storici, array_flip( $this->codici_stati_cessati_csv() ) );
 		$this->assertSame( array(), $mancanti, 'Stati storici pubblicati da SITUAS ma assenti da admin/data/stati-cessati.csv' );
+	}
+
+	/**
+	 * Righe di prova del report dei comuni soppressi.
+	 *
+	 * @return array<int, array<string, mixed>>
+	 */
+	private function soppressi_rows() {
+		return array(
+			// Soppresso nel 1928 e ricostituito con lo stesso codice: oggi esiste.
+			array(
+				'ANNO'                       => '1928',
+				'COD_UTS'                    => '045',
+				'PRO_COM_T'                  => '045010',
+				'COMUNE'                     => 'Massa',
+				'DATA_INIZIO_AMMINISTRATIVA' => '1938-12-16T00:00:00Z',
+			),
+			// Fuso di recente: soppresso, non più tra gli attuali secondo SITUAS.
+			array(
+				'ANNO'                       => '2026',
+				'COD_UTS'                    => '024',
+				'PRO_COM_T'                  => '024025',
+				'COMUNE'                     => 'Castegnero',
+				'DATA_INIZIO_AMMINISTRATIVA' => '2026-02-21T00:00:00Z',
+			),
+		);
+	}
+
+	/**
+	 * I comuni soppressi e ricostituiti, che oggi esistono, non vengono importati tra i soppressi.
+	 *
+	 * @group situas
+	 */
+	public function test_import_soppressi_esclude_ricostituiti() {
+		global $wpdb;
+		$info = $this->info['comuni_soppressi'];
+		$this->assertTrue( GCMI_Activator::create_db_table( 'comuni_soppressi', $info['table_name'] ) );
+		$this->set_report( array( 'ANNO', 'COD_UTS', 'PRO_COM_T', 'COMUNE', 'DATA_INIZIO_AMMINISTRATIVA' ), $this->soppressi_rows() );
+		$this->set_comuni_attuali_situas( array( '045010', '045003' ) );
+
+		$this->assertSame( '"etag-1"', GCMI_Situas::import( $info, $info['table_name'] ) );
+		$this->assertSame( array( '024025' ), $wpdb->get_col( 'SELECT i_cod_comune FROM `' . $info['table_name'] . '`' ) );
+	}
+
+	/**
+	 * L'esclusione usa i comuni attuali di SITUAS, non la tabella locale: anche con la tabella
+	 * locale ancora precedente alla fusione, il comune appena soppresso viene importato.
+	 *
+	 * @group situas
+	 */
+	public function test_import_soppressi_indipendente_dalla_tabella_locale() {
+		global $wpdb;
+		$info  = $this->info['comuni_soppressi'];
+		$local = $this->info['comuni_attuali']['table_name'];
+		$this->assertTrue( GCMI_Activator::create_db_table( 'comuni_soppressi', $info['table_name'] ) );
+		$this->assertTrue( GCMI_Activator::create_db_table( 'comuni_attuali', $local ) );
+		// Tabella locale non ancora aggiornata: Castegnero vi risulta ancora.
+		$mapped = GCMI_Situas::map_comuni_attuali(
+			array_merge(
+				$this->attuali_rows()[0],
+				array(
+					'PRO_COM_T' => '024025',
+					'PRO_COM'   => 24025,
+					'COMUNE'    => 'Castegnero',
+					'COMUNE_IT' => 'Castegnero',
+				)
+			)
+		);
+		$this->assertIsArray( $mapped );
+		$wpdb->insert( $local, $mapped['data'], $mapped['format'] );
+		$this->set_report( array( 'ANNO', 'COD_UTS', 'PRO_COM_T', 'COMUNE', 'DATA_INIZIO_AMMINISTRATIVA' ), $this->soppressi_rows() );
+		$this->set_comuni_attuali_situas( array( '045010' ) );
+
+		$this->assertSame( '"etag-1"', GCMI_Situas::import( $info, $info['table_name'] ) );
+		$this->assertContains( '024025', $wpdb->get_col( 'SELECT i_cod_comune FROM `' . $info['table_name'] . '`' ) );
+	}
+
+	/**
+	 * Senza l'elenco dei comuni attuali l'esclusione non è possibile: l'importazione fallisce.
+	 *
+	 * @group situas
+	 */
+	public function test_import_soppressi_senza_comuni_attuali() {
+		$info = $this->info['comuni_soppressi'];
+		GCMI_Activator::create_db_table( 'comuni_soppressi', $info['table_name'] );
+		$this->set_report( array( 'ANNO', 'COD_UTS', 'PRO_COM_T', 'COMUNE', 'DATA_INIZIO_AMMINISTRATIVA' ), $this->soppressi_rows() );
+		$this->set_comuni_attuali_situas( array() );
+
+		$result = GCMI_Situas::import( $info, $info['table_name'] );
+		$this->assertWPError( $result );
+		$this->assertSame( 'gcmi_situas_no_current_comuni', $result->get_error_code() );
+	}
+
+	/**
+	 * Comuni diversi con lo stesso codice: resta quello della soppressione più recente.
+	 * Più soppressioni dello stesso comune e gli scorpori restano tutti.
+	 *
+	 * @group situas
+	 */
+	public function test_import_soppressi_un_comune_per_codice() {
+		global $wpdb;
+		$info = $this->info['comuni_soppressi'];
+		$this->assertTrue( GCMI_Activator::create_db_table( 'comuni_soppressi', $info['table_name'] ) );
+		$rows = array(
+			// Codice 030096: Pagnacco (1928) e Rivignano (2014) sono comuni diversi.
+			array(
+				'ANNO'                       => '1928',
+				'COD_UTS'                    => '030',
+				'PRO_COM_T'                  => '030096',
+				'COMUNE'                     => 'Pagnacco',
+				'DATA_INIZIO_AMMINISTRATIVA' => '1928-05-13T00:00:00Z',
+				'PRO_COM_T_REL'              => '030162',
+				'COMUNE_REL'                 => 'Tavagnacco',
+			),
+			array(
+				'ANNO'                       => '2014',
+				'COD_UTS'                    => '030',
+				'PRO_COM_T'                  => '030096',
+				'COMUNE'                     => 'Rivignano',
+				'DATA_INIZIO_AMMINISTRATIVA' => '2014-01-01T00:00:00Z',
+				'PRO_COM_T_REL'              => '030188',
+				'COMUNE_REL'                 => 'Rivignano Teor',
+			),
+			// Lo stesso comune soppresso due volte: entrambe le righe restano.
+			array(
+				'ANNO'                       => '1928',
+				'COD_UTS'                    => '001',
+				'PRO_COM_T'                  => '001900',
+				'COMUNE'                     => 'Comune di prova',
+				'DATA_INIZIO_AMMINISTRATIVA' => '1928-01-01T00:00:00Z',
+			),
+			array(
+				'ANNO'                       => '2015',
+				'COD_UTS'                    => '001',
+				'PRO_COM_T'                  => '001900',
+				'COMUNE'                     => 'Comune di prova',
+				'DATA_INIZIO_AMMINISTRATIVA' => '2015-01-01T00:00:00Z',
+			),
+			// Scorporo verso due comuni alla stessa data: entrambe le righe restano.
+			array(
+				'ANNO'                       => '2016',
+				'COD_UTS'                    => '022',
+				'PRO_COM_T'                  => '022999',
+				'COMUNE'                     => 'Comune scorporato',
+				'FLAG_ES_SCORPORO'           => '1',
+				'DATA_INIZIO_AMMINISTRATIVA' => '2016-01-01T00:00:00Z',
+				'PRO_COM_T_REL'              => '022001',
+			),
+			array(
+				'ANNO'                       => '2016',
+				'COD_UTS'                    => '022',
+				'PRO_COM_T'                  => '022999',
+				'COMUNE'                     => 'Comune scorporato',
+				'FLAG_ES_SCORPORO'           => '1',
+				'DATA_INIZIO_AMMINISTRATIVA' => '2016-01-01T00:00:00Z',
+				'PRO_COM_T_REL'              => '022002',
+			),
+		);
+		$this->set_report( array( 'ANNO', 'COD_UTS', 'PRO_COM_T', 'COMUNE', 'DATA_INIZIO_AMMINISTRATIVA' ), $rows );
+		$this->set_comuni_attuali_situas( array( '001272' ) );
+
+		$this->assertSame( '"etag-1"', GCMI_Situas::import( $info, $info['table_name'] ) );
+		$this->assertSame(
+			array( 'Rivignano' ),
+			$wpdb->get_col( 'SELECT i_denominazione_full FROM `' . $info['table_name'] . '` WHERE i_cod_comune = \'030096\'' )
+		);
+		$this->assertSame( '2', $wpdb->get_var( 'SELECT COUNT(*) FROM `' . $info['table_name'] . '` WHERE i_cod_comune = \'001900\'' ) );
+		$this->assertSame( '2', $wpdb->get_var( 'SELECT COUNT(*) FROM `' . $info['table_name'] . '` WHERE i_cod_comune = \'022999\'' ) );
+	}
+
+	/**
+	 * Dopo l'importazione dei comuni attuali, un comune ricostituito viene tolto dai soppressi.
+	 *
+	 * @group situas
+	 */
+	public function test_remove_current_from_soppressi() {
+		global $wpdb;
+		$soppressi = $this->info['comuni_soppressi']['table_name'];
+		$attuali   = $this->info['comuni_attuali']['table_name'];
+		$this->assertTrue( GCMI_Activator::create_db_table( 'comuni_soppressi', $soppressi ) );
+		$this->assertTrue( GCMI_Activator::create_db_table( 'comuni_attuali', $attuali ) );
+		foreach ( $this->soppressi_rows() as $row ) {
+			$mapped = GCMI_Situas::map_comuni_soppressi( $row );
+			$this->assertIsArray( $mapped );
+			$wpdb->insert( $soppressi, $mapped['data'], $mapped['format'] );
+		}
+		$mapped = GCMI_Situas::map_comuni_attuali(
+			array_merge(
+				$this->attuali_rows()[0],
+				array(
+					'PRO_COM_T' => '045010',
+					'PRO_COM'   => 45010,
+					'COMUNE'    => 'Massa',
+					'COMUNE_IT' => 'Massa',
+				)
+			)
+		);
+		$this->assertIsArray( $mapped );
+		$wpdb->insert( $attuali, $mapped['data'], $mapped['format'] );
+
+		$this->assertSame( 1, GCMI_Situas::remove_current_from_soppressi( $attuali, $soppressi ) );
+		$this->assertSame( array( '024025' ), $wpdb->get_col( 'SELECT i_cod_comune FROM `' . $soppressi . '`' ) );
+		// Con la tabella dei soppressi inesistente non ci sono errori.
+		$this->assertSame( 0, GCMI_Situas::remove_current_from_soppressi( $attuali, 'wptests_gcmi_non_esiste' ) );
 	}
 
 	/**

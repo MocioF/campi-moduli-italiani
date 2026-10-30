@@ -365,7 +365,50 @@ class GCMI_Situas {
 			);
 		}
 
+		/*
+		 * Comuni soppressi e poi ricostituiti con lo stesso codice: oggi esistono e non vanno
+		 * tra i soppressi. I codici dei comuni attuali vengono letti da SITUAS alla stessa data
+		 * di riferimento, non dalla tabella locale: così il risultato non dipende dall'ordine
+		 * in cui le tabelle vengono aggiornate.
+		 */
+		$current = array();
+		if ( ! empty( $mapper['exclude_current'] ) ) {
+			$current = self::get_current_comuni( $reference_date );
+			if ( is_wp_error( $current ) ) {
+				return $current;
+			}
+		}
+
+		/*
+		 * Un codice ISTAT può comparire tra i soppressi con denominazioni diverse. Il plugin usa
+		 * il codice come identificativo del comune: per ogni codice resta la denominazione della
+		 * soppressione più recente e si scartano le righe con denominazioni diverse. Le
+		 * soppressioni più vecchie con la stessa denominazione e le righe degli scorpori restano.
+		 *
+		 * I casi trovati nei dati SITUAS sono di due tipi:
+		 * - codice riusato per un comune diverso: Pagnacco (030096, soppresso nel 1928) e
+		 *   Preone (030119, 1928) sono stati poi ricostituiti con codici nuovi (030068 e 030084),
+		 *   mentre i vecchi codici sono passati a Rivignano e Teor, soppressi nel 2014;
+		 * - denominazione precedente dello stesso comune, probabilmente: Pozza (022145, 1926) e
+		 *   Pozza di Fassa (2018), Baselga (022010, 1928) e Baselga di Vezzano (1968). In questi
+		 *   casi si perde solo l'evento di soppressione più vecchio.
+		 */
+		$latest_names = array();
+		if ( ! empty( $mapper['one_per_code'] ) ) {
+			$latest_names = self::get_latest_names( $result['rows'] );
+		}
+
+		$excluded = 0;
 		foreach ( $result['rows'] as $index => $row ) {
+			$code = gcmi_safe_strval( self::code( $row, 'PRO_COM_T', 6 ) );
+			if ( ! empty( $current ) && isset( $current[ $code ] ) ) {
+				++$excluded;
+				continue;
+			}
+			if ( isset( $latest_names[ $code ] ) && self::text( $row, 'COMUNE' ) !== $latest_names[ $code ] ) {
+				++$excluded;
+				continue;
+			}
 			$mapped = call_user_func( $mapper['callback'], $row );
 			if ( is_wp_error( $mapped ) ) {
 				$mapped->add_data( array( 'row' => $index ) );
@@ -380,10 +423,10 @@ class GCMI_Situas {
 		}
 
 		$inserted = intval( $wpdb->get_var( $wpdb->prepare( 'SELECT COUNT(*) FROM `%1$s`', $table ) ) );
-		if ( $inserted !== $expected ) {
+		if ( $inserted !== $expected - $excluded ) {
 			return new WP_Error(
 				'gcmi_situas_count_mismatch',
-				sprintf( 'Table %1$s: %2$d rows inserted, %3$d expected', $table, $inserted, $expected )
+				sprintf( 'Table %1$s: %2$d rows inserted, %3$d expected', $table, $inserted, $expected - $excluded )
 			);
 		}
 
@@ -394,7 +437,7 @@ class GCMI_Situas {
 	 * Restituisce la funzione di mappatura di un dataset e le colonne richieste.
 	 *
 	 * @param string $name Il nome del dataset.
-	 * @return array{'callback': callable, 'required': array<int, string>}|WP_Error
+	 * @return array{'callback': callable, 'required': array<int, string>, 'exclude_current'?: bool, 'one_per_code'?: bool}|WP_Error
 	 */
 	private static function get_mapper( $name ) {
 		switch ( $name ) {
@@ -467,8 +510,10 @@ class GCMI_Situas {
 				);
 			case 'comuni_soppressi':
 				return array(
-					'callback' => array( __CLASS__, 'map_comuni_soppressi' ),
-					'required' => array(
+					'callback'        => array( __CLASS__, 'map_comuni_soppressi' ),
+					'exclude_current' => true,
+					'one_per_code'    => true,
+					'required'        => array(
 						'ANNO',
 						'COD_UTS',
 						'PRO_COM_T',
@@ -479,6 +524,91 @@ class GCMI_Situas {
 			default:
 				return new WP_Error( 'gcmi_situas_no_mapper', sprintf( 'No SITUAS mapper for %s', $name ) );
 		}
+	}
+
+	/**
+	 * Restituisce i codici ISTAT dei comuni attuali secondo SITUAS (pfun 61).
+	 *
+	 * @param string $reference_date La data della richiesta, nel formato d/m/Y.
+	 * @return array<string, true>|WP_Error Codici a 6 cifre come chiavi.
+	 */
+	public static function get_current_comuni( $reference_date ) {
+		$info   = array(
+			'name'        => 'comuni_attuali',
+			'situas_pfun' => 61,
+		);
+		$result = self::fetch( $info, '', $reference_date );
+		if ( is_wp_error( $result ) ) {
+			return $result;
+		}
+		$codes = array();
+		foreach ( $result['rows'] as $row ) {
+			$code = self::code( $row, 'PRO_COM_T', 6 );
+			if ( null !== $code ) {
+				$codes[ $code ] = true;
+			}
+		}
+		// Un elenco vuoto renderebbe l'esclusione inefficace senza segnalarlo.
+		if ( empty( $codes ) ) {
+			return new WP_Error( 'gcmi_situas_no_current_comuni', 'SITUAS report 61 without municipalities' );
+		}
+		return $codes;
+	}
+
+	/**
+	 * Restituisce, per ogni codice comune, la denominazione della soppressione più recente.
+	 *
+	 * Le righe senza data valgono come le più vecchie. A parità di data resta la prima
+	 * denominazione incontrata.
+	 *
+	 * @param array<int, SituasRow> $rows Le righe del report dei comuni soppressi.
+	 * @return array<string, string|null> Codice comune => denominazione.
+	 */
+	public static function get_latest_names( $rows ) {
+		$latest = array();
+		foreach ( $rows as $row ) {
+			$code = gcmi_safe_strval( self::code( $row, 'PRO_COM_T', 6 ) );
+			$date = gcmi_safe_strval( self::iso_to_date( self::text( $row, 'DATA_INIZIO_AMMINISTRATIVA' ) ) );
+			if ( ! isset( $latest[ $code ] ) || $date > $latest[ $code ]['date'] ) {
+				$latest[ $code ] = array(
+					'date' => $date,
+					'name' => self::text( $row, 'COMUNE' ),
+				);
+			}
+		}
+		return array_map(
+			function ( $item ) {
+				return $item['name'];
+			},
+			$latest
+		);
+	}
+
+	/**
+	 * Elimina dai comuni soppressi quelli che risultano tra i comuni attuali.
+	 *
+	 * Va eseguita dopo ogni importazione dei comuni attuali: un comune ricostituito con
+	 * lo stesso codice dopo l'ultima importazione dei soppressi comparirebbe in entrambe
+	 * le tabelle, e il report dei soppressi, che non cambia, non verrebbe più segnalato
+	 * come da aggiornare.
+	 *
+	 * @param string $table_attuali   La tabella dei comuni attuali.
+	 * @param string $table_soppressi La tabella dei comuni soppressi.
+	 * @return int Il numero di righe eliminate; 0 anche se la tabella dei soppressi non esiste.
+	 */
+	public static function remove_current_from_soppressi( $table_attuali, $table_soppressi ) {
+		global $wpdb;
+		// La tabella dei soppressi può non esistere ancora (prima attivazione): nessun errore da mostrare.
+		$suppress = $wpdb->suppress_errors();
+		$result   = $wpdb->query(
+			$wpdb->prepare(
+				'DELETE FROM `%1$s` WHERE `i_cod_comune` IN ( SELECT `i_cod_comune` FROM `%2$s` )',
+				$table_soppressi,
+				$table_attuali
+			)
+		);
+		$wpdb->suppress_errors( $suppress );
+		return is_int( $result ) ? $result : 0;
 	}
 
 	/**

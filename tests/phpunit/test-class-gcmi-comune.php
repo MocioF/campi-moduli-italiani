@@ -174,7 +174,9 @@ final class GCMI_COMUNETest extends WP_Ajax_UnitTestCase {
 			array( '0000', false ),
 			array( '999999', false ),
 			array( '097017', true ),
-			array( '111084', true ),
+			array( '015146', true ),
+			// Provincia sarda istituita con il riordino in vigore dal 2026 (Gallura Nord-Est Sardegna).
+			array( '113004', true ),
 		);
 	}
 
@@ -194,6 +196,7 @@ final class GCMI_COMUNETest extends WP_Ajax_UnitTestCase {
 		return array(
 			array( '701', true ),
 			array( '001', true ),
+			array( '113', true ),
 			array( '002', true ),
 			array( '150', false ),
 			array( '097017', false ),
@@ -821,10 +824,20 @@ final class GCMI_COMUNETest extends WP_Ajax_UnitTestCase {
 				array(
 					'kind'          => '',
 					'filtername'    => '',
+					'cod_regione'   => '03',
+					'cod_provincia' => '215',
+					'cod_comune'    => '015146',
+					'targa'         => 'MI',
+				),
+			),
+			array(
+				array(
+					'kind'          => '',
+					'filtername'    => '',
 					'cod_regione'   => '20',
-					'cod_provincia' => '111',
-					'cod_comune'    => '111105',
-					'targa'         => 'SU',
+					'cod_provincia' => '113',
+					'cod_comune'    => '113004',
+					'targa'         => 'OT',
 				),
 			),
 			array(
