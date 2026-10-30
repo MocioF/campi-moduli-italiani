@@ -624,6 +624,41 @@ final class GCMI_SituasTest extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Una tabella temporanea rimasta da un aggiornamento interrotto non altera il risultato:
+	 * create_db_table() la elimina prima di ricrearla, e le sue righe non si sommano a quelle nuove.
+	 *
+	 * @group situas
+	 */
+	public function test_update_elimina_tabella_temporanea_rimasta() {
+		global $wpdb;
+		require_once 'admin/admin.php';
+		remove_filter( 'query', array( $this, '_create_temporary_tables' ) );
+		remove_filter( 'query', array( $this, '_drop_temporary_tables' ) );
+
+		$info = array(
+			'name'         => 'comuni_attuali',
+			'table_name'   => $this->info['comuni_attuali']['table_name'],
+			'situas_pfun'  => 61,
+			'optN_dwdtime' => 'gcmi_test_situas_downloaded_time',
+			'optN_etag'    => 'gcmi_test_situas_etag',
+		);
+		$tmp  = $info['table_name'] . '_tmp';
+		// Tabella _tmp con dati parziali di un tentativo interrotto.
+		$this->assertTrue( GCMI_Activator::create_db_table( 'comuni_attuali', $tmp ) );
+		$rows   = $this->attuali_rows();
+		$mapped = GCMI_Situas::map_comuni_attuali( $rows[0] );
+		$this->assertIsArray( $mapped );
+		$this->assertSame( 1, $wpdb->insert( $tmp, $mapped['data'], $mapped['format'] ), $wpdb->last_error );
+		$this->assertSame( '1', $wpdb->get_var( 'SELECT COUNT(*) FROM `' . $tmp . '`' ) );
+
+		$this->set_report( $this->attuali_columns(), $rows );
+		gcmi_update_situas_table( $info );
+
+		$this->assertSame( '2', $wpdb->get_var( 'SELECT COUNT(*) FROM `' . $info['table_name'] . '`' ) );
+		$this->assertSame( '"etag-1"', get_option( 'gcmi_test_situas_etag' ) );
+	}
+
+	/**
 	 * Un aggiornamento fallito lascia intatta la tabella esistente.
 	 *
 	 * @group situas

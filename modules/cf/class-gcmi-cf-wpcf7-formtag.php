@@ -474,25 +474,30 @@ class GCMI_CF_WPCF7_FormTag {
 		if ( is_array( $a_results ) ) {
 			return array_map( 'gcmi_safe_strval', array_values( $a_results ) );
 		}
-		// Finché le tabelle non sono aggiornate allo schema 2.3.3 la colonna può mancare:
-		// la query fallisce, nessun codice viene restituito e l'errore non viene mostrato.
+
+		/*
+		 * Due query separate: finché la tabella dei soppressi non è aggiornata allo schema 2.3.3
+		 * la colonna i_cod_catastale manca e la sua query fallisce; con una UNION fallirebbe
+		 * anche la ricerca tra i comuni attuali. Gli errori non vengono mostrati.
+		 */
+		$a_results = array();
 		$suppress  = $wpdb->suppress_errors();
-		$a_results = $wpdb->get_col(
-			$wpdb->prepare(
-				'SELECT `i_cod_catastale` FROM `%1$s` ' .
-				'WHERE `i_cod_comune` = \'%3$s\' AND `i_cod_catastale` IS NOT NULL ' .
-				'UNION ' .
-				'SELECT `i_cod_catastale` FROM `%2$s` ' .
-				'WHERE `i_cod_comune` = \'%4$s\' AND `i_cod_catastale` IS NOT NULL',
-				$table_attuali,
-				$table_soppressi,
-				esc_sql( $cod_comune ),
-				esc_sql( $cod_comune )
-			),
-			0
-		);
+		foreach ( array( $table_attuali, $table_soppressi ) as $table ) {
+			$a_results = array_merge(
+				$a_results,
+				$wpdb->get_col(
+					$wpdb->prepare(
+						'SELECT DISTINCT `i_cod_catastale` FROM `%1$s` ' .
+						'WHERE `i_cod_comune` = \'%2$s\' AND `i_cod_catastale` IS NOT NULL',
+						$table,
+						esc_sql( $cod_comune )
+					),
+					0
+				)
+			);
+		}
 		$wpdb->suppress_errors( $suppress );
-		$a_results = array_map( 'gcmi_safe_strval', $a_results );
+		$a_results = array_values( array_unique( array_map( 'gcmi_safe_strval', $a_results ) ) );
 		wp_cache_set( $cache_key, $a_results, GCMI_CACHE_GROUP, GCMI_CACHE_EXPIRE_SECS );
 		return $a_results;
 	}

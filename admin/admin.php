@@ -355,6 +355,11 @@ function gcmi_update_table( $fname ) {
 	}
 	$i = null;
 
+	// Scaricamento e importazione possono richiedere più del tempo massimo di esecuzione predefinito;
+	// con l'aggiornamento multiplo il limite riparte per ogni dataset.
+	set_time_limit( 360 );
+	ignore_user_abort( true );
+
 	// I dataset pubblicati in JSON su SITUAS vengono importati direttamente, senza file temporanei.
 	if ( 'json' === $database_file_info[ $id ]['file_type'] ) {
 		gcmi_update_situas_table( $database_file_info[ $id ] );

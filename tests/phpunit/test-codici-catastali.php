@@ -143,7 +143,7 @@ final class GCMI_CodiciCatastaliTest extends WP_UnitTestCase {
 
 	/**
 	 * Con la tabella dei soppressi ancora nello schema precedente alla 2.3.3 (senza
-	 * i_cod_catastale) la ricerca non restituisce codici e non mostra errori.
+	 * i_cod_catastale) i comuni attuali vengono comunque verificati e non compaiono errori.
 	 *
 	 * @group codici-catastali
 	 */
@@ -159,7 +159,8 @@ final class GCMI_CodiciCatastaliTest extends WP_UnitTestCase {
 		$output = ob_get_clean();
 		$wpdb->hide_errors();
 
-		$this->assertSame( array(), $result );
+		// Il codice del comune attuale viene restituito anche se la query sui soppressi fallisce.
+		$this->assertSame( array( 'A001' ), $result );
 		$this->assertSame( '', $output );
 	}
 
