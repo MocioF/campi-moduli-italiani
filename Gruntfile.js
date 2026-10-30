@@ -130,11 +130,27 @@ module.exports = function (grunt) {
     },
 
     jshint: {
-      files: {
+      options: {
+        // Il codice usa let, funzioni freccia e async/await.
+        esversion: 11
+      },
+      gruntfile: {
+        options: {
+          node: true
+        },
+        src: ['Gruntfile.js']
+      },
+      scripts: {
+        options: {
+          browser: true,
+          jquery: true,
+          devel: true
+        },
+        // I file minificati sono generati da uglify: si analizzano solo i sorgenti.
         src: [
-          'Gruntfile.js',
           'admin/**/*.js',
-          'modules/**/js/*.js'
+          'modules/**/js/*.js',
+          '!**/*.min.js'
         ]
       }
     },
@@ -163,7 +179,6 @@ module.exports = function (grunt) {
   grunt.loadNpmTasks('grunt-contrib-cssmin');
   grunt.registerTask('i18n', ['addtextdomain', 'makepot']);
   grunt.registerTask('readme', ['wp_readme_to_markdown']);
-  grunt.registerTask('jshint', ['jshint']);
 
   grunt.registerTask('default', [
     'jshint',

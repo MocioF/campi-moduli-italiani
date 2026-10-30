@@ -9,8 +9,8 @@
 			$( '#gcmi_flamingo_input_hash' ).on(
 				'change',
 				function () {
-					if ( $( '#gcmi_flamingo_input_form_ID' ).val().match( /^(?!0)\d{1,19}$/ )
-					&& $( '#gcmi_flamingo_input_hash' ).val().match( /^[a-f0-9]{32}$/ ) ) {
+					if ( $( '#gcmi_flamingo_input_form_ID' ).val().match( /^(?!0)\d{1,19}$/ ) &&
+						$( '#gcmi_flamingo_input_hash' ).val().match( /^[a-f0-9]{32}$/ ) ) {
 						$( '#gcmi_flamingo_input_signature' ).removeAttr( "disabled" );
 						$( '#gcmi_btn_check_sign' ).removeAttr( "disabled" );
 					} else {
