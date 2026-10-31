@@ -306,13 +306,23 @@ class GCMI_COMUNETEXT extends GCMI_COMUNE {
 	 * nascosto, come per il campo comune. Gli altri campi nascosti hanno gli stessi nomi
 	 * di quelli del campo comune (_formatted, _targa, _reg_desc, _prov_desc).
 	 *
-	 * @param array{'name': string, 'id'?: string, 'class'?: string, 'wrapper_class'?: string, 'comu_details'?: bool, 'use_label_element'?: bool, 'value'?: string, 'text'?: string, 'placeholder'?: string, 'required'?: bool, 'invalid'?: bool} $args Parametri del campo; 'text' è il testo da mostrare se 'value' non indica un comune (testo inviato senza scegliere dall'elenco).
+	 * Con 'array_names' i campi sono inviati come elementi di un array (nome[value], nome[comu_desc],
+	 * nome[formatted], …), come richiede WPForms; altrimenti come nome, nome_comu_desc, nome_formatted, …
+	 *
+	 * @param array{'name': string, 'array_names'?: bool, 'id'?: string, 'class'?: string, 'wrapper_class'?: string, 'comu_details'?: bool, 'use_label_element'?: bool, 'value'?: string, 'text'?: string, 'placeholder'?: string, 'required'?: bool, 'invalid'?: bool} $args Parametri del campo; 'text' è il testo da mostrare se 'value' non indica un comune (testo inviato senza scegliere dall'elenco).
 	 * @return string
 	 */
 	public function get_html( $args ) {
 		self::enqueue_scripts();
 
-		$name   = sanitize_html_class( $args['name'] );
+		$array  = ! empty( $args['array_names'] );
+		$name   = $array ? (string) preg_replace( '/[^A-Za-z0-9_\-\[\]]/', '', $args['name'] ) : sanitize_html_class( $args['name'] );
+		$field  = function ( $key ) use ( $array, $name ) {
+			if ( $array ) {
+				return $name . '[' . ( '' === $key ? 'value' : $key ) . ']';
+			}
+			return $name . ( '' === $key ? '' : '_' . $key );
+		};
 		$prefix = isset( $args['id'] ) && 1 === preg_match( '/^[a-zA-Z][\w:.-]*$/', $args['id'] ) ? $args['id'] : 'gcmi-ct-' . wp_generate_password( 8, false );
 		$class  = isset( $args['class'] ) ? implode( ' ', array_map( 'sanitize_html_class', explode( ' ', $args['class'] ) ) ) : '';
 		$item   = isset( $args['value'] ) ? $this->get_item_by_code( $args['value'] ) : null;
@@ -335,7 +345,7 @@ class GCMI_COMUNETEXT extends GCMI_COMUNE {
 		}
 
 		$html .= '<span class="gcmi-comunetext-combobox">';
-		$html .= '<input type="text" id="' . esc_attr( $ids['input'] ) . '" name="' . esc_attr( $name . '_comu_desc' ) . '"' .
+		$html .= '<input type="text" id="' . esc_attr( $ids['input'] ) . '" name="' . esc_attr( $field( 'comu_desc' ) ) . '"' .
 			' class="gcmi-comunetext-input ' . esc_attr( $class ) . '" autocomplete="off" spellcheck="false"' .
 			' role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="' . esc_attr( $ids['list'] ) . '"' .
 			( ! empty( $args['required'] ) ? ' aria-required="true"' : '' ) .
@@ -361,17 +371,17 @@ class GCMI_COMUNETEXT extends GCMI_COMUNE {
 		$html .= '<span id="' . esc_attr( $ids['status'] ) . '" class="gcmi-comunetext-status screen-reader-text" role="status" aria-live="polite"></span>';
 
 		$hidden = array(
-			''            => null === $item ? '' : $item['value'],
-			'_formatted'  => null === $item ? '' : $item['name'] . ( '' === $item['sigla'] ? '' : ' (' . $item['sigla'] . ')' ),
-			'_targa'      => null === $item ? '' : $item['sigla'],
-			'_reg_desc'   => null === $item ? '' : $item['regione'],
-			'_prov_desc'  => null === $item ? '' : $item['provincia'],
-			'_kind'       => $this->kind,
-			'_filtername' => $this->filtername,
+			''           => null === $item ? '' : $item['value'],
+			'formatted'  => null === $item ? '' : $item['name'] . ( '' === $item['sigla'] ? '' : ' (' . $item['sigla'] . ')' ),
+			'targa'      => null === $item ? '' : $item['sigla'],
+			'reg_desc'   => null === $item ? '' : $item['regione'],
+			'prov_desc'  => null === $item ? '' : $item['provincia'],
+			'kind'       => $this->kind,
+			'filtername' => $this->filtername,
 		);
-		foreach ( $hidden as $suffix => $value ) {
-			$html .= '<input type="hidden" name="' . esc_attr( $name . $suffix ) . '" value="' . esc_attr( $value ) . '"' .
-				' data-gcmi-ct="' . esc_attr( '' === $suffix ? 'value' : ltrim( $suffix, '_' ) ) . '" />';
+		foreach ( $hidden as $key => $value ) {
+			$html .= '<input type="hidden" name="' . esc_attr( $field( $key ) ) . '" value="' . esc_attr( $value ) . '"' .
+				' data-gcmi-ct="' . esc_attr( '' === $key ? 'value' : $key ) . '" />';
 		}
 
 		$html .= '</span>';

@@ -46,6 +46,7 @@ if ( defined( 'WPFORMS_VERSION' ) && version_compare( WPFORMS_VERSION, GCMI_MINI
 			'init',
 			function () {
 				require_once plugin_dir_path( GCMI_PLUGIN ) . 'modules/comune/class-gcmi-wpforms-field-comune.php';
+				require_once plugin_dir_path( GCMI_PLUGIN ) . 'modules/comunetext/class-gcmi-wpforms-field-comunetext.php';
 			},
 			99
 		);
