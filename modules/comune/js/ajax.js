@@ -25,7 +25,7 @@ jQuery(document).ready(function ($) {
   var comune_desc = "";
   var predefiniti = "";
   // da versione 2.0.0 .
-  var choichesLoaded = typeof (window.Choices === "function");
+  var choichesLoaded = typeof window.Choices === "function";
   var el = "";
   var elP = "";
   var elC = "";
@@ -336,13 +336,6 @@ jQuery(document).ready(function ($) {
         type: "POST",
         url: gcmi_ajax.ajaxurl
       });
-    }
-  );
-
-  // tooltip.
-  $("[id^='TTVar']").on("mouseover",
-    function () {
-      event.target.id.tooltip();
     }
   );
 
