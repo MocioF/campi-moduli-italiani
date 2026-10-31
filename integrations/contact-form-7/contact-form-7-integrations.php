@@ -20,6 +20,7 @@ if ( defined( 'WPCF7_VERSION' ) && version_compare( WPCF7_VERSION, GCMI_MINIMUM_
 	if ( GCMI_USE_COMUNE === true ) {
 		require_once plugin_dir_path( GCMI_PLUGIN ) . 'modules/comune/class-gcmi-comune-wpcf7-formtag.php';
 		require_once plugin_dir_path( GCMI_PLUGIN ) . 'modules/comune/wpcf7-comune-formtag.php';
+		require_once plugin_dir_path( GCMI_PLUGIN ) . 'modules/comunetext/wpcf7-comunetext-formtag.php';
 		require_once $gcmi_swv_rules_dir . ( $gcmi_swv_is_new ? 'class-gcmi-swv-comune-rule.php' : 'swv_comune_rule.php' );
 	}
 

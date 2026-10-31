@@ -306,7 +306,7 @@ class GCMI_COMUNETEXT extends GCMI_COMUNE {
 	 * nascosto, come per il campo comune. Gli altri campi nascosti hanno gli stessi nomi
 	 * di quelli del campo comune (_formatted, _targa, _reg_desc, _prov_desc).
 	 *
-	 * @param array{'name': string, 'id'?: string, 'class'?: string, 'comu_details'?: bool, 'use_label_element'?: bool, 'value'?: string, 'placeholder'?: string, 'required'?: bool, 'invalid'?: bool, 'text_attrs'?: string} $args Parametri del campo.
+	 * @param array{'name': string, 'id'?: string, 'class'?: string, 'wrapper_class'?: string, 'comu_details'?: bool, 'use_label_element'?: bool, 'value'?: string, 'text'?: string, 'placeholder'?: string, 'required'?: bool, 'invalid'?: bool} $args Parametri del campo; 'text' è il testo da mostrare se 'value' non indica un comune (testo inviato senza scegliere dall'elenco).
 	 * @return string
 	 */
 	public function get_html( $args ) {
@@ -316,6 +316,8 @@ class GCMI_COMUNETEXT extends GCMI_COMUNE {
 		$prefix = isset( $args['id'] ) && 1 === preg_match( '/^[a-zA-Z][\w:.-]*$/', $args['id'] ) ? $args['id'] : 'gcmi-ct-' . wp_generate_password( 8, false );
 		$class  = isset( $args['class'] ) ? implode( ' ', array_map( 'sanitize_html_class', explode( ' ', $args['class'] ) ) ) : '';
 		$item   = isset( $args['value'] ) ? $this->get_item_by_code( $args['value'] ) : null;
+		$text   = null === $item ? ( $args['text'] ?? '' ) : $item['label'];
+		$wclass = isset( $args['wrapper_class'] ) ? ' ' . implode( ' ', array_map( 'sanitize_html_class', explode( ' ', $args['wrapper_class'] ) ) ) : '';
 
 		$ids = array(
 			'input'  => $prefix . '_gcmi_ct_input',
@@ -324,7 +326,7 @@ class GCMI_COMUNETEXT extends GCMI_COMUNE {
 			'dialog' => $prefix . '_gcmi_ct_dialog',
 		);
 
-		$html = '<span class="gcmi-wrap gcmi-comunetext" data-gcmi-comunetext="1"' .
+		$html = '<span class="gcmi-wrap gcmi-comunetext' . esc_attr( $wclass ) . '" data-gcmi-comunetext="1"' .
 			' data-kind="' . esc_attr( $this->kind ) . '"' .
 			' data-filtername="' . esc_attr( $this->filtername ) . '">';
 
@@ -339,8 +341,7 @@ class GCMI_COMUNETEXT extends GCMI_COMUNE {
 			( ! empty( $args['required'] ) ? ' aria-required="true"' : '' ) .
 			( ! empty( $args['invalid'] ) ? ' aria-invalid="true"' : '' ) .
 			( ! empty( $args['placeholder'] ) ? ' placeholder="' . esc_attr( $args['placeholder'] ) . '"' : '' ) .
-			' value="' . esc_attr( null === $item ? '' : $item['label'] ) . '"' .
-			( isset( $args['text_attrs'] ) ? ' ' . $args['text_attrs'] : '' ) . ' />';
+			' value="' . esc_attr( $text ) . '" />';
 		// Elementi in linea (span): il campo sta dentro lo span con cui i costruttori di moduli avvolgono i campi.
 		$html .= '<span id="' . esc_attr( $ids['list'] ) . '" class="gcmi-comunetext-list" role="listbox" hidden></span>';
 		$html .= '</span>';
