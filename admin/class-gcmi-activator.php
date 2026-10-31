@@ -1043,7 +1043,7 @@ class GCMI_Activator {
 			 */
 			// se la stringa non è costituita da soli ";".
 			if ( ! preg_match( '/^(.)\;*$/u', trim( $arr_dati[ $i ] ) ) ) {
-				$gcmi_dati_line = str_getcsv( $arr_dati[ $i ], ';', '"' ); // non usare explode, perche' ci sono dei ";" nelle stringhe di testo delimitate con "" .
+				$gcmi_dati_line = str_getcsv( $arr_dati[ $i ], ';', '"', '\\' ); // non usare explode, perche' ci sono dei ";" nelle stringhe di testo delimitate con "" .
 				if ( ! gcmi_is_one_dimensional_string_array( $gcmi_dati_line ) ) {
 					return false;
 				}
