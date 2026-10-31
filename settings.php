@@ -73,6 +73,7 @@ if ( GCMI_USE_COMUNE === true ) {
 	require_once plugin_dir_path( GCMI_PLUGIN ) . 'modules/comune/class-gcmi-comune.php';
 	require_once plugin_dir_path( GCMI_PLUGIN ) . 'modules/comune/class-gcmi-comune-shortcode.php';
 	require_once plugin_dir_path( GCMI_PLUGIN ) . 'modules/comune/comune-shortcode.php';
+	require_once plugin_dir_path( GCMI_PLUGIN ) . 'modules/comunetext/class-gcmi-comunetext.php';
 
 	add_action( 'wp_ajax_the_ajax_hook_prov', 'gcmi_ajax_province' );
 	add_action( 'wp_ajax_nopriv_the_ajax_hook_prov', 'gcmi_ajax_province' );
@@ -82,6 +83,8 @@ if ( GCMI_USE_COMUNE === true ) {
 	add_action( 'wp_ajax_nopriv_the_ajax_hook_targa', 'gcmi_ajax_targa' );
 	add_action( 'wp_ajax_the_ajax_hook_info', 'gcmi_ajax_info' );
 	add_action( 'wp_ajax_nopriv_the_ajax_hook_info', 'gcmi_ajax_info' );
+	add_action( 'wp_ajax_the_ajax_hook_comunetext', 'gcmi_ajax_comunetext' );
+	add_action( 'wp_ajax_nopriv_the_ajax_hook_comunetext', 'gcmi_ajax_comunetext' );
 
 	add_action( 'wp_enqueue_scripts', 'GCMI_COMUNE::gcmi_comune_register_scripts' );
 }
@@ -120,6 +123,27 @@ function gcmi_ajax_targa() {
 	$obj_comune = new GCMI_COMUNE( $kind, $filtername );
 	$obj_comune->print_gcmi_targa();
 	wp_die();
+}
+
+/**
+ * Controlla il nonce e restituisce in JSON i comuni che corrispondono al testo cercato
+ *
+ * Parametri in POST: gcmi_term (testo digitato), gcmi_kind, gcmi_filtername, nonce_ajax.
+ *
+ * @since 2.4.0
+ * @return void
+ */
+function gcmi_ajax_comunetext() {
+	check_ajax_referer( 'gcmi-comune-nonce', 'nonce_ajax' );
+	$term       = array_key_exists( 'gcmi_term', $_POST ) ? sanitize_text_field( gcmi_safe_strval( wp_unslash( $_POST['gcmi_term'] ) ) ) : '';
+	$kind       = array_key_exists( 'gcmi_kind', $_POST ) ? sanitize_text_field( gcmi_safe_strval( wp_unslash( $_POST['gcmi_kind'] ) ) ) : 'tutti';
+	$filtername = array_key_exists( 'gcmi_filtername', $_POST ) ? sanitize_text_field( gcmi_safe_strval( wp_unslash( $_POST['gcmi_filtername'] ) ) ) : '';
+	$obj        = new GCMI_COMUNETEXT( $kind, $filtername );
+	$items      = $obj->search( $term );
+	if ( is_wp_error( $items ) ) {
+		wp_send_json_error( null, 500 );
+	}
+	wp_send_json_success( $items );
 }
 
 /**
