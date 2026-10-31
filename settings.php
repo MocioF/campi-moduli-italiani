@@ -74,6 +74,7 @@ if ( GCMI_USE_COMUNE === true ) {
 	require_once plugin_dir_path( GCMI_PLUGIN ) . 'modules/comune/class-gcmi-comune-shortcode.php';
 	require_once plugin_dir_path( GCMI_PLUGIN ) . 'modules/comune/comune-shortcode.php';
 	require_once plugin_dir_path( GCMI_PLUGIN ) . 'modules/comunetext/class-gcmi-comunetext.php';
+	require_once plugin_dir_path( GCMI_PLUGIN ) . 'modules/comunetext/comunetext-shortcode.php';
 
 	add_action( 'wp_ajax_the_ajax_hook_prov', 'gcmi_ajax_province' );
 	add_action( 'wp_ajax_nopriv_the_ajax_hook_prov', 'gcmi_ajax_province' );
@@ -87,6 +88,7 @@ if ( GCMI_USE_COMUNE === true ) {
 	add_action( 'wp_ajax_nopriv_the_ajax_hook_comunetext', 'gcmi_ajax_comunetext' );
 
 	add_action( 'wp_enqueue_scripts', 'GCMI_COMUNE::gcmi_comune_register_scripts' );
+	add_action( 'wp_enqueue_scripts', 'GCMI_COMUNETEXT::register_scripts' );
 }
 
 /**

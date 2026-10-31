@@ -187,6 +187,197 @@ class GCMI_COMUNETEXT extends GCMI_COMUNE {
 	}
 
 	/**
+	 * Restituisce il comune con il codice indicato, nel formato dei suggerimenti.
+	 *
+	 * Rispetta kind e filtro: un codice fuori dall'elenco del campo restituisce null.
+	 *
+	 * @param string $code Codice ISTAT del comune.
+	 * @return ComuneTextItem|null
+	 */
+	public function get_item_by_code( $code ) {
+		global $wpdb;
+		if ( 1 !== preg_match( '/^[0-9]{6}$/', $code ) ) {
+			return null;
+		}
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared -- Nomi delle viste interni.
+		$row = $wpdb->get_row(
+			$wpdb->prepare(
+				'SELECT `i_cod_comune` AS cod, `i_denominazione_full` AS name, `i_sigla_automobilistica` AS sigla, ' .
+				'`i_den_unita_territoriale` AS provincia, `i_den_regione` AS regione, 0 AS soppresso ' .
+				'FROM `' . esc_sql( $this->get_view_attuali() ) . '` WHERE `i_cod_comune` = %s LIMIT 1',
+				$code
+			),
+			ARRAY_A
+		);
+		if ( null === $row && 'attuali' !== $this->kind && $this->table_exists( $this->get_view_soppressi() ) ) {
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared -- Nomi delle viste interni.
+			$row = $wpdb->get_row(
+				$wpdb->prepare(
+					'SELECT s.`i_cod_comune` AS cod, s.`i_denominazione_full` AS name, COALESCE( s.`i_sigla_automobilistica`, \'\' ) AS sigla, ' .
+					'COALESCE( MIN( p.`i_den_unita_territoriale` ), \'\' ) AS provincia, COALESCE( MIN( p.`i_den_regione` ), \'\' ) AS regione, 1 AS soppresso ' .
+					'FROM `' . esc_sql( $this->get_view_soppressi() ) . '` AS s ' .
+					'LEFT JOIN `' . esc_sql( $this->get_view_province() ) . '` AS p ON p.`i_sigla_automobilistica` = s.`i_sigla_automobilistica` ' .
+					'WHERE s.`i_cod_comune` = %s GROUP BY s.`i_cod_comune`, s.`i_denominazione_full`, s.`i_sigla_automobilistica` LIMIT 1',
+					$code
+				),
+				ARRAY_A
+			);
+		}
+		return is_array( $row ) ? $this->build_item( $row ) : null;
+	}
+
+	/**
+	 * Ricava il comune da un testo digitato senza scegliere dall'elenco.
+	 *
+	 * Serve quando il JavaScript non è disponibile: il testo deve corrispondere, senza
+	 * distinzione tra maiuscole e minuscole, al nome o all'etichetta (nome con sigla) di un
+	 * solo comune. Con più comuni omonimi restituisce null: va indicata la provincia.
+	 *
+	 * @param string $text Il testo digitato.
+	 * @return ComuneTextItem|null
+	 */
+	public function resolve_text( $text ) {
+		$text = mb_strtolower( self::normalize_term( $text ) );
+		// Si cerca il nome senza le parti tra parentesi finali dell'etichetta: "(OT)", "(sopp.)".
+		$base  = (string) preg_replace( '/(\s*\([^()]*\))+$/u', '', $text );
+		$items = $this->search( $base );
+		if ( is_wp_error( $items ) ) {
+			return null;
+		}
+		$found = array();
+		foreach ( $items as $item ) {
+			if ( mb_strtolower( $item['name'] ) === $text || mb_strtolower( $item['label'] ) === $text ) {
+				$found[ $item['value'] ] = $item;
+			}
+		}
+		return 1 === count( $found ) ? reset( $found ) : null;
+	}
+
+	/**
+	 * Registra lo script e lo stile del campo.
+	 *
+	 * @return void
+	 */
+	public static function register_scripts(): void {
+		$suffix = wp_scripts_get_suffix();
+		wp_register_style( 'gcmi_comunetext_css', plugins_url( "modules/comunetext/css/comunetext$suffix.css", GCMI_PLUGIN ), array(), GCMI_VERSION );
+		/**
+		 * L'URL dello script: qui plugins_url() restituisce sempre un URL assoluto.
+		 *
+		 * @var non-empty-string $src
+		 */
+		$src = plugins_url( "modules/comunetext/js/comunetext$suffix.js", GCMI_PLUGIN );
+		wp_register_script( 'gcmi_comunetext_js', $src, array(), GCMI_VERSION, true );
+		wp_localize_script(
+			'gcmi_comunetext_js',
+			'gcmi_comunetext',
+			array(
+				'ajaxurl' => admin_url( 'admin-ajax.php' ),
+				'nonce'   => wp_create_nonce( 'gcmi-comune-nonce' ),
+				'i18n'    => array(
+					/* translators: %d: number of municipalities found */
+					'results'   => __( '%d municipalities found. Use the up and down arrows to choose.', 'campi-moduli-italiani' ),
+					'noResults' => __( 'No municipality found.', 'campi-moduli-italiani' ),
+					'error'     => __( 'Search not available, please try again.', 'campi-moduli-italiani' ),
+					'close'     => __( 'Close', 'campi-moduli-italiani' ),
+				),
+			)
+		);
+	}
+
+	/**
+	 * Accoda script e stili del campo.
+	 *
+	 * Lo stile del campo comune serve alle tabelle della scheda informativa.
+	 *
+	 * @return void
+	 */
+	public static function enqueue_scripts(): void {
+		wp_enqueue_style( 'gcmi_comune_css' );
+		wp_enqueue_style( 'gcmi_comunetext_css' );
+		wp_enqueue_script( 'gcmi_comunetext_js' );
+	}
+
+	/**
+	 * Restituisce l'HTML del campo.
+	 *
+	 * Il campo visibile è un testo con l'elenco dei suggerimenti (modello combobox
+	 * WAI-ARIA); il valore inviato con il nome del campo è il codice ISTAT, in un campo
+	 * nascosto, come per il campo comune. Gli altri campi nascosti hanno gli stessi nomi
+	 * di quelli del campo comune (_formatted, _targa, _reg_desc, _prov_desc).
+	 *
+	 * @param array{'name': string, 'id'?: string, 'class'?: string, 'comu_details'?: bool, 'use_label_element'?: bool, 'value'?: string, 'placeholder'?: string, 'required'?: bool, 'invalid'?: bool, 'text_attrs'?: string} $args Parametri del campo.
+	 * @return string
+	 */
+	public function get_html( $args ) {
+		self::enqueue_scripts();
+
+		$name   = sanitize_html_class( $args['name'] );
+		$prefix = isset( $args['id'] ) && 1 === preg_match( '/^[a-zA-Z][\w:.-]*$/', $args['id'] ) ? $args['id'] : 'gcmi-ct-' . wp_generate_password( 8, false );
+		$class  = isset( $args['class'] ) ? implode( ' ', array_map( 'sanitize_html_class', explode( ' ', $args['class'] ) ) ) : '';
+		$item   = isset( $args['value'] ) ? $this->get_item_by_code( $args['value'] ) : null;
+
+		$ids = array(
+			'input'  => $prefix . '_gcmi_ct_input',
+			'list'   => $prefix . '_gcmi_ct_list',
+			'status' => $prefix . '_gcmi_ct_status',
+			'dialog' => $prefix . '_gcmi_ct_dialog',
+		);
+
+		$html = '<span class="gcmi-wrap gcmi-comunetext" data-gcmi-comunetext="1"' .
+			' data-kind="' . esc_attr( $this->kind ) . '"' .
+			' data-filtername="' . esc_attr( $this->filtername ) . '">';
+
+		if ( ! empty( $args['use_label_element'] ) ) {
+			$html .= '<label for="' . esc_attr( $ids['input'] ) . '">' . esc_html__( 'Municipality:', 'campi-moduli-italiani' ) . '</label>';
+		}
+
+		$html .= '<span class="gcmi-comunetext-combobox">';
+		$html .= '<input type="text" id="' . esc_attr( $ids['input'] ) . '" name="' . esc_attr( $name . '_comu_desc' ) . '"' .
+			' class="gcmi-comunetext-input ' . esc_attr( $class ) . '" autocomplete="off" spellcheck="false"' .
+			' role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="' . esc_attr( $ids['list'] ) . '"' .
+			( ! empty( $args['required'] ) ? ' aria-required="true"' : '' ) .
+			( ! empty( $args['invalid'] ) ? ' aria-invalid="true"' : '' ) .
+			( ! empty( $args['placeholder'] ) ? ' placeholder="' . esc_attr( $args['placeholder'] ) . '"' : '' ) .
+			' value="' . esc_attr( null === $item ? '' : $item['label'] ) . '"' .
+			( isset( $args['text_attrs'] ) ? ' ' . $args['text_attrs'] : '' ) . ' />';
+		// Elementi in linea (span): il campo sta dentro lo span con cui i costruttori di moduli avvolgono i campi.
+		$html .= '<span id="' . esc_attr( $ids['list'] ) . '" class="gcmi-comunetext-list" role="listbox" hidden></span>';
+		$html .= '</span>';
+
+		if ( ! empty( $args['comu_details'] ) ) {
+			$html .= '<button type="button" class="gcmi-comunetext-details" aria-controls="' . esc_attr( $ids['dialog'] ) . '"' .
+				( null === $item ? ' hidden' : '' ) . '>' .
+				'<img src="' . esc_url( plugin_dir_url( GCMI_PLUGIN ) . 'img/gcmi_info.png' ) . '" width="30" height="30" alt="' . esc_attr__( 'Municipality details', 'campi-moduli-italiani' ) . '" />' .
+				'</button>';
+			$html .= '<dialog id="' . esc_attr( $ids['dialog'] ) . '" class="gcmi-comunetext-dialog" aria-label="' . esc_attr__( 'Municipality details', 'campi-moduli-italiani' ) . '">' .
+				'<div class="gcmi-comunetext-dialog-body"></div>' .
+				// Non un <form method="dialog">: il campo è già dentro il form del modulo.
+				'<p class="gcmi-comunetext-dialog-actions"><button type="button" class="gcmi-comunetext-dialog-close">' . esc_html__( 'Close', 'campi-moduli-italiani' ) . '</button></p>' .
+				'</dialog>';
+		}
+
+		$html .= '<span id="' . esc_attr( $ids['status'] ) . '" class="gcmi-comunetext-status screen-reader-text" role="status" aria-live="polite"></span>';
+
+		$hidden = array(
+			''            => null === $item ? '' : $item['value'],
+			'_formatted'  => null === $item ? '' : $item['name'] . ( '' === $item['sigla'] ? '' : ' (' . $item['sigla'] . ')' ),
+			'_targa'      => null === $item ? '' : $item['sigla'],
+			'_reg_desc'   => null === $item ? '' : $item['regione'],
+			'_prov_desc'  => null === $item ? '' : $item['provincia'],
+			'_kind'       => $this->kind,
+			'_filtername' => $this->filtername,
+		);
+		foreach ( $hidden as $suffix => $value ) {
+			$html .= '<input type="hidden" name="' . esc_attr( $name . $suffix ) . '" value="' . esc_attr( $value ) . '"' .
+				' data-gcmi-ct="' . esc_attr( '' === $suffix ? 'value' : ltrim( $suffix, '_' ) ) . '" />';
+		}
+
+		$html .= '</span>';
+		return $html;
+	}
+
+	/**
 	 * Costruisce un suggerimento dalla riga del risultato.
 	 *
 	 * L'etichetta riporta la sigla della provincia, per distinguere i comuni omonimi; con

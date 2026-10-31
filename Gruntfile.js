@@ -52,7 +52,7 @@ module.exports = function (grunt) {
         },
         files: [{
             expand: true,
-            src: ['modules/comune/js/*.js', '!modules/comune/js/*.min.js', 'admin/js/*.js', '!admin/js/*.min.js'],
+            src: ['modules/comune/js/*.js', '!modules/comune/js/*.min.js', 'modules/comunetext/js/*.js', '!modules/comunetext/js/*.min.js', 'admin/js/*.js', '!admin/js/*.min.js'],
             dest: '.',
             cwd: '.',
             rename: function (dst, src) {
@@ -72,7 +72,7 @@ module.exports = function (grunt) {
         },
         files: [{
             expand: true,
-            src: ['modules/comune/js/*.js', '!modules/comune/js/*.min.js', 'admin/js/*.js', '!admin/js/*.min.js'],
+            src: ['modules/comune/js/*.js', '!modules/comune/js/*.min.js', 'modules/comunetext/js/*.js', '!modules/comunetext/js/*.min.js', 'admin/js/*.js', '!admin/js/*.min.js'],
             dest: '.',
             cwd: '.',
             rename: function (dst, src) {
@@ -89,6 +89,7 @@ module.exports = function (grunt) {
       dist: {
         files: {
           'modules/comune/css/comune.min.css': 'modules/comune/css/comune.css',
+          'modules/comunetext/css/comunetext.min.css': 'modules/comunetext/css/comunetext.css',
           'admin/css/gcmi-menu.min.css': 'admin/css/gcmi-menu.css',
           'admin/css/styles.min.css': 'admin/css/styles.css',
           'admin/css/gcmi-fb-spinner.min.css': 'admin/css/gcmi-fb-spinner.css'

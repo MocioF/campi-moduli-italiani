@@ -246,6 +246,114 @@ final class GCMI_ComuneTextTest extends WP_UnitTestCase {
 	/**
 	 * @group comunetext
 	 */
+	public function test_get_item_by_code() {
+		$obj  = new GCMI_COMUNETEXT_Test_Double( 'evidenza_cessati' );
+		$item = $obj->get_item_by_code( '021008' );
+		$this->assertIsArray( $item );
+		$this->assertSame( 'Bolzano/Bozen (BZ)', $item['label'] );
+		$item = $obj->get_item_by_code( '015901' );
+		$this->assertIsArray( $item );
+		$this->assertSame( 'Mila Vecchia (MI) (sopp.)', $item['label'] );
+		$this->assertSame( 'Lombardia', $item['regione'] );
+		$this->assertNull( $obj->get_item_by_code( '999999' ) );
+		$this->assertNull( $obj->get_item_by_code( "015146' OR '1'='1" ) );
+
+		// Con kind "attuali" un comune soppresso non è valido.
+		$obj = new GCMI_COMUNETEXT_Test_Double( 'attuali' );
+		$this->assertNull( $obj->get_item_by_code( '015901' ) );
+	}
+
+	/**
+	 * Testo digitato senza scegliere dall'elenco (JavaScript non disponibile).
+	 *
+	 * @group comunetext
+	 */
+	public function test_resolve_text() {
+		$obj  = new GCMI_COMUNETEXT_Test_Double();
+		$item = $obj->resolve_text( '  milano ' );
+		$this->assertIsArray( $item );
+		$this->assertSame( '015146', $item['value'] );
+		$item = $obj->resolve_text( 'San Teodoro (OT)' );
+		$this->assertIsArray( $item );
+		$this->assertSame( '113022', $item['value'] );
+		// Omonimi senza provincia, testo parziale, testo inesistente.
+		$this->assertNull( $obj->resolve_text( 'San Teodoro' ) );
+		$this->assertNull( $obj->resolve_text( 'Mila' ) );
+		$this->assertNull( $obj->resolve_text( 'Atlantide' ) );
+	}
+
+	/**
+	 * Struttura HTML del campo.
+	 *
+	 * @group comunetext
+	 */
+	public function test_get_html() {
+		GCMI_COMUNETEXT::register_scripts();
+		$obj  = new GCMI_COMUNETEXT_Test_Double( 'evidenza_cessati' );
+		$html = $obj->get_html(
+			array(
+				'name'              => 'luogo',
+				'id'                => 'f1',
+				'comu_details'      => true,
+				'use_label_element' => true,
+				'value'             => '113022',
+				'required'          => true,
+			)
+		);
+		$dom = new DOMDocument();
+		$this->assertTrue( $dom->loadHTML( '<?xml encoding="utf-8"?><div>' . $html . '</div>', LIBXML_NOERROR ) );
+		$xpath = new DOMXPath( $dom );
+
+		$input = $xpath->query( '//input[@id="f1_gcmi_ct_input"]' )->item( 0 );
+		$this->assertInstanceOf( DOMElement::class, $input );
+		$this->assertSame( 'combobox', $input->getAttribute( 'role' ) );
+		$this->assertSame( 'f1_gcmi_ct_list', $input->getAttribute( 'aria-controls' ) );
+		$this->assertSame( 'true', $input->getAttribute( 'aria-required' ) );
+		$this->assertSame( 'San Teodoro (OT)', $input->getAttribute( 'value' ) );
+		$this->assertSame( 1, $xpath->query( '//*[@id="f1_gcmi_ct_list" and @role="listbox"]' )->length );
+		$this->assertSame( 1, $xpath->query( '//label[@for="f1_gcmi_ct_input"]' )->length );
+		$this->assertSame( 1, $xpath->query( '//dialog[@id="f1_gcmi_ct_dialog"]' )->length );
+		// Nessun form annidato: il campo è dentro il form del modulo.
+		$this->assertSame( 0, $xpath->query( '//form' )->length );
+
+		$hidden = array();
+		foreach ( $xpath->query( '//input[@type="hidden"]' ) as $node ) {
+			$hidden[ $node->getAttribute( 'name' ) ] = $node->getAttribute( 'value' );
+		}
+		$this->assertSame(
+			array(
+				'luogo'            => '113022',
+				'luogo_formatted'  => 'San Teodoro (OT)',
+				'luogo_targa'      => 'OT',
+				'luogo_reg_desc'   => 'Sardegna',
+				'luogo_prov_desc'  => 'Gallura Nord-Est Sardegna',
+				'luogo_kind'       => 'evidenza_cessati',
+				'luogo_filtername' => '',
+			),
+			$hidden
+		);
+		$this->assertTrue( wp_script_is( 'gcmi_comunetext_js', 'enqueued' ) );
+	}
+
+	/**
+	 * Lo shortcode accetta gli attributi dello shortcode comune.
+	 *
+	 * @group comunetext
+	 */
+	public function test_shortcode() {
+		require_once 'modules/comunetext/comunetext-shortcode.php';
+		GCMI_COMUNETEXT::register_scripts();
+		$html = do_shortcode( '[comunetext name="nascita" kind="attuali" id="sc1" use_label_element="false" placeholder="Comune di nascita"]' );
+		$this->assertStringContainsString( 'name="nascita"', $html );
+		$this->assertStringContainsString( 'data-kind="attuali"', $html );
+		$this->assertStringContainsString( 'placeholder="Comune di nascita"', $html );
+		$this->assertStringNotContainsString( '<label', $html );
+		$this->assertStringNotContainsString( '<dialog', $html );
+	}
+
+	/**
+	 * @group comunetext
+	 */
 	public function test_normalize_term() {
 		$this->assertSame( 'San Teodoro', GCMI_COMUNETEXT::normalize_term( "  San \t  Teodoro " ) );
 		$this->assertSame( GCMI_COMUNETEXT::MAX_LENGTH, mb_strlen( GCMI_COMUNETEXT::normalize_term( str_repeat( 'à', 300 ) ) ) );
