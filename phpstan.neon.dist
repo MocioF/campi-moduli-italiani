@@ -17,7 +17,7 @@ parameters:
 		- ../flamingo
 		- ../wpforms-lite
 	bootstrapFiles:
-		- campi-moduli-italiani.php
+		- phpstan-bootstrap.php
 	ignoreErrors:
 		-
 		    message: '#Method [a-zA-Z0-9\\_]+::[a-zA-Z0-9\\_]+\(\) has parameter \$[a-zA-Z0-9\\_]+ with no value type specified in iterable type array.#'
