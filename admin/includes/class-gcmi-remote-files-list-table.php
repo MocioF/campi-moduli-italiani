@@ -279,31 +279,20 @@ class Gcmi_Remote_Files_List extends WP_List_Table {
 	 * @return void
 	 */
 	public function process_bulk_action() {
-		// security check!
-		if ( isset( $_POST['_wpnonce'] ) && ! empty( $_POST['_wpnonce'] ) ) {
-			$nonce = filter_input( INPUT_POST, '_wpnonce', FILTER_UNSAFE_RAW );
-			if ( ! is_string( $nonce ) ) {
-				wp_die( 'Nope! Security check failed!' );
-			}
-			$action = 'bulk-' . gcmi_safe_strval( $this->_args['plural'] );
-
-			if ( ! wp_verify_nonce( $nonce, $action ) ) {
-				wp_die( 'Nope! Security check failed!' );
-			}
+		if ( 'update' !== $this->current_action() ) {
+			return;
 		}
+		// L'azione modifica i dati: il nonce delle azioni di gruppo di WP_List_Table è
+		// obbligatorio (prima era controllato solo se presente).
+		check_admin_referer( 'bulk-' . gcmi_safe_strval( $this->_args['plural'] ) );
 
 		$singular = gcmi_safe_strval( $this->_args['singular'] );
-		$action   = $this->current_action();
-		switch ( $action ) {
-			case 'update':
-				if ( $_SERVER['REQUEST_METHOD'] === 'POST' && is_iterable( $_POST[ $singular ] ) ) {
-					foreach ( $_POST[ $singular ] as $fname ) {
-						gcmi_update_table( sanitize_text_field( gcmi_safe_strval( wp_unslash( $fname ) ) ) );
-					}
-				}
-				break;
-			default:
-				break;
+		if ( ! isset( $_SERVER['REQUEST_METHOD'] ) || 'POST' !== $_SERVER['REQUEST_METHOD'] || ! isset( $_POST[ $singular ] ) || ! is_array( $_POST[ $singular ] ) ) {
+			return;
+		}
+		$fnames = map_deep( wp_unslash( $_POST[ $singular ] ), 'sanitize_text_field' );
+		foreach ( (array) $fnames as $fname ) {
+			gcmi_update_table( gcmi_safe_strval( $fname ) );
 		}
 	}
 }

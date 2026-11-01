@@ -445,7 +445,7 @@ class GCMI_Activator {
 				$error_message = '<p><strong>' . $error_title . '</strong></p>';
 				/* translators: %1$s: the data name; %2$s: the db table name. */
 				$error_message .= esc_html( sprintf( __( 'Unable to import %1$s into %2$s', 'campi-moduli-italiani' ), $csv_file_path, self::$database_file_info[ $i ]['table_name'] ) ) . '<br>';
-				$str            = htmlspecialchars( print_r( $wpdb->last_error, true ), ENT_QUOTES ) .
+				$str            = htmlspecialchars( $wpdb->last_error, ENT_QUOTES ) .
 									'<br>' . esc_html__( 'Last executed query:', 'campi-moduli-italiani' );
 				$query          = htmlspecialchars( $wpdb->last_query, ENT_QUOTES );
 				$error_message .= $str . '<br/><code>' . $query . '</code>';

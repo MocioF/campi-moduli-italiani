@@ -12,6 +12,8 @@
  * @since 1.0.0
  */
 
+defined( 'ABSPATH' ) || die( 'you do not have access to this page!' );
+
 require_once plugin_dir_path( GCMI_PLUGIN ) . 'modules/stato/stato-options.php';
 
 add_action( 'wpcf7_init', 'gcmi_add_form_tag_stato' );
@@ -241,7 +243,7 @@ function gcmi_wpcf7_swv_add_stato_rules( $schema, $contact_form ) {
 	);
 
 	foreach ( $tags as $tag ) {
-		if ( $tag['type'] === 'stato*' ) {
+		if ( 'stato*' === $tag['type'] ) {
 			$schema->add_rule(
 				/**
 				 * Method add_rule() expects Contactable\SWV\Rule, Contactable\SWV\Rule|null returned by wpcf7_swv_create_rule.

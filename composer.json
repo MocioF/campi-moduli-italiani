@@ -31,5 +31,13 @@
             "dealerdirect/phpcodesniffer-composer-installer": true,
             "phpstan/extension-installer": true
         }
+    },
+    "scripts": {
+        "post-install-cmd": [
+            "git config core.hooksPath bin/git-hooks || exit 0"
+        ],
+        "post-update-cmd": [
+            "git config core.hooksPath bin/git-hooks || exit 0"
+        ]
     }
 }

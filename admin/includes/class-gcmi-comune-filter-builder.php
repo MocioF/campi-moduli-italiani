@@ -108,7 +108,7 @@ class GCMI_Comune_Filter_Builder {
 		} else {
 			$filter = false;
 		}
-		if ( is_string( $filter ) && in_array( $filter, $filtri_esistenti ) ) {
+		if ( is_string( $filter ) && in_array( $filter, $filtri_esistenti, true ) ) {
 			$filter_name = $filter;
 		} else {
 			$filter_name = false;
@@ -236,8 +236,10 @@ class GCMI_Comune_Filter_Builder {
 		}
 		uasort( $list_regioni, ( array( __CLASS__, 'cmp_regione' ) ) );
 		if ( 0 < count( $selected ) ) {
+			// Le chiavi numeriche dell'array sono intere: si confrontano come stringhe.
+			$selected = array_map( 'strval', $selected );
 			foreach ( $list_regioni as $key => $regione ) {
-				if ( in_array( $key, $selected ) ) {
+				if ( in_array( (string) $key, $selected, true ) ) {
 					$regione->selected = '1';
 				} else {
 					$regione->selected = '0';
@@ -404,8 +406,10 @@ class GCMI_Comune_Filter_Builder {
 		$array_finale = array_merge( $array_finale, $array_temporaneo );
 
 		if ( 0 < count( $selected ) ) {
+			// Le chiavi numeriche dell'array sono intere: si confrontano come stringhe.
+			$selected = array_map( 'strval', $selected );
 			foreach ( $array_finale as $key => $provincia ) {
-				if ( in_array( $key, $selected ) ) {
+				if ( in_array( (string) $key, $selected, true ) ) {
 					$provincia->selected = '1';
 				} else {
 					$provincia->selected = '0';
@@ -520,8 +524,10 @@ class GCMI_Comune_Filter_Builder {
 			$array_finale = $list_comuni_a;
 		}
 		if ( 0 < count( $selected ) ) {
+			// Le chiavi numeriche dell'array sono intere: si confrontano come stringhe.
+			$selected = array_map( 'strval', $selected );
 			foreach ( $array_finale as $key => $comune ) {
-				if ( in_array( $key, $selected ) ) {
+				if ( in_array( (string) $key, $selected, true ) ) {
 					$comune->selected = '1';
 				} else {
 					$comune->selected = '0';

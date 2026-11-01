@@ -190,8 +190,8 @@ function gcmi_clean_lista_view( $lista_view, $cessati = false ) {
  * @since 2.2.6
  * @since 2.4.0 Parametro $only_current; spostata da modules/stato/wpcf7-stato-formtag.php.
  *
- * @param mixed  $countrycode  Codice da controllare (stringa di 3 cifre).
- * @param bool   $only_current True per accettare solo gli stati attuali, non quelli cessati.
+ * @param mixed $countrycode  Codice da controllare (stringa di 3 cifre).
+ * @param bool  $only_current True per accettare solo gli stati attuali, non quelli cessati.
  * @return bool true se il codice è di uno stato ammesso, false altrimenti.
  */
 function gcmi_is_valid_stato( $countrycode, $only_current = false ) {
@@ -209,29 +209,4 @@ function gcmi_is_valid_stato( $countrycode, $only_current = false ) {
 
 	// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Nomi delle viste interni.
 	return null !== $wpdb->get_var( $wpdb->prepare( $sql, $values ) );
-}
-
-/**
- * Prints var_dump (and var_export) output to log
- *
- * A simple console log function to output vars in console.
- *
- * @param mixed $object A variable.
- * @param bool  $var_export true to print the var_export output.
- */
-function gcmi_error_log( $object = null, $var_export = false ): void {
-	$contents = "\n------------------\n";
-	if ( true === $var_export ) {
-		$contents .= "\n";
-		$contents .= "var_export:\n";
-		$contents .= var_export( $object, true );
-	} else {
-		$contents .= "var_dump:\n";
-		ob_start();
-		var_dump( $object );
-		$contents .= ob_get_contents();
-		ob_end_clean();
-	}
-	$contents .= "\n------------------\n";
-	error_log( $contents );
 }

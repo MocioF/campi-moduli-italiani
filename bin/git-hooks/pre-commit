@@ -1,0 +1,39 @@
+#!/usr/bin/env bash
+#
+# Blocca i commit che aggiungono codice di debug nei file PHP.
+#
+# Controlla solo le righe aggiunte nei file in stage, quindi non segnala il codice già
+# presente. Attivazione, una volta per clone:
+#
+#     git config core.hooksPath bin/git-hooks
+#
+# Per saltare il controllo in un caso particolare: git commit --no-verify
+
+# Funzioni di sviluppo e di debug da non inviare (espressione regolare estesa).
+PATTERN='(^|[^[:alnum:]_>:$])(gcmi_error_log|var_dump|var_export|print_r|error_log|debug_zval_dump|debug_print_backtrace)[[:space:]]*[(]'
+
+FILES=$(git diff --cached --name-only --diff-filter=ACM -- '*.php')
+[ -z "$FILES" ] && exit 0
+
+FOUND=0
+for FILE in $FILES; do
+  # Righe aggiunte, con il numero di riga nel file in stage.
+  MATCHES=$(git diff --cached -U0 -- "$FILE" | awk -v pat="$PATTERN" -v file="$FILE" '
+    /^@@/ { split($3, a, ","); line = substr(a[1], 2) + 0; next }
+    /^\+\+\+/ { next }
+    /^\+/ { if ($0 ~ pat && $0 !~ /phpcs:ignore/) printf "  %s:%d: %s\n", file, line, substr($0, 2); line++; next }
+    /^ / { line++ }
+  ')
+  if [ -n "$MATCHES" ]; then
+    FOUND=1
+    echo "$MATCHES"
+  fi
+done
+
+if [ "$FOUND" -eq 1 ]; then
+  echo ""
+  echo "Commit bloccato: codice di debug nelle righe aggiunte (vedi sopra)."
+  echo "Se una chiamata è voluta, annotala con // phpcs:ignore e il motivo, o usa --no-verify."
+  exit 1
+fi
+exit 0

@@ -77,7 +77,7 @@ OUTPUT_PATH="$DIST_PATH/source"
 create_dist() {
   rm -rf $DIST_PATH
   mkdir -p $SVN_PATH $OUTPUT_PATH
-  cp -Rp admin css img includes integrations languages modules campi-moduli-italiani.php settings.php index.php license.txt readme.txt readme-it.txt $OUTPUT_PATH
+  cp -Rp admin img includes integrations languages modules campi-moduli-italiani.php settings.php index.php license.txt readme.txt readme-it.txt $OUTPUT_PATH
 }
 
 bundle() {

@@ -241,7 +241,7 @@ function gcmi_wpcf7_swv_add_comune_rules( $schema, $contact_form ) {
 	);
 
 	foreach ( $tags as $tag ) {
-		if ( $tag['type'] === 'comune*' ) {
+		if ( 'comune*' === $tag['type'] ) {
 			$schema->add_rule(
 				/**
 				 * Method add_rule() expects Contactable\SWV\Rule, Contactable\SWV\Rule|null returned by wpcf7_swv_create_rule.

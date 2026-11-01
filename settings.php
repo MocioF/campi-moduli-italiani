@@ -311,7 +311,7 @@ function gcmi_index_exist( $table_name, $field_name ) {
 	);
 	$unique       = array_unique( $index_fields );
 
-	if ( in_array( $field_name, $unique ) ) {
+	if ( in_array( $field_name, $unique, true ) ) {
 		return true;
 	}
 	return false;
