@@ -148,6 +148,7 @@ You can create an issue in our Github repo:
 * New [statotext] form-tag for Contact Form 7, with the options of [stato] (only_current, use_continent, first_as_label as placeholder); it can be used with [cf] to check the country of birth
 * [stato] (CF7 form-tag and shortcode): ceased countries are marked with "(ceased)" after the name, as in [statotext]; a ceased country with the same code of a current one is no longer listed
 * [stato] WPForms field: the field sends the ISTAT code of the country; the e-mail and the smart tags still show the country name, the code is in the raw value (value_raw); ceased countries are marked with "(ceased)"; fixed the default value with the "Split States for continents" option
+* New "Country (text)" field for WPForms: a text field to type a country and choose it from a list; it sends the ISTAT code (raw value) and shows the country name in e-mails and smart tags
 
 = 2.3.3 =
 * Data of current, suppressed and changed municipalities and of foreign countries are downloaded from the ISTAT SITUAS services; updates are detected through ETag

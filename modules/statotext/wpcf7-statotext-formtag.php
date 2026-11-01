@@ -55,17 +55,14 @@ function gcmi_wpcf7_statotext_object( $tag ) {
 }
 
 /**
- * Crea l'oggetto degli stati
- *
- * Il filtro 'gcmi_statotext_object' permette di sostituire l'oggetto (usato nei test).
+ * Crea l'oggetto degli stati (vedi GCMI_STATOTEXT::create())
  *
  * @param bool $only_current  True per i soli stati attuali.
  * @param bool $use_continent True per mostrare il continente nei suggerimenti.
  * @return GCMI_STATOTEXT
  */
 function gcmi_statotext_new_object( $only_current = false, $use_continent = false ) {
-	$obj = apply_filters( 'gcmi_statotext_object', new GCMI_STATOTEXT( $only_current, $use_continent ), $only_current, $use_continent );
-	return $obj instanceof GCMI_STATOTEXT ? $obj : new GCMI_STATOTEXT( $only_current, $use_continent );
+	return GCMI_STATOTEXT::create( $only_current, $use_continent );
 }
 
 /**

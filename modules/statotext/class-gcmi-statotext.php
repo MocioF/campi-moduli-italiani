@@ -89,6 +89,20 @@ class GCMI_STATOTEXT {
 	}
 
 	/**
+	 * Crea l'oggetto degli stati per le opzioni di un campo.
+	 *
+	 * Il filtro 'gcmi_statotext_object' permette di sostituire l'oggetto (usato nei test).
+	 *
+	 * @param bool $only_current  True per i soli stati attuali.
+	 * @param bool $use_continent True per mostrare il continente nei suggerimenti.
+	 * @return GCMI_STATOTEXT
+	 */
+	public static function create( $only_current = false, $use_continent = false ) {
+		$obj = apply_filters( 'gcmi_statotext_object', new GCMI_STATOTEXT( $only_current, $use_continent ), $only_current, $use_continent );
+		return $obj instanceof GCMI_STATOTEXT ? $obj : new GCMI_STATOTEXT( $only_current, $use_continent );
+	}
+
+	/**
 	 * Restituisce il nome della vista degli stati attuali.
 	 *
 	 * @return string
