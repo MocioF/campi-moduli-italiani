@@ -173,7 +173,7 @@ jQuery(document).ready(function ($) {
         __("No municipality has been selected to include in the filter.",
           "campi-moduli-italiani");
       $.when(customOkMessage(message, title)).then(function () {
-        $("#ui-id-4").trigger("click");
+        activateFbTab(4, true);
       });
       return;
     }
@@ -260,18 +260,68 @@ jQuery(document).ready(function ($) {
     }
     saveFilter(include, myFilterName, searchIDs);
   });
-  // Creo le tabs per il filter builder
-  $("#gcmi-fb-tabs").tabs({
-    active: 0,
-    classes: {
-      "ui-tabs": "ui-corner-none",
-      "ui-tabs-nav": "ui-corner-none",
-      "ui-tabs-panel": "ui-corner-none",
-      "ui-tabs-tab": "ui-corner-none"
-    },
-    collapsible: true,
-    heightStyle: "content"
-  });
+  /*
+   * Schede del filter builder (modello WAI-ARIA tabs, attivazione automatica):
+   * clic o frecce sinistra/destra, Home e Fine; una sola scheda visibile.
+   */
+  function activateFbTab(n, setFocus) {
+    var tabs = document.querySelectorAll("#gcmi-fb-tabs [role='tab']");
+    tabs.forEach(function (tab, i) {
+      var selected = (i + 1 === n);
+      var panel = document.getElementById(tab.getAttribute("aria-controls"));
+      tab.setAttribute("aria-selected", selected ? "true" : "false");
+      tab.setAttribute("tabindex", selected ? "0" : "-1");
+      tab.classList.toggle("nav-tab-active", selected);
+      if (panel) {
+        panel.hidden = !selected;
+      }
+      if (selected && setFocus) {
+        tab.focus();
+      }
+    });
+  }
+
+  (function initFbTabs() {
+    var tablist = document.querySelector("#gcmi-fb-tabs [role='tablist']");
+    var tabs;
+    if (!tablist) {
+      return;
+    }
+    tabs = Array.prototype.slice.call(tablist.querySelectorAll("[role='tab']"));
+    tablist.addEventListener("click", function (e) {
+      var tab = e.target.closest("[role='tab']");
+      if (tab) {
+        activateFbTab(tabs.indexOf(tab) + 1, false);
+      }
+    });
+    tablist.addEventListener("keydown", function (e) {
+      var current = tabs.indexOf(e.target.closest("[role='tab']"));
+      var next;
+      if (current < 0) {
+        return;
+      }
+      switch (e.key) {
+      case "ArrowRight":
+        next = (current + 1) % tabs.length;
+        break;
+      case "ArrowLeft":
+        next = (current - 1 + tabs.length) % tabs.length;
+        break;
+      case "Home":
+        next = 0;
+        break;
+      case "End":
+        next = tabs.length - 1;
+        break;
+      default:
+        return;
+      }
+      e.preventDefault();
+      activateFbTab(next + 1, true);
+    });
+    activateFbTab(1, false);
+  }());
+
   // click su regioni
   $(document).on("change", "input[type='checkbox'][id^='fb-gcmi-reg-']",
     function () {

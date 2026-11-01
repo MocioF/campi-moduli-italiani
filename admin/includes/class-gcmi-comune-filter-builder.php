@@ -34,30 +34,36 @@ class GCMI_Comune_Filter_Builder {
 		$html .= '</div>';
 		$html .= self::print_spinner();
 		$html .= '<div class="gcmi-fb-tabs-container" id="gcmi-fb-tabs-container">';
-		$html .= '<div id="gcmi-fb-tabs">';
-		$html .= '<ul>';
-		$html .= '<li><a href="#gcmi-fb-tabs-1">' . esc_html__( 'Existent/Ceased', 'campi-moduli-italiani' ) . '</a></li>';
-		$html .= '<li><a href="#gcmi-fb-tabs-2">' . esc_html__( 'Select regions', 'campi-moduli-italiani' ) . '</a></li>';
-		$html .= '<li><a href="#gcmi-fb-tabs-3">' . esc_html__( 'Select provinces', 'campi-moduli-italiani' ) . '</a></li>';
-		$html .= '<li><a href="#gcmi-fb-tabs-4">' . esc_html__( 'Select municipalities', 'campi-moduli-italiani' ) . '</a></li>';
-		$html .= '<li><a href="#gcmi-fb-tabs-5">' . esc_html__( 'Save filter', 'campi-moduli-italiani' ) . '</a></li>';
-		$html .= '</ul>';
+		$html .= '<div id="gcmi-fb-tabs" class="gcmi-fb-tabs">';
+		// Schede secondo il modello WAI-ARIA (tablist, tab, tabpanel), con l'aspetto delle schede di WordPress.
+		$html .= '<div class="nav-tab-wrapper gcmi-fb-tablist" role="tablist" aria-label="' . esc_attr__( 'Filter builder', 'campi-moduli-italiani' ) . '">';
+		$tabs  = array(
+			1 => __( 'Existent/Ceased', 'campi-moduli-italiani' ),
+			2 => __( 'Select regions', 'campi-moduli-italiani' ),
+			3 => __( 'Select provinces', 'campi-moduli-italiani' ),
+			4 => __( 'Select municipalities', 'campi-moduli-italiani' ),
+			5 => __( 'Save filter', 'campi-moduli-italiani' ),
+		);
+		foreach ( $tabs as $n => $label ) {
+			$html .= '<button type="button" role="tab" class="nav-tab" id="gcmi-fb-tab-' . $n . '" aria-controls="gcmi-fb-tabs-' . $n . '">' . esc_html( $label ) . '</button>';
+		}
+		$html .= '</div>';
 
-		$html .= '<div id="gcmi-fb-tabs-1">';
+		$html .= '<div id="gcmi-fb-tabs-1" class="gcmi-fb-tabpanel" role="tabpanel" aria-labelledby="gcmi-fb-tab-1" tabindex="0">';
 		$html .= '<input type="checkbox" class="gcmi-ui-toggle" id="gcmi-fb-include-ceased" name="gcmi-fb-include-ceased">';
 		$html .= '<label for="gcmi-fb-include-ceased">' . esc_html__( 'Include ceased municipalities', 'campi-moduli-italiani' ) . '</label>';
 		$html .= '</div>';
 
-		$html .= '<div id="gcmi-fb-tabs-2">';
+		$html .= '<div id="gcmi-fb-tabs-2" class="gcmi-fb-tabpanel" role="tabpanel" aria-labelledby="gcmi-fb-tab-2" tabindex="0">';
 		$html .= '</div>';
 
-		$html .= '<div id="gcmi-fb-tabs-3">';
+		$html .= '<div id="gcmi-fb-tabs-3" class="gcmi-fb-tabpanel" role="tabpanel" aria-labelledby="gcmi-fb-tab-3" tabindex="0">';
 		$html .= '</div>';
 
-		$html .= '<div id="gcmi-fb-tabs-4">';
+		$html .= '<div id="gcmi-fb-tabs-4" class="gcmi-fb-tabpanel" role="tabpanel" aria-labelledby="gcmi-fb-tab-4" tabindex="0">';
 		$html .= '</div>';
 
-		$html .= '<div id="gcmi-fb-tabs-5">';
+		$html .= '<div id="gcmi-fb-tabs-5" class="gcmi-fb-tabpanel" role="tabpanel" aria-labelledby="gcmi-fb-tab-5" tabindex="0">';
 		$html .= '</div>';
 
 		$html .= '</div>';

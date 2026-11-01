@@ -16,10 +16,6 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 
 
-Campi Moduli Italiani WordPress Plugin bundles the following third-party resources:
-jquery-ui https://jqueryui.com/
-Copyright OpenJS Foundation and other contributors, https://openjsf.org/
-
 =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
                     GNU GENERAL PUBLIC LICENSE

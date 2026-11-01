@@ -140,6 +140,7 @@ You can create an issue in our Github repo:
 = 2.4.0 =
 * The municipality details of the [comune] field open in a native <dialog>: jQuery UI (dialog and effects) and its stylesheet are no longer loaded in the frontend
 * The confirmation and message windows of the filter builder use a native <dialog> instead of jQuery UI
+* The tabs of the filter builder follow the WAI-ARIA tabs pattern with the WordPress admin look; jQuery UI is no longer used and its bundled themes have been removed
 
 = 2.3.3 =
 * Data of current, suppressed and changed municipalities and of foreign countries are downloaded from the ISTAT SITUAS services; updates are detected through ETag

@@ -279,23 +279,10 @@ function gcmi_admin_enqueue_scripts( $hook_suffix ) {
 		'all'
 	);
 
-	$wp_scripts = wp_scripts();
-	wp_enqueue_style(
-		'jquery-ui-theme-smoothness',
-		plugin_dir_url( __FILE__ ) .
-		sprintf(
-			"css/jqueryui/%s/themes/smoothness/jquery-ui$suffix.css",
-			$wp_scripts->registered['jquery-ui-core']->ver
-		),
-		array(),
-		GCMI_VERSION,
-		'all'
-	);
-
 	wp_enqueue_script(
 		'gcmi-admin',
 		plugins_url( GCMI_PLUGIN_NAME . "/admin/js/scripts$suffix.js" ),
-		array( 'jquery', 'jquery-ui-tabs', 'wp-i18n' ),
+		array( 'jquery', 'wp-i18n' ),
 		GCMI_VERSION,
 		true
 	);

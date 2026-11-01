@@ -137,6 +137,7 @@ Puoi inviare una richiesta nel nostro repository Github:
 = 2.4.0 =
 * La scheda del comune del campo [comune] si apre in un <dialog> nativo: jQuery UI (dialog ed effetti) e il relativo foglio di stile non sono più caricati nel frontend
 * Le finestre di conferma e di messaggio del filter builder usano un <dialog> nativo al posto di jQuery UI
+* Le schede del filter builder seguono il modello WAI-ARIA con l'aspetto delle schede di WordPress; jQuery UI non è più usato e i temi inclusi nel plugin sono stati rimossi
 
 = 2.3.3 =
 * I dati dei comuni attuali, soppressi e delle variazioni e quelli dei paesi esteri sono scaricati dai servizi SITUAS dell'ISTAT; gli aggiornamenti sono rilevati tramite ETag
