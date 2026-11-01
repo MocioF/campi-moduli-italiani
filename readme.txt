@@ -145,6 +145,7 @@ You can create an issue in our Github repo:
 * [stato]: with the only_current option, codes of ceased countries are now rejected also by the server-side validation (CF7 and WPForms); the WPForms field now checks that the code sent is a valid country code
 * New [statotext] shortcode: a text field to type a country and choose it from a list of suggestions (current and ceased countries, or only current ones); it sends the ISTAT country code like the [stato] field
 * New [stato] shortcode, with the same select of the CF7 form-tag; the default value of [stato] can be the Italian name of the country also without the use_continent option
+* New [statotext] form-tag for Contact Form 7, with the options of [stato] (only_current, use_continent, first_as_label as placeholder); it can be used with [cf] to check the country of birth
 
 = 2.3.3 =
 * Data of current, suppressed and changed municipalities and of foreign countries are downloaded from the ISTAT SITUAS services; updates are detected through ETag

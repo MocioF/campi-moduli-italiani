@@ -32,6 +32,7 @@ if ( defined( 'WPCF7_VERSION' ) && version_compare( WPCF7_VERSION, GCMI_MINIMUM_
 
 	if ( GCMI_USE_STATO === true ) {
 		require_once plugin_dir_path( GCMI_PLUGIN ) . 'modules/stato/wpcf7-stato-formtag.php';
+		require_once plugin_dir_path( GCMI_PLUGIN ) . 'modules/statotext/wpcf7-statotext-formtag.php';
 		require_once $gcmi_swv_rules_dir . ( $gcmi_swv_is_new ? 'class-gcmi-swv-stato-rule.php' : 'swv_stato_rule.php' );
 	}
 
