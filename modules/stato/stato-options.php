@@ -15,21 +15,23 @@ defined( 'ABSPATH' ) || die( 'you do not have access to this page!' );
  * Restituisce gli stati per la select, in cache.
  *
  * Senza only_current ci sono anche gli stati cessati (cessato = 1), tranne quelli con lo
- * stesso codice di uno stato attuale. L'ordine è per continente (con use_continent) e
- * codice ISTAT.
+ * stesso codice di uno stato attuale. L'ordine è per continente (con use_continent), poi
+ * per codice ISTAT (form-tag e shortcode) o per denominazione (campo WPForms).
  *
  * @since 2.4.0
  *
- * @param bool $only_current  True per i soli stati attuali.
- * @param bool $use_continent True per ordinare prima per continente.
+ * @param bool   $only_current  True per i soli stati attuali.
+ * @param bool   $use_continent True per ordinare prima per continente.
+ * @param string $order         'code' per ordinare per codice ISTAT, 'name' per denominazione.
  * @return array<int, object{i_cod_istat: string, i_cod_continente: string, i_denominazione_ita: string, i_cod_AT: string|null, cessato: string}>
  */
-function gcmi_get_stati_rows( $only_current, $use_continent ) {
+function gcmi_get_stati_rows( $only_current, $use_continent, $order = 'code' ) {
 	global $wpdb;
 
 	$cache_key  = 'gcmi_stato_options_';
 	$cache_key .= $use_continent ? 'cont_' : 'sing_';
 	$cache_key .= $only_current ? 'act' : 'all';
+	$cache_key .= 'name' === $order ? '_name' : '_code';
 	$stati      = wp_cache_get( $cache_key, GCMI_CACHE_GROUP );
 
 	if ( false === $stati ) {
@@ -45,11 +47,8 @@ function gcmi_get_stati_rows( $only_current, $use_continent ) {
 		} else {
 			$sql .= '( SELECT `i_cod_istat`, `i_cod_continente`, `i_denominazione_ita`, `i_cod_AT`, 0 AS `cessato` FROM `' . GCMI_SVIEW_PREFIX . 'stati` ) as subQuery ';
 		}
-		if ( true === $use_continent ) {
-			$sql .= 'ORDER BY `i_cod_continente`, `i_cod_istat`, `i_denominazione_ita` ASC';
-		} else {
-			$sql .= 'ORDER BY `i_cod_istat`, `i_denominazione_ita` ASC';
-		}
+		$sql .= 'ORDER BY ' . ( true === $use_continent ? '`i_cod_continente`, ' : '' );
+		$sql .= 'name' === $order ? '`i_denominazione_ita`, `i_cod_istat` ASC' : '`i_cod_istat`, `i_denominazione_ita` ASC';
 
 		$stati = $wpdb->get_results( $sql ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery
 		wp_cache_set( $cache_key, $stati, GCMI_CACHE_GROUP, GCMI_CACHE_EXPIRE_SECS );
@@ -98,6 +97,26 @@ function gcmi_get_continenti_rows() {
 }
 
 /**
+ * Restituisce l'etichetta di uno stato nella select (non ancora sottoposta a escape).
+ *
+ * Gli stati cessati sono indicati con "(ceased)" dopo la denominazione, come nel campo
+ * stato-text.
+ *
+ * @since 2.4.0
+ *
+ * @param object{i_denominazione_ita: string, cessato: string} $stato Riga di gcmi_get_stati_rows().
+ * @return string
+ */
+function gcmi_stato_option_label( $stato ) {
+	$label = stripslashes( $stato->i_denominazione_ita );
+	if ( '1' === (string) $stato->cessato ) {
+		// translators: added to the name of a country that no longer exists.
+		$label .= ' (' . __( 'ceased', 'campi-moduli-italiani' ) . ')';
+	}
+	return $label;
+}
+
+/**
  * Restituisce le <option> (ed eventuali <optgroup>) della select degli stati.
  *
  * Il valore selezionato può essere il codice ISTAT o la denominazione italiana dello
@@ -125,12 +144,7 @@ function gcmi_stato_options_html( $only_current, $use_continent, $first_as_label
 		if ( '' !== $selected && ( $stato->i_cod_istat === $selected || stripslashes( $stato->i_denominazione_ita ) === $selected ) ) {
 			$value .= ' selected';
 		}
-		$label = stripslashes( esc_html( $stato->i_denominazione_ita ) );
-		if ( '1' === (string) $stato->cessato ) {
-			// translators: added to the name of a country that no longer exists.
-			$label .= ' (' . esc_html__( 'ceased', 'campi-moduli-italiani' ) . ')';
-		}
-		return sprintf( '<option %1$s>%2$s</option>', $value, $label );
+		return sprintf( '<option %1$s>%2$s</option>', $value, esc_html( gcmi_stato_option_label( $stato ) ) );
 	};
 
 	if ( true === $use_continent ) {

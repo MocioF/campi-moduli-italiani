@@ -144,6 +144,7 @@ Puoi inviare una richiesta nel nostro repository Github:
 * Nuovo shortcode [stato], con la stessa select del form-tag CF7; il valore predefinito di [stato] può essere la denominazione italiana dello stato anche senza l'opzione use_continent
 * Nuovo form-tag [statotext] per Contact Form 7, con le opzioni di [stato] (only_current, use_continent, first_as_label come placeholder); si può usare con [cf] per il controllo dello stato di nascita
 * [stato] (form-tag CF7 e shortcode): gli stati cessati sono indicati con "(cessato)" dopo la denominazione, come in [statotext]; uno stato cessato con lo stesso codice di uno attuale non è più elencato
+* [stato] campo WPForms: il campo invia il codice ISTAT dello stato; l'email e gli smart tag mostrano ancora la denominazione, il codice è nel valore grezzo (value_raw); gli stati cessati sono indicati con "(cessato)"; corretto il valore predefinito con l'opzione "Dividi gli stati per continenti"
 
 = 2.3.3 =
 * I dati dei comuni attuali, soppressi e delle variazioni e quelli dei paesi esteri sono scaricati dai servizi SITUAS dell'ISTAT; gli aggiornamenti sono rilevati tramite ETag

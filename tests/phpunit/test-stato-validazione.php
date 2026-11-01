@@ -167,7 +167,90 @@ final class GCMI_Stato_ValidazioneTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Senza show_values il campo WPForms invia la denominazione al posto del codice.
+	 * Opzioni del campo WPForms: valore = codice ISTAT, cessati indicati, predefinito corretto.
+	 *
+	 * @group stato
+	 * @group wpforms
+	 */
+	public function test_opzioni_wpforms() {
+		global $wpdb;
+		require_once 'modules/stato/class-gcmi-wpforms-field-stato.php';
+		$field = new GCMI_WPForms_Field_Stato();
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+		$nome = (string) $wpdb->get_var( $wpdb->prepare( 'SELECT `i_denominazione_ita` FROM `' . GCMI_SVIEW_PREFIX . 'stati` WHERE `i_cod_istat` = %s', $this->attuale ) );
+
+		foreach ( array( array(), array( 'use_continent' => '1' ) ) as $settings ) {
+			$properties = $field->field_properties(
+				array( 'inputs' => array() ),
+				array_merge(
+					array(
+						'id'            => 3,
+						'default_value' => stripslashes( $nome ),
+					),
+					$settings
+				),
+				array( 'id' => 7 )
+			);
+			$defaults = array();
+			$labels   = array();
+			foreach ( $properties['inputs'] as $input ) {
+				$value = $input['attr']['value'];
+				if ( '' === $value ) {
+					continue; // Intestazione di un continente.
+				}
+				$this->assertMatchesRegularExpression( '/^[0-9]{3}$/', $value, 'Il valore è il codice ISTAT' );
+				$labels[ $value ] = $input['label']['text'];
+				if ( $input['default'] ) {
+					$defaults[] = $value;
+				}
+			}
+			$this->assertSame( array( $this->attuale ), $defaults, 'Un solo predefinito, quello giusto' );
+			$this->assertStringEndsWith( ' (ceased)', $labels[ $this->cessato ] );
+			$this->assertStringEndsNotWith( ' (ceased)', $labels[ $this->attuale ] );
+		}
+	}
+
+	/**
+	 * format(): denominazione come valore, codice come valore grezzo.
+	 *
+	 * @group stato
+	 * @group wpforms
+	 */
+	public function test_format_wpforms() {
+		global $wpdb;
+		require_once 'modules/stato/class-gcmi-wpforms-field-stato.php';
+		$field   = new GCMI_WPForms_Field_Stato();
+		$process = wpforms()->get( 'process' );
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+		$nome      = stripslashes( (string) $wpdb->get_var( $wpdb->prepare( 'SELECT `i_denominazione_ita` FROM `' . GCMI_SVIEW_PREFIX . 'stati` WHERE `i_cod_istat` = %s', $this->attuale ) ) );
+		$form_data = array(
+			'id'     => 7,
+			'fields' => array(
+				3 => array(
+					'id'    => 3,
+					'type'  => 'country',
+					'label' => 'Stato di nascita',
+				),
+			),
+		);
+
+		$field->format( 3, $this->attuale, $form_data );
+		$this->assertSame( $nome, $process->fields[3]['value'] );
+		$this->assertSame( $this->attuale, $process->fields[3]['value_raw'] );
+		$this->assertSame( 'Stato di nascita', $process->fields[3]['name'] );
+		$this->assertSame( 'country', $process->fields[3]['type'] );
+
+		$field->format( 3, $nome, $form_data );
+		$this->assertSame( $this->attuale, $process->fields[3]['value_raw'], 'Denominazione inviata da una pagina in cache' );
+
+		$field->format( 3, 'abc', $form_data );
+		$this->assertSame( '', $process->fields[3]['value'] );
+		$this->assertSame( '', $process->fields[3]['value_raw'] );
+		$process->fields = array();
+	}
+
+	/**
+	 * Le versioni precedenti alla 2.4.0 inviavano la denominazione: ancora accettata (pagine in cache).
 	 *
 	 * @group stato
 	 * @group wpforms

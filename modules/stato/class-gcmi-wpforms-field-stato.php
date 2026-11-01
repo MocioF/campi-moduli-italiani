@@ -7,6 +7,10 @@
  * @since 2.0.0
  */
 
+defined( 'ABSPATH' ) || die( 'you do not have access to this page!' );
+
+require_once plugin_dir_path( GCMI_PLUGIN ) . 'modules/stato/stato-options.php';
+
 /**
  * Select a Country
  *
@@ -100,7 +104,6 @@ class GCMI_WPForms_Field_Stato extends WPForms_Field {
 	 * @return array<mixed>
 	 */
 	public function field_properties( $properties, $field, $form_data ) {
-		global $wpdb;
 		$choices = array();
 		// Remove primary input.
 		if ( is_array( $properties['inputs'] ) && array_key_exists( 'primary', $properties['inputs'] ) ) {
@@ -111,44 +114,11 @@ class GCMI_WPForms_Field_Stato extends WPForms_Field {
 		$form_id  = absint( gcmi_safe_intval( $form_data['id'] ) );
 		$field_id = absint( gcmi_safe_intval( $field['id'] ) );
 
-		// codice per gestire la cache della query stati.
-		$cache_key  = 'stati_';
-		$cache_key .= isset( $field['use_continent'] ) ? 'cont_' : 'sing_';
-		$cache_key .= isset( $field['only_current'] ) ? 'act' : 'all';
-		$stati      = wp_cache_get( $cache_key, GCMI_CACHE_GROUP );
-
-		if ( false === $stati ) {
-			// qui creo le query.
-			$sql = 'SELECT `i_cod_istat`, `i_cod_continente`, `i_denominazione_ita`, `i_cod_AT` FROM ';
-			if ( ! isset( $field['only_current'] ) ) {
-				$sql .= '( ';
-				$sql .= 'SELECT `i_cod_istat`, `i_cod_continente`, `i_denominazione_ita`, `i_cod_AT` FROM `' . GCMI_SVIEW_PREFIX . 'stati` ';
-				$sql .= 'UNION ';
-				$sql .= 'SELECT `i_cod_istat`, `i_cod_continente`, `i_denominazione_ita`, `i_cod_AT` FROM `' . GCMI_SVIEW_PREFIX . 'stati_cessati` ';
-				$sql .= ') as subQuery ';
-			} else {
-				$sql .= '`' . GCMI_SVIEW_PREFIX . 'stati` ';
-			}
-			if ( isset( $field['use_continent'] ) ) {
-				$sql .= 'ORDER BY `i_cod_continente`, `i_denominazione_ita`, `i_cod_istat` ASC';
-			} else {
-				$sql .= 'ORDER BY `i_denominazione_ita`, `i_cod_istat` ASC';
-			}
-
-			$stati = $wpdb->get_results( $sql ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
-			wp_cache_set( $cache_key, $stati, GCMI_CACHE_GROUP, GCMI_CACHE_EXPIRE_SECS );
-		}
+		// Stati e continenti: query condivise con il form-tag e lo shortcode [stato] (stato-options.php).
+		$stati = gcmi_get_stati_rows( isset( $field['only_current'] ), isset( $field['use_continent'] ), 'name' );
 
 		if ( isset( $field['use_continent'] ) ) {
-			// codice per gestire la cache della query continenti.
-			$cache_key  = 'continenti';
-			$continenti = wp_cache_get( $cache_key, GCMI_CACHE_GROUP );
-
-			if ( false === $continenti ) {
-				$sql2       = 'SELECT DISTINCT `i_cod_continente`, `i_den_continente` FROM `' . GCMI_SVIEW_PREFIX . 'stati` ORDER BY `i_cod_continente`'; // phpcs:ignore unprepared SQL OK.
-				$continenti = $wpdb->get_results( $sql2 ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
-				wp_cache_set( $cache_key, $continenti, GCMI_CACHE_GROUP, GCMI_CACHE_EXPIRE_SECS );
-			}
+			$continenti = gcmi_get_continenti_rows();
 
 			foreach ( $continenti as $continente ) {
 				$choices[]      = array(
@@ -159,14 +129,17 @@ class GCMI_WPForms_Field_Stato extends WPForms_Field {
 				);
 				$cod_continente = $continente->i_cod_continente;
 				foreach ( $stati as $stato ) {
-					if ( $stato->i_cod_continente === $cod_continente ) {
-						$choices[] = array(
-							'label' => stripslashes( esc_html( $stato->i_denominazione_ita ) ),
-							'value' => esc_html( $stato->i_cod_istat ),
-							'image' => '',
-							'depth' => 2,
-						);
+					if ( $stato->i_cod_continente !== $cod_continente ) {
+						continue;
 					}
+					$choices[] = array(
+						'label' => esc_html( gcmi_stato_option_label( $stato ) ),
+						'value' => esc_html( $stato->i_cod_istat ),
+						'image' => '',
+						'depth' => 2,
+					);
+					// Il controllo sta dentro il continente dello stato: fuori segnava come
+					// predefinito l'ultimo stato aggiunto di un altro continente.
 					if ( isset( $field['default_value'] ) && ( '' !== $field['default_value'] ) ) {
 						if (
 							sanitize_text_field( gcmi_safe_strval( $field['default_value'] ) ) === stripslashes( $stato->i_denominazione_ita ) ||
@@ -181,7 +154,7 @@ class GCMI_WPForms_Field_Stato extends WPForms_Field {
 		} else {
 			foreach ( $stati as $stato ) {
 				$choices[] = array(
-					'label' => stripslashes( esc_html( $stato->i_denominazione_ita ) ),
+					'label' => esc_html( gcmi_stato_option_label( $stato ) ),
 					'value' => esc_html( $stato->i_cod_istat ),
 					'image' => '',
 				);
@@ -236,8 +209,8 @@ class GCMI_WPForms_Field_Stato extends WPForms_Field {
 				),
 				'attr'      => array(
 					'name'  => "wpforms[fields][{$field_id}]",
-					// Qui viene gestito l'utilizzo del valore.
-					'value' => isset( $field['show_values'] ) ? $choice['value'] : ( '' === $choice['value'] ? '' : $choice['label'] ),
+					// Il valore inviato è sempre il codice ISTAT; format() salva la denominazione.
+					'value' => $choice['value'],
 				),
 				'class'     => array(),
 				'data'      => array(),
@@ -629,11 +602,58 @@ class GCMI_WPForms_Field_Stato extends WPForms_Field {
 	}
 
 	/**
+	 * Restituisce lo stato inviato, se è nell'elenco del campo.
+	 *
+	 * Il valore inviato è il codice ISTAT. Si accetta anche la denominazione, che inviavano
+	 * le versioni precedenti alla 2.4.0 (l'etichetta era usata come valore): serve per le
+	 * pagine ancora in cache dopo l'aggiornamento.
+	 *
+	 * @since 2.4.0
+	 *
+	 * @param string               $value     Il valore inviato.
+	 * @param array<string, mixed> $form_data Impostazioni del modulo.
+	 * @param int                  $field_id  ID del campo.
+	 * @return object{i_cod_istat: string, i_cod_continente: string, i_denominazione_ita: string, i_cod_AT: string|null, cessato: string}|null
+	 */
+	private static function gcmi_get_submitted_stato( $value, $form_data, $field_id ) {
+		if ( '' === $value ) {
+			return null;
+		}
+		$fields = isset( $form_data['fields'] ) && is_array( $form_data['fields'] ) ? $form_data['fields'] : array();
+		$field  = isset( $fields[ $field_id ] ) && is_array( $fields[ $field_id ] ) ? $fields[ $field_id ] : array();
+		// Lo stesso elenco mostrato da field_properties().
+		$stati   = gcmi_get_stati_rows( isset( $field['only_current'] ), false, 'name' );
+		$by_name = null;
+		foreach ( $stati as $stato ) {
+			if ( $stato->i_cod_istat === $value ) {
+				return $stato;
+			}
+			// Con denominazioni uguali prevale lo stato attuale.
+			if ( stripslashes( $stato->i_denominazione_ita ) === $value && ( null === $by_name || '1' === (string) $by_name->cessato ) ) {
+				$by_name = $stato;
+			}
+		}
+		return $by_name;
+	}
+
+	/**
+	 * Restituisce l'oggetto di elaborazione di WPForms.
+	 *
+	 * @return WPForms_Process|null
+	 */
+	private static function gcmi_get_wpforms_process() {
+		$wpforms = wpforms();
+		$process = method_exists( $wpforms, 'obj' ) // @phpstan-ignore function.alreadyNarrowedType
+			? $wpforms->obj( 'process' )
+			: $wpforms->get( 'process' ); // @phpstan-ignore method.deprecated
+		return ( $process instanceof WPForms_Process ) ? $process : null;
+	}
+
+	/**
 	 * Validazione del campo all'invio.
 	 *
-	 * Oltre al controllo di obbligatorietà di WPForms, verifica che il codice inviato sia di
-	 * uno stato dell'elenco del campo: con "Only actual States" gli stati cessati non sono
-	 * ammessi.
+	 * Oltre al controllo di obbligatorietà di WPForms, verifica che lo stato inviato sia
+	 * nell'elenco del campo: con "Only actual States" gli stati cessati non sono ammessi.
 	 *
 	 * @since 2.4.0
 	 *
@@ -646,26 +666,12 @@ class GCMI_WPForms_Field_Stato extends WPForms_Field {
 		parent::validate( $field_id, $field_submit, $form_data );
 
 		$value = is_string( $field_submit ) ? sanitize_text_field( $field_submit ) : '';
-		if ( '' === $value ) {
+		if ( '' === $value || null !== self::gcmi_get_submitted_stato( $value, $form_data, $field_id ) ) {
 			return;
 		}
 
-		$fields = isset( $form_data['fields'] ) && is_array( $form_data['fields'] ) ? $form_data['fields'] : array();
-		$field  = isset( $fields[ $field_id ] ) && is_array( $fields[ $field_id ] ) ? $fields[ $field_id ] : array();
-		// Stessa condizione usata da field_properties() per costruire l'elenco.
-		$only_current = isset( $field['only_current'] );
-
-		// Il valore inviato è il codice ISTAT se il campo ha show_values (impostato alla creazione
-		// del campo), altrimenti la denominazione: field_properties() usa l'etichetta come valore.
-		if ( gcmi_is_valid_stato( $value, $only_current ) || self::gcmi_is_valid_stato_name( $value, $only_current ) ) {
-			return;
-		}
-
-		$wpforms = wpforms();
-		$process = method_exists( $wpforms, 'obj' ) // @phpstan-ignore function.alreadyNarrowedType
-			? $wpforms->obj( 'process' )
-			: $wpforms->get( 'process' ); // @phpstan-ignore method.deprecated
-		if ( $process instanceof WPForms_Process ) {
+		$process = self::gcmi_get_wpforms_process();
+		if ( null !== $process ) {
 			$form_id = absint( gcmi_safe_intval( $form_data['id'] ?? 0 ) );
 
 			$process->errors[ $form_id ][ $field_id ] = esc_html__( 'Invalid country code sent.', 'campi-moduli-italiani' );
@@ -673,24 +679,34 @@ class GCMI_WPForms_Field_Stato extends WPForms_Field {
 	}
 
 	/**
-	 * Indica se il testo è la denominazione italiana di uno stato ammesso dal campo.
+	 * Formatta il valore salvato: la denominazione come valore, il codice ISTAT come valore grezzo.
+	 *
+	 * Nelle email e negli smart tag con il valore compare la denominazione, come prima
+	 * della 2.4.0; il codice è in value_raw.
 	 *
 	 * @since 2.4.0
 	 *
-	 * @param string $name         La denominazione inviata.
-	 * @param bool   $only_current True per accettare solo gli stati attuali.
-	 * @return bool
+	 * @param int                  $field_id     ID del campo.
+	 * @param mixed                $field_submit Valore inviato.
+	 * @param array<string, mixed> $form_data    Impostazioni del modulo.
+	 * @return void
 	 */
-	private static function gcmi_is_valid_stato_name( $name, $only_current ) {
-		global $wpdb;
-		$sql    = 'SELECT `i_cod_istat` FROM `' . GCMI_SVIEW_PREFIX . 'stati` WHERE `i_denominazione_ita` = %s';
-		$values = array( $name );
-		if ( ! $only_current ) {
-			$sql     .= ' UNION SELECT `i_cod_istat` FROM `' . GCMI_SVIEW_PREFIX . 'stati_cessati` WHERE `i_denominazione_ita` = %s';
-			$values[] = $name;
+	public function format( $field_id, $field_submit, $form_data ) {
+		$value  = is_string( $field_submit ) ? sanitize_text_field( $field_submit ) : '';
+		$stato  = self::gcmi_get_submitted_stato( $value, $form_data, $field_id );
+		$fields = isset( $form_data['fields'] ) && is_array( $form_data['fields'] ) ? $form_data['fields'] : array();
+		$field  = isset( $fields[ $field_id ] ) && is_array( $fields[ $field_id ] ) ? $fields[ $field_id ] : array();
+
+		$process = self::gcmi_get_wpforms_process();
+		if ( null !== $process ) {
+			$process->fields[ $field_id ] = array(
+				'name'      => sanitize_text_field( gcmi_safe_strval( $field['label'] ?? '' ) ),
+				'value'     => null === $stato ? '' : stripslashes( $stato->i_denominazione_ita ),
+				'value_raw' => null === $stato ? '' : $stato->i_cod_istat,
+				'id'        => absint( $field_id ),
+				'type'      => $this->type,
+			);
 		}
-		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Nomi delle viste interni.
-		return null !== $wpdb->get_var( $wpdb->prepare( $sql, $values ) );
 	}
 
 	/**
@@ -794,7 +810,6 @@ class GCMI_WPForms_Field_Stato extends WPForms_Field {
 		) {
 			$field['use_continent'] = true;
 			$field['only_current']  = true;
-			$field['show_values']   = true;
 			$field['placeholder']   = __( 'Select a Country', 'campi-moduli-italiani' );
 		}
 		return $field;
