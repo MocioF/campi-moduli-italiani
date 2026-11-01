@@ -802,17 +802,13 @@ class GCMI_COMUNE {
 		wp_register_style( 'gcmi_comune_css', plugins_url( "modules/comune/css/comune$suffix.css", GCMI_PLUGIN ), array(), GCMI_VERSION );
 		wp_register_style( 'dashicons', includes_url( "/css/dashicons$suffix.css", 'relative' ), array(), GCMI_VERSION );
 
-		// Se html5_fallback è abilitato, non devo caricare il nuovo tema per evitare conflitti.
-		if ( ! has_filter( 'wpcf7_support_html5_fallback', '__return_true' ) ) {
-			wp_register_style( 'gcmi_jquery-ui-dialog', plugins_url( "css/jquery-ui-dialog$suffix.css", GCMI_PLUGIN ), array(), GCMI_VERSION );
-		}
 		/**
 		 * L'URL dello script: qui plugins_url() restituisce sempre un URL assoluto.
 		 *
 		 * @var non-empty-string $comune_js_src
 		 */
 		$comune_js_src = plugins_url( "modules/comune/js/ajax$suffix.js", GCMI_PLUGIN );
-		wp_register_script( 'gcmi_comune_js', $comune_js_src, array( 'jquery', 'jquery-ui-dialog', 'jquery-effects-core', 'jquery-effects-slide', 'jquery-effects-puff', 'wp-i18n' ), $ver = GCMI_VERSION, $in_footer = false );
+		wp_register_script( 'gcmi_comune_js', $comune_js_src, array( 'jquery', 'wp-i18n' ), $ver = GCMI_VERSION, $in_footer = false );
 		wp_set_script_translations( 'gcmi_comune_js', 'campi-moduli-italiani', plugin_dir_path( GCMI_PLUGIN ) . 'languages' );
 
 		/* Localize Script Data */
@@ -835,11 +831,6 @@ class GCMI_COMUNE {
 		}
 		if ( ! wp_style_is( 'dashicons', 'enqueued' ) ) {
 			wp_enqueue_style( 'dashicons' );
-		}
-		if ( ! has_filter( 'wpcf7_support_html5_fallback', '__return_true' ) ) {
-			if ( ! wp_style_is( 'gcmi_jquery-ui-dialog', 'enqueued' ) ) {
-				wp_enqueue_style( 'gcmi_jquery-ui-dialog' );
-			}
 		}
 		if ( ! wp_script_is( 'gcmi_comune_js', 'enqueued' ) ) {
 			wp_enqueue_script( 'gcmi_comune_js' );

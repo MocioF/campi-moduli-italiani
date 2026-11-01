@@ -160,7 +160,10 @@ final class GCMI_WPCF7_ComuneTextTest extends WP_UnitTestCase {
 		$this->assertStringContainsString( 'value="San Teodoro (OT)"', $html );
 		$this->assertStringContainsString( 'name="luogo" value="113022"', $html );
 		$this->assertStringContainsString( 'data-kind="evidenza_cessati"', $html );
-		$this->assertStringContainsString( '<dialog', $html );
+		// Scheda del comune: nessun <dialog> nel markup (dentro il <p> del modulo chiuderebbe
+		// paragrafo e campo); lo crea lo script condiviso in fondo al body.
+		$this->assertStringNotContainsString( '<dialog', $html );
+		$this->assertStringContainsString( 'data-gcmi-dialog="nascita_gcmi_ct_dialog"', $html );
 	}
 
 	/**
