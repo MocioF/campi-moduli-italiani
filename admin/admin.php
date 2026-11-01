@@ -295,7 +295,7 @@ function gcmi_admin_enqueue_scripts( $hook_suffix ) {
 	wp_enqueue_script(
 		'gcmi-admin',
 		plugins_url( GCMI_PLUGIN_NAME . "/admin/js/scripts$suffix.js" ),
-		array( 'jquery', 'jquery-ui-tabs', 'jquery-ui-dialog', 'wp-i18n' ),
+		array( 'jquery', 'jquery-ui-tabs', 'wp-i18n' ),
 		GCMI_VERSION,
 		true
 	);
@@ -307,6 +307,10 @@ function gcmi_admin_enqueue_scripts( $hook_suffix ) {
 		array(
 			'ajax_url' => admin_url( 'admin-ajax.php' ),
 			'nonce'    => wp_create_nonce( 'gcmi_fb_nonce' ),
+			'i18n'     => array(
+				'ok'     => __( 'OK', 'campi-moduli-italiani' ),
+				'cancel' => __( 'Cancel', 'campi-moduli-italiani' ),
+			),
 		)
 	);
 }

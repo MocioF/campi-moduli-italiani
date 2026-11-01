@@ -109,6 +109,8 @@ final class adminFunctionsTest extends WP_Ajax_UnitTestCase {
 		$this->assertArrayHasKey( 'gcmi-admin', $scripts_array );
 		$this->assertArrayHasKey( 'gcmi-menu', $styles_array );
 		$this->assertArrayHasKey( 'jquery-ui-theme-smoothness', $styles_array );
+		// Le modali del filter builder usano un <dialog> nativo.
+		$this->assertNotContains( 'jquery-ui-dialog', $scripts_array['gcmi-admin']->deps );
 	}
 
 	/**

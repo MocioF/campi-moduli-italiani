@@ -10,6 +10,7 @@ jQuery(document).ready(function ($) {
     _n,
     _nx
   } = wp.i18n;
+  var i18nFb = gcmi_fb_obj.i18n || {};
   // imposto tutto a unchecked
   $("input[type=checkbox][id^='gcmi-']").prop("checked", false);
 
@@ -76,8 +77,7 @@ jQuery(document).ready(function ($) {
     var arrData = [];
     var i = 0;
     var message =
-      "<span class=\"ui-icon ui-icon-alert\" style=\"float:left; " +
-      "margin:12px 12px 20px 0;\"></span>" +
+      dialogIcon("alert") +
       "<p>" + __("Do you really want to delete the filter: ",
         "campi-moduli-italiani") + "<b>" +
       delfiltername +
@@ -103,8 +103,7 @@ jQuery(document).ready(function ($) {
           title = __("Error when eliminating the filter",
             "campi-moduli-italiani");
           message =
-            "<span class=\"ui-icon ui-icon-notice\" style=\"float:left; " +
-            "margin:12px 12px 0 0;\"></span>";
+            dialogIcon("notice");
           arrData = res.responseJSON.data;
           for (i = 0; i < arrData.length; i += 1) {
             message =
@@ -133,8 +132,7 @@ jQuery(document).ready(function ($) {
   $(document).on("click", "#gcmi-fb-button-cancel", function () {
     var title = __("Confirm operation cancellation", "campi-moduli-italiani");
     var message =
-      "<span class=\"ui-icon ui-icon-alert\" style=\"float:left; " +
-      "margin:12px 12px 20px 0;\"></span>" +
+      dialogIcon("alert") +
       __("Do you want to cancel the creation/modification of the filter?",
         "campi-moduli-italiani");
     $.when(customConfirm(message, title)).then(
@@ -171,8 +169,7 @@ jQuery(document).ready(function ($) {
     if (0 === searchIDs.length) {
       title = __("Save error", "campi-moduli-italiani");
       message =
-        "<span class=\"ui-icon ui-icon-notice\" style=\"float:left; " +
-        "margin:12px 12px 20px 0;\"></span>" +
+        dialogIcon("notice") +
         __("No municipality has been selected to include in the filter.",
           "campi-moduli-italiani");
       $.when(customOkMessage(message, title)).then(function () {
@@ -184,8 +181,7 @@ jQuery(document).ready(function ($) {
     if (rawFilterName === "") {
       title = __("Save error", "campi-moduli-italiani");
       message =
-        "<span class=\"ui-icon ui-icon-notice\" style=\"float:left; " +
-        "margin:12px 12px 20px 0;\"></span>" +
+        dialogIcon("notice") +
         __("The filter name has not been indicated.", "campi-moduli-italiani");
       $.when(customOkMessage(message, title)).then(function () {
         $("#fb_gcmi_filter_name").trigger("focus");
@@ -195,8 +191,7 @@ jQuery(document).ready(function ($) {
     if (rawFilterName.length > 20) {
       title = __("Save error", "campi-moduli-italiani");
       message =
-        "<span class=\"ui-icon ui-icon-notice\" style=\"float:left; " +
-        "margin:12px 12px 20px 0;\"></span>" +
+        dialogIcon("notice") +
         __("No more than 20 characters admitted for the filter name.",
           "campi-moduli-italiani");
       $.when(customConfirm(message, title)).then(function () {
@@ -210,8 +205,7 @@ jQuery(document).ready(function ($) {
     if (false === myFilterName) {
       title = __("Save error", "campi-moduli-italiani");
       message =
-        "<span class=\"ui-icon ui-icon-notice\" style=\"float:left; " +
-        "margin:12px 12px 20px 0;\"></span>" +
+        dialogIcon("notice") +
         __("An invalid name for the filter was indicated.",
           "campi-moduli-italiani");
       $.when(customOkMessage(message, title)).then(function () {
@@ -222,8 +216,7 @@ jQuery(document).ready(function ($) {
     if (rawFilterName !== myFilterName) {
       title = __("Save error", "campi-moduli-italiani");
       message =
-        "<span class=\"ui-icon ui-icon-notice\" style=\"float:left; " +
-        "margin:12px 12px 20px 0;\"></span>" +
+        dialogIcon("notice") +
         __("The value indicated for the filter name ",
           "campi-moduli-italiani") +
         "<b>(<i>" +
@@ -253,8 +246,7 @@ jQuery(document).ready(function ($) {
     if (true === sovrascrivi) {
       title = "Sovrascrivi";
       message =
-        "<span class=\"ui-icon ui-icon-notice\" style=\"float:left; " +
-        "margin:12px 12px 20px 0;\"></span>" +
+        dialogIcon("notice") +
         __("You are overwriting the filter:",
           "campi-moduli-italiani") +
         "<b><i>" +
@@ -996,44 +988,120 @@ jQuery(document).ready(function ($) {
       }
     });
   }
-  // a confirmation dialog using deferred object
+  /*
+   * Modali del filter builder: <dialog> nativo creato al primo uso in fondo al body.
+   *
+   * customConfirm e customOkMessage restituiscono ancora un jQuery Deferred:
+   * customConfirm si risolve con OK e viene rifiutato con Annulla (o Esc);
+   * customOkMessage si risolve con OK (o Esc).
+   */
+  function dialogIcon(kind) {
+    var icon = ("alert" === kind) ? "dashicons-warning" : "dashicons-info";
+    return "<span class=\"dashicons " + icon + " gcmi-fb-dialog-icon\" aria-hidden=\"true\"></span>";
+  }
+
+  // Stato della modale aperta: callback di chiusura e valore del pulsante premuto.
+  var fbDialogState = null;
+
+  function getFbDialog() {
+    var dialog = document.getElementById("gcmi-fb-dialog");
+    if (dialog) {
+      return dialog;
+    }
+    dialog = document.createElement("dialog");
+    dialog.id = "gcmi-fb-dialog";
+    dialog.className = "gcmi-fb-dialog";
+    dialog.setAttribute("aria-labelledby", "gcmi-fb-dialog-title");
+    dialog.innerHTML =
+      "<h2 id=\"gcmi-fb-dialog-title\" class=\"gcmi-fb-dialog-title\"></h2>" +
+      "<div class=\"gcmi-fb-dialog-body\"></div>" +
+      "<div class=\"gcmi-fb-dialog-actions\"></div>";
+    dialog.addEventListener("close", function () {
+      var state = fbDialogState;
+      fbDialogState = null;
+      if (state) {
+        state.onClose(state.result);
+      }
+    });
+    document.body.appendChild(dialog);
+    return dialog;
+  }
+
+  /*
+   * Apre la modale. buttons: [{label, primary, value}]; onClose riceve il value del
+   * pulsante premuto, oppure escValue se la modale è chiusa con Esc.
+   */
+  function openFbDialog(customMessage, myTitle, buttons, escValue, onClose) {
+    var dialog = getFbDialog();
+    var actions = dialog.querySelector(".gcmi-fb-dialog-actions");
+    var previous = fbDialogState;
+    var state = { onClose: onClose, result: escValue };
+    var focusButton = null;
+    fbDialogState = state;
+    // Una modale già aperta viene sostituita: la precedente si chiude come con Esc.
+    if (previous) {
+      previous.onClose(previous.result);
+    }
+    dialog.querySelector(".gcmi-fb-dialog-title").textContent = myTitle;
+    // Messaggi composti dal plugin con testi tradotti e dati del filter builder.
+    dialog.querySelector(".gcmi-fb-dialog-body").innerHTML = customMessage;
+    actions.innerHTML = "";
+    buttons.forEach(function (b) {
+      var button = document.createElement("button");
+      button.type = "button";
+      button.className = b.primary ? "button button-primary" : "button";
+      button.textContent = b.label;
+      button.addEventListener("click", function () {
+        state.result = b.value;
+        dialog.close();
+      });
+      actions.appendChild(button);
+      if (b.primary) {
+        focusButton = button;
+      }
+    });
+    if (!dialog.open) {
+      dialog.showModal();
+    }
+    if (focusButton) {
+      focusButton.focus();
+    }
+  }
+
   function customConfirm(customMessage, myTitle) {
     var dfd = new jQuery.Deferred();
-    $("#gcmi-fb-dialog").html(customMessage);
-    $("#gcmi-fb-dialog").dialog({
-      buttons: {
-        Cancel: function () {
-          $(this).dialog("close");
-          dfd.reject();
-        },
-        OK: function () {
-          $(this).dialog("close");
+    openFbDialog(
+      customMessage,
+      myTitle,
+      [
+        { label: i18nFb.cancel || "Cancel", primary: false, value: false },
+        { label: i18nFb.ok || "OK", primary: true, value: true }
+      ],
+      false,
+      function (ok) {
+        if (ok) {
           dfd.resolve();
+        } else {
+          dfd.reject();
         }
-      },
-      height: 240,
-      modal: true,
-      resizable: false,
-      title: myTitle
-    });
+      }
+    );
     return dfd.promise();
   }
 
   function customOkMessage(customMessage, myTitle) {
     var dfd = new jQuery.Deferred();
-    $("#gcmi-fb-dialog").html(customMessage);
-    $("#gcmi-fb-dialog").dialog({
-      buttons: {
-        OK: function () {
-          $(this).dialog("close");
-          dfd.resolve();
-        }
-      },
-      height: 240,
-      modal: true,
-      resizable: false,
-      title: myTitle
-    });
+    openFbDialog(
+      customMessage,
+      myTitle,
+      [
+        { label: i18nFb.ok || "OK", primary: true, value: true }
+      ],
+      true,
+      function () {
+        dfd.resolve();
+      }
+    );
     return dfd.promise();
   }
 
@@ -1301,8 +1369,7 @@ jQuery(document).ready(function ($) {
   function showResErrorMessage(res, errCode) {
     var errTitle = "";
     var errMessageIcon =
-      "<span class=\"ui-icon ui-icon-notice\" style=\"float:left; " +
-      "margin:12px 12px 0 0;\"></span>";
+      dialogIcon("notice");
     var errMessage = errMessageIcon;
     var arrData;
     var i = 0;
@@ -1339,11 +1406,11 @@ jQuery(document).ready(function ($) {
     }
     switch (errCode) {
     case "CreateFilter":
-      $.when(customOkMessage(errMessage, errTitle)).then(focusFilter());
+      $.when(customOkMessage(errMessage, errTitle)).then(focusFilter);
       return;
 
     case "TmpFilterFailed":
-      $.when(customOkMessage(errMessage, errTitle)).then(printTabsContent());
+      $.when(customOkMessage(errMessage, errTitle)).then(printTabsContent);
       return;
     default:
       return;

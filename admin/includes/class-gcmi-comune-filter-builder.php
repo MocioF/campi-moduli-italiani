@@ -27,9 +27,6 @@ class GCMI_Comune_Filter_Builder {
 		$html .= '<span class="dashicons dashicons-filter"></span>';
 		$html .= '<h1>' . esc_html__( 'A filter builder for municipalities selections.', 'campi-moduli-italiani' ) . '</h1></div>';
 
-		$html .= '<div id="gcmi-fb-dialog" title="Basic dialog">';
-		$html .= '</div>';
-
 		$html .= '<div class="gcmi-fb-main-container">';
 		$html .= '<div class="gcmi-fb-box-container">';
 		$html .= '<div class="gcmi-fb-filters-container" id="gcmi-fb-filters-container">';
