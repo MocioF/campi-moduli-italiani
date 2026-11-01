@@ -90,6 +90,19 @@ class GCMI_WPForms_Field_ComuneText extends WPForms_Field {
 	}
 
 	/**
+	 * Restituisce l'oggetto di elaborazione di WPForms.
+	 *
+	 * @return WPForms_Process|null
+	 */
+	private function get_wpforms_process() {
+		$wpforms = wpforms();
+		$process = method_exists( $wpforms, 'obj' ) // @phpstan-ignore function.alreadyNarrowedType
+			? $wpforms->obj( 'process' )
+			: $wpforms->get( 'process' ); // @phpstan-ignore method.deprecated
+		return ( $process instanceof WPForms_Process ) ? $process : null;
+	}
+
+	/**
 	 * Pannello delle opzioni del campo nel costruttore di moduli.
 	 *
 	 * @param array<string, mixed> $field Impostazioni del campo.
@@ -330,7 +343,10 @@ class GCMI_WPForms_Field_ComuneText extends WPForms_Field {
 		}
 
 		if ( '' !== $error ) {
-			wpforms()->get( 'process' )->errors[ $form_id ][ $field_id ] = $error;
+			$process = $this->get_wpforms_process();
+			if ( null !== $process ) {
+				$process->errors[ $form_id ][ $field_id ] = $error;
+			}
 		}
 	}
 
@@ -348,13 +364,16 @@ class GCMI_WPForms_Field_ComuneText extends WPForms_Field {
 		$values = self::gcmi_submitted_values( $field_submit );
 		$item   = '' !== $values['value'] ? $obj->get_item_by_code( $values['value'] ) : $obj->resolve_text( $values['comu_desc'] );
 
-		wpforms()->get( 'process' )->fields[ $field_id ] = array(
-			'name'      => sanitize_text_field( gcmi_safe_strval( $field['label'] ?? '' ) ),
-			'value'     => null === $item ? '' : $item['name'] . ( '' === $item['sigla'] ? '' : ' (' . $item['sigla'] . ')' ),
-			'value_raw' => null === $item ? '' : $item['value'],
-			'id'        => absint( $field_id ),
-			'type'      => $this->type,
-		);
+		$process = $this->get_wpforms_process();
+		if ( null !== $process ) {
+			$process->fields[ $field_id ] = array(
+				'name'      => sanitize_text_field( gcmi_safe_strval( $field['label'] ?? '' ) ),
+				'value'     => null === $item ? '' : $item['name'] . ( '' === $item['sigla'] ? '' : ' (' . $item['sigla'] . ')' ),
+				'value_raw' => null === $item ? '' : $item['value'],
+				'id'        => absint( $field_id ),
+				'type'      => $this->type,
+			);
+		}
 	}
 
 	/**

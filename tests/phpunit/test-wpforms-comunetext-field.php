@@ -41,8 +41,10 @@ if ( ! class_exists( 'WPForms_Field' ) ) {
 
 	/**
 	 * Sostituto minimo del processo di invio di WPForms.
+	 *
+	 * Deve chiamarsi WPForms_Process perché il campo accetta solo istanze di quella classe.
 	 */
-	class GCMI_Test_WPForms_Process {
+	class WPForms_Process {
 		public $errors = array();
 		public $fields = array();
 	}
@@ -54,7 +56,7 @@ if ( ! class_exists( 'WPForms_Field' ) ) {
 		public $process;
 
 		public function __construct() {
-			$this->process = new GCMI_Test_WPForms_Process();
+			$this->process = new WPForms_Process();
 		}
 
 		public function get( $name ) {
