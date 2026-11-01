@@ -989,6 +989,7 @@ final class GCMI_COMUNETest extends WP_Ajax_UnitTestCase {
 		global $wp_styles;
 		wp_dequeue_script( 'gcmi_comune_js' );
 		wp_deregister_script( 'gcmi_comune_js' );
+		wp_deregister_script( 'gcmi_comune_details_js' );
 
 		wp_dequeue_style( 'gcmi_comune_css' );
 		wp_deregister_style( 'gcmi_comune_css' );
@@ -1006,7 +1007,10 @@ final class GCMI_COMUNETest extends WP_Ajax_UnitTestCase {
 		$this->assertArrayHasKey( 'dashicons', $styles_array );
 		$this->assertArrayNotHasKey( 'gcmi_jquery-ui-dialog', $styles_array );
 
-		// La scheda del comune usa un <dialog> nativo: nessuna dipendenza da jQuery UI.
+		// La scheda del comune usa lo script condiviso con un <dialog> nativo: nessuna dipendenza da jQuery UI.
+		$this->assertArrayHasKey( 'gcmi_comune_details_js', $scripts_array );
+		$this->assertContains( 'gcmi_comune_details_js', $scripts_array['gcmi_comune_js']->deps );
+		$this->assertSame( array(), $scripts_array['gcmi_comune_details_js']->deps );
 		foreach ( $scripts_array['gcmi_comune_js']->deps as $dep ) {
 			$this->assertStringStartsNotWith( 'jquery-ui', $dep );
 			$this->assertStringStartsNotWith( 'jquery-effects', $dep );

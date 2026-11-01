@@ -283,6 +283,21 @@ final class GCMI_ComuneTextTest extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Lo script del campo dipende da quello condiviso della scheda del comune.
+	 *
+	 * @group comunetext
+	 * @group enqueue
+	 */
+	public function test_register_scripts_dettagli_condivisi() {
+		global $wp_scripts;
+		wp_deregister_script( 'gcmi_comunetext_js' );
+		wp_deregister_script( 'gcmi_comune_details_js' );
+		GCMI_COMUNETEXT::register_scripts();
+		$this->assertArrayHasKey( 'gcmi_comune_details_js', $wp_scripts->registered );
+		$this->assertContains( 'gcmi_comune_details_js', $wp_scripts->registered['gcmi_comunetext_js']->deps );
+	}
+
+	/**
 	 * Struttura HTML del campo.
 	 *
 	 * @group comunetext
@@ -312,7 +327,12 @@ final class GCMI_ComuneTextTest extends WP_UnitTestCase {
 		$this->assertSame( 'San Teodoro (OT)', $input->getAttribute( 'value' ) );
 		$this->assertSame( 1, $xpath->query( '//*[@id="f1_gcmi_ct_list" and @role="listbox"]' )->length );
 		$this->assertSame( 1, $xpath->query( '//label[@for="f1_gcmi_ct_input"]' )->length );
-		$this->assertSame( 1, $xpath->query( '//dialog[@id="f1_gcmi_ct_dialog"]' )->length );
+		// Nessun <dialog> nel markup: lo crea lo script condiviso in fondo al body.
+		$this->assertSame( 0, $xpath->query( '//dialog' )->length );
+		$button = $xpath->query( '//button[contains(@class, "gcmi-comunetext-details")]' )->item( 0 );
+		$this->assertInstanceOf( DOMElement::class, $button );
+		$this->assertSame( 'f1_gcmi_ct_dialog', $button->getAttribute( 'data-gcmi-dialog' ) );
+		$this->assertSame( 'dialog', $button->getAttribute( 'aria-haspopup' ) );
 		// Nessun form annidato: il campo è dentro il form del modulo.
 		$this->assertSame( 0, $xpath->query( '//form' )->length );
 

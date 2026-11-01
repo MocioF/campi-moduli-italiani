@@ -303,95 +303,25 @@ jQuery(document).ready(function ($) {
 
   // Chiude la scheda del comune, se aperta.
   function closeInfo(prefix) {
-    var dialog = document.getElementById(prefix + infoDialogString);
-    if (dialog && dialog.open) {
-      dialog.close();
+    if (window.gcmiComuneDetails) {
+      window.gcmiComuneDetails.close(prefix + infoDialogString);
     }
   }
 
-  /*
-   * Restituisce il <dialog> della scheda del comune, creandolo al primo uso.
-   *
-   * Il dialog è aggiunto in fondo al body e non nel markup del campo: un <dialog>
-   * dentro un <p> (come quelli aggiunti da wpautop di Contact Form 7) chiude il
-   * paragrafo e gli span che lo contengono, spezzando il markup del campo.
-   */
-  function getInfoDialog(prefix) {
-    var id = prefix + infoDialogString;
-    var dialog = document.getElementById(id);
-    var title;
-    var body;
-    var actions;
-    var close;
-    if (dialog) {
-      return dialog;
-    }
-    dialog = document.createElement("dialog");
-    if (typeof dialog.showModal !== "function") {
-      return null;
-    }
-    dialog.id = id;
-    dialog.className = "gcmi-info-dialog";
-    dialog.setAttribute("aria-labelledby", id + "_title");
-
-    title = document.createElement("p");
-    title.id = id + "_title";
-    title.className = "gcmi-info-dialog-title";
-    title.textContent = __("Municipality details", "campi-moduli-italiani");
-
-    body = document.createElement("div");
-    body.className = "gcmi-info-dialog-body";
-
-    actions = document.createElement("p");
-    actions.className = "gcmi-info-dialog-actions";
-    close = document.createElement("button");
-    close.type = "button";
-    close.className = "gcmi-info-dialog-close";
-    close.textContent = __("Close", "campi-moduli-italiani");
-    close.addEventListener("click", function () {
-      dialog.close();
-    });
-    actions.appendChild(close);
-
-    dialog.appendChild(title);
-    dialog.appendChild(body);
-    dialog.appendChild(actions);
-    document.body.appendChild(dialog);
-    return dialog;
-  }
-
-  // Click sull'icona per le info: la scheda si apre in un <dialog> nativo.
+  // Click sull'icona per le info: scheda del comune (modules/comune/js/details.js).
   $("[id$='" + iconString + "']").on("click",
     function () {
       var prefix = this.id.substring(0, (this.id.length - iconString.length));
       window.MyPrefix = prefix;
-      comune = $("select#" + prefix + comString + " option:selected")
-        .attr("value");
-      $.ajax({
-        data: {
-          action: "the_ajax_hook_info",
-          codice_comune: comune,
-          gcmi_filtername: gcmi_istance_filtername,
-          nonce_ajax: gcmi_ajax.nonce
-        },
-        success: function (data) {
-          var trimmed = data.trim();
-          var dialog;
-          if ("" === trimmed) {
-            return;
-          }
-          dialog = getInfoDialog(prefix);
-          if (!dialog) {
-            return;
-          }
-          // HTML della scheda generato e sanificato dal plugin (print_gcmi_comune_info).
-          $(dialog).find(".gcmi-info-dialog-body").html(trimmed);
-          if (!dialog.open) {
-            dialog.showModal();
-          }
-        },
-        type: "POST",
-        url: gcmi_ajax.ajaxurl
+      if (!window.gcmiComuneDetails) {
+        return;
+      }
+      window.gcmiComuneDetails.show(prefix + infoDialogString, {
+        code: $("select#" + prefix + comString + " option:selected").attr("value"),
+        filtername: $("input#" + prefix + fNameString).val(),
+        kind: $("input#" + prefix + kindString).val()
+      }).catch(function (e) {
+        console.log(e);
       });
     }
   );

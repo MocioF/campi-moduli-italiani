@@ -69,15 +69,6 @@
 	display: none;
 }
 
-.gcmi-comunetext-dialog {
-	max-width: min(90vw, 820px);
-}
-
-.gcmi-comunetext-dialog-actions {
-	margin: 1em 0 0;
-	text-align: right;
-}
-
 .gcmi-comunetext .screen-reader-text {
 	border: 0;
 	clip: rect(1px, 1px, 1px, 1px);

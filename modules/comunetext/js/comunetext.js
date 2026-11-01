@@ -22,7 +22,6 @@
     this.list = wrap.querySelector(".gcmi-comunetext-list");
     this.status = wrap.querySelector(".gcmi-comunetext-status");
     this.detailsButton = wrap.querySelector(".gcmi-comunetext-details");
-    this.dialog = wrap.querySelector(".gcmi-comunetext-dialog");
     this.items = [];
     this.active = -1;
     this.timer = null;
@@ -34,11 +33,8 @@
     this.input.addEventListener("blur", this.onBlur.bind(this));
     // mousedown e non click: avviene prima del blur del campo.
     this.list.addEventListener("mousedown", this.onListMousedown.bind(this));
-    if (this.detailsButton && this.dialog) {
+    if (this.detailsButton) {
       this.detailsButton.addEventListener("click", this.showDetails.bind(this));
-      this.dialog.querySelector(".gcmi-comunetext-dialog-close").addEventListener("click", function () {
-        this.dialog.close();
-      }.bind(this));
     }
   }
 
@@ -252,31 +248,20 @@
     }
   };
 
+  // Scheda del comune: script condiviso con il campo comune (modules/comune/js/details.js).
   Combobox.prototype.showDetails = function () {
     var self = this;
-    var body = new FormData();
-    var code = this.hidden("value") ? this.hidden("value").value : "";
-    var content = this.dialog.querySelector(".gcmi-comunetext-dialog-body");
-    if (code === "" || typeof this.dialog.showModal !== "function") {
+    var dialogId = this.detailsButton.getAttribute("data-gcmi-dialog") || "";
+    if ("" === dialogId || !window.gcmiComuneDetails) {
       return;
     }
-    body.append("action", "the_ajax_hook_info");
-    body.append("nonce_ajax", settings.nonce || "");
-    body.append("codice_comune", code);
-    body.append("gcmi_kind", this.wrap.getAttribute("data-kind") || "tutti");
-    body.append("gcmi_filtername", this.wrap.getAttribute("data-filtername") || "");
-    fetch(settings.ajaxurl, { method: "POST", body: body, credentials: "same-origin" })
-      .then(function (response) {
-        return response.text();
-      })
-      .then(function (html) {
-        // HTML della scheda generato e sanificato dal plugin (print_gcmi_comune_info).
-        content.innerHTML = html;
-        self.dialog.showModal();
-      })
-      .catch(function () {
-        self.announce(i18n.error || "");
-      });
+    window.gcmiComuneDetails.show(dialogId, {
+      code: this.hidden("value") ? this.hidden("value").value : "",
+      filtername: this.wrap.getAttribute("data-filtername") || "",
+      kind: this.wrap.getAttribute("data-kind") || "tutti"
+    }).catch(function () {
+      self.announce(i18n.error || "");
+    });
   };
 
   Combobox.prototype.announce = function (message) {

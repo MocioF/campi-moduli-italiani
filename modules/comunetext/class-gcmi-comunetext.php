@@ -267,7 +267,8 @@ class GCMI_COMUNETEXT extends GCMI_COMUNE {
 		 * @var non-empty-string $src
 		 */
 		$src = plugins_url( "modules/comunetext/js/comunetext$suffix.js", GCMI_PLUGIN );
-		wp_register_script( 'gcmi_comunetext_js', $src, array(), GCMI_VERSION, true );
+		GCMI_COMUNE::register_details_script();
+		wp_register_script( 'gcmi_comunetext_js', $src, array( 'gcmi_comune_details_js' ), GCMI_VERSION, true );
 		wp_localize_script(
 			'gcmi_comunetext_js',
 			'gcmi_comunetext',
@@ -279,7 +280,6 @@ class GCMI_COMUNETEXT extends GCMI_COMUNE {
 					'results'   => __( '%d municipalities found. Use the up and down arrows to choose.', 'campi-moduli-italiani' ),
 					'noResults' => __( 'No municipality found.', 'campi-moduli-italiani' ),
 					'error'     => __( 'Search not available, please try again.', 'campi-moduli-italiani' ),
-					'close'     => __( 'Close', 'campi-moduli-italiani' ),
 				),
 			)
 		);
@@ -357,15 +357,12 @@ class GCMI_COMUNETEXT extends GCMI_COMUNE {
 		$html .= '</span>';
 
 		if ( ! empty( $args['comu_details'] ) ) {
-			$html .= '<button type="button" class="gcmi-comunetext-details" aria-controls="' . esc_attr( $ids['dialog'] ) . '"' .
+			// La scheda si apre in un <dialog> creato dallo script condiviso in fondo al body:
+			// un <dialog> qui, dentro il <p> di un modulo, chiuderebbe il paragrafo e il campo.
+			$html .= '<button type="button" class="gcmi-comunetext-details" aria-haspopup="dialog" data-gcmi-dialog="' . esc_attr( $ids['dialog'] ) . '"' .
 				( null === $item ? ' hidden' : '' ) . '>' .
 				'<img src="' . esc_url( plugin_dir_url( GCMI_PLUGIN ) . 'img/gcmi_info.png' ) . '" width="30" height="30" alt="' . esc_attr__( 'Municipality details', 'campi-moduli-italiani' ) . '" />' .
 				'</button>';
-			$html .= '<dialog id="' . esc_attr( $ids['dialog'] ) . '" class="gcmi-comunetext-dialog" aria-label="' . esc_attr__( 'Municipality details', 'campi-moduli-italiani' ) . '">' .
-				'<div class="gcmi-comunetext-dialog-body"></div>' .
-				// Non un <form method="dialog">: il campo è già dentro il form del modulo.
-				'<p class="gcmi-comunetext-dialog-actions"><button type="button" class="gcmi-comunetext-dialog-close">' . esc_html__( 'Close', 'campi-moduli-italiani' ) . '</button></p>' .
-				'</dialog>';
 		}
 
 		$html .= '<span id="' . esc_attr( $ids['status'] ) . '" class="gcmi-comunetext-status screen-reader-text" role="status" aria-live="polite"></span>';

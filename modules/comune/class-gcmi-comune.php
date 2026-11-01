@@ -793,6 +793,38 @@ class GCMI_COMUNE {
 	}
 
 	/**
+	 * Registra lo script della scheda del comune, condiviso dai campi comune e comune-text.
+	 *
+	 * @since 2.4.0
+	 * @return void
+	 */
+	public static function register_details_script(): void {
+		if ( wp_script_is( 'gcmi_comune_details_js', 'registered' ) ) {
+			return;
+		}
+		$suffix = wp_scripts_get_suffix();
+		/**
+		 * L'URL dello script: qui plugins_url() restituisce sempre un URL assoluto.
+		 *
+		 * @var non-empty-string $src
+		 */
+		$src = plugins_url( "modules/comune/js/details$suffix.js", GCMI_PLUGIN );
+		wp_register_script( 'gcmi_comune_details_js', $src, array(), GCMI_VERSION, true );
+		wp_localize_script(
+			'gcmi_comune_details_js',
+			'gcmi_comune_details',
+			array(
+				'ajaxurl' => admin_url( 'admin-ajax.php' ),
+				'nonce'   => wp_create_nonce( 'gcmi-comune-nonce' ),
+				'i18n'    => array(
+					'title' => __( 'Municipality details', 'campi-moduli-italiani' ),
+					'close' => __( 'Close', 'campi-moduli-italiani' ),
+				),
+			)
+		);
+	}
+
+	/**
 	 * Registra gli script e gli style utilizzati in frontend
 	 *
 	 * @return void
@@ -808,7 +840,8 @@ class GCMI_COMUNE {
 		 * @var non-empty-string $comune_js_src
 		 */
 		$comune_js_src = plugins_url( "modules/comune/js/ajax$suffix.js", GCMI_PLUGIN );
-		wp_register_script( 'gcmi_comune_js', $comune_js_src, array( 'jquery', 'wp-i18n' ), $ver = GCMI_VERSION, $in_footer = false );
+		self::register_details_script();
+		wp_register_script( 'gcmi_comune_js', $comune_js_src, array( 'jquery', 'wp-i18n', 'gcmi_comune_details_js' ), $ver = GCMI_VERSION, $in_footer = false );
 		wp_set_script_translations( 'gcmi_comune_js', 'campi-moduli-italiani', plugin_dir_path( GCMI_PLUGIN ) . 'languages' );
 
 		/* Localize Script Data */
