@@ -70,6 +70,8 @@ final class GCMI_Stato_ShortcodeTest extends WP_UnitTestCase {
 		$this->assertSame( 0, $xpath->query( '//optgroup' )->length );
 		$this->assertSame( 0, $xpath->query( '//option[@value=""]' )->length );
 		$this->assertSame( 1, $xpath->query( '//option[@value="' . $this->cessato . '"]' )->length, 'Cessati inclusi' );
+		$this->assertStringEndsWith( ' (ceased)', $xpath->query( '//option[@value="' . $this->cessato . '"]' )->item( 0 )->textContent, 'Cessati indicati' );
+		$this->assertStringEndsNotWith( ' (ceased)', $xpath->query( '//option[@value="' . $this->attuale->i_cod_istat . '"]' )->item( 0 )->textContent );
 		$this->assertSame( 0, $xpath->query( '//option[@selected]' )->length );
 	}
 

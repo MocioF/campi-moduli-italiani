@@ -655,7 +655,9 @@ class GCMI_WPForms_Field_Stato extends WPForms_Field {
 		// Stessa condizione usata da field_properties() per costruire l'elenco.
 		$only_current = isset( $field['only_current'] );
 
-		if ( gcmi_is_valid_stato( $value, $only_current ) ) {
+		// Il valore inviato è il codice ISTAT se il campo ha show_values (impostato alla creazione
+		// del campo), altrimenti la denominazione: field_properties() usa l'etichetta come valore.
+		if ( gcmi_is_valid_stato( $value, $only_current ) || self::gcmi_is_valid_stato_name( $value, $only_current ) ) {
 			return;
 		}
 
@@ -668,6 +670,27 @@ class GCMI_WPForms_Field_Stato extends WPForms_Field {
 
 			$process->errors[ $form_id ][ $field_id ] = esc_html__( 'Invalid country code sent.', 'campi-moduli-italiani' );
 		}
+	}
+
+	/**
+	 * Indica se il testo è la denominazione italiana di uno stato ammesso dal campo.
+	 *
+	 * @since 2.4.0
+	 *
+	 * @param string $name         La denominazione inviata.
+	 * @param bool   $only_current True per accettare solo gli stati attuali.
+	 * @return bool
+	 */
+	private static function gcmi_is_valid_stato_name( $name, $only_current ) {
+		global $wpdb;
+		$sql    = 'SELECT `i_cod_istat` FROM `' . GCMI_SVIEW_PREFIX . 'stati` WHERE `i_denominazione_ita` = %s';
+		$values = array( $name );
+		if ( ! $only_current ) {
+			$sql     .= ' UNION SELECT `i_cod_istat` FROM `' . GCMI_SVIEW_PREFIX . 'stati_cessati` WHERE `i_denominazione_ita` = %s';
+			$values[] = $name;
+		}
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Nomi delle viste interni.
+		return null !== $wpdb->get_var( $wpdb->prepare( $sql, $values ) );
 	}
 
 	/**

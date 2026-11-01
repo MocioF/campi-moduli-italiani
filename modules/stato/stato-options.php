@@ -14,33 +14,36 @@ defined( 'ABSPATH' ) || die( 'you do not have access to this page!' );
 /**
  * Restituisce gli stati per la select, in cache.
  *
- * Senza only_current ci sono anche gli stati cessati. L'ordine è per continente (con
- * use_continent) e codice ISTAT.
+ * Senza only_current ci sono anche gli stati cessati (cessato = 1), tranne quelli con lo
+ * stesso codice di uno stato attuale. L'ordine è per continente (con use_continent) e
+ * codice ISTAT.
  *
  * @since 2.4.0
  *
  * @param bool $only_current  True per i soli stati attuali.
  * @param bool $use_continent True per ordinare prima per continente.
- * @return array<int, object{i_cod_istat: string, i_cod_continente: string, i_denominazione_ita: string, i_cod_AT: string|null}>
+ * @return array<int, object{i_cod_istat: string, i_cod_continente: string, i_denominazione_ita: string, i_cod_AT: string|null, cessato: string}>
  */
 function gcmi_get_stati_rows( $only_current, $use_continent ) {
 	global $wpdb;
 
-	$cache_key  = 'gcmi_stato_rows_';
+	$cache_key  = 'gcmi_stato_options_';
 	$cache_key .= $use_continent ? 'cont_' : 'sing_';
 	$cache_key .= $only_current ? 'act' : 'all';
 	$stati      = wp_cache_get( $cache_key, GCMI_CACHE_GROUP );
 
 	if ( false === $stati ) {
-		$sql = 'SELECT `i_cod_istat`, `i_cod_continente`, `i_denominazione_ita`, `i_cod_AT` FROM ';
+		$sql = 'SELECT `i_cod_istat`, `i_cod_continente`, `i_denominazione_ita`, `i_cod_AT`, `cessato` FROM ';
 		if ( false === $only_current ) {
 			$sql .= '( ';
-			$sql .= 'SELECT `i_cod_istat`, `i_cod_continente`, `i_denominazione_ita`, `i_cod_AT` FROM `' . GCMI_SVIEW_PREFIX . 'stati` ';
+			$sql .= 'SELECT `i_cod_istat`, `i_cod_continente`, `i_denominazione_ita`, `i_cod_AT`, 0 AS `cessato` FROM `' . GCMI_SVIEW_PREFIX . 'stati` ';
 			$sql .= 'UNION ';
-			$sql .= 'SELECT `i_cod_istat`, `i_cod_continente`, `i_denominazione_ita`, `i_cod_AT` FROM `' . GCMI_SVIEW_PREFIX . 'stati_cessati` ';
+			// Uno stato cessato con lo stesso codice di uno stato attuale è escluso: prevale lo stato attuale.
+			$sql .= 'SELECT `i_cod_istat`, `i_cod_continente`, `i_denominazione_ita`, `i_cod_AT`, 1 AS `cessato` FROM `' . GCMI_SVIEW_PREFIX . 'stati_cessati` ';
+			$sql .= 'WHERE `i_cod_istat` NOT IN ( SELECT `i_cod_istat` FROM `' . GCMI_SVIEW_PREFIX . 'stati` ) ';
 			$sql .= ') as subQuery ';
 		} else {
-			$sql .= '`' . GCMI_SVIEW_PREFIX . 'stati` ';
+			$sql .= '( SELECT `i_cod_istat`, `i_cod_continente`, `i_denominazione_ita`, `i_cod_AT`, 0 AS `cessato` FROM `' . GCMI_SVIEW_PREFIX . 'stati` ) as subQuery ';
 		}
 		if ( true === $use_continent ) {
 			$sql .= 'ORDER BY `i_cod_continente`, `i_cod_istat`, `i_denominazione_ita` ASC';
@@ -58,7 +61,7 @@ function gcmi_get_stati_rows( $only_current, $use_continent ) {
 	/**
 	 * Righe della query qui sopra.
 	 *
-	 * @var array<int, object{i_cod_istat: string, i_cod_continente: string, i_denominazione_ita: string, i_cod_AT: string|null}> $stati
+	 * @var array<int, object{i_cod_istat: string, i_cod_continente: string, i_denominazione_ita: string, i_cod_AT: string|null, cessato: string}> $stati
 	 */
 	return $stati;
 }
@@ -98,7 +101,8 @@ function gcmi_get_continenti_rows() {
  * Restituisce le <option> (ed eventuali <optgroup>) della select degli stati.
  *
  * Il valore selezionato può essere il codice ISTAT o la denominazione italiana dello
- * stato (con distinzione tra maiuscole e minuscole).
+ * stato (con distinzione tra maiuscole e minuscole). Gli stati cessati sono indicati con
+ * "(ceased)" dopo la denominazione, come nel campo stato-text.
  *
  * @since 2.4.0
  *
@@ -121,7 +125,12 @@ function gcmi_stato_options_html( $only_current, $use_continent, $first_as_label
 		if ( '' !== $selected && ( $stato->i_cod_istat === $selected || stripslashes( $stato->i_denominazione_ita ) === $selected ) ) {
 			$value .= ' selected';
 		}
-		return sprintf( '<option %1$s>%2$s</option>', $value, stripslashes( esc_html( $stato->i_denominazione_ita ) ) );
+		$label = stripslashes( esc_html( $stato->i_denominazione_ita ) );
+		if ( '1' === (string) $stato->cessato ) {
+			// translators: added to the name of a country that no longer exists.
+			$label .= ' (' . esc_html__( 'ceased', 'campi-moduli-italiani' ) . ')';
+		}
+		return sprintf( '<option %1$s>%2$s</option>', $value, $label );
 	};
 
 	if ( true === $use_continent ) {

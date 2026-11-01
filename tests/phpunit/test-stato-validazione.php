@@ -165,4 +165,51 @@ final class GCMI_Stato_ValidazioneTest extends WP_UnitTestCase {
 		$this->assertSame( wpforms_get_required_label(), $process->errors[7][3], 'Obbligatorio vuoto' );
 		$process->errors = array();
 	}
+
+	/**
+	 * Senza show_values il campo WPForms invia la denominazione al posto del codice.
+	 *
+	 * @group stato
+	 * @group wpforms
+	 */
+	public function test_validazione_wpforms_denominazione() {
+		global $wpdb;
+		require_once 'modules/stato/class-gcmi-wpforms-field-stato.php';
+		$field   = new GCMI_WPForms_Field_Stato();
+		$process = wpforms()->get( 'process' );
+		// phpcs:disable WordPress.DB.PreparedSQL.NotPrepared
+		$attuale = (string) $wpdb->get_var( $wpdb->prepare( 'SELECT `i_denominazione_ita` FROM `' . GCMI_SVIEW_PREFIX . 'stati` WHERE `i_cod_istat` = %s', $this->attuale ) );
+		$cessato = (string) $wpdb->get_var( $wpdb->prepare( 'SELECT `i_denominazione_ita` FROM `' . GCMI_SVIEW_PREFIX . 'stati_cessati` WHERE `i_cod_istat` = %s LIMIT 1', $this->cessato ) );
+		// phpcs:enable WordPress.DB.PreparedSQL.NotPrepared
+
+		$form_data = function ( $settings = array() ) {
+			return array(
+				'id'     => 7,
+				'fields' => array(
+					3 => array_merge(
+						array(
+							'id'   => 3,
+							'type' => 'country',
+						),
+						$settings
+					),
+				),
+			);
+		};
+
+		$process->errors = array();
+		$field->validate( 3, $attuale, $form_data( array( 'only_current' => '1' ) ) );
+		$this->assertArrayNotHasKey( 7, $process->errors, 'Denominazione di uno stato attuale' );
+
+		$field->validate( 3, $cessato, $form_data() );
+		$this->assertArrayNotHasKey( 7, $process->errors, 'Denominazione di un cessato senza only_current' );
+
+		$field->validate( 3, $cessato, $form_data( array( 'only_current' => '1' ) ) );
+		$this->assertArrayHasKey( 3, $process->errors[7], 'Denominazione di un cessato con only_current' );
+
+		$process->errors = array();
+		$field->validate( 3, 'Atlantide', $form_data() );
+		$this->assertArrayHasKey( 3, $process->errors[7], 'Denominazione inesistente' );
+		$process->errors = array();
+	}
 }
