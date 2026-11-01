@@ -149,7 +149,7 @@ if ( function_exists( 'wpcf7_select_validation_filter' ) ) {
 // mail tag filter.
 add_filter(
 	'wpcf7_mail_tag_replaced_stato*',
-	function ( $replaced, $submitted, $html, $mail_tag ) {
+	function ( $replaced, $submitted, $html, $mail_tag ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed -- Firma del filtro di Contact Form 7.
 		$cache_key = 'stato_denominazione_' . strval( $submitted );
 		$replaced  = wp_cache_get( $cache_key, GCMI_CACHE_GROUP );
 		if ( false === $replaced ) {
@@ -175,7 +175,7 @@ add_filter(
 
 add_filter(
 	'wpcf7_mail_tag_replaced_stato',
-	function ( $replaced, $submitted, $html, $mail_tag ) {
+	function ( $replaced, $submitted, $html, $mail_tag ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed -- Firma del filtro di Contact Form 7.
 		$cache_key = 'stato_denominazione_' . strval( $submitted );
 		$replaced  = wp_cache_get( $cache_key, GCMI_CACHE_GROUP );
 		if ( false === $replaced ) {

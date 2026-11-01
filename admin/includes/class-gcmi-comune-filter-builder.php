@@ -669,8 +669,10 @@ class GCMI_Comune_Filter_Builder {
 		if ( $error->has_errors() ) {
 			wp_send_json_error( $error, 422 );
 		}
-		$sanitized_name = self::sanitize_table_name( gcmi_sanitize_key( wp_unslash( $_POST['filtername'] ) ) );
-		$codici         = $_POST['codici']; // phpcs:ignore
+		// La presenza dei campi è già verificata da check_filter_creation_fields(): gli isset
+		// servono a PHPCS e a non leggere mai indici mancanti.
+		$sanitized_name = self::sanitize_table_name( isset( $_POST['filtername'] ) ? gcmi_sanitize_key( wp_unslash( $_POST['filtername'] ) ) : '' );
+		$codici         = isset( $_POST['codici'] ) ? map_deep( wp_unslash( $_POST['codici'] ), 'sanitize_text_field' ) : array();
 		if ( false !== $sanitized_name && gcmi_is_one_dimensional_string_array( $codici ) ) {
 			self::save_filter( $sanitized_name, $codici );
 		}
@@ -694,13 +696,16 @@ class GCMI_Comune_Filter_Builder {
 		if ( $error->has_errors() ) {
 			wp_send_json_error( $error, 422 );
 		}
-		$total_slices = gcmi_safe_intval( gcmi_sanitize_text( wp_unslash( $_POST['total'] ) ) );
-		$total_codici = gcmi_safe_intval( gcmi_sanitize_text( wp_unslash( $_POST['count'] ) ) );
-		$sanitized_name = self::sanitize_table_name( gcmi_sanitize_key( wp_unslash( $_POST['filtername'] ) ) );
+		// La presenza dei campi è già verificata da check_filter_creation_fields_multi(): gli isset
+		// servono a PHPCS e a non leggere mai indici mancanti.
+		$total_raw      = isset( $_POST['total'] ) ? gcmi_sanitize_text( wp_unslash( $_POST['total'] ) ) : '';
+		$total_slices   = gcmi_safe_intval( $total_raw );
+		$total_codici   = isset( $_POST['count'] ) ? gcmi_safe_intval( gcmi_sanitize_text( wp_unslash( $_POST['count'] ) ) ) : 0;
+		$sanitized_name = self::sanitize_table_name( isset( $_POST['filtername'] ) ? gcmi_sanitize_key( wp_unslash( $_POST['filtername'] ) ) : '' );
 		$codici         = array();
 
 		for ( $i = 0; $i < $total_slices; $i++ ) {
-			$option_name  = 'gcmi-fb-com-' . $sanitized_name . '-' . strval( $i + 1 ) . '_' . gcmi_sanitize_text( wp_unslash( $_POST['total'] ) );
+			$option_name  = 'gcmi-fb-com-' . $sanitized_name . '-' . strval( $i + 1 ) . '_' . $total_raw;
 			$option_value = get_option( $option_name, false );
 			if ( false === $option_value ) {
 				$error->add( '-12', esc_html__( 'Request to store the partial filter was refused', 'campi-moduli-italiani' ) );
@@ -805,21 +810,25 @@ class GCMI_Comune_Filter_Builder {
 			$error->add( '-10', esc_html__( 'Request to store the partial filter not processed', 'campi-moduli-italiani' ) );
 			wp_send_json_error( $error, 422 );
 		}
-		$response = gcmi_sanitize_text( wp_unslash( $_POST['slice'] ) ) . '_' . gcmi_sanitize_text( wp_unslash( $_POST['total'] ) );
-		$filtername  = self::sanitize_table_name( gcmi_sanitize_key( wp_unslash( $_POST['filtername'] ) ) );
+		// La presenza dei campi è già verificata da check_save_filter_slices_fields(): gli isset
+		// servono a PHPCS e a non leggere mai indici mancanti.
+		$slice       = isset( $_POST['slice'] ) ? gcmi_sanitize_text( wp_unslash( $_POST['slice'] ) ) : '';
+		$total       = isset( $_POST['total'] ) ? gcmi_sanitize_text( wp_unslash( $_POST['total'] ) ) : '';
+		$response    = $slice . '_' . $total;
+		$filtername  = self::sanitize_table_name( isset( $_POST['filtername'] ) ? gcmi_sanitize_key( wp_unslash( $_POST['filtername'] ) ) : '' );
 		$option_name = 'gcmi-fb-com-' . $filtername . '-' . $response;
-		$codici = wp_unslash( $_POST['codici'] );
+		$codici      = isset( $_POST['codici'] ) ? map_deep( wp_unslash( $_POST['codici'] ), 'sanitize_text_field' ) : array();
 		if ( ! gcmi_is_one_dimensional_string_array( $codici ) ) {
 			$error->add( '-10', esc_html__( 'Received an invalid slice of codes.', 'campi-moduli-italiani' ) );
 			wp_send_json_error( $error, 422 );
 		}
 
 		$option_value = array(
-			'includi'    => strval( gcmi_sanitize_text( wp_unslash( $_POST['includi'] ) ) ),
+			'includi'    => isset( $_POST['includi'] ) ? gcmi_sanitize_text( wp_unslash( $_POST['includi'] ) ) : '',
 			'filtername' => $filtername,
-			'codici'     => array_map( 'sanitize_text_field', $codici ),
-			'total'      => gcmi_safe_intval( gcmi_sanitize_text( wp_unslash( $_POST['total'] ) ) ),
-			'slice'      => gcmi_safe_intval( gcmi_sanitize_text( wp_unslash( $_POST['slice'] ) ) ),
+			'codici'     => $codici,
+			'total'      => gcmi_safe_intval( $total ),
+			'slice'      => gcmi_safe_intval( $slice ),
 		);
 
 		$option  = update_option( $option_name, $option_value, false );

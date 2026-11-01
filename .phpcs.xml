@@ -73,6 +73,24 @@
 			</property>
 		</properties>
 	</rule>
+	<!--
+		Il plugin crea, aggiorna e interroga tabelle e viste proprie (dati ISTAT e Agenzia delle
+		Entrate, filtri dei comuni): per queste non esiste un'API di WordPress, quindi le query
+		dirette e le modifiche dello schema sono il funzionamento normale.
+	-->
+	<rule ref="WordPress.DB.DirectDatabaseQuery.DirectQuery">
+		<severity>0</severity>
+	</rule>
+	<rule ref="WordPress.DB.DirectDatabaseQuery.SchemaChange">
+		<severity>0</severity>
+	</rule>
+	<!--
+		La cache conta per le letture fatte a ogni visita (frontend); in amministrazione e
+		all'attivazione le query servono a gestire i dati e non vanno messe in cache.
+	-->
+	<rule ref="WordPress.DB.DirectDatabaseQuery.NoCaching">
+		<exclude-pattern>/admin/*</exclude-pattern>
+	</rule>
 	<rule ref="WordPress.WhiteSpace.ControlStructureSpacing">
 		<properties>
 			<property name="blank_line_check" value="true"/>

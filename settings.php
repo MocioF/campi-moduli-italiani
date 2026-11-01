@@ -227,6 +227,8 @@ function gcmi_upgrade() {
 }
 add_action( 'admin_init', 'gcmi_upgrade', 10, 0 );
 
+// phpcs:disable WordPress.DB.DirectDatabaseQuery.NoCaching -- Fino a gcmi_remove_codici_catastali(): manutenzione di tabelle, indici e viste (attivazione e aggiornamento), non letture da mettere in cache.
+
 /**
  * Aggiunge gli indici alle tabelle
  *
@@ -492,6 +494,7 @@ function gcmi_remove_codici_catastali(): void {
 		}
 	}
 }
+// phpcs:enable WordPress.DB.DirectDatabaseQuery.NoCaching
 
 /**
  * Adds extra links to the plugin activation page
@@ -579,7 +582,7 @@ register_uninstall_hook( GCMI_PLUGIN, 'gcmi_uninstall' );
  * @param Object        $response  An object of metadata about the available plugin update.
  * @return void
  */
-function gcmi_plugin_update_message( $data, $response ) {
+function gcmi_plugin_update_message( $data, $response ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed -- Firma dell'azione in_plugin_update_message-*.
 	if ( isset( $data['upgrade_notice'] ) ) {
 		printf(
 			'<div class="update-message">%s</div>',

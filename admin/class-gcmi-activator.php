@@ -978,15 +978,17 @@ class GCMI_Activator {
 				break;
 		}
 
-		$string = file_get_contents( $filepath );
+		// File CSV locale appena scaricato dal plugin: si usano le funzioni PHP, WP_Filesystem
+		// potrebbe chiedere credenziali durante l'attivazione o gli aggiornamenti in background.
+		$string = file_get_contents( $filepath ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
 		if ( false === $string ) {
 			return false;
 		}
 		$encoded_string = mb_convert_encoding( $string, $new_charset, $orig_enc );
-		if ( ! ( file_put_contents( dirname( $filepath ) . '/tmp.csv', $encoded_string ) ) ) {
+		if ( ! ( file_put_contents( dirname( $filepath ) . '/tmp.csv', $encoded_string ) ) ) { // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
 			return false;
 		}
-		if ( ! ( rename( dirname( $filepath ) . '/tmp.csv', $filepath ) ) ) {
+		if ( ! ( rename( dirname( $filepath ) . '/tmp.csv', $filepath ) ) ) { // phpcs:ignore WordPress.WP.AlternativeFunctions.rename_rename
 			return false;
 		}
 		return true;
@@ -1133,7 +1135,7 @@ class GCMI_Activator {
 				}
 			}
 		}
-		rmdir( $dir_path );
+		rmdir( $dir_path ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_rmdir -- Cartella temporanea del plugin, già svuotata; i file sono eliminati con wp_delete_file().
 	}
 
 	/**

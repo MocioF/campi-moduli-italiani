@@ -88,10 +88,15 @@ class Gcmi_Remote_Files_List extends WP_List_Table {
 	 * @return integer
 	 */
 	protected function usort_reorder( $a, $b ) {
-		// If no sort, default to title.
+		// Ordinamento della tabella dai parametri dell'URL (sola lettura, come in WP_List_Table): nessun nonce.
+		// phpcs:disable WordPress.Security.NonceVerification.Recommended
 		$orderby = ( ! empty( $_GET['orderby'] ) ) ? gcmi_sanitize_text( wp_unslash( $_GET['orderby'] ) ) : 'gcmi-dataname';
-		// If no order, default to asc.
-		$order = ( ! empty( $_GET['order'] ) ) ? gcmi_sanitize_text( wp_unslash( $_GET['order'] ) ) : 'asc';
+		$order   = ( ! empty( $_GET['order'] ) ) ? gcmi_sanitize_text( wp_unslash( $_GET['order'] ) ) : 'asc';
+		// phpcs:enable WordPress.Security.NonceVerification.Recommended
+		// Solo colonne esistenti: un valore qualsiasi in orderby darebbe un indice non definito.
+		if ( ! array_key_exists( $orderby, $a ) || ! array_key_exists( $orderby, $b ) ) {
+			$orderby = 'gcmi-dataname';
+		}
 		// Determine sort order.
 		switch ( $orderby ) {
 			case 'gcmi-dataname':

@@ -235,7 +235,7 @@ function gcmi_generate_keypair( $form_post_id ) {
 
 add_filter(
 	'wpcf7_mail_tag_replaced_formsign',
-	function ( $replaced, $submitted, $html, $mail_tag ) {
+	function ( $replaced, $submitted, $html, $mail_tag ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed -- Firma del filtro di Contact Form 7.
 		$contact_form = WPCF7_ContactForm::get_current();
 		if ( is_null( $contact_form ) ) {
 			return;
@@ -268,7 +268,8 @@ add_filter(
 			}
 		}
 
-		$serialized = serialize( $posted_data );
+		// Serializzazione solo per calcolare l'hash dei dati: il risultato non viene mai deserializzato.
+		$serialized = serialize( $posted_data ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize
 		$hash       = md5( $serialized );
 		$pkeyid     = get_post_meta( $contact_form->id(), '_gcmi_wpcf7_enc_privKey', true );
 
@@ -367,7 +368,7 @@ add_filter(
 			esc_html__( 'Hash', 'campi-moduli-italiani' ),
 			$hash,
 			esc_html__( 'Signature', 'campi-moduli-italiani' ),
-			base64_encode( $signature )
+			base64_encode( $signature ) // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode -- Firma RSA binaria resa stampabile nell'email.
 		);
 		return $replaced;
 	},
@@ -446,7 +447,8 @@ function gcmi_flamingo_formsig_meta_box( $post ) {
 	 * );
 	 */
 	$postfields = $post->fields;
-	$serialized = serialize( $postfields );
+	// Serializzazione solo per calcolare l'hash dei dati: il risultato non viene mai deserializzato.
+	$serialized = serialize( $postfields ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize
 	$hash       = md5( $serialized );
 	$formid     = gcmi_get_form_post_id( $post );
 	if ( false !== $formid ) {
@@ -527,7 +529,7 @@ function gcmi_ajax_flamingo_meta_box_handler(): void {
 			if ( preg_match( '%^[a-zA-Z0-9/+]*={0,2}$%', $sign_input ) ) {
 				$r = openssl_verify(
 					$hash_input,
-					base64_decode( $sign_input ),
+					base64_decode( $sign_input ), // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode -- Firma ricevuta in base64, già controllata con l'espressione regolare.
 					$public_key,
 					OPENSSL_ALGO_SHA256
 				);
