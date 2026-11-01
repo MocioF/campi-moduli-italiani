@@ -12,6 +12,8 @@
  * @since 1.0.0
  */
 
+require_once plugin_dir_path( GCMI_PLUGIN ) . 'modules/stato/stato-options.php';
+
 add_action( 'wpcf7_init', 'gcmi_add_form_tag_stato' );
 
 /**
@@ -44,7 +46,6 @@ function gcmi_add_form_tag_stato(): void {
  * @return string HTML used in form or empty string.
  */
 function gcmi_wpcf7_stato_formtag_handler( $tag ) {
-	global $wpdb;
 	if ( empty( $tag->name ) ) {
 		return '';
 	}
@@ -79,83 +80,12 @@ function gcmi_wpcf7_stato_formtag_handler( $tag ) {
 	// codice per gestire i valori di default.
 	if ( 0 < count( $tag->values ) ) {
 		$default_value = gcmi_safe_strval( $tag->values[0] );
-		$pr_value      = wpcf7_get_hangover( $tag->name, $default_value );
+		$pr_value      = gcmi_safe_strval( wpcf7_get_hangover( $tag->name, $default_value ) );
 	} else {
 		$pr_value = '';
 	}
 
-	// codice per gestire la cache della query stati.
-	$cache_key  = 'stati_';
-	$cache_key .= $usa_continenti ? 'cont_' : 'sing_';
-	$cache_key .= $solo_attuali ? 'act' : 'all';
-	$stati      = wp_cache_get( $cache_key, GCMI_CACHE_GROUP );
-
-	if ( false === $stati ) {
-		$sql = 'SELECT `i_cod_istat`, `i_cod_continente`, `i_denominazione_ita`, `i_cod_AT` FROM ';
-		if ( false === $solo_attuali ) {
-			$sql .= '( ';
-			$sql .= 'SELECT `i_cod_istat`, `i_cod_continente`, `i_denominazione_ita`, `i_cod_AT` FROM `' . GCMI_SVIEW_PREFIX . 'stati` ';
-			$sql .= 'UNION ';
-			$sql .= 'SELECT `i_cod_istat`, `i_cod_continente`, `i_denominazione_ita`, `i_cod_AT` FROM `' . GCMI_SVIEW_PREFIX . 'stati_cessati` ';
-			$sql .= ') as subQuery ';
-		} else {
-			$sql .= '`' . GCMI_SVIEW_PREFIX . 'stati` ';
-		}
-		if ( true === $usa_continenti ) {
-			$sql .= 'ORDER BY `i_cod_continente`, `i_cod_istat`, `i_denominazione_ita` ASC';
-		} else {
-			$sql .= 'ORDER BY `i_cod_istat`, `i_denominazione_ita` ASC';
-		}
-
-		$stati = $wpdb->get_results( $sql ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
-		wp_cache_set( $cache_key, $stati, GCMI_CACHE_GROUP, GCMI_CACHE_EXPIRE_SECS );
-	}
-
-	$html = '';
-
-	if ( true === $first_as_label ) {
-		$html .= sprintf( '<option %1$s>%2$s</option>', 'value=""', esc_html__( 'Select a Country', 'campi-moduli-italiani' ) );
-	}
-
-	if ( true === $usa_continenti ) {
-		// codice per gestire la cache della query continenti.
-		$cache_key  = 'continenti';
-		$continenti = wp_cache_get( $cache_key, GCMI_CACHE_GROUP );
-
-		if ( false === $continenti ) {
-			$sql2 = 'SELECT DISTINCT `i_cod_continente`, `i_den_continente` FROM `' . GCMI_SVIEW_PREFIX . 'stati` ORDER BY `i_cod_continente`';
-
-			$continenti = $wpdb->get_results( $sql2 ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
-			wp_cache_set( $cache_key, $continenti, GCMI_CACHE_GROUP, GCMI_CACHE_EXPIRE_SECS );
-		}
-
-		foreach ( $continenti as $continente ) {
-			$html .= sprintf( '<optgroup label="%s">', ' ---  ' . stripslashes( esc_html( $continente->i_den_continente ) ) );
-
-			$cod_continente = $continente->i_cod_continente;
-			foreach ( $stati as $stato ) {
-				if ( $stato->i_cod_continente === $cod_continente ) {
-					$value = 'value="' . esc_html( $stato->i_cod_istat ) . '"';
-					if ( $stato->i_cod_istat === $pr_value ||
-						stripslashes( $stato->i_denominazione_ita ) === $pr_value ) {
-						$value .= ' selected';
-					}
-					$inset = stripslashes( esc_html( $stato->i_denominazione_ita ) );
-					$html .= sprintf( '<option %1$s>%2$s</option>', $value, $inset );
-				}
-			}
-			$html .= '</optgroup>';
-		}
-	} else {
-		foreach ( $stati as $stato ) {
-			$value = 'value="' . esc_html( $stato->i_cod_istat ) . '"';
-			if ( $stato->i_cod_istat === $pr_value ) {
-				$value .= ' selected';
-			}
-			$inset = stripslashes( esc_html( $stato->i_denominazione_ita ) );
-			$html .= sprintf( '<option %1$s>%2$s</option>', $value, $inset );
-		}
-	}
+	$html = gcmi_stato_options_html( $solo_attuali, $usa_continenti, $first_as_label, $pr_value );
 
 	$atts['name'] = $tag->name;
 

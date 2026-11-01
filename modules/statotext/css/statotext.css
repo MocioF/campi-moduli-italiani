@@ -1,0 +1,13 @@
+/*
+ * Campo stato-text
+ *
+ * Le regole del combobox sono in includes/css/combobox.css.
+ */
+
+.gcmi-statotext-cessato {
+	font-style: italic;
+}
+
+.gcmi-statotext-option-detail {
+	opacity: 0.75;
+}

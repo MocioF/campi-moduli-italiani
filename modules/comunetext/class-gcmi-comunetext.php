@@ -228,7 +228,8 @@ class GCMI_COMUNETEXT extends GCMI_COMUNE {
 	 */
 	public static function register_scripts(): void {
 		$suffix = wp_scripts_get_suffix();
-		wp_register_style( 'gcmi_comunetext_css', plugins_url( "modules/comunetext/css/comunetext$suffix.css", GCMI_PLUGIN ), array(), GCMI_VERSION );
+		self::register_combobox_style();
+		wp_register_style( 'gcmi_comunetext_css', plugins_url( "modules/comunetext/css/comunetext$suffix.css", GCMI_PLUGIN ), array( 'gcmi_combobox_css' ), GCMI_VERSION );
 		/**
 		 * L'URL dello script: qui plugins_url() restituisce sempre un URL assoluto.
 		 *

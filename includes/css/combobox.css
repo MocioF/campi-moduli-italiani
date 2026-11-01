@@ -1,0 +1,76 @@
+/*
+ * Combobox dei campi di testo con suggerimenti (comune-text, stato-text)
+ */
+
+.gcmi-comunetext,
+.gcmi-statotext {
+	display: inline-block;
+	position: relative;
+}
+
+.gcmi-comunetext label,
+.gcmi-statotext label {
+	display: block;
+}
+
+.gcmi-comunetext-combobox,
+.gcmi-statotext-combobox {
+	display: inline-block;
+	position: relative;
+}
+
+.gcmi-comunetext-list,
+.gcmi-statotext-list {
+	background: #fff;
+	display: block;
+	border: 1px solid #8c8f94;
+	box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+	box-sizing: border-box;
+	left: 0;
+	list-style: none;
+	margin: 0;
+	max-height: 16em;
+	min-width: 100%;
+	overflow-y: auto;
+	padding: 0;
+	position: absolute;
+	top: 100%;
+	z-index: 1000;
+}
+
+.gcmi-comunetext-list[hidden],
+.gcmi-statotext-list[hidden] {
+	display: none;
+}
+
+.gcmi-comunetext-option,
+.gcmi-statotext-option {
+	color: #1d2327;
+	cursor: pointer;
+	display: block;
+	margin: 0;
+	padding: 0.35em 0.6em;
+	white-space: nowrap;
+}
+
+.gcmi-comunetext-option:hover,
+.gcmi-comunetext-option[aria-selected="true"],
+.gcmi-statotext-option:hover,
+.gcmi-statotext-option[aria-selected="true"] {
+	background: #2271b1;
+	color: #fff;
+}
+
+.gcmi-comunetext .screen-reader-text,
+.gcmi-statotext .screen-reader-text {
+	border: 0;
+	clip: rect(1px, 1px, 1px, 1px);
+	clip-path: inset(50%);
+	height: 1px;
+	margin: -1px;
+	overflow: hidden;
+	padding: 0;
+	position: absolute;
+	width: 1px;
+	word-wrap: normal;
+}

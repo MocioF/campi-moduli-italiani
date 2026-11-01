@@ -15,6 +15,8 @@
  * - fields(item): valori dei campi nascosti per il suggerimento, o per null (svuotare);
  *   il campo "value" è riempito per ultimo;
  * - optionClass(item): classi aggiuntive dell'opzione (facoltativo);
+ * - optionDetail(item): testo secondario dell'opzione, in uno span prefix-option-detail
+ *   (facoltativo; non va nel campo alla scelta);
  * - selectEvent: nome dell'evento emesso sul wrapper alla scelta (detail: il suggerimento);
  * - onDetails(combobox): clic sul pulsante della scheda (facoltativo).
  *
@@ -121,12 +123,22 @@
     items.forEach(function (item, index) {
       var option = document.createElement("span");
       var extra = self.options.optionClass ? self.options.optionClass(item) : "";
+      var detail;
+      var span;
       option.id = self.list.id + "_" + index;
       option.setAttribute("role", "option");
       option.setAttribute("aria-selected", "false");
       option.setAttribute("data-index", String(index));
       option.className = prefix + "-option" + (extra ? " " + extra : "");
       option.textContent = item.label;
+      detail = self.options.optionDetail ? self.options.optionDetail(item) : "";
+      if (detail) {
+        span = document.createElement("span");
+        span.className = prefix + "-option-detail";
+        span.textContent = detail;
+        option.appendChild(document.createTextNode(" "));
+        option.appendChild(span);
+      }
       self.list.appendChild(option);
     });
     if (items.length === 0) {

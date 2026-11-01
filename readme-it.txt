@@ -69,6 +69,7 @@ Nello specifico è possibile verificare che il codice fiscale corrisponda con lo
 [stato]
 `[stato]` dispone di un gestore nell'area di creazione dei form CF7 che consente di impostare le varie opzioni.
 In particolare, è possibile impostare la selezione dei soli stati attualmente esistenti (opzione "only_current") ed è possibile impostare l'opzione "use_continent" per avere i valori della select suddivisi per continente. Il campo restituisce sempre il codice ISTAT dello Stato estero (codice 100 per l'Italia). Il codice ISTAT è il tipo di dato atteso da [cf], per il riscontro del codice fiscale.
+La stessa select può essere usata anche fuori da CF7, con lo shortcode [stato] (attributi: name, id, class, use_label_element, first_as_label, use_continent, only_current, value).
 
 [formsign]
 `[formsign]` _ORA_ (v. 2.2.1) dispone di un gestore nell'area di creazione dei form CF7.
@@ -139,6 +140,8 @@ Puoi inviare una richiesta nel nostro repository Github:
 * Le finestre di conferma e di messaggio del filter builder usano un <dialog> nativo al posto di jQuery UI
 * Le schede del filter builder seguono il modello WAI-ARIA con l'aspetto delle schede di WordPress; jQuery UI non è più usato e i temi inclusi nel plugin sono stati rimossi
 * [stato]: con l'opzione only_current i codici degli stati cessati sono rifiutati anche dalla validazione lato server (CF7 e WPForms); il campo WPForms ora verifica che il codice inviato sia un codice stato valido
+* Nuovo shortcode [statotext]: campo di testo in cui si digita uno stato e lo si sceglie da un elenco di suggerimenti (stati attuali e cessati, o solo attuali); invia il codice ISTAT dello stato come il campo [stato]
+* Nuovo shortcode [stato], con la stessa select del form-tag CF7; il valore predefinito di [stato] può essere la denominazione italiana dello stato anche senza l'opzione use_continent
 
 = 2.3.3 =
 * I dati dei comuni attuali, soppressi e delle variazioni e quelli dei paesi esteri sono scaricati dai servizi SITUAS dell'ISTAT; gli aggiornamenti sono rilevati tramite ETag

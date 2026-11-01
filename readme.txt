@@ -71,6 +71,7 @@ Specifically, it is possible to verify that the tax code corresponds with the fo
 [stato]
 `[stato]` has a manager in the CF7 form creation area that allows you to set various options.
 In particular, it is possible to set the selection of only the currently existing states ("only_current" option) and it is possible to set the "use_continent" option to have the select values divided by continent. The field always returns the ISTAT code of the foreign state (code 100 for Italy). The ISTAT code is the type of data expected by [cf], for the verification of the tax code.
+The same select can also be used outside of CF7, using the [stato] shortcode (attributes: name, id, class, use_label_element, first_as_label, use_continent, only_current, value).
 
 [formsign]
 `[formsign]` NOW (v. 2.2.1) has a manager in the CF7 form creation area.
@@ -142,6 +143,8 @@ You can create an issue in our Github repo:
 * The confirmation and message windows of the filter builder use a native <dialog> instead of jQuery UI
 * The tabs of the filter builder follow the WAI-ARIA tabs pattern with the WordPress admin look; jQuery UI is no longer used and its bundled themes have been removed
 * [stato]: with the only_current option, codes of ceased countries are now rejected also by the server-side validation (CF7 and WPForms); the WPForms field now checks that the code sent is a valid country code
+* New [statotext] shortcode: a text field to type a country and choose it from a list of suggestions (current and ceased countries, or only current ones); it sends the ISTAT country code like the [stato] field
+* New [stato] shortcode, with the same select of the CF7 form-tag; the default value of [stato] can be the Italian name of the country also without the use_continent option
 
 = 2.3.3 =
 * Data of current, suppressed and changed municipalities and of foreign countries are downloaded from the ISTAT SITUAS services; updates are detected through ETag

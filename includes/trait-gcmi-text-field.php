@@ -13,7 +13,7 @@ defined( 'ABSPATH' ) || die( 'you do not have access to this page!' );
  *
  * Contiene ciò che non dipende dai dati: normalizzazione del testo cercato, risoluzione
  * di un testo digitato senza scegliere dall'elenco, HTML del campo e registrazione dello
- * script del combobox (includes/js/combobox.js).
+ * script e dello stile del combobox (includes/js/combobox.js, includes/css/combobox.css).
  *
  * È un trait e non una classe base perché GCMI_COMUNETEXT estende già GCMI_COMUNE.
  *
@@ -135,6 +135,19 @@ trait GCMI_Text_Field {
 		 */
 		$src = plugins_url( "includes/js/combobox$suffix.js", GCMI_PLUGIN );
 		wp_register_script( 'gcmi_combobox_js', $src, array(), GCMI_VERSION, true );
+	}
+
+	/**
+	 * Registra lo stile del combobox, condiviso dai campi di testo con suggerimenti.
+	 *
+	 * @return void
+	 */
+	public static function register_combobox_style(): void {
+		if ( wp_style_is( 'gcmi_combobox_css', 'registered' ) ) {
+			return;
+		}
+		$suffix = wp_scripts_get_suffix();
+		wp_register_style( 'gcmi_combobox_css', plugins_url( "includes/css/combobox$suffix.css", GCMI_PLUGIN ), array(), GCMI_VERSION );
 	}
 
 	/**

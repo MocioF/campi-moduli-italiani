@@ -91,6 +91,15 @@ if ( GCMI_USE_COMUNE === true ) {
 	add_action( 'wp_enqueue_scripts', 'GCMI_COMUNETEXT::register_scripts' );
 }
 
+if ( GCMI_USE_STATO === true ) {
+	require_once plugin_dir_path( GCMI_PLUGIN ) . 'modules/stato/stato-options.php';
+	require_once plugin_dir_path( GCMI_PLUGIN ) . 'modules/stato/stato-shortcode.php';
+	require_once plugin_dir_path( GCMI_PLUGIN ) . 'modules/statotext/class-gcmi-statotext.php';
+	require_once plugin_dir_path( GCMI_PLUGIN ) . 'modules/statotext/statotext-shortcode.php';
+
+	add_action( 'wp_enqueue_scripts', 'GCMI_STATOTEXT::register_scripts' );
+}
+
 /**
  * Controlla il nonce e stampa la lista province
  */
