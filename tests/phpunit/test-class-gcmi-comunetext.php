@@ -283,7 +283,7 @@ final class GCMI_ComuneTextTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Lo script del campo dipende da quello condiviso della scheda del comune.
+	 * Lo script del campo dipende da quelli condivisi del combobox e della scheda del comune.
 	 *
 	 * @group comunetext
 	 * @group enqueue
@@ -292,9 +292,14 @@ final class GCMI_ComuneTextTest extends WP_UnitTestCase {
 		global $wp_scripts;
 		wp_deregister_script( 'gcmi_comunetext_js' );
 		wp_deregister_script( 'gcmi_comune_details_js' );
+		wp_deregister_script( 'gcmi_combobox_js' );
 		GCMI_COMUNETEXT::register_scripts();
 		$this->assertArrayHasKey( 'gcmi_comune_details_js', $wp_scripts->registered );
 		$this->assertContains( 'gcmi_comune_details_js', $wp_scripts->registered['gcmi_comunetext_js']->deps );
+		// Combobox condiviso dai campi di testo con suggerimenti, senza dipendenze.
+		$this->assertArrayHasKey( 'gcmi_combobox_js', $wp_scripts->registered );
+		$this->assertContains( 'gcmi_combobox_js', $wp_scripts->registered['gcmi_comunetext_js']->deps );
+		$this->assertSame( array(), $wp_scripts->registered['gcmi_combobox_js']->deps );
 	}
 
 	/**

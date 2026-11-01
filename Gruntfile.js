@@ -52,7 +52,7 @@ module.exports = function (grunt) {
         },
         files: [{
             expand: true,
-            src: ['modules/comune/js/*.js', '!modules/comune/js/*.min.js', 'modules/comunetext/js/*.js', '!modules/comunetext/js/*.min.js', 'admin/js/*.js', '!admin/js/*.min.js'],
+            src: ['includes/js/*.js', '!includes/js/*.min.js', 'modules/comune/js/*.js', '!modules/comune/js/*.min.js', 'modules/comunetext/js/*.js', '!modules/comunetext/js/*.min.js', 'admin/js/*.js', '!admin/js/*.min.js'],
             dest: '.',
             cwd: '.',
             rename: function (dst, src) {
@@ -72,7 +72,7 @@ module.exports = function (grunt) {
         },
         files: [{
             expand: true,
-            src: ['modules/comune/js/*.js', '!modules/comune/js/*.min.js', 'modules/comunetext/js/*.js', '!modules/comunetext/js/*.min.js', 'admin/js/*.js', '!admin/js/*.min.js'],
+            src: ['includes/js/*.js', '!includes/js/*.min.js', 'modules/comune/js/*.js', '!modules/comune/js/*.min.js', 'modules/comunetext/js/*.js', '!modules/comunetext/js/*.min.js', 'admin/js/*.js', '!admin/js/*.min.js'],
             dest: '.',
             cwd: '.',
             rename: function (dst, src) {
@@ -150,6 +150,7 @@ module.exports = function (grunt) {
         // I file minificati sono generati da uglify: si analizzano solo i sorgenti.
         src: [
           'admin/**/*.js',
+          'includes/js/*.js',
           'modules/**/js/*.js',
           '!**/*.min.js'
         ]
@@ -158,7 +159,7 @@ module.exports = function (grunt) {
 
     watch: {
       scripts: {
-        files: ['admin/js/*.js', 'modules/**/js/*.js'],
+        files: ['admin/js/*.js', 'includes/js/*.js', 'modules/**/js/*.js'],
         tasks: ['uglify:dist'],
         options: {
           spawn: false
