@@ -2,81 +2,13 @@
 /**
  * Test del campo comune-text per WPForms
  *
- * Se WPForms non è installato (come nella CI) si usa un sostituto minimo della classe
- * base WPForms_Field e di wpforms(), sufficiente per validazione, formattazione e HTML.
+ * Se WPForms non è installato (come nella CI) si usa il sostituto minimo di
+ * includes/wpforms-stub.php.
  *
  * @package campi-moduli-italiani
  */
 
-if ( ! class_exists( 'WPForms_Field' ) ) {
-	// phpcs:disable Generic.Files.OneObjectStructurePerFile.MultipleFound
-	/**
-	 * Sostituto minimo della classe base dei campi WPForms.
-	 */
-	abstract class WPForms_Field {
-		public $name;
-		public $type;
-		public $icon;
-		public $order;
-		public $group;
-
-		public function __construct( $init = true ) {
-			if ( $init ) {
-				$this->init();
-			}
-		}
-
-		abstract public function init();
-
-		/**
-		 * Metodo protetto presente in WPForms_Field: un metodo privato con lo stesso nome
-		 * in una sottoclasse causa un errore fatale, come con il WPForms vero.
-		 *
-		 * @return null
-		 */
-		protected function get_object() {
-			return null;
-		}
-	}
-
-	/**
-	 * Sostituto minimo del processo di invio di WPForms.
-	 *
-	 * Deve chiamarsi WPForms_Process perché il campo accetta solo istanze di quella classe.
-	 */
-	class WPForms_Process {
-		public $errors = array();
-		public $fields = array();
-	}
-
-	/**
-	 * Sostituto minimo dell'istanza principale di WPForms.
-	 */
-	class GCMI_Test_WPForms {
-		public $process;
-
-		public function __construct() {
-			$this->process = new WPForms_Process();
-		}
-
-		public function get( $name ) {
-			return $this->$name;
-		}
-	}
-
-	function wpforms() {
-		static $instance = null;
-		if ( null === $instance ) {
-			$instance = new GCMI_Test_WPForms();
-		}
-		return $instance;
-	}
-
-	function wpforms_get_required_label() {
-		return 'This field is required.';
-	}
-	// phpcs:enable
-}
+require_once __DIR__ . '/includes/wpforms-stub.php';
 
 /**
  * Oggetto di ricerca su tabelle di prova.

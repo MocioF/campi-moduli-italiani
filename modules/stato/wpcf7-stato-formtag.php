@@ -187,35 +187,6 @@ function gcmi_wpcf7_stato_formtag_handler( $tag ) {
 }
 
 /**
- * Validates the stato form tag.
- *
- * @param string $countrycode Stringa da controllare.
- * @return bool true se la stringa rappresenta un codice stato valido, false altrimenti.
- * @since 2.2.6
- */
-function gcmi_is_valid_stato( $countrycode ) {
-	if ( empty( $countrycode ) || 3 !== strlen( $countrycode ) ) {
-		return false;
-	}
-
-	global $wpdb;
-	$sql  = 'SELECT `i_cod_istat` FROM  ';
-	$sql .= '( ';
-	$sql .= 'SELECT `i_cod_istat` FROM `' . GCMI_SVIEW_PREFIX . 'stati` ';
-	$sql .= 'WHERE `i_cod_istat` = %s';
-	$sql .= 'UNION ';
-	$sql .= 'SELECT `i_cod_istat` FROM `' . GCMI_SVIEW_PREFIX . 'stati_cessati` ';
-	$sql .= 'WHERE `i_cod_istat` = %s';
-	$sql .= ') as subQuery ';
-	// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
-	if ( $wpdb->get_var( $wpdb->prepare( $sql, $countrycode, $countrycode ) ) ) {
-		return true;
-	} else {
-		return false;
-	}
-}
-
-/**
  * Filter to add the stato rule to the list of available rules.
  *
  * @param array<string, string> $rules Available rules.
@@ -365,10 +336,12 @@ function gcmi_wpcf7_swv_add_stato_rules( $schema, $contact_form ) {
 			wpcf7_swv_create_rule(
 				'stato',
 				array(
-					'field' => $tag->name,
-					'error' => $contact_form->filter_message(
+					'field'        => $tag->name,
+					'error'        => $contact_form->filter_message(
 						__( 'Invalid country code sent.', 'campi-moduli-italiani' )
 					),
+					// Con only_current gli stati cessati non sono nell'elenco e non vanno accettati.
+					'only_current' => $tag->has_option( 'only_current' ),
 				)
 			)
 		);

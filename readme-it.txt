@@ -138,6 +138,7 @@ Puoi inviare una richiesta nel nostro repository Github:
 * La scheda del comune del campo [comune] si apre in un <dialog> nativo: jQuery UI (dialog ed effetti) e il relativo foglio di stile non sono più caricati nel frontend
 * Le finestre di conferma e di messaggio del filter builder usano un <dialog> nativo al posto di jQuery UI
 * Le schede del filter builder seguono il modello WAI-ARIA con l'aspetto delle schede di WordPress; jQuery UI non è più usato e i temi inclusi nel plugin sono stati rimossi
+* [stato]: con l'opzione only_current i codici degli stati cessati sono rifiutati anche dalla validazione lato server (CF7 e WPForms); il campo WPForms ora verifica che il codice inviato sia un codice stato valido
 
 = 2.3.3 =
 * I dati dei comuni attuali, soppressi e delle variazioni e quelli dei paesi esteri sono scaricati dai servizi SITUAS dell'ISTAT; gli aggiornamenti sono rilevati tramite ETag

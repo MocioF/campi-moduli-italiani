@@ -38,6 +38,13 @@ class GCMI_Swv_Stato_Rule extends \RockLobsterInc\Swv\AbstractRule {
 	public $error;
 
 	/**
+	 * True per accettare solo gli stati attuali (opzione only_current del form-tag).
+	 *
+	 * @var bool
+	 */
+	public $only_current;
+
+	/**
 	 * Costruttore.
 	 *
 	 * @param array<string, mixed> $properties Proprietà della regola.
@@ -45,6 +52,8 @@ class GCMI_Swv_Stato_Rule extends \RockLobsterInc\Swv\AbstractRule {
 	public function __construct( array $properties = array() ) {
 		$this->field = isset( $properties['field'] ) && is_string( $properties['field'] ) ? $properties['field'] : '';
 		$this->error = isset( $properties['error'] ) && is_string( $properties['error'] ) ? $properties['error'] : '';
+
+		$this->only_current = ! empty( $properties['only_current'] );
 	}
 
 	/**
@@ -82,7 +91,7 @@ class GCMI_Swv_Stato_Rule extends \RockLobsterInc\Swv\AbstractRule {
 		}
 
 		foreach ( $values as $value ) {
-			if ( ! is_string( $value ) || ! gcmi_is_valid_stato( $value ) ) {
+			if ( ! is_string( $value ) || ! gcmi_is_valid_stato( $value, $this->only_current ) ) {
 				// phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Non viene stampato qui: Contact Form 7 lo trasforma in un errore di validazione.
 				throw new \RockLobsterInc\Swv\InvalidityException( $this, array( 'cause' => $value ) );
 			}
@@ -94,13 +103,14 @@ class GCMI_Swv_Stato_Rule extends \RockLobsterInc\Swv\AbstractRule {
 	/**
 	 * Restituisce un array con le proprietà della regola.
 	 *
-	 * @return array<string, string>
+	 * @return array<string, string|bool>
 	 */
 	public function toArray(): array {
 		return array(
-			'rule'  => self::RULE_NAME,
-			'field' => $this->field,
-			'error' => $this->error,
+			'rule'         => self::RULE_NAME,
+			'field'        => $this->field,
+			'error'        => $this->error,
+			'only_current' => $this->only_current,
 		);
 	}
 }

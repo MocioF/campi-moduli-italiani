@@ -59,8 +59,9 @@ class StatoRule extends Rule {
 		 */
 		$input = wpcf7_exclude_blank( $input );
 
+		$only_current = ! empty( $this->get_property( 'only_current' ) );
 		foreach ( $input as $i ) {
-			if ( ! gcmi_is_valid_stato( $i ) ) {
+			if ( ! is_string( $i ) || ! gcmi_is_valid_stato( $i, $only_current ) ) {
 				return $this->create_error();
 			}
 		}

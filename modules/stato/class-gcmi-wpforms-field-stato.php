@@ -629,6 +629,48 @@ class GCMI_WPForms_Field_Stato extends WPForms_Field {
 	}
 
 	/**
+	 * Validazione del campo all'invio.
+	 *
+	 * Oltre al controllo di obbligatorietà di WPForms, verifica che il codice inviato sia di
+	 * uno stato dell'elenco del campo: con "Only actual States" gli stati cessati non sono
+	 * ammessi.
+	 *
+	 * @since 2.4.0
+	 *
+	 * @param int                  $field_id     ID del campo.
+	 * @param mixed                $field_submit Valore inviato.
+	 * @param array<string, mixed> $form_data    Impostazioni del modulo.
+	 * @return void
+	 */
+	public function validate( $field_id, $field_submit, $form_data ) {
+		parent::validate( $field_id, $field_submit, $form_data );
+
+		$value = is_string( $field_submit ) ? sanitize_text_field( $field_submit ) : '';
+		if ( '' === $value ) {
+			return;
+		}
+
+		$fields = isset( $form_data['fields'] ) && is_array( $form_data['fields'] ) ? $form_data['fields'] : array();
+		$field  = isset( $fields[ $field_id ] ) && is_array( $fields[ $field_id ] ) ? $fields[ $field_id ] : array();
+		// Stessa condizione usata da field_properties() per costruire l'elenco.
+		$only_current = isset( $field['only_current'] );
+
+		if ( gcmi_is_valid_stato( $value, $only_current ) ) {
+			return;
+		}
+
+		$wpforms = wpforms();
+		$process = method_exists( $wpforms, 'obj' ) // @phpstan-ignore function.alreadyNarrowedType
+			? $wpforms->obj( 'process' )
+			: $wpforms->get( 'process' ); // @phpstan-ignore method.deprecated
+		if ( $process instanceof WPForms_Process ) {
+			$form_id = absint( gcmi_safe_intval( $form_data['id'] ?? 0 ) );
+
+			$process->errors[ $form_id ][ $field_id ] = esc_html__( 'Invalid country code sent.', 'campi-moduli-italiani' );
+		}
+	}
+
+	/**
 	 * Modifica il valore spedito via email utilizzando sempre la denominazione dello Stato
 	 *
 	 * @since 2.0.0

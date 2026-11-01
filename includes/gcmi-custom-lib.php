@@ -182,6 +182,36 @@ function gcmi_clean_lista_view( $lista_view, $cessati = false ) {
 }
 
 /**
+ * Controlla un codice ISTAT di stato estero.
+ *
+ * Usata dai campi stato di Contact Form 7 e WPForms: è qui, e non nel form-tag di
+ * Contact Form 7, perché serve anche quando è attiva solo l'integrazione con WPForms.
+ *
+ * @since 2.2.6
+ * @since 2.4.0 Parametro $only_current; spostata da modules/stato/wpcf7-stato-formtag.php.
+ *
+ * @param mixed  $countrycode  Codice da controllare (stringa di 3 cifre).
+ * @param bool   $only_current True per accettare solo gli stati attuali, non quelli cessati.
+ * @return bool true se il codice è di uno stato ammesso, false altrimenti.
+ */
+function gcmi_is_valid_stato( $countrycode, $only_current = false ) {
+	global $wpdb;
+	if ( ! is_string( $countrycode ) || 1 !== preg_match( '/^[0-9]{3}$/', $countrycode ) ) {
+		return false;
+	}
+
+	$sql    = 'SELECT `i_cod_istat` FROM `' . GCMI_SVIEW_PREFIX . 'stati` WHERE `i_cod_istat` = %s';
+	$values = array( $countrycode );
+	if ( ! $only_current ) {
+		$sql     .= ' UNION SELECT `i_cod_istat` FROM `' . GCMI_SVIEW_PREFIX . 'stati_cessati` WHERE `i_cod_istat` = %s';
+		$values[] = $countrycode;
+	}
+
+	// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Nomi delle viste interni.
+	return null !== $wpdb->get_var( $wpdb->prepare( $sql, $values ) );
+}
+
+/**
  * Prints var_dump (and var_export) output to log
  *
  * A simple console log function to output vars in console.
