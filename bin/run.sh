@@ -4,7 +4,7 @@ if [ $# -lt 1 ]; then
   echo "Run utilities"
   echo "----------------------"
 	echo "  usage: $0 <command> [options]"
-  echo "    <command> can be any of: up, down, console, setup, wordpress, deps, phpunit, test, format, bundle, svnsync"
+  echo "    <command> can be any of: up, down, console, setup, wordpress, deps, phpunit, test, format, bundle, svnsync, svnpush, checkversion"
   echo " .  [options]: --verbose"
 	exit 1
 fi
@@ -105,6 +105,33 @@ read_header() {
   grep -m1 -E "^[[:space:]*]*${label}:" "$file" | sed -E "s/^[[:space:]*]*${label}:[[:space:]]*//" | tr -d '\r[:space:]'
 }
 
+# Controlla che SVN_TAG coincida con Stable tag (readme.txt) e Version (intestazione del
+# plugin) nella cartella indicata, e che non sia una versione di sviluppo.
+check_version() {
+  declare dir=$1
+  local STABLE VERSION
+  if [ -z "$SVN_TAG" ]; then
+    echo "You need to provide the version as SVN_TAG=x.y.z"
+    exit 1
+  fi
+  STABLE=$(read_header "$dir/readme.txt" "Stable tag")
+  VERSION=$(read_header "$dir/campi-moduli-italiani.php" "Version")
+  if [[ "$SVN_TAG" == *-* ]] || [[ "$VERSION" == *-* ]]; then
+    echo "Development versions are not published: SVN_TAG=$SVN_TAG, Version=$VERSION"
+    exit 1
+  fi
+  if [ "$STABLE" != "$SVN_TAG" ] || [ "$VERSION" != "$SVN_TAG" ]; then
+    echo "Version mismatch: SVN_TAG=$SVN_TAG, Stable tag=$STABLE, Version=$VERSION"
+    exit 1
+  fi
+  echo "Version $SVN_TAG: OK"
+}
+
+# Controllo della versione sui file del repository, prima di creare la release.
+checkversion() {
+  check_version "."
+}
+
 svnsync() {
   create_dist
   svn co -q "$SVN_URL" $SVN_PATH
@@ -156,17 +183,7 @@ svnpush() {
 
   if [ ! -z "$SVN_TAG" ]; then
     # Il tag deve corrispondere alla versione dichiarata nei file che verranno pubblicati.
-    local STABLE VERSION
-    STABLE=$(read_header "$SVN_PATH/trunk/readme.txt" "Stable tag")
-    VERSION=$(read_header "$SVN_PATH/trunk/campi-moduli-italiani.php" "Version")
-    if [[ "$SVN_TAG" == *-* ]] || [[ "$VERSION" == *-* ]]; then
-      echo "Development versions are not published: SVN_TAG=$SVN_TAG, Version=$VERSION"
-      exit 1
-    fi
-    if [ "$STABLE" != "$SVN_TAG" ] || [ "$VERSION" != "$SVN_TAG" ]; then
-      echo "Version mismatch: SVN_TAG=$SVN_TAG, Stable tag=$STABLE, Version=$VERSION"
-      exit 1
-    fi
+    check_version "$SVN_PATH/trunk"
     cd $SVN_PATH && svn cp trunk tags/$SVN_TAG && svn ci -m "Version $SVN_TAG" --username $SVN_USERNAME --password $SVN_PASSWORD
   else
     cd $SVN_PATH && svn ci -m "Sync trunk" --username $SVN_USERNAME --password $SVN_PASSWORD
@@ -176,7 +193,7 @@ svnpush() {
 #----------------------------------------------
 
 case $COMMAND in
-  "up" | "down" | "setup" | "wordpress" | "deps" | "phpunit" | "test" | "format" | "console" | "bundle" | "svnsync" | "svnpush")
+  "up" | "down" | "setup" | "wordpress" | "deps" | "phpunit" | "test" | "format" | "console" | "bundle" | "svnsync" | "svnpush" | "checkversion")
     if [[ $VERBOSE == '--verbose' ]]; then
       set -ex
     else

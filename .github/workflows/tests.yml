@@ -24,7 +24,9 @@ jobs:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
+    # Versione fissa: ubuntu-latest passa a Ubuntu 26.04 dal 19 ottobre 2026; la matrice
+    # comprende PHP 7.4, da verificare sulla nuova immagine prima di cambiare.
+    runs-on: ubuntu-24.04
     strategy:
       fail-fast: true
       matrix:
@@ -122,7 +124,7 @@ jobs:
 
     steps:
     - name: Checkout
-      uses: actions/checkout@v4
+      uses: actions/checkout@v6
 
     - name: Setup PHP
       uses: shivammathur/setup-php@v2
@@ -132,7 +134,7 @@ jobs:
         extensions: pcntl, posix, xdebug
 
     - name: Install Subversion
-      run: sudo apt-get install subversion
+      run: sudo apt-get update && sudo apt-get install -y subversion
 
     - name: Setup Wordpress over phpunit
       env:
@@ -147,7 +149,7 @@ jobs:
       run: echo "::add-matcher::${{ runner.tool_cache }}/phpunit.json"
 
     - name: Cache composer dependencies
-      uses: actions/cache@v4
+      uses: actions/cache@v5
       with:
         path: ${{ steps.composer-cache.outputs.composer_dir }}
         key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
@@ -188,28 +190,28 @@ jobs:
 
     - name: Setup Pages
       if: matrix.php-versions == env.coverage-php-version && matrix.wordpress-version == env.coverage-wp-version
-      uses: actions/configure-pages@v4
+      uses: actions/configure-pages@v6
 
     - name: Upload artifact
       if: matrix.php-versions == env.coverage-php-version && matrix.wordpress-version == env.coverage-wp-version
-      uses: actions/upload-pages-artifact@v3
+      uses: actions/upload-pages-artifact@v5
       with:
         # Upload the coverage directory from the repository
         path: './coverage-html'
     - name: Deploy to GitHub Pages
       if: matrix.php-versions == env.coverage-php-version && matrix.wordpress-version == env.coverage-wp-version
       id: deployment
-      uses: actions/deploy-pages@v4
+      uses: actions/deploy-pages@v5
 
   sync-trunk:
     name: Sync trunk with main
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     needs: test
     if: github.ref == 'refs/heads/main'
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
@@ -219,8 +221,9 @@ jobs:
         env:
           fail-fast: true
 
-      - name: Install Subversion
-        run: sudo apt-get install subversion
+      - name: Install Subversion and rsync
+        # rsync serve a bin/run.sh svnsync.
+        run: sudo apt-get update && sudo apt-get install -y subversion rsync
 
       - name: Sync with SVN
         run: |
