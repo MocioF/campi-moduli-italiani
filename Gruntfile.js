@@ -184,16 +184,17 @@ module.exports = function (grunt) {
   grunt.registerTask('i18n', ['addtextdomain', 'makepot']);
   grunt.registerTask('readme', ['wp_readme_to_markdown']);
 
+  // README.md è scritto a mano (badge, banner, sezioni proprie): non va rigenerato da
+  // readme.txt nel task predefinito. Per farlo comunque: npm run readme.
   grunt.registerTask('default', [
     'jshint',
     'uglify:dev',
     'uglify:dist',
+    'cssmin',
     'sass:dev',
     'sass:dist',
     'makepot',
-    'wp_readme_to_markdown',
-    'i18n',
-    'readme'
+    'i18n'
   ]);
 
   grunt.util.linefeed = '\n';
