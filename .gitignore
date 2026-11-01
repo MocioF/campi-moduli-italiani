@@ -17,3 +17,5 @@ coverage-html
 .phpunit.result.cache
 tests/phpunit/.phpunit.result.cache
 phpstan.neon
+# Pacchetto e copia di lavoro SVN generati da bin/run.sh (bundle, svnsync).
+/dist/

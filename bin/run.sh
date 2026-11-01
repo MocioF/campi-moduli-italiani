@@ -71,6 +71,7 @@ format() {
 }
 
 DIST_PATH="dist"
+SVN_URL="${SVN_URL:-https://plugins.svn.wordpress.org/campi-moduli-italiani}"
 SVN_PATH="$DIST_PATH/svn"
 OUTPUT_PATH="$DIST_PATH/source"
 
@@ -87,31 +88,54 @@ bundle() {
   else
     OUTPUT_ZIP=$ZIP_NAME
   fi
+  # Lo zip contiene la cartella campi-moduli-italiani/: caricato da "Aggiungi plugin",
+  # WordPress lo installa nella cartella giusta qualunque sia il nome del file zip.
+  local ZIP_ROOT="$DIST_PATH/zip"
+  rm -rf "$ZIP_ROOT"
+  mkdir -p "$ZIP_ROOT/campi-moduli-italiani"
+  cp -Rp "$OUTPUT_PATH/." "$ZIP_ROOT/campi-moduli-italiani/"
   echo "Zip: dist/$OUTPUT_ZIP"
-  (cd $OUTPUT_PATH && zip -q -r $OUTPUT_ZIP * && mv $OUTPUT_ZIP ./../)
+  (cd "$ZIP_ROOT" && zip -q -r "../$OUTPUT_ZIP" campi-moduli-italiani)
+  rm -rf "$ZIP_ROOT"
+}
+
+# Versione dichiarata in un file: riga "Etichetta: valore", spazi e \r esclusi.
+read_header() {
+  declare file=$1 label=$2
+  grep -m1 -E "^[[:space:]*]*${label}:" "$file" | sed -E "s/^[[:space:]*]*${label}:[[:space:]]*//" | tr -d '\r[:space:]'
 }
 
 svnsync() {
   create_dist
-  svn co -q https://plugins.svn.wordpress.org/campi-moduli-italiani $SVN_PATH
-  cp assets/* "$SVN_PATH/assets/"
+  svn co -q "$SVN_URL" $SVN_PATH
 
-  # we don't sync vendor if the lock file is the same
-  shasum "$SVN_PATH/trunk/composer.lock"
-  shasum "$OUTPUT_PATH/composer.lock"
-  if [[ $(shasum "$SVN_PATH/trunk/composer.lock" | head -c 40) == $(shasum "$OUTPUT_PATH/composer.lock" | head -c 40) ]]; then
-    rsync -q -av $OUTPUT_PATH/* $SVN_PATH/trunk --exclude vendor
-    echo "## no differences in /vendor, similar lock files ##"
-  else
-    rsync -q -av $OUTPUT_PATH/* $SVN_PATH/trunk
-  fi
+  # Solo i file di assets/ (banner, icone, screenshot): assets/data contiene dati di sviluppo.
+  find assets -maxdepth 1 -type f -exec cp {} "$SVN_PATH/assets/" \;
 
-  (cd $SVN_PATH && svn add --force . && svn diff && svn stat)
+  # Il trunk diventa una copia esatta del pacchetto: --delete toglie i file eliminati dal
+  # repository (prima restavano nel trunk e finivano anche nei tag).
+  rsync -a --delete --exclude '.svn' "$OUTPUT_PATH/" "$SVN_PATH/trunk/"
+
+  (
+    cd $SVN_PATH || exit 1
+    # Per SVN un file sparito dal disco è solo "mancante" (!): va eliminato con svn rm,
+    # altrimenti il commit non registra la cancellazione.
+    svn status trunk assets | grep '^!' | cut -c9- | while IFS= read -r missing; do
+      svn rm -q --force "$missing" 2>/dev/null || true
+    done
+    svn add -q --force trunk assets
+    svn diff && svn stat
+  )
 }
 
 svnpush() {
-  if (cd $SVN_PATH && svn status | grep -e ^?); then
-    echo "There are changes not added to the SVN"
+  if [ ! -d "$SVN_PATH/tags" ]; then
+    echo "You need to run svnsync first"
+    exit 1
+  fi
+
+  if (cd $SVN_PATH && svn status | grep -e '^[?!]'); then
+    echo "There are changes not added to the SVN, or missing files not removed (run svnsync again)"
     exit 1
   fi
 
@@ -125,17 +149,24 @@ svnpush() {
     exit 1
   fi
 
-  if [ ! -d "$SVN_PATH/tags" ]; then
-    echo "You need to run svnsync first"
-    exit 1
-  fi
-
   if [ ! -z "$SVN_TAG" ] && [ -d "$SVN_PATH/tags/$SVN_TAG" ]; then
     echo "The tag $SVN_TAG already exists"
     exit 1
   fi
 
   if [ ! -z "$SVN_TAG" ]; then
+    # Il tag deve corrispondere alla versione dichiarata nei file che verranno pubblicati.
+    local STABLE VERSION
+    STABLE=$(read_header "$SVN_PATH/trunk/readme.txt" "Stable tag")
+    VERSION=$(read_header "$SVN_PATH/trunk/campi-moduli-italiani.php" "Version")
+    if [[ "$SVN_TAG" == *-* ]] || [[ "$VERSION" == *-* ]]; then
+      echo "Development versions are not published: SVN_TAG=$SVN_TAG, Version=$VERSION"
+      exit 1
+    fi
+    if [ "$STABLE" != "$SVN_TAG" ] || [ "$VERSION" != "$SVN_TAG" ]; then
+      echo "Version mismatch: SVN_TAG=$SVN_TAG, Stable tag=$STABLE, Version=$VERSION"
+      exit 1
+    fi
     cd $SVN_PATH && svn cp trunk tags/$SVN_TAG && svn ci -m "Version $SVN_TAG" --username $SVN_USERNAME --password $SVN_PASSWORD
   else
     cd $SVN_PATH && svn ci -m "Sync trunk" --username $SVN_USERNAME --password $SVN_PASSWORD
