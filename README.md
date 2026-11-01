@@ -17,17 +17,24 @@
 This plugin creates form tags for Contact Form 7 and form fields for WPForms.
 
 ### Contact Form 7 ###
-4 form-tags (and corresponding mail-tags) are available in this version:
+6 form-tags (and corresponding mail-tags) are available in this version:
 * [comune]: creates a series of select for the selection of an Italian municipality
+* [comunetext]: (since 2.4.0) creates a text field to type an Italian municipality and choose it from a list of suggestions
 * [cf]: creates a field for entering the Italian tax code of a natural person
 * [stato]: creates the ability to select a country
+* [statotext]: (since 2.4.0) creates a text field to type a country and choose it from a list of suggestions
 * [formsign]: creates the possibility to digitally sign the e-mails sent with a private key attributed to each individual form
 
 ### WPForms ###
-2 fields types are available:
+4 fields types are available:
 * Cascade selection of an Italian municipality (returning Istat's municipality code as value)
   Since version 2.2.0 it is possible to create filters to limit to a list the municipalities shown by the field.
-* A field to select a state (returning Istat's country code as value)
+* "Municipality (text)": (since 2.4.0) a text field to type an Italian municipality and choose it from a list of suggestions, with the same options of the cascade selection (returning Istat's municipality code as raw value)
+* A field to select a state (since 2.4.0 the country name is the value shown in e-mails and smart tags, Istat's country code is the raw value)
+* "Country (text)": (since 2.4.0) a text field to type a country and choose it from a list of suggestions (returning Istat's country code as raw value)
+
+### Shortcodes ###
+The fields can also be used outside of the forms, with these shortcodes: [comune], [comunetext] (since 2.4.0), [stato] (since 2.4.0) and [statotext] (since 2.4.0).
 
 ## Data used ##
 At the time of activation, the plugin downloads the data it uses from the ISTAT SITUAS services (https://situas.istat.it). This data can be updated from the administration console, which also shows when ISTAT has published changes.
@@ -52,6 +59,8 @@ This plugin does not include any links to the ISTAT's website on the external pa
 
 ## How to use form tags in Contact Form 7 ##
 
+The text fields [comunetext] and [statotext] (since 2.4.0) are an alternative to the select fields: the user types a few letters and chooses from a list of suggestions, using the mouse or the keyboard. They are accessible (WAI-ARIA combobox pattern) and they do not use external libraries.
+
 [comune]
 `[comune]` has a manager in the CF7 form creation area that allows you to set various options.
 In particular, it is possible to set the "kind" attribute to "tutti" (all); "attuali" (current), "evidenza_cessati" (evidence ceased). In the first and third cases, in different ways, both the currently existing municipalities and those previously closed are proposed (useful, for example, to allow the selection of the municipality of birth). In the "attuali" mode, however, only the selection of the currently existing municipalities is allowed (useful to allow the selection of the Municipality of residence / domicile).
@@ -61,14 +70,28 @@ From version 1.1.1 hidden fields are also populated with the strings correspondi
 The cascade of select can also be used outside of CF7, using the [comune] shortcode (options similar to those of the form tag for Contact Form 7).
 Since version 2.2.0 it is possible to create filters to limit to a list the municipalities shown by the field.
 
+[comunetext]
+`[comunetext]` (since 2.4.0) has a manager in the CF7 form creation area. It accepts the same options of [comune]: "kind" ("tutti", "attuali", "evidenza_cessati"), "filtername" (a filter created with the filters' builder), "comu_details", "use_label_element", id, class and wrapper class. The default value can be the ISTAT code or the name of the municipality; the "placeholder" option uses it as placeholder.
+The field shows a text input with a list of suggestions: municipalities with the same name are distinguished by the automotive code of the province, ceased municipalities are marked.
+The value returned is always the ISTAT code of the selected municipality, as for [comune]; the corresponding mail-tag converts it into the name of the municipality followed by the automotive code of the province. Hidden fields with the same suffixes of [comune] (_formatted, _targa, _reg_desc, _prov_desc) are also populated.
+If the user types the name without choosing a suggestion (or JavaScript is not available), the text is resolved on the server when it matches a single municipality; otherwise the user is asked to choose from the list.
+The field can also be used outside of CF7, using the [comunetext] shortcode (attributes: name, kind, filtername, id, comu_details, class, use_label_element, value, placeholder).
+
 [cf]
 `[cf]` has a manager in the CF7 form creation area that allows you to set the various options.
 In particular, it is possible to set various validation options allowing you to find the correspondence of the tax code with other fields of the form.
-Specifically, it is possible to verify that the tax code corresponds with the foreign state of birth (selected by means of a select [stato]), the Italian municipality of birth (selected by means of a cascade of select [comune]), gender (indicating the name of a form field that returns "M" or "F"), the date of birth. If multiple fields are used to select the date of birth, one for the day, one for the month and one for the year, it is possible to find the correspondence of the tax code with these values.
+Specifically, it is possible to verify that the tax code corresponds with the foreign state of birth (selected by means of a select [stato] or a text field [statotext]), the Italian municipality of birth (selected by means of a cascade of select [comune] or a text field [comunetext]), gender (indicating the name of a form field that returns "M" or "F"), the date of birth. If multiple fields are used to select the date of birth, one for the day, one for the month and one for the year, it is possible to find the correspondence of the tax code with these values.
 
 [stato]
 `[stato]` has a manager in the CF7 form creation area that allows you to set various options.
 In particular, it is possible to set the selection of only the currently existing states ("only_current" option) and it is possible to set the "use_continent" option to have the select values divided by continent. The field always returns the ISTAT code of the foreign state (code 100 for Italy). The ISTAT code is the type of data expected by [cf], for the verification of the tax code.
+The same select can also be used outside of CF7, using the [stato] shortcode (attributes: name, id, class, use_label_element, first_as_label, use_continent, only_current, value).
+
+[statotext]
+`[statotext]` (since 2.4.0) has a manager in the CF7 form creation area. It accepts the options of [stato]: "only_current", "use_continent" (here the continent is shown next to the name of each suggestion) and "first_as_label" (here it becomes the placeholder "Select a Country"), plus "use_label_element", id, class and wrapper class. The default value can be the ISTAT code or the Italian name of the country; the "placeholder" option uses it as placeholder.
+Countries can be searched by Italian name, alternative name, name in another language or ISO code (for example "USA" or "DE"); ceased countries are marked with "(ceased)". The list of countries is sent with the page and filtered in the browser, without requests to the server while typing.
+The value returned is always the ISTAT code of the country, as for [stato], so the field can be used with [cf] to check the country of birth; the corresponding mail-tag converts it into the name of the country.
+The field can also be used outside of CF7, using the [statotext] shortcode (attributes: name, id, class, use_label_element, only_current, use_continent, value, placeholder).
 
 [formsign]
 `[formsign]` now has a manager in the CF7 form creation area.
@@ -116,7 +139,7 @@ NOTE: activation takes several minutes, because the updated data tables are down
 ## Frequently Asked Questions ##
 
 ### How to get default values from the context ? ###
-Since version 1.2, [comune], [stato] and [cf] support standard Contact Form 7 method to get values from the context.
+Since version 1.2, [comune], [stato] and [cf] support standard Contact Form 7 method to get values from the context; [comunetext] and [statotext] support it too (since 2.4.0).
 More, all of them support predefined values in tag.
 Look here for more informations: https://contactform7.com/getting-default-values-from-the-context/
 [comune] uses javascript to be filled with default or context value.

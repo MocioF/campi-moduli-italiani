@@ -15,16 +15,23 @@ Plugin per creare campi utili per siti italiani, da utilizzare nei moduli prodot
 Questo plugin crea dei form-tag per Contact Form 7 e dei campi per WPForms.
 
 = Contact Form 7 =
-In questa versione sono disponibili 4 form-tag (e corrispondenti mail-tag):
+In questa versione sono disponibili 6 form-tag (e corrispondenti mail-tag):
 * [comune]: crea una serie di select per la selezione di un comune italiano
+* [comunetext]: (dalla 2.4.0) crea un campo di testo in cui si digita un comune italiano e lo si sceglie da un elenco di suggerimenti
 * [cf]: crea un campo per l'inserimento del codice fiscale italiano di una persona fisica
 * [stato]: crea la possibilità di selezionare uno stato
+* [statotext]: (dalla 2.4.0) crea un campo di testo in cui si digita uno stato e lo si sceglie da un elenco di suggerimenti
 * [formsign]: crea la possibilità di firmare digitalmente le mail inviate con una chiave privata attribuita ad ogni singolo form
 
 = WPForms =
-Sono disponibili 2 tipi di campi
+Sono disponibili 4 tipi di campi
 * Selezione a cascata di un comune italiano (restituisce il codice comune ISTAT come valore)
-* Un campo per selezionare uno stato (restituisce il codice paese ISTAT come valore)
+* "Municipality (text)": (dalla 2.4.0) campo di testo in cui si digita un comune italiano e lo si sceglie da un elenco di suggerimenti, con le stesse opzioni della selezione a cascata (restituisce il codice comune ISTAT come valore grezzo)
+* Un campo per selezionare uno stato (dalla 2.4.0 la denominazione è il valore mostrato nelle email e negli smart tag, il codice paese ISTAT è il valore grezzo)
+* "Country (text)": (dalla 2.4.0) campo di testo in cui si digita uno stato e lo si sceglie da un elenco di suggerimenti (restituisce il codice paese ISTAT come valore grezzo)
+
+= Shortcode =
+I campi possono essere usati anche fuori dai moduli, con questi shortcode: [comune], [comunetext] (dalla 2.4.0), [stato] (dalla 2.4.0) e [statotext] (dalla 2.4.0).
 
 == Dati utilizzati ==
 Il plugin al momento dell'attivazione scarica i dati che utilizza dai servizi SITUAS dell'ISTAT (https://situas.istat.it). Questi dati sono aggiornabili dalla console di amministrazione, che indica anche quando l'ISTAT ha pubblicato delle modifiche.
@@ -48,6 +55,8 @@ Questo plugin utilizza i codici catastali esclusivamente al fine di effettuare u
 Questo plugin non riporta nelle pagine esterne del sito internet su cui è utilizzato alcun collegamento al sito dell'ISTAT; in particolare non viene effettuata alcuna forma di link diretto, né di deep linking.
 
 == Come utilizzare i form-tag in Contact Form 7 ==
+I campi di testo [comunetext] e [statotext] (dalla 2.4.0) sono un'alternativa ai campi select: l'utente digita alcune lettere e sceglie da un elenco di suggerimenti, con il mouse o con la tastiera. Sono accessibili (modello combobox WAI-ARIA) e non usano librerie esterne.
+
 [comune]
 `[comune]` dispone di un gestore nell'area di creazione dei form CF7 che consente di impostare le varie opzioni.
 In particolare è possibile impostare l'attributo "kind" a "tutti"; "attuali","evidenza_cessati". Nel primo e nel terzo caso, con modalità differenti, vengono proposti sia i comuni attualmente esistenti, sia quelli cessati in precedenza (utile, ad esempio, per consentire la selezione del Comune di nascita). Nella modalità "attuali", è invece consentita solo la selezione dei comuni attualmente esistenti (utile per consentire la selezione del Comune di residenza / domicilio).
@@ -61,15 +70,28 @@ I filtri possono essere utilizzati sia per il tag CF7, sia per il campo WPForms,
 Una breve guida su come utilizzare i filtri e il costruttore di filtri è disponibile in un video su youtube:
 https://www.youtube.com/watch?v=seycOunfikk
 
+[comunetext]
+`[comunetext]` (dalla 2.4.0) dispone di un gestore nell'area di creazione dei form CF7. Accetta le stesse opzioni di [comune]: "kind" ("tutti", "attuali", "evidenza_cessati"), "filtername" (un filtro creato con il costruttore di filtri), "comu_details", "use_label_element", id, class e wrapper class. Il valore predefinito può essere il codice ISTAT o la denominazione del comune; l'opzione "placeholder" lo usa come placeholder.
+Il campo mostra un testo con un elenco di suggerimenti: i comuni omonimi sono distinti dalla targa della provincia, i comuni cessati sono evidenziati.
+Il valore restituito è sempre il codice ISTAT del comune selezionato, come per [comune]; il corrispondente mail-tag lo converte nella denominazione del comune seguita dalla targa della provincia. Vengono popolati anche i campi hidden con gli stessi suffissi di [comune] (_formatted, _targa, _reg_desc, _prov_desc).
+Se l'utente digita il nome senza scegliere un suggerimento (o se JavaScript non è disponibile), il testo viene risolto sul server quando corrisponde a un solo comune; altrimenti viene chiesto di scegliere dall'elenco.
+Il campo può essere usato anche fuori da CF7, con lo shortcode [comunetext] (attributi: name, kind, filtername, id, comu_details, class, use_label_element, value, placeholder).
+
 [cf]
 `[cf]` dispone di un gestore nell'area di creazione dei form CF7 che consente di impostare le varie opzioni.
 In particolare è possibile impostare varie opzioni di validazione consentendo di riscontrare la corrispondenza del codice fiscale con altri campi del modulo.
-Nello specifico è possibile verificare che il codice fiscale corrisponda con lo stato estero di nascita (selezionato mediante una select [stato]), il comune italiano di nascita (selezionato mediante una cascata di select [comune]), il sesso (indicando il nome di un campo form che restituisca "M" o "F"), la data di nascita. Nel caso in cui per selezionare la data di nascita si utilizzino più campi, uno per il giorno, uno per il mese e uno per l'anno, è possibile riscontrare la corrispondenza del codice fiscale con questi valori.
+Nello specifico è possibile verificare che il codice fiscale corrisponda con lo stato estero di nascita (selezionato mediante una select [stato] o un campo di testo [statotext]), il comune italiano di nascita (selezionato mediante una cascata di select [comune] o un campo di testo [comunetext]), il sesso (indicando il nome di un campo form che restituisca "M" o "F"), la data di nascita. Nel caso in cui per selezionare la data di nascita si utilizzino più campi, uno per il giorno, uno per il mese e uno per l'anno, è possibile riscontrare la corrispondenza del codice fiscale con questi valori.
 
 [stato]
 `[stato]` dispone di un gestore nell'area di creazione dei form CF7 che consente di impostare le varie opzioni.
 In particolare, è possibile impostare la selezione dei soli stati attualmente esistenti (opzione "only_current") ed è possibile impostare l'opzione "use_continent" per avere i valori della select suddivisi per continente. Il campo restituisce sempre il codice ISTAT dello Stato estero (codice 100 per l'Italia). Il codice ISTAT è il tipo di dato atteso da [cf], per il riscontro del codice fiscale.
 La stessa select può essere usata anche fuori da CF7, con lo shortcode [stato] (attributi: name, id, class, use_label_element, first_as_label, use_continent, only_current, value).
+
+[statotext]
+`[statotext]` (dalla 2.4.0) dispone di un gestore nell'area di creazione dei form CF7. Accetta le opzioni di [stato]: "only_current", "use_continent" (qui il continente è mostrato accanto al nome di ogni suggerimento) e "first_as_label" (qui diventa il placeholder "Select a Country"), più "use_label_element", id, class e wrapper class. Il valore predefinito può essere il codice ISTAT o la denominazione italiana dello stato; l'opzione "placeholder" lo usa come placeholder.
+Gli stati si cercano per denominazione italiana, denominazione alternativa, denominazione in altra lingua o codice ISO (per esempio "USA" o "DE"); gli stati cessati sono indicati con "(cessato)". L'elenco degli stati arriva con la pagina ed è filtrato nel browser, senza richieste al server durante la digitazione.
+Il valore restituito è sempre il codice ISTAT dello stato, come per [stato], quindi il campo si può usare con [cf] per il riscontro dello stato di nascita; il corrispondente mail-tag lo converte nella denominazione dello stato.
+Il campo può essere usato anche fuori da CF7, con lo shortcode [statotext] (attributi: name, id, class, use_label_element, only_current, use_continent, value, placeholder).
 
 [formsign]
 `[formsign]` _ORA_ (v. 2.2.1) dispone di un gestore nell'area di creazione dei form CF7.
@@ -117,7 +139,7 @@ NOTA: l'attivazione richiede diversi minuti, perché vengono scaricate le tabell
 
 = Come prelevare valori predefiniti dal contesto ? =
 
-Dalla versione 1.2, [comune], [stato] e [cf] supportano il metodo standard di Contact Form 7 per ottenere valori dal contesto.
+Dalla versione 1.2, [comune], [stato] e [cf] supportano il metodo standard di Contact Form 7 per ottenere valori dal contesto; lo supportano anche [comunetext] e [statotext] (dalla 2.4.0).
 Inoltre, tutti supportano valori predefiniti nel tag.
 Cerca qui per maggiori informazioni: https://contactform7.com/getting-default-values-from-the-context/
 [comune] utilizza javascript per essere riempito con il valore predefinito o contestuale.
@@ -136,6 +158,7 @@ Puoi inviare una richiesta nel nostro repository Github:
 
 == Changelog ==
 = 2.4.0 =
+* Nuovo form-tag [comunetext] per Contact Form 7, shortcode [comunetext] e campo "Municipality (text)" per WPForms: campo di testo in cui si digita un comune italiano e lo si sceglie da un elenco di suggerimenti, con le opzioni di [comune] (tipo, filtri, scheda del comune); invia il codice ISTAT del comune
 * La scheda del comune del campo [comune] si apre in un <dialog> nativo: jQuery UI (dialog ed effetti) e il relativo foglio di stile non sono più caricati nel frontend
 * Le finestre di conferma e di messaggio del filter builder usano un <dialog> nativo al posto di jQuery UI
 * Le schede del filter builder seguono il modello WAI-ARIA con l'aspetto delle schede di WordPress; jQuery UI non è più usato e i temi inclusi nel plugin sono stati rimossi
