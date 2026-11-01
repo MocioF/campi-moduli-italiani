@@ -142,8 +142,8 @@ class GCMI_WPForms_Field_Stato extends WPForms_Field {
 					// predefinito l'ultimo stato aggiunto di un altro continente.
 					if ( isset( $field['default_value'] ) && ( '' !== $field['default_value'] ) ) {
 						if (
-							sanitize_text_field( gcmi_safe_strval( $field['default_value'] ) ) === stripslashes( $stato->i_denominazione_ita ) ||
-							sanitize_text_field( gcmi_safe_strval( $field['default_value'] ) ) === $stato->i_cod_istat
+							gcmi_sanitize_text( $field['default_value'] ) === stripslashes( $stato->i_denominazione_ita ) ||
+							gcmi_sanitize_text( $field['default_value'] ) === $stato->i_cod_istat
 						) {
 							$key                        = array_key_last( $choices );
 							$choices[ $key ]['default'] = 'default';
@@ -160,8 +160,8 @@ class GCMI_WPForms_Field_Stato extends WPForms_Field {
 				);
 				if ( isset( $field['default_value'] ) && ( '' !== $field['default_value'] ) ) {
 					if (
-						sanitize_text_field( gcmi_safe_strval( $field['default_value'] ) ) === stripslashes( $stato->i_denominazione_ita ) ||
-						sanitize_text_field( gcmi_safe_strval( $field['default_value'] ) ) === $stato->i_cod_istat
+						gcmi_sanitize_text( $field['default_value'] ) === stripslashes( $stato->i_denominazione_ita ) ||
+						gcmi_sanitize_text( $field['default_value'] ) === $stato->i_cod_istat
 					) {
 						$key                        = array_key_last( $choices );
 						$choices[ $key ]['default'] = 'default';
@@ -700,7 +700,7 @@ class GCMI_WPForms_Field_Stato extends WPForms_Field {
 		$process = self::gcmi_get_wpforms_process();
 		if ( null !== $process ) {
 			$process->fields[ $field_id ] = array(
-				'name'      => sanitize_text_field( gcmi_safe_strval( $field['label'] ?? '' ) ),
+				'name'      => gcmi_sanitize_text( $field['label'] ?? '' ),
 				'value'     => null === $stato ? '' : stripslashes( $stato->i_denominazione_ita ),
 				'value_raw' => null === $stato ? '' : $stato->i_cod_istat,
 				'id'        => absint( $field_id ),

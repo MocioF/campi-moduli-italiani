@@ -146,9 +146,9 @@ function gcmi_ajax_targa() {
  */
 function gcmi_ajax_comunetext() {
 	check_ajax_referer( 'gcmi-comune-nonce', 'nonce_ajax' );
-	$term       = array_key_exists( 'gcmi_term', $_POST ) ? sanitize_text_field( gcmi_safe_strval( wp_unslash( $_POST['gcmi_term'] ) ) ) : '';
-	$kind       = array_key_exists( 'gcmi_kind', $_POST ) ? sanitize_text_field( gcmi_safe_strval( wp_unslash( $_POST['gcmi_kind'] ) ) ) : 'tutti';
-	$filtername = array_key_exists( 'gcmi_filtername', $_POST ) ? sanitize_text_field( gcmi_safe_strval( wp_unslash( $_POST['gcmi_filtername'] ) ) ) : '';
+	$term       = array_key_exists( 'gcmi_term', $_POST ) ? gcmi_sanitize_text( wp_unslash( $_POST['gcmi_term'] ) ) : '';
+	$kind       = array_key_exists( 'gcmi_kind', $_POST ) ? gcmi_sanitize_text( wp_unslash( $_POST['gcmi_kind'] ) ) : 'tutti';
+	$filtername = array_key_exists( 'gcmi_filtername', $_POST ) ? gcmi_sanitize_text( wp_unslash( $_POST['gcmi_filtername'] ) ) : '';
 	$obj        = new GCMI_COMUNETEXT( $kind, $filtername );
 	$items      = $obj->search( $term );
 	if ( is_wp_error( $items ) ) {

@@ -495,7 +495,7 @@ function gcmi_get_form_post_id( $post ) {
  */
 function gcmi_ajax_flamingo_meta_box_handler(): void {
 	if ( isset( $_POST['checksignnonce'] ) ) {
-		if ( ! wp_verify_nonce( sanitize_key( gcmi_safe_strval( wp_unslash( $_POST['checksignnonce'] ) ) ), 'gcmi_flamingo_check_codes' ) ) {
+		if ( ! wp_verify_nonce( gcmi_sanitize_key( wp_unslash( $_POST['checksignnonce'] ) ), 'gcmi_flamingo_check_codes' ) ) {
 			die( 'Permission Denied.' );
 		}
 	} else {

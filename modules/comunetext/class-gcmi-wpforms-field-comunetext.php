@@ -367,7 +367,7 @@ class GCMI_WPForms_Field_ComuneText extends WPForms_Field {
 		$process = $this->get_wpforms_process();
 		if ( null !== $process ) {
 			$process->fields[ $field_id ] = array(
-				'name'      => sanitize_text_field( gcmi_safe_strval( $field['label'] ?? '' ) ),
+				'name'      => gcmi_sanitize_text( $field['label'] ?? '' ),
 				'value'     => null === $item ? '' : $item['name'] . ( '' === $item['sigla'] ? '' : ' (' . $item['sigla'] . ')' ),
 				'value_raw' => null === $item ? '' : $item['value'],
 				'id'        => absint( $field_id ),

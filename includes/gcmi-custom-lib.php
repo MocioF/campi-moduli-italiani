@@ -55,6 +55,36 @@ function gcmi_safe_strval( $value ): string {
 }
 
 /**
+ * Sanifica un valore come testo: conversione sicura in stringa e sanitize_text_field()
+ *
+ * Per i valori di $_POST e $_GET, che sono di tipo misto: va usata dopo wp_unslash().
+ * È dichiarata come funzione di sanificazione nella configurazione di PHPCS.
+ *
+ * @since 2.4.0
+ *
+ * @param mixed $value Il valore.
+ * @return string
+ */
+function gcmi_sanitize_text( $value ): string {
+	return sanitize_text_field( gcmi_safe_strval( $value ) );
+}
+
+/**
+ * Sanifica un valore come chiave: conversione sicura in stringa e sanitize_key()
+ *
+ * Per i valori di $_POST e $_GET, che sono di tipo misto: va usata dopo wp_unslash().
+ * È dichiarata come funzione di sanificazione nella configurazione di PHPCS.
+ *
+ * @since 2.4.0
+ *
+ * @param mixed $value Il valore.
+ * @return string
+ */
+function gcmi_sanitize_key( $value ): string {
+	return sanitize_key( gcmi_safe_strval( $value ) );
+}
+
+/**
  * Controlla che un array sia unidimensionale e composto solo da stringhe
  *
  * @param mixed $value L'array da controllare.

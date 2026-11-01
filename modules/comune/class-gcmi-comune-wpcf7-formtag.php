@@ -245,7 +245,7 @@ class GCMI_COMUNE_WPCF7_FormTag extends GCMI_COMUNE {
 				// phpcs:ignore WordPress.Security.NonceVerification.Missing
 				if ( isset( $_POST[ $nome_campo_formattato ] ) ) {
 					// phpcs:ignore WordPress.Security.NonceVerification.Missing
-					$replaced = sanitize_text_field( gcmi_safe_strval( wp_unslash( $_POST[ $nome_campo_formattato ] ) ) );
+					$replaced = gcmi_sanitize_text( wp_unslash( $_POST[ $nome_campo_formattato ] ) );
 				} else {
 					$replaced = '';
 				}
@@ -262,7 +262,7 @@ class GCMI_COMUNE_WPCF7_FormTag extends GCMI_COMUNE {
 				// phpcs:ignore WordPress.Security.NonceVerification.Missing
 				if ( isset( $_POST[ $nome_campo_formattato ] ) ) {
 					// phpcs:ignore WordPress.Security.NonceVerification.Missing
-					$replaced = sanitize_text_field( gcmi_safe_strval( wp_unslash( $_POST[ $nome_campo_formattato ] ) ) );
+					$replaced = gcmi_sanitize_text( wp_unslash( $_POST[ $nome_campo_formattato ] ) );
 				} else {
 					$replaced = '';
 				}

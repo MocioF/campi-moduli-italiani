@@ -89,9 +89,9 @@ class Gcmi_Remote_Files_List extends WP_List_Table {
 	 */
 	protected function usort_reorder( $a, $b ) {
 		// If no sort, default to title.
-		$orderby = ( ! empty( $_GET['orderby'] ) ) ? sanitize_text_field( gcmi_safe_strval( wp_unslash( $_GET['orderby'] ) ) ) : 'gcmi-dataname';
+		$orderby = ( ! empty( $_GET['orderby'] ) ) ? gcmi_sanitize_text( wp_unslash( $_GET['orderby'] ) ) : 'gcmi-dataname';
 		// If no order, default to asc.
-		$order = ( ! empty( $_GET['order'] ) ) ? sanitize_text_field( gcmi_safe_strval( wp_unslash( $_GET['order'] ) ) ) : 'asc';
+		$order = ( ! empty( $_GET['order'] ) ) ? gcmi_sanitize_text( wp_unslash( $_GET['order'] ) ) : 'asc';
 		// Determine sort order.
 		switch ( $orderby ) {
 			case 'gcmi-dataname':
